@@ -39,7 +39,7 @@ Auth es quien se encarga del login, verificación de correo, tokens y contraseñ
 
 El microservicio implementa **DDD + Arquitectura Hexagonal (Ports & Adapters)**.
 
-```
+```text
 /domain
 /application
 /infrastructure
@@ -92,7 +92,6 @@ Base path: `/v1/usuarios`
 - **PATCH** `/v1/usuarios/user/{idUser}/state`
 - **POST** `/v1/usuarios/auth/discord/link/callback`
 
-
 ---
 
 ## 🔐 Seguridad
@@ -113,12 +112,15 @@ Base path: `/v1/usuarios`
 
 ## 🚀 Ejecución local
 
-```
+```bash
+#!/bin/bash
 ./mvnw spring-boot:run
 ```
 
 Base de datos:
-```
+
+```bash
+#!/bin/bash
 docker compose up -d
 ```
 
