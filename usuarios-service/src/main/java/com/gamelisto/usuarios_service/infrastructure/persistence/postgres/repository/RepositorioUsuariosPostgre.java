@@ -26,6 +26,7 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
         this.mapper = mapper;
     }
 
+    @SuppressWarnings("null")
     @Override
     public Usuario save(Usuario usuario) {
         UsuarioEntity entity = mapper.toEntity(usuario);
@@ -33,6 +34,7 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
         return mapper.toDomain(savedEntity);
     }
 
+    @SuppressWarnings("null")
     @Override
     public Optional<Usuario> findById(UsuarioId id) {
         return jpaRepository.findById(id.value())
@@ -85,6 +87,7 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
                 .collect(Collectors.toList());
     }
 
+    @SuppressWarnings("null")
     @Override
     public void delete(Usuario usuario) {
         UsuarioEntity entity = mapper.toEntity(usuario);
