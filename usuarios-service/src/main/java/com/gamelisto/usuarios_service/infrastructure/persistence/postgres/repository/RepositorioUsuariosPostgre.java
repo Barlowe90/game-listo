@@ -1,0 +1,93 @@
+package com.gamelisto.usuarios_service.infrastructure.persistence.postgres.repository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Repository;
+
+import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
+import com.gamelisto.usuarios_service.domain.usuario.Email;
+import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
+import com.gamelisto.usuarios_service.domain.usuario.Usuario;
+import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
+import com.gamelisto.usuarios_service.domain.usuario.Username;
+import com.gamelisto.usuarios_service.infrastructure.persistence.postgres.entity.UsuarioEntity;
+import com.gamelisto.usuarios_service.infrastructure.persistence.postgres.mapper.UsuarioMapper;
+
+@Repository
+public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
+
+    private final UsuarioJpaRepository jpaRepository;
+    private final UsuarioMapper mapper;
+
+    public RepositorioUsuariosPostgre(UsuarioJpaRepository jpaRepository, UsuarioMapper mapper) {
+        this.jpaRepository = jpaRepository;
+        this.mapper = mapper;
+    }
+
+    @Override
+    public Usuario save(Usuario usuario) {
+        UsuarioEntity entity = mapper.toEntity(usuario);
+        UsuarioEntity savedEntity = jpaRepository.save(entity);
+        return mapper.toDomain(savedEntity);
+    }
+
+    @Override
+    public Optional<Usuario> findById(UsuarioId id) {
+        return jpaRepository.findById(id.value())
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Usuario> findByEmail(Email email) {
+        return jpaRepository.findByEmail(email.value())
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Usuario> findByUsername(Username username) {
+        return jpaRepository.findByUsername(username.value())
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public List<Usuario> findByStatus(EstadoUsuario status) {
+        return jpaRepository.findByStatus(status)
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Usuario> findUsersWithNotificationsEnabled() {
+        return jpaRepository.findUsersWithNotificationsEnabled()
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean existsByUsername(Username username) {
+        return jpaRepository.existsByUsername(username.value());
+    }
+
+    @Override
+    public boolean existsByEmail(Email email) {
+        return jpaRepository.existsByEmail(email.value());
+    }
+
+    @Override
+    public List<Usuario> searchByUsernameFragment(String fragment) {
+        return jpaRepository.searchByUsernameFragment(fragment)
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void delete(Usuario usuario) {
+        UsuarioEntity entity = mapper.toEntity(usuario);
+        jpaRepository.delete(entity);
+    }
+}
