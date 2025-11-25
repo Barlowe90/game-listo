@@ -1,27 +1,39 @@
 # Domain Checklist – Microservicio Usuarios
 
-## Modelado
+## ✅ Modelado completado
 
-- [ ] Usuario con ID inmutable.
-- [ ] Email y Username como VOs.
-- [ ] Value Objects sin Lombok.
-- [ ] Validación estricta de VOs.
+- [x] Usuario con ID inmutable (UsuarioId final).
+- [x] Email y Username como Value Objects.
+- [x] Value Objects sin Lombok.
+- [x] Validación estricta en constructores de VOs.
+- [x] PasswordHash, Avatar, DiscordUserId, DiscordUsername como VOs.
+- [x] Enums: Rol, Idioma, EstadoUsuario.
 
-## Invariantes
+## ✅ Invariantes implementados
 
-- [ ] Email válido obligatorio.
-- [ ] Username válido.
-- [ ] Fecha de registro no nula.
-- [ ] Estado por defecto: ACTIVA.
+- [x] Email válido obligatorio (validación regex).
+- [x] Username válido (3-30 caracteres alfanuméricos).
+- [x] Fecha de creación no nula.
+- [x] Estado por defecto: ACTIVO.
 
-## Repositorios
+## ✅ Métodos de dominio
 
-- [ ] Interfaces sin anotaciones.
-- [ ] save(), findById(), findByEmail(), existsByUsername(), searchByUsernameFragment().
+- [x] Factory method: `Usuario.create()`.
+- [x] Reconstitution: `Usuario.reconstitute()`.
+- [x] Comportamiento: `changeUsername()`, `changeEmail()`, `suspend()`, `activate()`, etc.
+- [x] Queries de estado: `isActive()`, `isSuspended()`, `isDeleted()`.
 
-## Código prohibido
+## 📋 Repositorio (pendiente implementar)
 
-- [ ] Sin Spring.
-- [ ] Sin JPA.
-- [ ] Sin DTOs.
-- [ ] Sin logs.
+- [ ] Interface `RepositorioUsuarios` en `/domain/repositories/`.
+- [ ] Métodos: `save()`, `findById()`, `findByEmail()`, `existsByUsername()`, `searchByUsernameFragment()`.
+- [ ] Sin anotaciones Spring/JPA.
+- [ ] Retorna `Optional<Usuario>` o `List<Usuario>`.
+
+## ⛔ Código prohibido en /domain
+
+- [x] Sin Spring (`@Component`, `@Service`, etc.).
+- [x] Sin JPA (`@Entity`, `@Table`, etc.).
+- [x] Sin DTOs.
+- [x] Sin logs (Logger).
+- [x] Sin dependencias de infraestructura.
