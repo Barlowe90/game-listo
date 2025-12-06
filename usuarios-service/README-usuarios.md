@@ -6,6 +6,16 @@ Se encarga de almacenar, consultar y modificar la información pública y privad
 > **Nota:** Este microservicio *no gestiona autenticación*.  
 Auth es quien se encarga del login, verificación de correo, tokens y contraseñas.
 
+## Descripción del proyecto (contexto para el servicio)
+
+Este documento describe el rol del `usuarios-service` dentro de una aplicación web para la gestión de videojuegos con componente social. La plataforma permite a los usuarios buscar videojuegos (datos desde IGDB), gestionar bibliotecas personales, crear listas, puntuar juegos y participar en publicaciones para encontrar compañeros de juego. Este microservicio se enfoca en la gestión de cuentas, perfiles, relaciones sociales (amistades, bloqueos) y notificaciones relacionadas con la actividad social.
+
+- Origen de datos: la información de videojuegos se obtiene mediante la API de IGDB (gestión del catálogo corre por otros servicios).
+- Funcionalidades sociales relacionadas: amigos, perfil público, notificaciones por email, seguimiento de juegos, y metadatos para integraciones con mensajería (Discord).
+- Listas y bibliotecas: el servicio almacena metadata de listas de usuario (estados, puntuaciones, importaciones desde plataformas externas).
+
+Nota para Copilot / desarrolladores: mantener este bloque breve y cercano al código facilita a asistentes IA entender las responsabilidades del servicio cuando se implementan clases y casos de uso.
+
 ---
 
 ## 📌 Responsabilidades del microservicio
