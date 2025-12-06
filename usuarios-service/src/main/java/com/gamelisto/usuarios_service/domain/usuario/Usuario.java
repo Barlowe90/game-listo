@@ -40,7 +40,7 @@ public class Usuario {
     }
 
     public static Usuario create(Username username, Email email, PasswordHash passwordHash) {
-        return new Usuario(UsuarioId.generate(), username, email, passwordHash, Avatar.empty(), Instant.now(), Rol.USER, Idioma.ESP, EstadoUsuario.ACTIVO);
+        return new Usuario(UsuarioId.generate(), username, email, passwordHash, Avatar.empty(), Instant.now(), Rol.USER, Idioma.ESP, EstadoUsuario.PENDIENTE_DE_VERIFICACION);
     }
 
     public static Usuario reconstitute(UsuarioId id, Username username, Email email, PasswordHash passwordHash, Avatar avatar, Instant createdAt, Instant updatedAt, Rol role, Idioma language, boolean notificationsActive, EstadoUsuario status, DiscordUserId discordUserId, DiscordUsername discordUsername, Instant discordLinkedAt, boolean discordConsent) {
