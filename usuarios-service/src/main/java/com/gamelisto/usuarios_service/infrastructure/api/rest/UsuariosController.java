@@ -33,7 +33,7 @@ public class UsuariosController {
 
     @PostMapping
     public ResponseEntity<UsuarioResponse> crearUsuario(@Valid @RequestBody CrearUsuarioRequest request) {
-        logger.info("POST /v1/usuarios - Creando usuario con username: {}", request.username());
+        logger.info("ℹ️ POST /v1/usuarios - Creando usuario con username: {}", request.username());
 
         UsuarioDTO usuarioDTO = crearUsuarioUseCase.execute(request.toCommand());
 
@@ -45,7 +45,7 @@ public class UsuariosController {
                 .buildAndExpand(response.id())
                 .toUri();
         
-        logger.info("Usuario creado exitosamente - ID: {}, Username: {}", 
+        logger.info("✅ Usuario creado exitosamente - ID: {}, Username: {}", 
                     response.id(), response.username());
 
         return ResponseEntity.created(location).body(response);

@@ -13,7 +13,7 @@ public class UsuariosServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(UsuariosServiceApplication.class, args);
 
-		logger.info("✅ === Microservicio usuarios funcionando === ");
+		logger.info("🟢 Microservicio usuarios arrancado.");
 	}
 
 }
