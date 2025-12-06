@@ -9,6 +9,7 @@ public final class Email {
     );
     
     private final String value;
+    private final static int MAX_LENGTH = 255;
 
     private Email(String value) {
         if (value == null || value.trim().isEmpty()) {
@@ -21,8 +22,8 @@ public final class Email {
             throw new IllegalArgumentException("El formato del email es inválido: " + value);
         }
         
-        if (normalizedEmail.length() > 255) {
-            throw new IllegalArgumentException("El email no puede exceder 255 caracteres");
+        if (normalizedEmail.length() > MAX_LENGTH) {
+            throw new IllegalArgumentException("El email no puede exceder " + MAX_LENGTH + " caracteres");
         }
         
         this.value = normalizedEmail;
