@@ -2,9 +2,6 @@ package com.gamelisto.usuarios_service.application.dto;
 
 import java.time.Instant;
 
-import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
-import com.gamelisto.usuarios_service.domain.usuario.Idioma;
-import com.gamelisto.usuarios_service.domain.usuario.Rol;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 
 /**

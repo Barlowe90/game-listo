@@ -3,9 +3,6 @@ package com.gamelisto.usuarios_service.infrastructure.api.dto;
 import java.time.Instant;
 
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
-import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
-import com.gamelisto.usuarios_service.domain.usuario.Idioma;
-import com.gamelisto.usuarios_service.domain.usuario.Rol;
 
 /**
  * DTO de respuesta para la API REST - Usuario.
