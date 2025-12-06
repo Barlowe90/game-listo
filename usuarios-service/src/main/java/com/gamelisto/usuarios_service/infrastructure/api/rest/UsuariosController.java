@@ -35,13 +35,10 @@ public class UsuariosController {
     public ResponseEntity<UsuarioResponse> crearUsuario(@Valid @RequestBody CrearUsuarioRequest request) {
         logger.info("POST /v1/usuarios - Creando usuario con username: {}", request.username());
 
-        // 1. Mapear DTO REST → Command de application
         UsuarioDTO usuarioDTO = crearUsuarioUseCase.execute(request.toCommand());
 
-        // 2. Mapear DTO de application → Response REST
         UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
-        // 3. Construir URI del recurso creado
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
