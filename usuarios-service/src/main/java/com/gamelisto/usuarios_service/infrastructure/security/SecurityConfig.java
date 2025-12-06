@@ -28,7 +28,6 @@ public class SecurityConfig {
      * Configuración básica de seguridad.
      * Por ahora deshabilita CSRF y permite todas las peticiones para desarrollo.
      * 
-     * TODO: Configurar JWT, proteger endpoints, habilitar CORS
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
