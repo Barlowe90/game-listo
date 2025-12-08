@@ -149,6 +149,12 @@ cd usuarios-service
 - Integration tests with `@SpringBootTest` + H2
 - REST API tests with MockMvc
 - Focus on value object validation and aggregate behavior
+- Usa el patrón AAA (Arrange–Act–Assert).
+- Usa DisplayName con descripciones en español.
+- Nombra los métodos como `debe[ComportamientoEsperado]`.
+- Para dominio → tests puros sin Spring.
+- Para application → mocks con Mockito.
+- Para infrastructure → integración con SpringBootTest y H2.
 
 ## Security
 
