@@ -86,7 +86,15 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }
-
+    
+    @Override
+    public List<Usuario> findAll() {
+        return jpaRepository.findAll()
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+    
     @SuppressWarnings("null")
     @Override
     public void delete(Usuario usuario) {

@@ -15,6 +15,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
 import com.gamelisto.usuarios_service.application.usecases.CrearUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.EditarPerfilUsuarioUseCase;
+import com.gamelisto.usuarios_service.application.usecases.ObtenerTodosLosUsuariosUseCase;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CrearUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.EditarPerfilUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.UsuarioResponse;
@@ -22,6 +23,7 @@ import com.gamelisto.usuarios_service.infrastructure.api.dto.UsuarioResponse;
 import jakarta.validation.Valid;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/usuarios")
@@ -31,12 +33,15 @@ public class UsuariosController {
     
     private final CrearUsuarioUseCase crearUsuarioUseCase;
     private final EditarPerfilUsuarioUseCase editarPerfilUsuarioUseCase;
+    private final ObtenerTodosLosUsuariosUseCase obtenerTodosLosUsuariosUseCase;
 
     public UsuariosController(
             CrearUsuarioUseCase crearUsuarioUseCase,
-            EditarPerfilUsuarioUseCase editarPerfilUsuarioUseCase) {
+            EditarPerfilUsuarioUseCase editarPerfilUsuarioUseCase,
+            ObtenerTodosLosUsuariosUseCase obtenerTodosLosUsuariosUseCase) {
         this.crearUsuarioUseCase = crearUsuarioUseCase;
         this.editarPerfilUsuarioUseCase = editarPerfilUsuarioUseCase;
+        this.obtenerTodosLosUsuariosUseCase = obtenerTodosLosUsuariosUseCase;
     }
 
     @GetMapping(value = "/health")
@@ -80,8 +85,19 @@ public class UsuariosController {
         return ResponseEntity.ok(response);
     }
     
-    // GET /v1/usuarios/{id}
-    // GET /v1/usuarios (con filtros)
-    // PATCH /v1/usuarios/{id}
-    // PATCH /v1/usuarios/{id}/estado
+    @GetMapping(value = "/users", produces = "application/json")
+    public List<UsuarioResponse> obtenerUsuarios() {
+        logger.info("ℹ️ GET /v1/usuarios/users - Obteniendo lista de usuarios");
+
+        List<UsuarioDTO> usuariosDTO = obtenerTodosLosUsuariosUseCase.execute();
+
+        List<UsuarioResponse> responses = usuariosDTO.stream()
+                .map(UsuarioResponse::from)
+                .toList();
+
+        logger.info("✅ Lista de usuarios obtenida exitosamente - Total usuarios: {}", responses.size());
+
+        return responses;
+    }
+    
 }

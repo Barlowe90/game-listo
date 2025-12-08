@@ -29,5 +29,7 @@ public interface RepositorioUsuarios {
     
     List<Usuario> searchByUsernameFragment(String fragment);
     
+    List<Usuario> findAll();
+    
     void delete(Usuario usuario);
 }
