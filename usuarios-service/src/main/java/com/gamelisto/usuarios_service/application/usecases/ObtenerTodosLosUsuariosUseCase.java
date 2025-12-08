@@ -18,7 +18,7 @@ public class ObtenerTodosLosUsuariosUseCase {
         this.repositorioUsuarios = repositorioUsuarios;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<UsuarioDTO> execute() {
         return repositorioUsuarios.findAll()
                 .stream()
