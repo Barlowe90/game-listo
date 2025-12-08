@@ -12,6 +12,8 @@ import com.gamelisto.usuarios_service.domain.usuario.Email;
 import com.gamelisto.usuarios_service.domain.usuario.PasswordHash;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.domain.usuario.Username;
+import com.gamelisto.usuarios_service.infrastructure.exceptions.EmailYaRegistradoException;
+import com.gamelisto.usuarios_service.infrastructure.exceptions.UsernameYaExisteException;
 
 @Service
 public class CrearUsuarioUseCase {
@@ -34,11 +36,11 @@ public class CrearUsuarioUseCase {
         Email email = Email.of(command.email());
 
         if (repositorioUsuarios.existsByUsername(username)) {
-            throw new IllegalArgumentException("El username ya está en uso");
+            throw new UsernameYaExisteException(command.username());
         }
         
         if (repositorioUsuarios.existsByEmail(email)) {
-            throw new IllegalArgumentException("El email ya está registrado");
+            throw new EmailYaRegistradoException(command.email());
         }
 
         String hashedPassword = passwordEncoder.encode(command.password());

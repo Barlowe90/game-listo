@@ -7,6 +7,7 @@ import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
+import com.gamelisto.usuarios_service.infrastructure.exceptions.UsuarioNoEncontradoException;
 
 @Service
 public class ObtenerUsuarioPorId {
@@ -23,7 +24,7 @@ public class ObtenerUsuarioPorId {
 
         Usuario usuario = repositorioUsuarios
                 .findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + usuarioId));
+                .orElseThrow(() -> new UsuarioNoEncontradoException(usuarioId));
 
         return UsuarioDTO.from(usuario);
     }

@@ -10,6 +10,7 @@ import com.gamelisto.usuarios_service.domain.usuario.Avatar;
 import com.gamelisto.usuarios_service.domain.usuario.Idioma;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
+import com.gamelisto.usuarios_service.infrastructure.exceptions.UsuarioNoEncontradoException;
 
 @Service
 public class EditarPerfilUsuarioUseCase {
@@ -27,7 +28,7 @@ public class EditarPerfilUsuarioUseCase {
         
         Usuario usuario = repositorioUsuarios
                 .findById(usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + command.usuarioId()));
+                .orElseThrow(() -> new UsuarioNoEncontradoException(command.usuarioId()));
 
         if (command.avatar() != null) {
             usuario.changeAvatar(Avatar.of(command.avatar()));
