@@ -3,6 +3,7 @@ package com.gamelisto.usuarios_service.infrastructure.api.rest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +16,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
 import com.gamelisto.usuarios_service.application.usecases.CrearUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.EditarPerfilUsuarioUseCase;
+import com.gamelisto.usuarios_service.application.usecases.EliminarUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerTodosLosUsuariosUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerUsuarioPorId;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CrearUsuarioRequest;
@@ -31,21 +33,23 @@ import java.util.List;
 public class UsuariosController {
     
     private static final Logger logger = LoggerFactory.getLogger(UsuariosController.class);
-    
     private final CrearUsuarioUseCase crearUsuarioUseCase;
     private final EditarPerfilUsuarioUseCase editarPerfilUsuarioUseCase;
     private final ObtenerTodosLosUsuariosUseCase obtenerTodosLosUsuariosUseCase;
     private final ObtenerUsuarioPorId obtenerUsuarioPorId;
+    private final EliminarUsuarioUseCase eliminarUsuarioUseCase;
 
     public UsuariosController(
             CrearUsuarioUseCase crearUsuarioUseCase,
             EditarPerfilUsuarioUseCase editarPerfilUsuarioUseCase,
             ObtenerTodosLosUsuariosUseCase obtenerTodosLosUsuariosUseCase,
-            ObtenerUsuarioPorId obtenerUsuarioPorId) {
+            ObtenerUsuarioPorId obtenerUsuarioPorId,
+            EliminarUsuarioUseCase eliminarUsuarioUseCase) {
         this.crearUsuarioUseCase = crearUsuarioUseCase;
         this.editarPerfilUsuarioUseCase = editarPerfilUsuarioUseCase;
         this.obtenerTodosLosUsuariosUseCase = obtenerTodosLosUsuariosUseCase;
         this.obtenerUsuarioPorId = obtenerUsuarioPorId;
+        this.eliminarUsuarioUseCase = eliminarUsuarioUseCase;
     }
 
     @GetMapping(value = "/health")
@@ -117,5 +121,16 @@ public class UsuariosController {
 
         return responses;
     }
+
+    @DeleteMapping(value = "/user/{id}")
+    public ResponseEntity<Void> eliminarUsuario(@PathVariable String id) {
+        logger.info("ℹ️ DELETE /v1/usuarios/user/{} - Eliminando usuario con ID: {}", id, id);
+
+        eliminarUsuarioUseCase.execute(id);
+
+        logger.info("✅ Usuario eliminado exitosamente - ID: {}", id);
+
+        return ResponseEntity.noContent().build();
+    }    
     
 }
