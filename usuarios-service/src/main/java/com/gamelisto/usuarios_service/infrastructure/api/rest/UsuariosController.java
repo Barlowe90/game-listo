@@ -16,6 +16,7 @@ import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
 import com.gamelisto.usuarios_service.application.usecases.CrearUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.EditarPerfilUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerTodosLosUsuariosUseCase;
+import com.gamelisto.usuarios_service.application.usecases.ObtenerUsuarioPorId;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CrearUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.EditarPerfilUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.UsuarioResponse;
@@ -34,14 +35,17 @@ public class UsuariosController {
     private final CrearUsuarioUseCase crearUsuarioUseCase;
     private final EditarPerfilUsuarioUseCase editarPerfilUsuarioUseCase;
     private final ObtenerTodosLosUsuariosUseCase obtenerTodosLosUsuariosUseCase;
+    private final ObtenerUsuarioPorId obtenerUsuarioPorId;
 
     public UsuariosController(
             CrearUsuarioUseCase crearUsuarioUseCase,
             EditarPerfilUsuarioUseCase editarPerfilUsuarioUseCase,
-            ObtenerTodosLosUsuariosUseCase obtenerTodosLosUsuariosUseCase) {
+            ObtenerTodosLosUsuariosUseCase obtenerTodosLosUsuariosUseCase,
+            ObtenerUsuarioPorId obtenerUsuarioPorId) {
         this.crearUsuarioUseCase = crearUsuarioUseCase;
         this.editarPerfilUsuarioUseCase = editarPerfilUsuarioUseCase;
         this.obtenerTodosLosUsuariosUseCase = obtenerTodosLosUsuariosUseCase;
+        this.obtenerUsuarioPorId = obtenerUsuarioPorId;
     }
 
     @GetMapping(value = "/health")
@@ -80,6 +84,20 @@ public class UsuariosController {
         UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
         logger.info("✅ Perfil de usuario editado exitosamente - ID: {}, Username: {}", 
+                    response.id(), response.username());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(value = "/user/{id}", produces = "application/json")
+    public ResponseEntity<UsuarioResponse> obtenerUsuarioPorIdEndpoint(@PathVariable String id) {
+        logger.info("ℹ️ GET /v1/usuarios/user/{} - Obteniendo usuario con ID: {}", id, id);
+
+        UsuarioDTO usuarioDTO = obtenerUsuarioPorId.execute(id);
+
+        UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
+
+        logger.info("✅ Usuario obtenido exitosamente - ID: {}, Username: {}", 
                     response.id(), response.username());
 
         return ResponseEntity.ok(response);
