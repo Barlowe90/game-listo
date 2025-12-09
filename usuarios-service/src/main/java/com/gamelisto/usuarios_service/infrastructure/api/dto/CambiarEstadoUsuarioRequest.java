@@ -1,0 +1,16 @@
+package com.gamelisto.usuarios_service.infrastructure.api.dto;
+
+import com.gamelisto.usuarios_service.application.dto.CambiarEstadoUsuarioCommand;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+
+public record CambiarEstadoUsuarioRequest (
+    @NotNull(message = "El estado del usuario es obligatorio")
+    @Pattern(regexp = "ACTIVO|SUSPENDIDO", message = "El estado del usuario debe ser ACTIVO o SUSPENDIDO")
+    String estadoUsuario
+) {
+    public CambiarEstadoUsuarioCommand toCommand(String usuarioId) {
+        return new CambiarEstadoUsuarioCommand(usuarioId, estadoUsuario);
+    }
+}

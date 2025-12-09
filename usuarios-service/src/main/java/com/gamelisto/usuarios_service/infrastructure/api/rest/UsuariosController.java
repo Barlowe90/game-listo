@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios_service.application.usecases.CambiarEstadoUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.CrearUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.EditarPerfilUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.EliminarUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerTodosLosUsuariosUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerUsuarioPorId;
+import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarEstadoUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CrearUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.EditarPerfilUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.UsuarioResponse;
@@ -38,18 +40,21 @@ public class UsuariosController {
     private final ObtenerTodosLosUsuariosUseCase obtenerTodosLosUsuariosUseCase;
     private final ObtenerUsuarioPorId obtenerUsuarioPorId;
     private final EliminarUsuarioUseCase eliminarUsuarioUseCase;
+    private final CambiarEstadoUsuarioUseCase cambiarEstadoUsuarioUseCase;
 
     public UsuariosController(
             CrearUsuarioUseCase crearUsuarioUseCase,
             EditarPerfilUsuarioUseCase editarPerfilUsuarioUseCase,
             ObtenerTodosLosUsuariosUseCase obtenerTodosLosUsuariosUseCase,
             ObtenerUsuarioPorId obtenerUsuarioPorId,
-            EliminarUsuarioUseCase eliminarUsuarioUseCase) {
+            EliminarUsuarioUseCase eliminarUsuarioUseCase,
+            CambiarEstadoUsuarioUseCase cambiarEstadoUsuarioUseCase) {
         this.crearUsuarioUseCase = crearUsuarioUseCase;
         this.editarPerfilUsuarioUseCase = editarPerfilUsuarioUseCase;
         this.obtenerTodosLosUsuariosUseCase = obtenerTodosLosUsuariosUseCase;
         this.obtenerUsuarioPorId = obtenerUsuarioPorId;
         this.eliminarUsuarioUseCase = eliminarUsuarioUseCase;
+        this.cambiarEstadoUsuarioUseCase = cambiarEstadoUsuarioUseCase;
     }
 
     @GetMapping(value = "/health")
@@ -88,6 +93,22 @@ public class UsuariosController {
         UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
         logger.info("✅ Perfil de usuario editado exitosamente - ID: {}, Username: {}", 
+                    response.id(), response.username());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping(value = "/user/{id}/state")
+    public ResponseEntity<UsuarioResponse> cambiarEstadoUsuario(
+            @PathVariable String id,
+            @Valid @RequestBody CambiarEstadoUsuarioRequest request) {
+        logger.info("ℹ️ PATCH /v1/usuarios/user/{id}/state - Cambiando el estado de usuario con ID: {}", id);
+
+        UsuarioDTO usuarioDTO = cambiarEstadoUsuarioUseCase.execute(request.toCommand(id));
+
+        UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
+        
+        logger.info("✅ Estado de usuario cambiado exitosamente - ID: {}, Username: {}", 
                     response.id(), response.username());
 
         return ResponseEntity.ok(response);
