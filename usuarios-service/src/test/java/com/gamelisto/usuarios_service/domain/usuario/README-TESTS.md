@@ -1,8 +1,8 @@
-# Tests de Value Objects - Domain Layer ✅
+# Tests de Dominio - Domain Layer ✅
 
 ## Resumen de Implementación
 
-Se han creado tests unitarios completos para los **Value Objects** del dominio, siguiendo los principios de DDD y las convenciones del proyecto.
+Se han creado tests unitarios completos para los **Value Objects y Entidad Usuario** del dominio, siguiendo los principios de DDD y las convenciones del proyecto.
 
 ## Tests Implementados
 
@@ -54,10 +54,76 @@ Se han creado tests unitarios completos para los **Value Objects** del dominio, 
 - ✅ toString retorna String del UUID
 - ✅ Igualdad de values con mismo UUID
 
+### ✅ UsuarioTest.java (34 tests)
+
+**Factory Methods:**
+
+- ✅ Creación con `create()` (nuevo usuario)
+- ✅ Reconstitución con `reconstitute()` (desde persistencia)
+
+**Validación de Invariantes:**
+
+- ✅ Excepción si username es nulo
+- ✅ Excepción si email es nulo
+- ✅ Excepción si passwordHash es nulo
+
+**Cambio de Username:**
+
+- ✅ Cambiar username y actualizar timestamp
+- ✅ Excepción al cambiar username a nulo
+
+**Cambio de Email:**
+
+- ✅ Cambiar email y actualizar timestamp
+- ✅ Excepción al cambiar email a nulo
+
+```bash
+# Ejecutar todos los tests de dominio
+./mvnw test -Dtest="com.gamelisto.usuarios_service.domain.usuario.*Test"
+
+# Ejecutar tests de Value Objects
+./mvnw test -Dtest="EmailTest,UsernameTest,PasswordHashTest,UsuarioIdTest"
+
+# Ejecutar tests de Usuario
+./mvnw test -Dtest=UsuarioTest
+
+# Ejecutar todos los tests del proyecto
+./mvnw test
+```ambio de Idioma:**
+- ✅ Cambiar idioma y actualizar timestamp
+- ✅ Establecer idioma por defecto (ESP) si es nulo
+
+**Notificaciones:**
+- ✅ Habilitar notificaciones
+- ✅ Deshabilitar notificaciones
+
+**Gestión de Estado:**
+- ✅ Suspender usuario
+- ✅ Activar usuario suspendido
+- ✅ Activar usuario pendiente de verificación
+- ✅ Eliminar usuario
+- ✅ Excepción al activar usuario eliminado
+
+**Discord:**
+- ✅ Vincular cuenta de Discord
+- ✅ Excepción al vincular con ID nulo/vacío
+- ✅ Excepción al vincular con username nulo/vacío
+- ✅ Desvincular cuenta de Discord
+
+**Métodos de Consulta:**
+- ✅ `isActive()` retorna true para usuario activo
+- ✅ `isSuspended()` retorna true para usuario suspendido
+- ✅ `isDeleted()` retorna true para usuario eliminado
+- ✅ `hasDiscordLinked()` retorna false sin vinculación
+- ✅ `hasDiscordLinked()` retorna true con vinculación
+
+**toString:**
+- ✅ Incluye información básica del usuario
+
 ## Resultados de Ejecución
 
 ``` text
-Tests run: 45, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 79, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -67,7 +133,8 @@ BUILD SUCCESS
 - **UsernameTest**: 13 tests ✅
 - **PasswordHashTest**: 7 tests ✅
 - **UsuarioIdTest**: 12 tests ✅
-- **TOTAL**: 45 tests ✅
+- **UsuarioTest**: 34 tests ✅
+- **TOTAL**: 79 tests ✅
 
 ## Comandos para Ejecutar
 
@@ -105,8 +172,8 @@ BUILD SUCCESS
 ## Próximos Pasos
 
 1. ✅ **Value Objects** - COMPLETADO
-2. 🔄 **Tests de Usuario.java** (Entidad Agregada) - Siguiente
-3. ⏳ Tests de Casos de Uso (con mocks)
+2. ✅ **Tests de Usuario.java** (Entidad Agregada) - COMPLETADO
+3. 🔄 **Tests de Casos de Uso** (con mocks) - Siguiente
 4. ⏳ Tests de Mappers (Anti-Corruption Layer)
 5. ⏳ Tests de Repositorios (Integration)
 6. ⏳ Tests de Controladores REST (Integration)
@@ -116,8 +183,8 @@ BUILD SUCCESS
 - **Framework**: JUnit 5 (Jupiter)
 - **Java Version**: 21
 - **Build Tool**: Maven
-- **Tiempo de ejecución**: ~0.2 segundos (tests muy rápidos)
-- **Coverage**: 100% en Value Objects del dominio
+- **Tiempo de ejecución**: ~0.3 segundos (tests muy rápidos)
+- **Coverage**: 100% en capa de dominio (Value Objects + Entidad Usuario)
 
 ## Referencias
 
