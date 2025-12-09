@@ -9,16 +9,19 @@ Se han creado tests unitarios completos para los **Casos de Uso** de la capa de 
 ### ✅ CrearUsuarioUseCaseTest.java (9 tests)
 
 **Funcionalidad Principal:**
+
 - ✅ Crear usuario exitosamente
 - ✅ Hashear contraseña antes de guardar
 
 **Validaciones de Negocio:**
+
 - ✅ Lanzar excepción si username ya existe
 - ✅ Lanzar excepción si email ya está registrado
 - ✅ Validar formato de email antes de verificar existencia
 - ✅ Validar formato de username antes de verificar existencia
 
 **Comportamiento:**
+
 - ✅ Crear usuario con valores por defecto correctos
 - ✅ Normalizar email a minúsculas
 - ✅ Verificar existencia con valores normalizados
@@ -26,26 +29,31 @@ Se han creado tests unitarios completos para los **Casos de Uso** de la capa de 
 ### ✅ ObtenerUsuarioPorIdTest.java (6 tests)
 
 **Funcionalidad Principal:**
+
 - ✅ Obtener usuario por ID exitosamente
 - ✅ Retornar DTO con todos los campos del usuario
 
 **Validaciones:**
+
 - ✅ Lanzar excepción si usuario no existe
 - ✅ Lanzar excepción si ID tiene formato inválido
 
 **Comportamiento:**
+
 - ✅ Convertir correctamente ID de string a UsuarioId
 - ✅ Manejar UUID con mayúsculas y minúsculas
 
 ### ✅ EditarPerfilUsuarioUseCaseTest.java (11 tests)
 
 **Funcionalidad Principal:**
+
 - ✅ Editar avatar del usuario
 - ✅ Editar idioma del usuario
 - ✅ Habilitar/deshabilitar notificaciones del usuario
 - ✅ Editar múltiples campos a la vez
 
 **Validaciones:**
+
 - ✅ Ignorar campos nulos sin modificar el usuario
 - ✅ Lanzar excepción si usuario no existe
 - ✅ Lanzar excepción si ID tiene formato inválido
@@ -53,6 +61,7 @@ Se han creado tests unitarios completos para los **Casos de Uso** de la capa de 
 - ✅ Lanzar excepción si idioma es inválido
 
 **Comportamiento:**
+
 - ✅ Actualizar timestamp al editar perfil
 
 ## Patrones de Testing con Mockito
@@ -98,7 +107,7 @@ verify(repositorioUsuarios).save(argThat(usuario ->
 
 ## Resultados de Ejecución
 
-```
+```text
 ╔═══════════════════════════════════════════════════════════════╗
 ║                    TESTS TOTALES DEL PROYECTO                 ║
 ╠═══════════════════════════════════════════════════════════════╣
@@ -186,5 +195,5 @@ verify(repositorioUsuarios).save(argThat(usuario ->
 
 - Guía de Testing: `.github/testing-guide.md`
 - Copilot Instructions: `.github/copilot-instructions.md`
-- Mockito Docs: https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html
-- JUnit 5 Docs: https://junit.org/junit5/docs/current/user-guide/
+- Mockito Docs: <https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html>
+- JUnit 5 Docs: <https://junit.org/junit5/docs/current/user-guide/>
