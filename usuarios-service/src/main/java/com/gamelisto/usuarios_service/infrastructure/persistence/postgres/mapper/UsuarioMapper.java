@@ -25,6 +25,8 @@ public class UsuarioMapper {
         entity.setDiscordUsername(usuario.getDiscordUsername().isEmpty() ? null : usuario.getDiscordUsername().value());
         entity.setDiscordLinkedAt(usuario.getDiscordLinkedAt());
         entity.setDiscordConsent(usuario.isDiscordConsent());
+        entity.setTokenVerificacion(usuario.getTokenVerificacion() != null && !usuario.getTokenVerificacion().isEmpty() ? usuario.getTokenVerificacion().value() : null);
+        entity.setTokenVerificacionExpiracion(usuario.getTokenVerificacionExpiracion());
         return entity;
     }
 
@@ -44,7 +46,9 @@ public class UsuarioMapper {
                 entity.getDiscordUserId() != null ? DiscordUserId.of(entity.getDiscordUserId()) : DiscordUserId.empty(),
                 entity.getDiscordUsername() != null ? DiscordUsername.of(entity.getDiscordUsername()) : DiscordUsername.empty(),
                 entity.getDiscordLinkedAt(),
-                entity.isDiscordConsent()
+                entity.isDiscordConsent(),
+                entity.getTokenVerificacion() != null ? TokenVerificacion.of(entity.getTokenVerificacion()) : TokenVerificacion.empty(),
+                entity.getTokenVerificacionExpiracion()
         );
     }
 }

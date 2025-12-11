@@ -18,7 +18,9 @@ public class Usuario {
     private DiscordUserId discordUserId; 
     private DiscordUsername discordUsername; 
     private Instant discordLinkedAt; 
-    private boolean discordConsent; 
+    private boolean discordConsent;
+    private TokenVerificacion tokenVerificacion;
+    private Instant tokenVerificacionExpiracion; 
 
     private Usuario(UsuarioId id, Username username, Email email, PasswordHash passwordHash, Avatar avatar, Instant createdAt, Rol role, Idioma language, EstadoUsuario status) {
         validateInvariants(username, email, passwordHash, createdAt);
@@ -37,13 +39,17 @@ public class Usuario {
         this.discordUsername = DiscordUsername.empty();
         this.discordLinkedAt = null;
         this.discordConsent = false;
+        this.tokenVerificacion = TokenVerificacion.empty();
+        this.tokenVerificacionExpiracion = null;
     }
 
     public static Usuario create(Username username, Email email, PasswordHash passwordHash) {
-        return new Usuario(UsuarioId.generate(), username, email, passwordHash, Avatar.empty(), Instant.now(), Rol.USER, Idioma.ESP, EstadoUsuario.PENDIENTE_DE_VERIFICACION);
+        Usuario usuario = new Usuario(UsuarioId.generate(), username, email, passwordHash, Avatar.empty(), Instant.now(), Rol.USER, Idioma.ESP, EstadoUsuario.PENDIENTE_DE_VERIFICACION);
+        usuario.generarTokenVerificacion();
+        return usuario;
     }
 
-    public static Usuario reconstitute(UsuarioId id, Username username, Email email, PasswordHash passwordHash, Avatar avatar, Instant createdAt, Instant updatedAt, Rol role, Idioma language, boolean notificationsActive, EstadoUsuario status, DiscordUserId discordUserId, DiscordUsername discordUsername, Instant discordLinkedAt, boolean discordConsent) {
+    public static Usuario reconstitute(UsuarioId id, Username username, Email email, PasswordHash passwordHash, Avatar avatar, Instant createdAt, Instant updatedAt, Rol role, Idioma language, boolean notificationsActive, EstadoUsuario status, DiscordUserId discordUserId, DiscordUsername discordUsername, Instant discordLinkedAt, boolean discordConsent, TokenVerificacion tokenVerificacion, Instant tokenVerificacionExpiracion) {
         Usuario usuario = new Usuario(id, username, email, passwordHash, avatar, createdAt, role, language, status);
         usuario.updatedAt = updatedAt != null ? updatedAt : createdAt;
         usuario.notificationsActive = notificationsActive;
@@ -51,6 +57,8 @@ public class Usuario {
         usuario.discordUsername = discordUsername != null ? discordUsername : DiscordUsername.empty();
         usuario.discordLinkedAt = discordLinkedAt;
         usuario.discordConsent = discordConsent;
+        usuario.tokenVerificacion = tokenVerificacion != null ? tokenVerificacion : TokenVerificacion.empty();
+        usuario.tokenVerificacionExpiracion = tokenVerificacionExpiracion;
         return usuario;
     }
 
@@ -129,6 +137,40 @@ public class Usuario {
     public void delete() {
         this.status = EstadoUsuario.ELIMINADO;
         this.updatedAt = Instant.now();
+    }
+
+    public void generarTokenVerificacion() {
+        this.tokenVerificacion = TokenVerificacion.generate();
+        this.tokenVerificacionExpiracion = Instant.now().plusSeconds(24 * 60 * 60); // 24 horas
+        this.updatedAt = Instant.now();
+    }
+
+    public void verificarEmail(TokenVerificacion token) {
+        if (this.status != EstadoUsuario.PENDIENTE_DE_VERIFICACION) {
+            throw new IllegalStateException("El usuario ya ha sido verificado");
+        }
+        if (this.tokenVerificacion == null || this.tokenVerificacion.isEmpty()) {
+            throw new IllegalArgumentException("No hay token de verificación pendiente");
+        }
+        if (!this.tokenVerificacion.equals(token)) {
+            throw new IllegalArgumentException("El token de verificación no es válido");
+        }
+        if (this.tokenVerificacionExpiracion == null || Instant.now().isAfter(this.tokenVerificacionExpiracion)) {
+            throw new IllegalArgumentException("El token de verificación ha expirado");
+        }
+        
+        this.status = EstadoUsuario.ACTIVO;
+        this.tokenVerificacion = TokenVerificacion.empty();
+        this.tokenVerificacionExpiracion = null;
+        this.updatedAt = Instant.now();
+    }
+
+    public boolean isTokenVerificacionExpirado() {
+        return this.tokenVerificacionExpiracion == null || Instant.now().isAfter(this.tokenVerificacionExpiracion);
+    }
+
+    public boolean isPendienteDeVerificacion() {
+        return this.status == EstadoUsuario.PENDIENTE_DE_VERIFICACION;
     }
 
     public void linkDiscord(DiscordUserId discordUserId, DiscordUsername discordUsername) {
@@ -228,6 +270,14 @@ public class Usuario {
 
     public boolean isDiscordConsent() {
         return discordConsent;
+    }
+
+    public TokenVerificacion getTokenVerificacion() {
+        return tokenVerificacion;
+    }
+
+    public Instant getTokenVerificacionExpiracion() {
+        return tokenVerificacionExpiracion;
     }
 
     @Override

@@ -20,10 +20,12 @@ import com.gamelisto.usuarios_service.application.usecases.EditarPerfilUsuarioUs
 import com.gamelisto.usuarios_service.application.usecases.EliminarUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerTodosLosUsuariosUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerUsuarioPorId;
+import com.gamelisto.usuarios_service.application.usecases.VerificarEmailUseCase;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarEstadoUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CrearUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.EditarPerfilUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.UsuarioResponse;
+import com.gamelisto.usuarios_service.infrastructure.api.dto.VerificarEmailRequest;
 
 import jakarta.validation.Valid;
 
@@ -41,6 +43,7 @@ public class UsuariosController {
     private final ObtenerUsuarioPorId obtenerUsuarioPorId;
     private final EliminarUsuarioUseCase eliminarUsuarioUseCase;
     private final CambiarEstadoUsuarioUseCase cambiarEstadoUsuarioUseCase;
+    private final VerificarEmailUseCase verificarEmailUseCase;
 
     public UsuariosController(
             CrearUsuarioUseCase crearUsuarioUseCase,
@@ -48,13 +51,15 @@ public class UsuariosController {
             ObtenerTodosLosUsuariosUseCase obtenerTodosLosUsuariosUseCase,
             ObtenerUsuarioPorId obtenerUsuarioPorId,
             EliminarUsuarioUseCase eliminarUsuarioUseCase,
-            CambiarEstadoUsuarioUseCase cambiarEstadoUsuarioUseCase) {
+            CambiarEstadoUsuarioUseCase cambiarEstadoUsuarioUseCase,
+            VerificarEmailUseCase verificarEmailUseCase) {
         this.crearUsuarioUseCase = crearUsuarioUseCase;
         this.editarPerfilUsuarioUseCase = editarPerfilUsuarioUseCase;
         this.obtenerTodosLosUsuariosUseCase = obtenerTodosLosUsuariosUseCase;
         this.obtenerUsuarioPorId = obtenerUsuarioPorId;
         this.eliminarUsuarioUseCase = eliminarUsuarioUseCase;
         this.cambiarEstadoUsuarioUseCase = cambiarEstadoUsuarioUseCase;
+        this.verificarEmailUseCase = verificarEmailUseCase;
     }
 
     @GetMapping(value = "/health")
@@ -82,6 +87,16 @@ public class UsuariosController {
         return ResponseEntity.created(location).body(response);
     }
 
+    @PostMapping(value = "/auth/verify-email", consumes = "application/json")
+    public ResponseEntity<Void> verificarEmail(@Valid @RequestBody VerificarEmailRequest request) {
+        logger.info("ℹ️ POST /v1/usuarios/auth/verify-email - Verificando email de usuario");
+        
+        verificarEmailUseCase.execute(request.toCommand());
+
+        logger.info("✅ Email de usuario verificado exitosamente");
+        return ResponseEntity.ok().build();
+    }
+
     @PatchMapping(value = "/user/{id}", consumes = "application/json")
     public ResponseEntity<UsuarioResponse> editarPerfilUsuario(
             @PathVariable String id,
@@ -98,7 +113,7 @@ public class UsuariosController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping(value = "/user/{id}/state")
+    @PatchMapping(value = "/user/{id}/state", consumes = "application/json")
     public ResponseEntity<UsuarioResponse> cambiarEstadoUsuario(
             @PathVariable String id,
             @Valid @RequestBody CambiarEstadoUsuarioRequest request) {

@@ -61,6 +61,12 @@ public class UsuarioEntity {
     @Column(name = "discord_consent", nullable = false)
     private boolean discordConsent;
 
+    @Column(name = "token_verificacion", length = 100)
+    private String tokenVerificacion;
+
+    @Column(name = "token_verificacion_expiracion")
+    private Instant tokenVerificacionExpiracion;
+
     public UsuarioEntity() {
     }
 
@@ -183,5 +189,21 @@ public class UsuarioEntity {
 
     public void setDiscordConsent(boolean discordConsent) {
         this.discordConsent = discordConsent;
+    }
+
+    public String getTokenVerificacion() {
+        return tokenVerificacion;
+    }
+
+    public void setTokenVerificacion(String tokenVerificacion) {
+        this.tokenVerificacion = tokenVerificacion;
+    }
+
+    public Instant getTokenVerificacionExpiracion() {
+        return tokenVerificacionExpiracion;
+    }
+
+    public void setTokenVerificacionExpiracion(Instant tokenVerificacionExpiracion) {
+        this.tokenVerificacionExpiracion = tokenVerificacionExpiracion;
     }
 }

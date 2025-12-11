@@ -338,7 +338,9 @@ class EditarPerfilUsuarioUseCaseTest {
             DiscordUserId.empty(),
             DiscordUsername.empty(),
             null,
-            false
+            false,
+            TokenVerificacion.empty(),
+            null
         );
     }
 }

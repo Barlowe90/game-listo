@@ -50,7 +50,9 @@ class ObtenerUsuarioPorIdTest {
             DiscordUserId.empty(),
             DiscordUsername.empty(),
             null,
-            false
+            false,
+            TokenVerificacion.empty(),
+            null
         );
         
         when(repositorioUsuarios.findById(any(UsuarioId.class)))
@@ -127,7 +129,9 @@ class ObtenerUsuarioPorIdTest {
             DiscordUserId.of("123456"),
             DiscordUsername.of("player#1234"),
             ahora,
-            true
+            true,
+            TokenVerificacion.empty(),
+            null
         );
         
         when(repositorioUsuarios.findById(any(UsuarioId.class)))
@@ -209,7 +213,9 @@ class ObtenerUsuarioPorIdTest {
             DiscordUserId.empty(),
             DiscordUsername.empty(),
             null,
-            false
+            false,
+            TokenVerificacion.empty(),
+            null
         );
     }
 }

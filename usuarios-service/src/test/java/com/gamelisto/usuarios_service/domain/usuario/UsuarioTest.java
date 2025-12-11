@@ -61,7 +61,8 @@ class UsuarioTest {
         Usuario usuario = Usuario.reconstitute(
             id, username, email, passwordHash, avatar, createdAt, updatedAt,
             role, language, notificationsActive, status, discordUserId,
-            discordUsername, discordLinkedAt, discordConsent
+            discordUsername, discordLinkedAt, discordConsent,
+            TokenVerificacion.empty(), null
         );
         
         // Assert

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.gamelisto.usuarios_service.domain.usuario.Email;
 import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
+import com.gamelisto.usuarios_service.domain.usuario.TokenVerificacion;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
 import com.gamelisto.usuarios_service.domain.usuario.Username;
@@ -18,6 +19,8 @@ public interface RepositorioUsuarios {
     Optional<Usuario> findByEmail(Email email);
 
     Optional<Usuario> findByUsername(Username username);
+
+    Optional<Usuario> findByTokenVerificacion(TokenVerificacion token);
 
     List<Usuario> findByStatus(EstadoUsuario status);
 

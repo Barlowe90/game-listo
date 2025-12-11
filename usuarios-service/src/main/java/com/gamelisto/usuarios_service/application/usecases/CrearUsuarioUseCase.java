@@ -50,6 +50,17 @@ public class CrearUsuarioUseCase {
         
         Usuario usuarioGuardado = repositorioUsuarios.save(usuario);
         
+        // TODO: Implementar envío de email de verificación
+        // El token de verificación ya fue generado en Usuario.create()
+        //
+        // emailService.sendVerificationEmail(
+        //     usuarioGuardado.getEmail().value(),
+        //     usuarioGuardado.getTokenVerificacion().value()
+        // );
+        //
+        // Contenido email:
+        // https://gamelisto.com/verify-email?token={token}
+        
         // eventosPublisher.publish(new UsuarioCreadoEvent(
         //     usuarioGuardado.getId().value().toString(),
         //     usuarioGuardado.getUsername().value(),

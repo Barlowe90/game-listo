@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.Email;
 import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
+import com.gamelisto.usuarios_service.domain.usuario.TokenVerificacion;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
 import com.gamelisto.usuarios_service.domain.usuario.Username;
@@ -69,6 +70,15 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
                 .collect(Collectors.toList());
     }
 
+        @Override
+    public Optional<Usuario> findByTokenVerificacion(TokenVerificacion token) {
+        if (token == null || token.isEmpty()) {
+            return Optional.empty();
+        }
+        return jpaRepository.findByTokenVerificacion(token.value())
+                .map(mapper::toDomain);
+    }
+
     @Override
     public boolean existsByUsername(Username username) {
         return jpaRepository.existsByUsername(username.value());
@@ -101,4 +111,5 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
         UsuarioEntity entity = mapper.toEntity(usuario);
         jpaRepository.delete(entity);
     }
+
 }

@@ -28,4 +28,6 @@ public interface UsuarioJpaRepository extends JpaRepository<UsuarioEntity, UUID>
     
     @Query("SELECT u FROM UsuarioEntity u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :fragment, '%'))")
     List<UsuarioEntity> searchByUsernameFragment(@Param("fragment") String fragment);
+
+    Optional<UsuarioEntity> findByTokenVerificacion(String tokenVerificacion);
 }

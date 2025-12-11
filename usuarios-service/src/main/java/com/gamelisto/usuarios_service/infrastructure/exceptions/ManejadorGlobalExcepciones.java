@@ -64,4 +64,30 @@ public class ManejadorGlobalExcepciones {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(TokenVerificacionInvalidoException.class)
+    public ResponseEntity<ErrorResponse> handleTokenVerificacionInvalido(TokenVerificacionInvalidoException ex) {
+        logger.warn("Token de verificación inválido o expirado");
+        
+        ErrorResponse error = ErrorResponse.of(
+            HttpStatus.BAD_REQUEST.value(),
+            "Token inválido",
+            ex.getMessage()
+        );
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(UsuarioYaVerificadoException.class)
+    public ResponseEntity<ErrorResponse> handleUsuarioYaVerificado(UsuarioYaVerificadoException ex) {
+        logger.warn("Usuario ya verificado: {}", ex.getEmail());
+        
+        ErrorResponse error = ErrorResponse.of(
+            HttpStatus.CONFLICT.value(),
+            "Usuario ya verificado",
+            ex.getMessage()
+        );
+        
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
 }
