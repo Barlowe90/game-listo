@@ -20,10 +20,12 @@ import com.gamelisto.usuarios_service.application.usecases.EditarPerfilUsuarioUs
 import com.gamelisto.usuarios_service.application.usecases.EliminarUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerTodosLosUsuariosUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerUsuarioPorId;
+import com.gamelisto.usuarios_service.application.usecases.ReenviarVerificacionUseCase;
 import com.gamelisto.usuarios_service.application.usecases.VerificarEmailUseCase;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarEstadoUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CrearUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.EditarPerfilUsuarioRequest;
+import com.gamelisto.usuarios_service.infrastructure.api.dto.ReenviarVerificacionRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.UsuarioResponse;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.VerificarEmailRequest;
 
@@ -44,6 +46,7 @@ public class UsuariosController {
     private final EliminarUsuarioUseCase eliminarUsuarioUseCase;
     private final CambiarEstadoUsuarioUseCase cambiarEstadoUsuarioUseCase;
     private final VerificarEmailUseCase verificarEmailUseCase;
+    private final ReenviarVerificacionUseCase reenviarVerificacionUseCase;
 
     public UsuariosController(
             CrearUsuarioUseCase crearUsuarioUseCase,
@@ -52,7 +55,8 @@ public class UsuariosController {
             ObtenerUsuarioPorId obtenerUsuarioPorId,
             EliminarUsuarioUseCase eliminarUsuarioUseCase,
             CambiarEstadoUsuarioUseCase cambiarEstadoUsuarioUseCase,
-            VerificarEmailUseCase verificarEmailUseCase) {
+            VerificarEmailUseCase verificarEmailUseCase,
+            ReenviarVerificacionUseCase reenviarVerificacionUseCase) {
         this.crearUsuarioUseCase = crearUsuarioUseCase;
         this.editarPerfilUsuarioUseCase = editarPerfilUsuarioUseCase;
         this.obtenerTodosLosUsuariosUseCase = obtenerTodosLosUsuariosUseCase;
@@ -60,6 +64,7 @@ public class UsuariosController {
         this.eliminarUsuarioUseCase = eliminarUsuarioUseCase;
         this.cambiarEstadoUsuarioUseCase = cambiarEstadoUsuarioUseCase;
         this.verificarEmailUseCase = verificarEmailUseCase;
+        this.reenviarVerificacionUseCase = reenviarVerificacionUseCase;
     }
 
     @GetMapping(value = "/health")
@@ -94,6 +99,16 @@ public class UsuariosController {
         verificarEmailUseCase.execute(request.toCommand());
 
         logger.info("✅ Email de usuario verificado exitosamente");
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/auth/resend-verification", consumes = "application/json")
+    public ResponseEntity<Void> reenviarVerificacion(@Valid @RequestBody ReenviarVerificacionRequest request) {
+        logger.info("ℹ️ POST /v1/usuarios/auth/resend-verification - Reenviando verificación para email: {}", request.email());
+        
+        reenviarVerificacionUseCase.execute(request.toCommand());
+
+        logger.info("✅ Email de verificación reenviado exitosamente");
         return ResponseEntity.ok().build();
     }
 
