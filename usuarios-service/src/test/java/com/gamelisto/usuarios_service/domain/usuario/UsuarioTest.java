@@ -29,7 +29,9 @@ class UsuarioTest {
         assertEquals(Idioma.ESP, usuario.getLanguage());
         assertTrue(usuario.isNotificationsActive());
         assertNotNull(usuario.getCreatedAt());
-        assertEquals(usuario.getCreatedAt(), usuario.getUpdatedAt());
+        assertNotNull(usuario.getUpdatedAt());
+        // updatedAt puede ser ligeramente posterior debido a generarTokenVerificacion()
+        assertTrue(usuario.getUpdatedAt().compareTo(usuario.getCreatedAt()) >= 0);
         assertTrue(usuario.getAvatar().isEmpty());
         assertTrue(usuario.getDiscordUserId().isEmpty());
         assertTrue(usuario.getDiscordUsername().isEmpty());
