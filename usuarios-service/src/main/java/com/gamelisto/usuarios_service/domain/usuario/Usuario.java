@@ -145,6 +145,22 @@ public class Usuario {
         this.updatedAt = Instant.now();
     }
 
+    public boolean tieneTokenRestablecimientoValido(TokenVerificacion token) {
+        if(this.tokenVerificacion == null || this.tokenVerificacion.isEmpty()) {
+            return false;
+        }
+        if(this.tokenVerificacionExpiracion == null || Instant.now().isAfter(this.tokenVerificacionExpiracion)) {
+            return false;
+        }
+        return this.tokenVerificacion.equals(token);
+    }
+
+    public void invalidarTokenRestablecimiento() {
+        this.tokenVerificacion = TokenVerificacion.empty();
+        this.tokenVerificacionExpiracion = null;
+        this.updatedAt = Instant.now();
+    }
+
     public void verificarEmail(TokenVerificacion token) {
         if (this.status != EstadoUsuario.PENDIENTE_DE_VERIFICACION) {
             throw new IllegalStateException("El usuario ya ha sido verificado");

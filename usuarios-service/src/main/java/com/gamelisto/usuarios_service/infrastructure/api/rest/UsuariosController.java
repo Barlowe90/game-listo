@@ -22,12 +22,14 @@ import com.gamelisto.usuarios_service.application.usecases.EliminarUsuarioUseCas
 import com.gamelisto.usuarios_service.application.usecases.ObtenerTodosLosUsuariosUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerUsuarioPorId;
 import com.gamelisto.usuarios_service.application.usecases.ReenviarVerificacionUseCase;
+import com.gamelisto.usuarios_service.application.usecases.RestablecerContrasenaUseCase;
 import com.gamelisto.usuarios_service.application.usecases.VerificarEmailUseCase;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarContrasenaRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarEstadoUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CrearUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.EditarPerfilUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.ReenviarVerificacionRequest;
+import com.gamelisto.usuarios_service.infrastructure.api.dto.RestablecerContrasenaRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.UsuarioResponse;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.VerificarEmailRequest;
 
@@ -50,6 +52,7 @@ public class UsuariosController {
     private final VerificarEmailUseCase verificarEmailUseCase;
     private final ReenviarVerificacionUseCase reenviarVerificacionUseCase;
     private final CambiarContrasenaUseCase cambiarContraseñaUseCase;
+    private final RestablecerContrasenaUseCase restablecerContrasenaUseCase;
 
     public UsuariosController(
             CrearUsuarioUseCase crearUsuarioUseCase,
@@ -60,7 +63,8 @@ public class UsuariosController {
             CambiarEstadoUsuarioUseCase cambiarEstadoUsuarioUseCase,
             VerificarEmailUseCase verificarEmailUseCase,
             ReenviarVerificacionUseCase reenviarVerificacionUseCase,
-            CambiarContrasenaUseCase cambiarContraseñaUseCase) {
+            CambiarContrasenaUseCase cambiarContraseñaUseCase,
+            RestablecerContrasenaUseCase restablecerContrasenaUseCase) {
         this.crearUsuarioUseCase = crearUsuarioUseCase;
         this.editarPerfilUsuarioUseCase = editarPerfilUsuarioUseCase;
         this.obtenerTodosLosUsuariosUseCase = obtenerTodosLosUsuariosUseCase;
@@ -70,6 +74,7 @@ public class UsuariosController {
         this.verificarEmailUseCase = verificarEmailUseCase;
         this.reenviarVerificacionUseCase = reenviarVerificacionUseCase;
         this.cambiarContraseñaUseCase = cambiarContraseñaUseCase;
+        this.restablecerContrasenaUseCase = restablecerContrasenaUseCase;
     }
 
     @GetMapping(value = "/health")
@@ -126,6 +131,16 @@ public class UsuariosController {
         cambiarContraseñaUseCase.execute(request.toCommand(id));
 
         logger.info("✅ Contraseña cambiada exitosamente para usuario con ID: {}", id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/auth/reset-password", consumes = "application/json")
+    public ResponseEntity<Void> restablecerContrasena(@Valid @RequestBody RestablecerContrasenaRequest request) {
+        logger.info("ℹ️ POST /v1/usuarios/auth/reset-password - Restableciendo contraseña de usuario");
+
+        restablecerContrasenaUseCase.execute(request.toCommand());
+
+        logger.info("✅ Contraseña restablecida exitosamente");
         return ResponseEntity.ok().build();
     }
 
