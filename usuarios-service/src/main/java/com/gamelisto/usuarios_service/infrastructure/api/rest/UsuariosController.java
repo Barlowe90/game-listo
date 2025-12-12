@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
-import com.gamelisto.usuarios_service.application.usecases.CambiarContraseñaUseCase;
+import com.gamelisto.usuarios_service.application.usecases.CambiarContrasenaUseCase;
 import com.gamelisto.usuarios_service.application.usecases.CambiarEstadoUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.CrearUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.EditarPerfilUsuarioUseCase;
@@ -23,7 +23,7 @@ import com.gamelisto.usuarios_service.application.usecases.ObtenerTodosLosUsuari
 import com.gamelisto.usuarios_service.application.usecases.ObtenerUsuarioPorId;
 import com.gamelisto.usuarios_service.application.usecases.ReenviarVerificacionUseCase;
 import com.gamelisto.usuarios_service.application.usecases.VerificarEmailUseCase;
-import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarContraseñaRequest;
+import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarContrasenaRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarEstadoUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CrearUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.EditarPerfilUsuarioRequest;
@@ -49,7 +49,7 @@ public class UsuariosController {
     private final CambiarEstadoUsuarioUseCase cambiarEstadoUsuarioUseCase;
     private final VerificarEmailUseCase verificarEmailUseCase;
     private final ReenviarVerificacionUseCase reenviarVerificacionUseCase;
-    private final CambiarContraseñaUseCase cambiarContraseñaUseCase;
+    private final CambiarContrasenaUseCase cambiarContraseñaUseCase;
 
     public UsuariosController(
             CrearUsuarioUseCase crearUsuarioUseCase,
@@ -60,7 +60,7 @@ public class UsuariosController {
             CambiarEstadoUsuarioUseCase cambiarEstadoUsuarioUseCase,
             VerificarEmailUseCase verificarEmailUseCase,
             ReenviarVerificacionUseCase reenviarVerificacionUseCase,
-            CambiarContraseñaUseCase cambiarContraseñaUseCase) {
+            CambiarContrasenaUseCase cambiarContraseñaUseCase) {
         this.crearUsuarioUseCase = crearUsuarioUseCase;
         this.editarPerfilUsuarioUseCase = editarPerfilUsuarioUseCase;
         this.obtenerTodosLosUsuariosUseCase = obtenerTodosLosUsuariosUseCase;
@@ -120,7 +120,7 @@ public class UsuariosController {
     @PostMapping(value = "user/{id}/change-password", consumes = "application/json")
     public ResponseEntity<Void> cambiarContraseña(
             @PathVariable String id,
-            @Valid @RequestBody CambiarContraseñaRequest request) {
+            @Valid @RequestBody CambiarContrasenaRequest request) {
         logger.info("ℹ️ POST /v1/usuarios/user/{}/change-password - Cambiando contraseña para usuario con ID: {}", id, id);
 
         cambiarContraseñaUseCase.execute(request.toCommand(id));

@@ -4,7 +4,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.gamelisto.usuarios_service.application.dto.CambiarContraseñaCommand;
+import com.gamelisto.usuarios_service.application.dto.CambiarContrasenaCommand;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.PasswordHash;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
@@ -12,18 +12,18 @@ import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
 import com.gamelisto.usuarios_service.infrastructure.exceptions.UsuarioNoEncontradoException;
 
 @Service
-public class CambiarContraseñaUseCase {
+public class CambiarContrasenaUseCase {
     
     private final RepositorioUsuarios repositorioUsuarios;
     private final PasswordEncoder passwordEncoder;
 
-    public CambiarContraseñaUseCase(RepositorioUsuarios repositorioUsuarios, PasswordEncoder passwordEncoder) {
+    public CambiarContrasenaUseCase(RepositorioUsuarios repositorioUsuarios, PasswordEncoder passwordEncoder) {
         this.repositorioUsuarios = repositorioUsuarios;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
-    public void execute(CambiarContraseñaCommand command){
+    public void execute(CambiarContrasenaCommand command){
         UsuarioId usuarioId = UsuarioId.fromString(command.usuarioId());
 
         Usuario usuario = repositorioUsuarios
