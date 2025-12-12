@@ -103,6 +103,9 @@ class EmailTest {
 - `PasswordHashTest.java`
 - `AvatarTest.java`
 - `UsuarioIdTest.java`
+- `DiscordUserIdTest.java`
+- `DiscordUsernameTest.java`
+- `TokenVerificacionTest.java`
 
 ### 1.2. Tests de Entidades (Aggregate Root)
 
@@ -188,23 +191,58 @@ class UsuarioTest {
         DiscordUsername discordUsername = DiscordUsername.of("player#1234");
         
         // Act
-        usuario.linkDiscord(discordId, discordUsername, true);
+        usuario.linkDiscord(discordId, discordUsername);
         
         // Assert
         assertEquals("123456789", usuario.getDiscordUserId().value());
         assertEquals("player#1234", usuario.getDiscordUsername().value());
         assertNotNull(usuario.getDiscordLinkedAt());
         assertTrue(usuario.isDiscordConsent());
+        assertTrue(usuario.hasDiscordLinked());
     }
     
     @Test
-    @DisplayName("Debe activar usuario verificado")
+    @DisplayName("Debe generar token de verificación al crear usuario")
+    void debeGenerarTokenVerificacionAlCrear() {
+        // Arrange & Act
+        Usuario usuario = Usuario.create(
+            Username.of("test"),
+            Email.of("test@test.com"),
+            PasswordHash.of("$2a$10$hash")
+        );
+        
+        // Assert
+        assertNotNull(usuario.getTokenVerificacion());
+        assertFalse(usuario.getTokenVerificacion().isEmpty());
+        assertNotNull(usuario.getTokenVerificacionExpiracion());
+        assertEquals(EstadoUsuario.PENDIENTE_DE_VERIFICACION, usuario.getStatus());
+    }
+    
+    @Test
+    @DisplayName("Debe verificar email con token válido")
+    void debeVerificarEmailConTokenValido() {
+        // Arrange
+        Usuario usuario = crearUsuarioDefault();
+        TokenVerificacion token = usuario.getTokenVerificacion();
+        
+        // Act
+        usuario.verificarEmail(token);
+        
+        // Assert
+        assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
+        assertTrue(usuario.getTokenVerificacion().isEmpty());
+        assertNull(usuario.getTokenVerificacionExpiracion());
+    }
+    
+    @Test
+    @DisplayName("Debe activar usuario tras verificar email")
     void debeActivarUsuarioVerificado() {
         // Arrange
         Usuario usuario = crearUsuarioDefault();
+        TokenVerificacion token = usuario.getTokenVerificacion();
         
         // Act
-        usuario.markAsVerified();
+        usuario.verificarEmail(token);
         
         // Assert
         assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
@@ -351,6 +389,12 @@ class CrearUsuarioUseCaseTest {
 - `EditarPerfilUsuarioUseCaseTest.java`
 - `ObtenerUsuarioPorIdTest.java`
 - `EliminarUsuarioUseCaseTest.java`
+- `CambiarEstadoUsuarioUseCaseTest.java`
+- `CambiarContrasenaUseCaseTest.java`
+- `VerificarEmailUseCaseTest.java`
+- `ReenviarVerificacionUseCaseTest.java`
+- `RestablecerContrasenaUseCaseTest.java`
+- `ObtenerTodosLosUsuariosUseCaseTest.java`
 
 ---
 

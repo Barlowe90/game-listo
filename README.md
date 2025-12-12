@@ -53,8 +53,8 @@ GameListo está construido con **microservicios desacoplados** basados en:
 
 | Microservicio | Tecnología | Descripción |
 |---------------|------------|-------------|
-| **auth-service** | Spring Boot + JWT | Login, registro, verificación email |
-| **usuarios-service** | Spring Boot + PostgreSQL | Perfil de usuario |
+| **auth-service** | Spring Boot + JWT | Login, logout, gestión de sesiones |
+| **usuarios-service** | Spring Boot + PostgreSQL | Registro, verificación email, perfil de usuario, reset contraseña, Discord OAuth2 |
 | **catalogo-service** | Spring Boot + PostgreSQL + MongoDB | Juegos, búsqueda y sincronización con IGDB |
 | **biblioteca-service** | Spring Boot + PostgreSQL | Estados, listas, reseñas |
 | **publicaciones-service** | Spring Boot + MongoDB | Posts, screenshots, vídeos |

@@ -29,13 +29,14 @@ GameListo is a microservices-based social gaming platform built with Spring Boot
 
 **Domain Layer:**
 - Entities: `Usuario` (aggregate root)
-- Value Objects: `UsuarioId`, `Email`, `Username`, `Avatar`, `PasswordHash`
+- Value Objects: `UsuarioId`, `Email`, `Username`, `Avatar`, `PasswordHash`, `DiscordUserId`, `DiscordUsername`, `TokenVerificacion`
+- Enums: `EstadoUsuario`, `Rol`, `Idioma`
 - Repositories: `RepositorioUsuarios` (interface)
-- Exceptions: `EntidadNoEncontrada`
+- Exceptions: `EntidadNoEncontrada`, `UsernameYaExisteException`, `EmailYaRegistradoException`, `TokenInvalidoException`
 
 **Application Layer:**
-- Use Cases: `CrearUsuarioUseCase`, `EditarPerfilUsuarioUseCase`, `ObtenerUsuarioPorId`
-- Commands/Queries: `CrearUsuarioCommand`, `EditarPerfilUsuarioCommand`
+- Use Cases: `CrearUsuarioUseCase`, `EditarPerfilUsuarioUseCase`, `ObtenerUsuarioPorId`, `ObtenerTodosLosUsuariosUseCase`, `EliminarUsuarioUseCase`, `CambiarEstadoUsuarioUseCase`, `CambiarContrasenaUseCase`, `VerificarEmailUseCase`, `ReenviarVerificacionUseCase`, `RestablecerContrasenaUseCase`
+- Commands/Queries: `CrearUsuarioCommand`, `EditarPerfilUsuarioCommand`, `CambiarContrasenaCommand`, `CambiarEstadoUsuarioCommand`, `VerificarEmailCommand`, `RestablecerContrasenaCommand`
 - DTOs: `UsuarioDTO` (for inter-layer communication)
 
 **Infrastructure Layer:**
@@ -121,9 +122,14 @@ public class UsuariosController {
 ## Microservice Context
 
 **usuarios-service** manages user profiles and accounts:
-- ✅ Profile CRUD (username, email, avatar, Discord integration)
-- ✅ User state: `ACTIVO`, `PENDIENTE_DE_VERIFICACION`, `SUSPENDIDO`, `ELIMINADO`
-- ❌ NOT responsible for: authentication/JWT (handled by `auth-service`)
+- ✅ Profile CRUD (username, email, avatar, language, notifications)
+- ✅ User registration with email verification (token-based, 24h expiration)
+- ✅ Password reset flow with token
+- ✅ Discord OAuth2 integration (link/unlink)
+- ✅ User states: `PENDIENTE_DE_VERIFICACION`, `ACTIVO`, `SUSPENDIDO`, `ELIMINADO`
+- ✅ Roles: `USER`, `ADMIN`, `MODERATOR`
+- ✅ Multi-language support: `ESP`, `ENG`
+- ❌ NOT responsible for: JWT generation/validation, session management (handled by `auth-service`)
 
 **Communication:**
 - REST for synchronous queries
