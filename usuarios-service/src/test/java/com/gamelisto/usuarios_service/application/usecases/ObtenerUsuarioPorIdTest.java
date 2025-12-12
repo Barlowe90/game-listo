@@ -52,6 +52,8 @@ class ObtenerUsuarioPorIdTest {
             null,
             false,
             TokenVerificacion.empty(),
+            null,
+            TokenVerificacion.empty(),
             null
         );
         
@@ -130,6 +132,8 @@ class ObtenerUsuarioPorIdTest {
             DiscordUsername.of("player#1234"),
             ahora,
             true,
+            TokenVerificacion.empty(),
+            null,
             TokenVerificacion.empty(),
             null
         );
@@ -214,6 +218,8 @@ class ObtenerUsuarioPorIdTest {
             DiscordUsername.empty(),
             null,
             false,
+            TokenVerificacion.empty(),
+            null,
             TokenVerificacion.empty(),
             null
         );

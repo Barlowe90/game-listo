@@ -178,6 +178,8 @@ class CambiarContrasenaUseCaseTest {
             null,
             false,
             TokenVerificacion.empty(),
+            null,
+            TokenVerificacion.empty(),
             null
         );
     }

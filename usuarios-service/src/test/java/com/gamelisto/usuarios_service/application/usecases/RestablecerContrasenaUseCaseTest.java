@@ -244,6 +244,8 @@ class RestablecerContrasenaUseCaseTest {
             DiscordUsername.empty(),
             null,
             false,
+            TokenVerificacion.empty(),
+            null,
             token,
             Instant.now().plusSeconds(3600) // Token válido por 1 hora
         );
@@ -266,6 +268,8 @@ class RestablecerContrasenaUseCaseTest {
             DiscordUsername.empty(),
             null,
             false,
+            TokenVerificacion.empty(),
+            null,
             token,
             Instant.now().minusSeconds(3600) // Token expirado hace 1 hora
         );
@@ -288,6 +292,8 @@ class RestablecerContrasenaUseCaseTest {
             DiscordUsername.empty(),
             null,
             false,
+            TokenVerificacion.empty(),
+            null,
             TokenVerificacion.empty(),
             null
         );

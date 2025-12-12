@@ -20,7 +20,9 @@ public class Usuario {
     private Instant discordLinkedAt; 
     private boolean discordConsent;
     private TokenVerificacion tokenVerificacion;
-    private Instant tokenVerificacionExpiracion; 
+    private Instant tokenVerificacionExpiracion;
+    private TokenVerificacion tokenRestablecimiento;
+    private Instant tokenRestablecimientoExpiracion;
 
     private Usuario(UsuarioId id, Username username, Email email, PasswordHash passwordHash, Avatar avatar, Instant createdAt, Rol role, Idioma language, EstadoUsuario status) {
         validateInvariants(username, email, passwordHash, createdAt);
@@ -41,6 +43,8 @@ public class Usuario {
         this.discordConsent = false;
         this.tokenVerificacion = TokenVerificacion.empty();
         this.tokenVerificacionExpiracion = null;
+        this.tokenRestablecimiento = TokenVerificacion.empty();
+        this.tokenRestablecimientoExpiracion = null;
     }
 
     public static Usuario create(Username username, Email email, PasswordHash passwordHash) {
@@ -49,7 +53,7 @@ public class Usuario {
         return usuario;
     }
 
-    public static Usuario reconstitute(UsuarioId id, Username username, Email email, PasswordHash passwordHash, Avatar avatar, Instant createdAt, Instant updatedAt, Rol role, Idioma language, boolean notificationsActive, EstadoUsuario status, DiscordUserId discordUserId, DiscordUsername discordUsername, Instant discordLinkedAt, boolean discordConsent, TokenVerificacion tokenVerificacion, Instant tokenVerificacionExpiracion) {
+    public static Usuario reconstitute(UsuarioId id, Username username, Email email, PasswordHash passwordHash, Avatar avatar, Instant createdAt, Instant updatedAt, Rol role, Idioma language, boolean notificationsActive, EstadoUsuario status, DiscordUserId discordUserId, DiscordUsername discordUsername, Instant discordLinkedAt, boolean discordConsent, TokenVerificacion tokenVerificacion, Instant tokenVerificacionExpiracion, TokenVerificacion tokenRestablecimiento, Instant tokenRestablecimientoExpiracion) {
         Usuario usuario = new Usuario(id, username, email, passwordHash, avatar, createdAt, role, language, status);
         usuario.updatedAt = updatedAt != null ? updatedAt : createdAt;
         usuario.notificationsActive = notificationsActive;
@@ -59,6 +63,8 @@ public class Usuario {
         usuario.discordConsent = discordConsent;
         usuario.tokenVerificacion = tokenVerificacion != null ? tokenVerificacion : TokenVerificacion.empty();
         usuario.tokenVerificacionExpiracion = tokenVerificacionExpiracion;
+        usuario.tokenRestablecimiento = tokenRestablecimiento != null ? tokenRestablecimiento : TokenVerificacion.empty();
+        usuario.tokenRestablecimientoExpiracion = tokenRestablecimientoExpiracion;
         return usuario;
     }
 
@@ -145,19 +151,25 @@ public class Usuario {
         this.updatedAt = Instant.now();
     }
 
+    public void generarTokenRestablecimiento() {
+        this.tokenRestablecimiento = TokenVerificacion.generate();
+        this.tokenRestablecimientoExpiracion = Instant.now().plusSeconds(60 * 60); // 1 hora
+        this.updatedAt = Instant.now();
+    }
+
     public boolean tieneTokenRestablecimientoValido(TokenVerificacion token) {
-        if(this.tokenVerificacion == null || this.tokenVerificacion.isEmpty()) {
+        if (this.tokenRestablecimiento == null || this.tokenRestablecimiento.isEmpty()) {
             return false;
         }
-        if(this.tokenVerificacionExpiracion == null || Instant.now().isAfter(this.tokenVerificacionExpiracion)) {
+        if (this.tokenRestablecimientoExpiracion == null || Instant.now().isAfter(this.tokenRestablecimientoExpiracion)) {
             return false;
         }
-        return this.tokenVerificacion.equals(token);
+        return this.tokenRestablecimiento.equals(token);
     }
 
     public void invalidarTokenRestablecimiento() {
-        this.tokenVerificacion = TokenVerificacion.empty();
-        this.tokenVerificacionExpiracion = null;
+        this.tokenRestablecimiento = TokenVerificacion.empty();
+        this.tokenRestablecimientoExpiracion = null;
         this.updatedAt = Instant.now();
     }
 
@@ -294,6 +306,14 @@ public class Usuario {
 
     public Instant getTokenVerificacionExpiracion() {
         return tokenVerificacionExpiracion;
+    }
+
+    public TokenVerificacion getTokenRestablecimiento() {
+        return tokenRestablecimiento;
+    }
+
+    public Instant getTokenRestablecimientoExpiracion() {
+        return tokenRestablecimientoExpiracion;
     }
 
     @Override

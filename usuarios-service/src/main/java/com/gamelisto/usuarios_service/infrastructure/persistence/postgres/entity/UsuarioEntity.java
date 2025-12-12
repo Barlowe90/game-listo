@@ -67,6 +67,12 @@ public class UsuarioEntity {
     @Column(name = "token_verificacion_expiracion")
     private Instant tokenVerificacionExpiracion;
 
+    @Column(name = "token_restablecimiento", length = 100)
+    private String tokenRestablecimiento;
+
+    @Column(name = "token_restablecimiento_expiracion")
+    private Instant tokenRestablecimientoExpiracion;
+
     public UsuarioEntity() {
     }
 
@@ -205,5 +211,21 @@ public class UsuarioEntity {
 
     public void setTokenVerificacionExpiracion(Instant tokenVerificacionExpiracion) {
         this.tokenVerificacionExpiracion = tokenVerificacionExpiracion;
+    }
+
+    public String getTokenRestablecimiento() {
+        return tokenRestablecimiento;
+    }
+
+    public void setTokenRestablecimiento(String tokenRestablecimiento) {
+        this.tokenRestablecimiento = tokenRestablecimiento;
+    }
+
+    public Instant getTokenRestablecimientoExpiracion() {
+        return tokenRestablecimientoExpiracion;
+    }
+
+    public void setTokenRestablecimientoExpiracion(Instant tokenRestablecimientoExpiracion) {
+        this.tokenRestablecimientoExpiracion = tokenRestablecimientoExpiracion;
     }
 }

@@ -128,6 +128,8 @@ class EliminarUsuarioUseCaseTest {
             null,
             false,
             TokenVerificacion.empty(),
+            null,
+            TokenVerificacion.empty(),
             null
         );
     }

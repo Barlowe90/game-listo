@@ -188,7 +188,9 @@ class ReenviarVerificacionUseCaseTest {
             null,
             false,
             TokenVerificacion.generate(),
-            Instant.now().plusSeconds(3600)
+            Instant.now().plusSeconds(3600),
+            TokenVerificacion.empty(),
+            null
         );
         return usuario;
     }
@@ -211,6 +213,8 @@ class ReenviarVerificacionUseCaseTest {
             null,
             false,
             TokenVerificacion.empty(),
+            null,
+            TokenVerificacion.empty(),
             null
         );
     }
@@ -232,6 +236,8 @@ class ReenviarVerificacionUseCaseTest {
             DiscordUsername.empty(),
             null,
             false,
+            TokenVerificacion.empty(),
+            null,
             TokenVerificacion.empty(),
             null
         );

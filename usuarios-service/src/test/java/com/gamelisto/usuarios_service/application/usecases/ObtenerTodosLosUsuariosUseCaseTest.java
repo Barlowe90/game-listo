@@ -140,6 +140,8 @@ class ObtenerTodosLosUsuariosUseCaseTest {
             null,
             false,
             TokenVerificacion.empty(),
+            null,
+            TokenVerificacion.empty(),
             null
         );
     }
@@ -161,6 +163,8 @@ class ObtenerTodosLosUsuariosUseCaseTest {
             DiscordUsername.of("discorduser#1234"),
             Instant.now(),
             true,
+            TokenVerificacion.empty(),
+            null,
             TokenVerificacion.empty(),
             null
         );

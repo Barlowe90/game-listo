@@ -55,7 +55,9 @@ class VerificarEmailUseCaseTest {
             null,
             false,
             token,
-            expiracion
+            expiracion,
+            TokenVerificacion.empty(),
+            null
         );
         
         when(repositorioUsuarios.findByTokenVerificacion(any(TokenVerificacion.class)))
@@ -173,7 +175,9 @@ class VerificarEmailUseCaseTest {
             null,
             false,
             token,
-            expiracion
+            expiracion,
+            TokenVerificacion.empty(),
+            null
         );
         
         when(repositorioUsuarios.findByTokenVerificacion(any(TokenVerificacion.class)))
@@ -227,7 +231,9 @@ class VerificarEmailUseCaseTest {
             null,
             false,
             token,
-            expiracion
+            expiracion,
+            TokenVerificacion.empty(),
+            null
         );
     }
 }

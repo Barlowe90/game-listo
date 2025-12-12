@@ -340,6 +340,8 @@ class EditarPerfilUsuarioUseCaseTest {
             null,
             false,
             TokenVerificacion.empty(),
+            null,
+            TokenVerificacion.empty(),
             null
         );
     }

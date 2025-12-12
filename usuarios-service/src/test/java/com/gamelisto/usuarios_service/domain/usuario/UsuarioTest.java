@@ -64,6 +64,7 @@ class UsuarioTest {
             id, username, email, passwordHash, avatar, createdAt, updatedAt,
             role, language, notificationsActive, status, discordUserId,
             discordUsername, discordLinkedAt, discordConsent,
+            TokenVerificacion.empty(), null,
             TokenVerificacion.empty(), null
         );
         

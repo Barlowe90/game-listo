@@ -175,6 +175,8 @@ class CambiarEstadoUsuarioUseCaseTest {
             null,
             false,
             TokenVerificacion.empty(),
+            null,
+            TokenVerificacion.empty(),
             null
         );
     }
@@ -197,6 +199,8 @@ class CambiarEstadoUsuarioUseCaseTest {
             null,
             false,
             TokenVerificacion.empty(),
+            null,
+            TokenVerificacion.empty(),
             null
         );
     }
@@ -218,6 +222,8 @@ class CambiarEstadoUsuarioUseCaseTest {
             DiscordUsername.empty(),
             null,
             false,
+            TokenVerificacion.empty(),
+            null,
             TokenVerificacion.empty(),
             null
         );
