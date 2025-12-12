@@ -1,70 +1,65 @@
 # Application Checklist – Casos de Uso
 
-## 📋 Estructura de casos de uso
+## ✅ Estructura de casos de uso
 
-- [ ] Cada caso de uso en `/application/services/`.
-- [ ] Anotados con `@Service` (solo capa application).
-- [ ] Inyección de `RepositorioUsuarios` por constructor.
-- [ ] Inyección de `IEventosPublisher` por constructor.
-- [ ] Sin acceso directo a JPA repositories.
+- [x] Cada caso de uso en `/application/usecases/`.
+- [x] Anotados con `@Service`.
+- [x] Inyección de `RepositorioUsuarios` por constructor.
+- [x] Sin acceso directo a JPA repositories.
 
-## 📋 Casos de uso principales
+## ✅ Casos de uso implementados
 
-### Gestión de perfil
+### Registro y Verificación
 
-- [ ] `ConsultarPerfilPropio` - GET /me
-- [ ] `ConsultarPerfilPublico` - GET /user/{id}
-- [ ] `EditarPerfil` - PATCH /user/{id}
-- [ ] `CambiarAvatar` - parte de EditarPerfil
-- [ ] `CambiarIdioma` - parte de EditarPerfil
+- [x] `CrearUsuarioUseCase` - POST /auth/register
+- [x] `VerificarEmailUseCase` - POST /auth/verify-email
+- [x] `ReenviarVerificacionUseCase` - POST /auth/resend-verification
 
-### Sincronización desde Auth
+### Gestión de Contraseñas
 
-- [ ] `SincronizarEmailDesdeAuth` - Listener de eventos
-- [ ] `SincronizarPasswordDesdeAuth` - Listener de eventos
-- [ ] `SincronizarVerificacionEmail` - Listener de eventos
+- [x] `CambiarContrasenaUseCase` - POST /user/{id}/change-password
+- [x] `RestablecerContrasenaUseCase` - POST /auth/reset-password
 
-### Gestión de estado
+### Gestión de Perfil
 
-- [ ] `SuspenderUsuario` - PATCH /user/{id}/state (admin)
-- [ ] `ActivarUsuario` - PATCH /user/{id}/state (admin)
-- [ ] `EliminarUsuario` - DELETE /user/{id}
+- [x] `ObtenerUsuarioPorId` - GET /user/{id}
+- [x] `ObtenerTodosLosUsuariosUseCase` - GET /users
+- [x] `EditarPerfilUsuarioUseCase` - PATCH /user/{id}
 
-### Búsqueda
+### Gestión de Estado
 
-- [ ] `BuscarUsuarios` - GET /users?search=...
+- [x] `CambiarEstadoUsuarioUseCase` - PATCH /user/{id}/state
+- [x] `EliminarUsuarioUseCase` - DELETE /user/{id}
 
-### Discord
+### Discord (pendiente)
 
-- [ ] `VincularDiscord` - POST /discord/link
-- [ ] `DesvincularDiscord` - DELETE /discord/link
+- [ ] `VincularDiscordUseCase` - POST /auth/discord/link/callback
+- [ ] `DesvincularDiscordUseCase` - DELETE /discord/link
 
-## 📋 DTOs de aplicación
+## ✅ DTOs de aplicación
 
-- [ ] Command objects para entrada: `EditarPerfilCommand`, `BuscarUsuariosQuery`.
-- [ ] DTOs de salida: `PerfilUsuarioDTO`, `PerfilPublicoDTO`.
-- [ ] Validación con Bean Validation (`@NotNull`, `@Email`, etc.).
-- [ ] Conversión DTO ↔ Domain en el caso de uso.
+- [x] Commands: `CrearUsuarioCommand`, `EditarPerfilUsuarioCommand`, `CambiarContrasenaCommand`, `CambiarEstadoUsuarioCommand`, `VerificarEmailCommand`, `RestablecerContrasenaCommand`
+- [x] DTOs de salida: `UsuarioDTO`
+- [x] Conversión Domain → DTO en el caso de uso
 
-## 📋 Publicación de eventos
+## 📋 Publicación de eventos (pendiente)
 
-- [ ] Interface `IEventosPublisher` en `/application/`.
-- [ ] Implementación en `/infrastructure/messaging/`.
-- [ ] Eventos: `UsuarioCreado`, `UsuarioActualizado`, `PerfilEditado`, `UsuarioEliminado`.
-- [ ] Los casos de uso publican eventos después de cambios exitosos.
+- [ ] Interface `IEventosPublisher` en `/application/ports/`
+- [ ] Implementación en `/infrastructure/messaging/`
+- [ ] Eventos: `UsuarioCreado`, `EmailVerificado`, `ContrasenaRestablecida`
 
 ## ✅ Reglas implementadas
 
-- [x] Casos de uso coordinan flujo, no ejecutan lógica de negocio.
-- [x] Lógica de negocio en entidades de dominio (`Usuario`).
-- [x] No conocen detalles de API REST (sin `ResponseEntity`, `HttpServletRequest`).
-- [x] Retornan objetos de dominio o DTOs simples.
-- [x] Usan `Optional` para valores que pueden no existir.
+- [x] Casos de uso coordinan flujo, no ejecutan lógica de negocio
+- [x] Lógica de negocio en entidad de dominio (`Usuario`)
+- [x] No conocen detalles de API REST
+- [x] Retornan `UsuarioDTO`
+- [x] Lanzan excepciones de dominio, no HTTP
 
 ## ⛔ Prohibiciones en /application
 
-- [ ] No usar entities JPA (`UsuarioEntity`).
-- [ ] No usar anotaciones REST (`@RestController`, `@GetMapping`).
-- [ ] No manejar HTTP status codes directamente.
-- [ ] No lanzar excepciones HTTP (usar excepciones de dominio).
-- [ ] No acceder directamente a bases de datos.
+- [x] No usar entities JPA (`UsuarioEntity`)
+- [x] No usar anotaciones REST (`@RestController`, `@GetMapping`)
+- [x] No manejar HTTP status codes directamente
+- [x] No lanzar excepciones HTTP (usar excepciones de dominio)
+- [x] No acceder directamente a bases de datos

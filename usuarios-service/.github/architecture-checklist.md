@@ -9,16 +9,36 @@
     UsuarioId.java, Email.java, Username.java (Value Objects)
     PasswordHash.java, Avatar.java (Value Objects)
     DiscordUserId.java, DiscordUsername.java (Value Objects)
+    TokenVerificacion.java (Value Object)
     Rol.java, Idioma.java, EstadoUsuario.java (Enums)
   /repositories
-    RepositorioUsuarios.java (Port - pendiente)
-  /errors
+    RepositorioUsuarios.java (Port)
+  /exceptions
     EntidadNoEncontrada.java
+    UsernameYaExisteException.java
+    EmailYaRegistradoException.java
+    TokenInvalidoException.java
 
 /application
-  IEventosPublisher.java (Port - pendiente)
-  /services
-    [Casos de uso - pendientes]
+  /dto
+    UsuarioDTO.java
+    CrearUsuarioCommand.java
+    EditarPerfilUsuarioCommand.java
+    CambiarContrasenaCommand.java
+    CambiarEstadoUsuarioCommand.java
+    VerificarEmailCommand.java
+    RestablecerContrasenaCommand.java
+  /usecases
+    CrearUsuarioUseCase.java
+    ObtenerUsuarioPorId.java
+    ObtenerTodosLosUsuariosUseCase.java
+    EditarPerfilUsuarioUseCase.java
+    EliminarUsuarioUseCase.java
+    CambiarEstadoUsuarioUseCase.java
+    CambiarContrasenaUseCase.java
+    VerificarEmailUseCase.java
+    ReenviarVerificacionUseCase.java
+    RestablecerContrasenaUseCase.java
 
 /infrastructure
   /persistence/postgres
@@ -27,77 +47,88 @@
     /mapper
       UsuarioMapper.java (Anti-Corruption Layer)
     /repository
-      [Implementación JpaRepository - pendiente]
-  /api/rest
-    [Controladores REST - pendientes]
-  /messaging
-    [Publishers y Listeners - pendientes]
+      UsuarioJpaRepository.java
+      RepositorioUsuariosPostgre.java
+  /api
+    /dto
+      CrearUsuarioRequest.java
+      EditarPerfilUsuarioRequest.java
+      UsuarioResponse.java
+      ...
+    UsuariosController.java
   /security
-    [Configuración JWT - pendiente]
+    SecurityConfig.java
+  /exceptions
+    GlobalExceptionHandler.java
 ```
 
 ## ✅ Principios DDD implementados
 
-- [x] **Aggregate Root**: `Usuario` controla su propio ciclo de vida.
-- [x] **Value Objects**: Todos los atributos del usuario son VOs inmutables.
-- [x] **Ubiquitous Language**: Nombres en español/inglés consistentes.
-- [x] **Factory Methods**: `Usuario.create()`, `Usuario.reconstitute()`.
-- [x] **Encapsulación**: No setters en dominio, solo métodos de comportamiento.
-- [x] **Invariantes protegidos**: Validación en constructores privados de VOs.
+- [x] **Aggregate Root**: `Usuario` controla su propio ciclo de vida
+- [x] **Value Objects**: Todos los atributos son VOs inmutables con validación
+- [x] **Ubiquitous Language**: Nombres consistentes (español en dominio)
+- [x] **Factory Methods**: `Usuario.create()`, `Usuario.reconstitute()`
+- [x] **Encapsulación**: Solo métodos de comportamiento, no setters
+- [x] **Invariantes protegidos**: Validación en constructores privados de VOs
+- [x] **Excepciones de dominio**: Errores específicos del negocio
 
 ## ✅ Arquitectura Hexagonal implementada
 
-- [x] **Dominio independiente**: Sin dependencias externas.
-- [x] **Ports**: Interfaces de repositorio (pendiente) y eventos (pendiente) en dominio/application.
-- [x] **Adapters**: UsuarioEntity + UsuarioMapper en infrastructure.
-- [x] **Anti-Corruption Layer**: UsuarioMapper traduce entre capas.
-- [x] **Dependency Inversion**: Dominio define interfaces, infrastructure implementa.
+- [x] **Dominio independiente**: Sin dependencias externas
+- [x] **Ports**: Interface `RepositorioUsuarios` en domain
+- [x] **Adapters**: `RepositorioUsuariosPostgre`, `UsuariosController`
+- [x] **Anti-Corruption Layer**: `UsuarioMapper` traduce entre capas
+- [x] **Dependency Inversion**: Dominio define interfaces, infrastructure implementa
 
-## 📋 Dependencias entre capas (pendiente validar)
+## ✅ Dependencias entre capas (validado)
 
-``` text
+```text
 infrastructure → application → domain
      ↑              ↑
-     NO            NO
+     NO             NO
 ```
 
-- [ ] `domain` NO importa nada de `application` ni `infrastructure`.
-- [ ] `application` solo importa de `domain`.
-- [ ] `infrastructure` puede importar de `domain` y `application`.
-- [ ] No hay ciclos de dependencia.
+- [x] `domain` NO importa nada de `application` ni `infrastructure`
+- [x] `application` solo importa de `domain`
+- [x] `infrastructure` puede importar de `domain` y `application`
+- [x] No hay ciclos de dependencia
 
-## 📋 Testing strategy (pendiente)
+## ✅ Testing strategy implementada
 
-- [ ] **Unit tests de dominio**: Sin Spring, sin BD.
-- [ ] **Tests de Value Objects**: Validaciones.
-- [ ] **Tests de comportamiento**: Métodos de Usuario.
-- [ ] **Tests de casos de uso**: Con mocks de repositorios.
-- [ ] **Tests de integración**: Spring Boot Test con BD embebida.
-- [ ] **Tests de API**: MockMvc o REST Assured.
+- [x] **Unit tests de dominio**: Sin Spring, sin BD
+- [x] **Tests de Value Objects**: Validaciones completas
+- [x] **Tests de comportamiento**: Métodos de Usuario
+- [x] **Tests de casos de uso**: Con mocks de repositorios (Mockito)
+- [ ] **Tests de integración**: Spring Boot Test con H2 (parcial)
+- [ ] **Tests de API**: MockMvc (pendiente)
 
 ## ✅ Flujo de datos implementado
 
-``` text
+```text
 HTTP Request
     ↓
-Controller (REST Adapter) - infrastructure
+UsuariosController (REST Adapter) - infrastructure
     ↓
-DTO → Command/Query
+Request DTO → Command
     ↓
-Caso de Uso (Application Service) - application
+Use Case (Application Service) - application
     ↓
-Domain Entity (Usuario)
+Usuario (Domain Entity)
     ↓
-Repository Port (interface) - domain
+RepositorioUsuarios (Port interface) - domain
     ↓
-Repository Adapter (JPA) - infrastructure
+RepositorioUsuariosPostgre (JPA Adapter) - infrastructure
     ↓
-UsuarioEntity + UsuarioMapper
+UsuarioMapper + UsuarioEntity
     ↓
-PostgreSQL
+H2 / PostgreSQL
 ```
 
 ## 📋 Eventos de dominio (pendiente)
+
+- [ ] Interface `IEventosPublisher` en application
+- [ ] Implementación RabbitMQ en infrastructure
+- [ ] Eventos: `UsuarioCreado`, `EmailVerificado`, `ContrasenaRestablecida`
 
 - [ ] Implementar patrón Domain Events.
 - [ ] `Usuario` publica eventos internos.

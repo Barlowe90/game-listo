@@ -2,54 +2,71 @@
 
 ## ✅ Persistencia completada
 
-- [x] `UsuarioEntity` en `/infrastructure/persistence/postgres/entity/`.
-- [x] Entity como POJO puro con anotaciones JPA.
-- [x] Sin lógica de negocio en UsuarioEntity.
-- [x] Solo importa enums del dominio (Rol, Idioma, EstadoUsuario).
-- [x] Nombres de columnas en inglés: `created_at`, `updated_at`, `role`, `language`, `status`.
+- [x] `UsuarioEntity` en `/infrastructure/persistence/postgres/entity/`
+- [x] Entity como POJO puro con anotaciones JPA
+- [x] Sin lógica de negocio en UsuarioEntity
+- [x] Importa enums del dominio (`Rol`, `Idioma`, `EstadoUsuario`)
+- [x] Campos de verificación: `tokenVerificacion`, `tokenVerificacionExpiracion`
+- [x] Campos de Discord: `discordUserId`, `discordUsername`, `discordLinkedAt`, `discordConsent`
 
 ## ✅ Mapper (Anti-Corruption Layer)
 
-- [x] `UsuarioMapper` en `/infrastructure/persistence/postgres/mapper/`.
-- [x] Anotado con `@Component`.
-- [x] `toEntity()`: Usuario → UsuarioEntity.
-- [x] `toDomain()`: UsuarioEntity → Usuario.
-- [x] Extrae valores de VOs y reconstruye con `Usuario.reconstitute()`.
-- [x] Maneja campos opcionales (avatar, discord).
+- [x] `UsuarioMapper` en `/infrastructure/persistence/postgres/mapper/`
+- [x] Anotado con `@Component`
+- [x] `toEntity()`: Usuario → UsuarioEntity
+- [x] `toDomain()`: UsuarioEntity → Usuario (usa `reconstitute()`)
+- [x] Extrae valores de VOs y reconstruye correctamente
+- [x] Maneja campos opcionales (avatar, discord, token)
 
-## 📋 Repositorio JPA (pendiente)
+## ✅ Repositorio JPA implementado
 
-- [ ] Interface `UsuarioJpaRepository extends JpaRepository<UsuarioEntity, UUID>`.
-- [ ] Implementación `UsuarioRepositorioPostgres implements RepositorioUsuarios`.
-- [ ] Usa `UsuarioMapper` para conversión.
-- [ ] Query methods: `findByEmail()`, `existsByUsername()`.
-- [ ] Custom query para búsqueda por fragmento de username.
+- [x] Interface `UsuarioJpaRepository extends JpaRepository<UsuarioEntity, UUID>`
+- [x] Implementación `RepositorioUsuariosPostgre implements RepositorioUsuarios`
+- [x] Usa `UsuarioMapper` para conversión
+- [x] Query methods: `findByEmail()`, `findByUsername()`, `existsByUsername()`, `existsByEmail()`
+- [x] Query method: `findByTokenVerificacion()` para verificación de email
 
-## 📋 Controladores REST (pendiente)
+## ✅ Controladores REST implementados
 
-- [ ] Base path: `/v1/usuarios`.
-- [ ] DTOs en `/infrastructure/api/dto/`.
-- [ ] Request/Response separados.
-- [ ] `@RestController` + `@RequestMapping`.
-- [ ] Validación con `@Valid`.
-- [ ] Inyecta casos de uso, no repositorios.
+- [x] Base path: `/v1/usuarios`
+- [x] `UsuariosController` con todos los endpoints
+- [x] Request DTOs en `/infrastructure/api/dto/`: `CrearUsuarioRequest`, `EditarPerfilUsuarioRequest`, etc.
+- [x] Response DTOs: `UsuarioResponse`
+- [x] Validación con `@Valid` en requests
+- [x] Inyecta casos de uso, no repositorios
 
-## 📋 Seguridad (pendiente)
+### Endpoints implementados
 
-- [ ] `SecurityConfig` configura JWT validation.
-- [ ] Extrae `userId` del token.
-- [ ] `@PreAuthorize` donde corresponda.
-- [ ] Usuario solo puede editar su propio perfil.
+| Método | Endpoint | Use Case |
+|--------|----------|----------|
+| GET | `/health` | Health check |
+| POST | `/auth/register` | `CrearUsuarioUseCase` |
+| POST | `/auth/verify-email` | `VerificarEmailUseCase` |
+| POST | `/auth/resend-verification` | `ReenviarVerificacionUseCase` |
+| POST | `/auth/reset-password` | `RestablecerContrasenaUseCase` |
+| GET | `/users` | `ObtenerTodosLosUsuariosUseCase` |
+| GET | `/user/{id}` | `ObtenerUsuarioPorId` |
+| PATCH | `/user/{id}` | `EditarPerfilUsuarioUseCase` |
+| DELETE | `/user/{id}` | `EliminarUsuarioUseCase` |
+| POST | `/user/{id}/change-password` | `CambiarContrasenaUseCase` |
+| PATCH | `/user/{id}/state` | `CambiarEstadoUsuarioUseCase` |
 
-## 📋 Manejo de errores (pendiente)
+## ✅ Seguridad configurada
 
-- [ ] `@RestControllerAdvice` para excepciones.
-- [ ] Mapea excepciones de dominio a HTTP status.
-- [ ] Respuestas de error estandarizadas.
+- [x] `SecurityConfig` con BCryptPasswordEncoder (strength: 10)
+- [x] Configuración permite todas las requests (modo desarrollo)
+- [ ] Integración JWT pendiente (delegar a `auth-service`)
+- [ ] `@PreAuthorize` donde corresponda
+
+## ✅ Manejo de errores implementado
+
+- [x] `@RestControllerAdvice` para excepciones (`GlobalExceptionHandler`)
+- [x] Mapea excepciones de dominio a HTTP status
+- [x] Respuestas de error estandarizadas
 
 ## 📋 Mensajería (pendiente)
 
-- [ ] Publishers en `/infrastructure/messaging/publishers/`.
-- [ ] Listeners en `/infrastructure/messaging/listeners/`.
-- [ ] Config en `/infrastructure/messaging/config/`.
-- [ ] Eventos: `UsuarioCreado`, `UsuarioActualizado`, `EmailCambiado`.
+- [ ] Publishers en `/infrastructure/messaging/publishers/`
+- [ ] Listeners en `/infrastructure/messaging/listeners/`
+- [ ] Config RabbitMQ en `/infrastructure/messaging/config/`
+- [ ] Eventos: `UsuarioCreado`, `EmailVerificado`, `ContrasenaRestablecida`
