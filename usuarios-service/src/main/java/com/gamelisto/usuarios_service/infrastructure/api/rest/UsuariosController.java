@@ -15,6 +15,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
 import com.gamelisto.usuarios_service.application.usecases.CambiarContrasenaUseCase;
+import com.gamelisto.usuarios_service.application.usecases.CambiarCorreoUseCase;
 import com.gamelisto.usuarios_service.application.usecases.CambiarEstadoUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.CrearUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.EditarPerfilUsuarioUseCase;
@@ -26,6 +27,7 @@ import com.gamelisto.usuarios_service.application.usecases.RestablecerContrasena
 import com.gamelisto.usuarios_service.application.usecases.SolicitarRestablecimientoUseCase;
 import com.gamelisto.usuarios_service.application.usecases.VerificarEmailUseCase;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarContrasenaRequest;
+import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarCorreoRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarEstadoUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CrearUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.EditarPerfilUsuarioRequest;
@@ -56,6 +58,7 @@ public class UsuariosController {
     private final CambiarContrasenaUseCase cambiarContraseñaUseCase;
     private final RestablecerContrasenaUseCase restablecerContrasenaUseCase;
     private final SolicitarRestablecimientoUseCase solicitarRestablecimientoUseCase;
+    private final CambiarCorreoUseCase cambiarCorreoUseCase;
 
     public UsuariosController(
             CrearUsuarioUseCase crearUsuarioUseCase,
@@ -68,7 +71,8 @@ public class UsuariosController {
             ReenviarVerificacionUseCase reenviarVerificacionUseCase,
             CambiarContrasenaUseCase cambiarContraseñaUseCase,
             RestablecerContrasenaUseCase restablecerContrasenaUseCase,
-            SolicitarRestablecimientoUseCase solicitarRestablecimientoUseCase) {
+            SolicitarRestablecimientoUseCase solicitarRestablecimientoUseCase,
+            CambiarCorreoUseCase cambiarCorreoUseCase) {
         this.crearUsuarioUseCase = crearUsuarioUseCase;
         this.editarPerfilUsuarioUseCase = editarPerfilUsuarioUseCase;
         this.obtenerTodosLosUsuariosUseCase = obtenerTodosLosUsuariosUseCase;
@@ -80,6 +84,7 @@ public class UsuariosController {
         this.cambiarContraseñaUseCase = cambiarContraseñaUseCase;
         this.restablecerContrasenaUseCase = restablecerContrasenaUseCase;
         this.solicitarRestablecimientoUseCase = solicitarRestablecimientoUseCase;
+        this.cambiarCorreoUseCase = cambiarCorreoUseCase;
     }
 
     @GetMapping(value = "/health")
@@ -146,6 +151,17 @@ public class UsuariosController {
         cambiarContraseñaUseCase.execute(request.toCommand(id));
 
         logger.info("✅ Contraseña cambiada exitosamente para usuario con ID: {}", id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "user/{id}/change-email", consumes = "application/json")
+    public ResponseEntity<Void> cambiarCorreo(
+            @PathVariable String id,
+            @Valid @RequestBody CambiarCorreoRequest request) {
+        logger.info("ℹ️ POST /v1/usuarios/user/{}/change-email - Cambiando correo para usuario con ID: {}", id, id);
+        cambiarCorreoUseCase.execute(request.toCommand(id));
+
+        logger.info("✅ Email cambiado exitosamente para usuario con ID: {}", id);
         return ResponseEntity.ok().build();
     }
 

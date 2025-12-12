@@ -145,6 +145,11 @@ public class Usuario {
         this.updatedAt = Instant.now();
     }
 
+    public void marcarPendienteVerificacion() {
+        this.status = EstadoUsuario.PENDIENTE_DE_VERIFICACION;
+        this.updatedAt = Instant.now();
+    }
+
     public void generarTokenVerificacion() {
         this.tokenVerificacion = TokenVerificacion.generate();
         this.tokenVerificacionExpiracion = Instant.now().plusSeconds(24 * 60 * 60); // 24 horas
