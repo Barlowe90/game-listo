@@ -37,7 +37,6 @@ class ReenviarVerificacionUseCaseTest {
         // Arrange
         String email = "pendiente@test.com";
         Usuario usuario = crearUsuarioPendiente(email);
-        TokenVerificacion tokenAnterior = usuario.getTokenVerificacion();
         
         when(repositorioUsuarios.findByEmail(any(Email.class)))
             .thenReturn(Optional.of(usuario));
