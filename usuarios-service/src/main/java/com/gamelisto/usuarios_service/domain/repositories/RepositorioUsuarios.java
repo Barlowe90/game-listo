@@ -3,6 +3,7 @@ package com.gamelisto.usuarios_service.domain.repositories;
 import java.util.List;
 import java.util.Optional;
 
+import com.gamelisto.usuarios_service.domain.usuario.DiscordUserId;
 import com.gamelisto.usuarios_service.domain.usuario.Email;
 import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
 import com.gamelisto.usuarios_service.domain.usuario.TokenVerificacion;
@@ -19,6 +20,8 @@ public interface RepositorioUsuarios {
     Optional<Usuario> findByEmail(Email email);
 
     Optional<Usuario> findByUsername(Username username);
+
+    Optional<Usuario> findByDiscordUserId(DiscordUserId discordUserId);
 
     Optional<Usuario> findByTokenVerificacion(TokenVerificacion token);
 
