@@ -1,7 +1,9 @@
 package com.gamelisto.usuarios_service.application.dto;
 
+import org.springframework.lang.NonNull;
+
 public record VincularDiscordCommand(
-    String usuarioId,
-    String code,
-    String redirectUri
+    @NonNull String usuarioId,
+    @NonNull String code,
+    @NonNull String redirectUri
 ) {}
