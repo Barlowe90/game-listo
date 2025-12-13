@@ -35,6 +35,7 @@
 ### Gestión de estado
 
 - [x] `suspend()`, `activate()`, `delete()`
+- [x] `marcarPendienteVerificacion()` - Cambia estado al cambiar email
 - [x] `isActive()`, `isSuspended()`, `isDeleted()`
 
 ### Verificación de email
@@ -45,6 +46,7 @@
 
 ### Restablecimiento de contraseña
 
+- [x] `generarTokenRestablecimiento()` - Genera token de reset con expiración 1h
 - [x] `tieneTokenRestablecimientoValido(token)` - Valida token de reset
 - [x] `invalidarTokenRestablecimiento()` - Limpia token tras uso
 
@@ -65,10 +67,13 @@
 
 ## ✅ Excepciones de dominio
 
-- [x] `EntidadNoEncontrada` - Usuario no encontrado por ID
+- [x] `EntidadNoEncontrada` - Entidad genérica no encontrada
+- [x] `UsuarioNoEncontradoException` - Usuario no encontrado por ID
 - [x] `UsernameYaExisteException` - Username duplicado
 - [x] `EmailYaRegistradoException` - Email duplicado
-- [x] `TokenInvalidoException` - Token expirado o inválido
+- [x] `TokenVerificacionInvalidoException` - Token de verificación expirado o inválido
+- [x] `UsuarioYaVerificadoException` - Usuario ya verificado
+- [x] `DiscordYaVinculadoException` - Cuenta de Discord ya vinculada
 
 ## ⛔ Código prohibido en /domain (verificado)
 

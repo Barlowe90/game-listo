@@ -14,10 +14,13 @@
   /repositories
     RepositorioUsuarios.java (Port)
   /exceptions
-    EntidadNoEncontrada.java
+    EntidadNoEncontrada.java (genérico)
+    UsuarioNoEncontradoException.java
     UsernameYaExisteException.java
     EmailYaRegistradoException.java
-    TokenInvalidoException.java
+    TokenVerificacionInvalidoException.java
+    UsuarioYaVerificadoException.java
+    DiscordYaVinculadoException.java
 
 /application
   /dto
@@ -26,19 +29,27 @@
     EditarPerfilUsuarioCommand.java
     CambiarContrasenaCommand.java
     CambiarEstadoUsuarioCommand.java
+    CambiarCorreoCommand.java
     VerificarEmailCommand.java
     RestablecerContrasenaCommand.java
+    SolicitarRestablecimientoCommand.java
+    ReenviarVerificacionCommand.java
+    VincularDiscordCommand.java
   /usecases
     CrearUsuarioUseCase.java
     ObtenerUsuarioPorId.java
     ObtenerTodosLosUsuariosUseCase.java
     EditarPerfilUsuarioUseCase.java
-    EliminarUsuarioUseCase.java
+    EliminarUsuarioUseCase.java (soft delete)
     CambiarEstadoUsuarioUseCase.java
     CambiarContrasenaUseCase.java
+    CambiarCorreoUseCase.java
     VerificarEmailUseCase.java
     ReenviarVerificacionUseCase.java
+    SolicitarRestablecimientoUseCase.java
     RestablecerContrasenaUseCase.java
+    VincularDiscordUseCase.java
+    DesvincularDiscordUseCase.java
 
 /infrastructure
   /persistence/postgres
@@ -49,17 +60,32 @@
     /repository
       UsuarioJpaRepository.java
       RepositorioUsuariosPostgre.java
+  /discord
+    DiscordClient.java
+    DiscordTokenResponse.java
+    DiscordUserResponse.java
+    DiscordApiException.java
   /api
     /dto
       CrearUsuarioRequest.java
       EditarPerfilUsuarioRequest.java
+      CambiarContrasenaRequest.java
+      CambiarCorreoRequest.java
+      CambiarEstadoUsuarioRequest.java
+      VerificarEmailRequest.java
+      RestablecerContrasenaRequest.java
+      SolicitarRestablecimientoRequest.java
+      ReenviarVerificacionRequest.java
+      VincularDiscordRequest.java
       UsuarioResponse.java
-      ...
+      ValidationError.java
     UsuariosController.java
   /security
     SecurityConfig.java
   /exceptions
     GlobalExceptionHandler.java
+  /config
+    RestTemplateConfig.java
 ```
 
 ## ✅ Principios DDD implementados
@@ -139,6 +165,30 @@ H2 / PostgreSQL
 
 - [x] **Anemic Domain Model**: Usuario tiene comportamiento, no solo getters/setters.
 - [x] **Smart UI**: Lógica en dominio, no en controladores.
-- [ ] **God Objects**: Separar responsabilidades en casos de uso distintos.
-- [ ] **Leaky Abstractions**: No exponer UsuarioEntity fuera de infrastructure.
-- [ ] **Transaction Script**: Usar objetos de dominio, no servicios procedurales.
+- [x] **God Objects**: Responsabilidades separadas en casos de uso distintos.
+- [x] **Leaky Abstractions**: UsuarioEntity no se expone fuera de infrastructure.
+- [x] **Transaction Script**: Se usan objetos de dominio, no servicios procedurales.
+
+## ✅ Verificación de cumplimiento DDD/Hexagonal
+
+### ✓ Dominio puro
+
+- Sin anotaciones de frameworks
+- Sin dependencias de infraestructura
+- Value Objects inmutables con validación
+- Aggregate Root con comportamiento completo
+- Excepciones específicas de dominio
+
+### ✓ Ports & Adapters
+
+- Interface `RepositorioUsuarios` define contrato (port)
+- `RepositorioUsuariosPostgre` implementa adaptación a JPA
+- `UsuariosController` adapta REST a casos de uso
+- `DiscordClient` adapta integración externa
+- Anti-Corruption Layer con `UsuarioMapper`
+
+### ✓ Dependency Inversion
+
+- Dominio define interfaces, infrastructure implementa
+- Application depende de domain, no de infrastructure
+- Flujo de dependencias: infrastructure → application → domain

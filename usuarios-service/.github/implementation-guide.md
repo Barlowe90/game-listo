@@ -24,35 +24,42 @@
 - [x] `CrearUsuarioUseCase` - Registro con token de verificación
 - [x] `VerificarEmailUseCase` - Verificación con token
 - [x] `ReenviarVerificacionUseCase` - Regenerar token expirado
+- [x] `SolicitarRestablecimientoUseCase` - Solicitar reset de contraseña
 - [x] `RestablecerContrasenaUseCase` - Reset con token
 - [x] `CambiarContrasenaUseCase` - Cambio validando actual
+- [x] `CambiarCorreoUseCase` - Cambio de email con nueva verificación
 - [x] `ObtenerUsuarioPorId` - Consulta por ID
 - [x] `ObtenerTodosLosUsuariosUseCase` - Listado
 - [x] `EditarPerfilUsuarioUseCase` - Edición de perfil
 - [x] `CambiarEstadoUsuarioUseCase` - Suspender/Activar
 - [x] `EliminarUsuarioUseCase` - Soft delete
+- [x] `VincularDiscordUseCase` - Vincular cuenta Discord
+- [x] `DesvincularDiscordUseCase` - Desvincular Discord
 
 ### Fase 4: Infrastructure - REST API (✅ COMPLETADO)
 
 - [x] `UsuariosController` con todos los endpoints
-- [x] Request/Response DTOs
+- [x] Request/Response DTOs completos
 - [x] Validación con Bean Validation
 - [x] `GlobalExceptionHandler` para manejo de errores
 - [x] `SecurityConfig` con BCrypt
+- [x] `DiscordClient` para integración OAuth2
 
 ### Fase 5: Testing (✅ COMPLETADO)
 
-- [x] Tests de Value Objects (dominio)
+- [x] Tests de Value Objects (dominio) - 100% cobertura
 - [x] Tests de entidad `Usuario` (dominio)
-- [x] Tests de casos de uso con Mockito (application)
+- [x] Tests de casos de uso con Mockito (application) - todos los casos de uso
 
-### Fase 6: Pendientes (📋 EN PROGRESO)
+### Fase 6: Pendientes (📋 SIGUIENTES PASOS)
 
-- [ ] Tests de integración con H2
+- [ ] Tests de integración con H2 y SpringBootTest
 - [ ] Tests de controladores con MockMvc
-- [ ] Integración JWT con `auth-service`
-- [ ] Mensajería RabbitMQ (eventos)
-- [ ] Discord OAuth2 completo
+- [ ] Integración JWT con `auth-service` para autenticación
+- [ ] Mensajería RabbitMQ (publicación de eventos de dominio)
+- [ ] Completar configuración Discord OAuth2 (variables de entorno)
+- [ ] Implementar servicio de envío de emails (verificación, reset)
+- [ ] Documentación OpenAPI/Swagger
 
 ## 🔑 Reglas clave
 
@@ -89,14 +96,14 @@
 | Value Objects | `UsuarioId`, `Email`, `Username`, `TokenVerificacion` |
 | Enums | `EstadoUsuario`, `Rol`, `Idioma` |
 | Repositorios | `RepositorioUsuarios` (interface) |
-| Excepciones | `EntidadNoEncontrada`, `TokenInvalidoException` |
+| Excepciones | `UsuarioNoEncontradoException`, `TokenVerificacionInvalidoException`, `DiscordYaVinculadoException` |
 
 ### Application
 
 | Tipo | Ejemplo |
 |------|----------|
-| Casos de uso | `CrearUsuarioUseCase`, `VerificarEmailUseCase` |
-| Commands | `CrearUsuarioCommand`, `CambiarContrasenaCommand` |
+| Casos de uso | `CrearUsuarioUseCase`, `VerificarEmailUseCase`, `VincularDiscordUseCase` |
+| Commands | `CrearUsuarioCommand`, `CambiarContrasenaCommand`, `VincularDiscordCommand` |
 | DTOs | `UsuarioDTO` |
 
 ### Infrastructure
@@ -107,8 +114,9 @@
 | Mappers | `UsuarioMapper` |
 | Repositorios | `RepositorioUsuariosPostgre`, `UsuarioJpaRepository` |
 | Controllers | `UsuariosController` |
-| Request DTOs | `CrearUsuarioRequest`, `EditarPerfilUsuarioRequest` |
+| Request DTOs | `CrearUsuarioRequest`, `EditarPerfilUsuarioRequest`, `VincularDiscordRequest` |
 | Response DTOs | `UsuarioResponse` |
+| Integraciones | `DiscordClient`, `DiscordTokenResponse`, `DiscordUserResponse` |
 
 ## 🧪 Testing
 

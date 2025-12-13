@@ -30,7 +30,7 @@
 
 - [x] Base path: `/v1/usuarios`
 - [x] `UsuariosController` con todos los endpoints
-- [x] Request DTOs en `/infrastructure/api/dto/`: `CrearUsuarioRequest`, `EditarPerfilUsuarioRequest`, etc.
+- [x] Request DTOs en `/infrastructure/api/dto/`: `CrearUsuarioRequest`, `EditarPerfilUsuarioRequest`, `CambiarContrasenaRequest`, `CambiarCorreoRequest`, `CambiarEstadoUsuarioRequest`, `VerificarEmailRequest`, `RestablecerContrasenaRequest`, `SolicitarRestablecimientoRequest`, `VincularDiscordRequest`, `ReenviarVerificacionRequest`
 - [x] Response DTOs: `UsuarioResponse`
 - [x] Validación con `@Valid` en requests
 - [x] Inyecta casos de uso, no repositorios
@@ -43,13 +43,17 @@
 | POST | `/auth/register` | `CrearUsuarioUseCase` |
 | POST | `/auth/verify-email` | `VerificarEmailUseCase` |
 | POST | `/auth/resend-verification` | `ReenviarVerificacionUseCase` |
+| POST | `/auth/forgot-password` | `SolicitarRestablecimientoUseCase` |
 | POST | `/auth/reset-password` | `RestablecerContrasenaUseCase` |
 | GET | `/users` | `ObtenerTodosLosUsuariosUseCase` |
 | GET | `/user/{id}` | `ObtenerUsuarioPorId` |
 | PATCH | `/user/{id}` | `EditarPerfilUsuarioUseCase` |
 | DELETE | `/user/{id}` | `EliminarUsuarioUseCase` |
 | POST | `/user/{id}/change-password` | `CambiarContrasenaUseCase` |
+| POST | `/user/{id}/change-email` | `CambiarCorreoUseCase` |
 | PATCH | `/user/{id}/state` | `CambiarEstadoUsuarioUseCase` |
+| POST | `/auth/discord/link/callback` | `VincularDiscordUseCase` |
+| DELETE | `/discord/link` | `DesvincularDiscordUseCase` |
 
 ## ✅ Seguridad configurada
 
@@ -57,6 +61,15 @@
 - [x] Configuración permite todas las requests (modo desarrollo)
 - [ ] Integración JWT pendiente (delegar a `auth-service`)
 - [ ] `@PreAuthorize` donde corresponda
+
+## ✅ Discord OAuth2 (parcialmente implementado)
+
+- [x] `DiscordClient` para integración con API de Discord
+- [x] `DiscordTokenResponse`, `DiscordUserResponse` DTOs
+- [x] `VincularDiscordUseCase`, `DesvincularDiscordUseCase` implementados
+- [x] Endpoints de vinculación/desvinculación
+- [ ] Flujo completo OAuth2 callback pendiente de configuración
+- [ ] Variables de entorno para Discord App (CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
 
 ## ✅ Manejo de errores implementado
 
