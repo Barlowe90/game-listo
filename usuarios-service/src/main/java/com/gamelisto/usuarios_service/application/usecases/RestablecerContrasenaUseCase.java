@@ -10,8 +10,8 @@ import com.gamelisto.usuarios_service.domain.usuario.Email;
 import com.gamelisto.usuarios_service.domain.usuario.PasswordHash;
 import com.gamelisto.usuarios_service.domain.usuario.TokenVerificacion;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
-import com.gamelisto.usuarios_service.infrastructure.exceptions.TokenVerificacionInvalidoException;
-import com.gamelisto.usuarios_service.infrastructure.exceptions.UsuarioNoEncontradoException;
+import com.gamelisto.usuarios_service.domain.exceptions.TokenVerificacionInvalidoException;
+import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoException;
 
 @Service
 public class RestablecerContrasenaUseCase {

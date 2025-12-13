@@ -7,8 +7,8 @@ import com.gamelisto.usuarios_service.application.dto.VerificarEmailCommand;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.TokenVerificacion;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
-import com.gamelisto.usuarios_service.infrastructure.exceptions.TokenVerificacionInvalidoException;
-import com.gamelisto.usuarios_service.infrastructure.exceptions.UsuarioYaVerificadoException;
+import com.gamelisto.usuarios_service.domain.exceptions.TokenVerificacionInvalidoException;
+import com.gamelisto.usuarios_service.domain.exceptions.UsuarioYaVerificadoException;
 
 @Service
 public class VerificarEmailUseCase {

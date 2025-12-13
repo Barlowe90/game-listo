@@ -10,7 +10,7 @@ import com.gamelisto.usuarios_service.domain.usuario.Avatar;
 import com.gamelisto.usuarios_service.domain.usuario.Idioma;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
-import com.gamelisto.usuarios_service.infrastructure.exceptions.UsuarioNoEncontradoException;
+import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoException;
 
 @Service
 public class EditarPerfilUsuarioUseCase {

@@ -12,8 +12,8 @@ import com.gamelisto.usuarios_service.domain.usuario.Email;
 import com.gamelisto.usuarios_service.domain.usuario.PasswordHash;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.domain.usuario.Username;
-import com.gamelisto.usuarios_service.infrastructure.exceptions.EmailYaRegistradoException;
-import com.gamelisto.usuarios_service.infrastructure.exceptions.UsernameYaExisteException;
+import com.gamelisto.usuarios_service.domain.exceptions.EmailYaRegistradoException;
+import com.gamelisto.usuarios_service.domain.exceptions.UsernameYaExisteException;
 
 @Service
 public class CrearUsuarioUseCase {

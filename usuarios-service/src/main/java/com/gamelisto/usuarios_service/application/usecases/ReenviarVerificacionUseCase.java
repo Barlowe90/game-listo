@@ -8,8 +8,8 @@ import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.Email;
 import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
-import com.gamelisto.usuarios_service.infrastructure.exceptions.UsuarioNoEncontradoException;
-import com.gamelisto.usuarios_service.infrastructure.exceptions.UsuarioYaVerificadoException;
+import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoException;
+import com.gamelisto.usuarios_service.domain.exceptions.UsuarioYaVerificadoException;
 
 @Service
 public class ReenviarVerificacionUseCase {

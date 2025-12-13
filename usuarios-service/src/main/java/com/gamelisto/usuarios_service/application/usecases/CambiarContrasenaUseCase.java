@@ -9,7 +9,7 @@ import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.PasswordHash;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
-import com.gamelisto.usuarios_service.infrastructure.exceptions.UsuarioNoEncontradoException;
+import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoException;
 
 @Service
 public class CambiarContrasenaUseCase {
