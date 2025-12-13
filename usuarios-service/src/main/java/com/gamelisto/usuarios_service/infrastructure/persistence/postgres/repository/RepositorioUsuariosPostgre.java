@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Repository;
 
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
+import com.gamelisto.usuarios_service.domain.usuario.DiscordUserId;
 import com.gamelisto.usuarios_service.domain.usuario.Email;
 import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
 import com.gamelisto.usuarios_service.domain.usuario.TokenVerificacion;
@@ -51,6 +52,15 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
     @Override
     public Optional<Usuario> findByUsername(Username username) {
         return jpaRepository.findByUsername(username.value())
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Usuario> findByDiscordUserId(DiscordUserId discordUserId) {
+        if (discordUserId == null || discordUserId.isEmpty()) {
+            return Optional.empty();
+        }
+        return jpaRepository.findByDiscordUserId(discordUserId.value())
                 .map(mapper::toDomain);
     }
 

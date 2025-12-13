@@ -17,6 +17,8 @@ public interface UsuarioJpaRepository extends JpaRepository<UsuarioEntity, UUID>
 
     Optional<UsuarioEntity> findByUsername(String username);
 
+    Optional<UsuarioEntity> findByDiscordUserId(String discordUserId);
+
     List<UsuarioEntity> findByStatus(EstadoUsuario status);
 
     @Query("SELECT u FROM UsuarioEntity u WHERE u.status = 'ACTIVO' AND u.notificationsActive = true")

@@ -3,6 +3,8 @@ package com.gamelisto.usuarios_service.infrastructure.api.rest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +19,7 @@ import com.gamelisto.usuarios_service.application.usecases.CambiarContrasenaUseC
 import com.gamelisto.usuarios_service.application.usecases.CambiarCorreoUseCase;
 import com.gamelisto.usuarios_service.application.usecases.CambiarEstadoUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.CrearUsuarioUseCase;
+import com.gamelisto.usuarios_service.application.usecases.DesvincularDiscordUseCase;
 import com.gamelisto.usuarios_service.application.usecases.EditarPerfilUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerTodosLosUsuariosUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerUsuarioPorId;
@@ -24,6 +27,7 @@ import com.gamelisto.usuarios_service.application.usecases.ReenviarVerificacionU
 import com.gamelisto.usuarios_service.application.usecases.RestablecerContrasenaUseCase;
 import com.gamelisto.usuarios_service.application.usecases.SolicitarRestablecimientoUseCase;
 import com.gamelisto.usuarios_service.application.usecases.VerificarEmailUseCase;
+import com.gamelisto.usuarios_service.application.usecases.VincularDiscordUseCase;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarContrasenaRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarCorreoRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarEstadoUsuarioRequest;
@@ -34,6 +38,7 @@ import com.gamelisto.usuarios_service.infrastructure.api.dto.RestablecerContrase
 import com.gamelisto.usuarios_service.infrastructure.api.dto.SolicitarRestablecimientoRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.UsuarioResponse;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.VerificarEmailRequest;
+import com.gamelisto.usuarios_service.infrastructure.api.dto.VincularDiscordRequest;
 
 import jakarta.validation.Valid;
 
@@ -56,6 +61,8 @@ public class UsuariosController {
     private final RestablecerContrasenaUseCase restablecerContrasenaUseCase;
     private final SolicitarRestablecimientoUseCase solicitarRestablecimientoUseCase;
     private final CambiarCorreoUseCase cambiarCorreoUseCase;
+    private final VincularDiscordUseCase vincularDiscordUseCase;
+    private final DesvincularDiscordUseCase desvincularDiscordUseCase;
 
     public UsuariosController(
             CrearUsuarioUseCase crearUsuarioUseCase,
@@ -68,7 +75,9 @@ public class UsuariosController {
             CambiarContrasenaUseCase cambiarContraseñaUseCase,
             RestablecerContrasenaUseCase restablecerContrasenaUseCase,
             SolicitarRestablecimientoUseCase solicitarRestablecimientoUseCase,
-            CambiarCorreoUseCase cambiarCorreoUseCase) {
+            CambiarCorreoUseCase cambiarCorreoUseCase,
+            VincularDiscordUseCase vincularDiscordUseCase,
+            DesvincularDiscordUseCase desvincularDiscordUseCase) {
         this.crearUsuarioUseCase = crearUsuarioUseCase;
         this.editarPerfilUsuarioUseCase = editarPerfilUsuarioUseCase;
         this.obtenerTodosLosUsuariosUseCase = obtenerTodosLosUsuariosUseCase;
@@ -80,6 +89,8 @@ public class UsuariosController {
         this.restablecerContrasenaUseCase = restablecerContrasenaUseCase;
         this.solicitarRestablecimientoUseCase = solicitarRestablecimientoUseCase;
         this.cambiarCorreoUseCase = cambiarCorreoUseCase;
+        this.vincularDiscordUseCase = vincularDiscordUseCase;
+        this.desvincularDiscordUseCase = desvincularDiscordUseCase;
     }
 
     @GetMapping(value = "/health")
@@ -211,6 +222,36 @@ public class UsuariosController {
         UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
         logger.info("✅ Usuario obtenido exitosamente - ID: {}, Username: {}", 
+                    response.id(), response.username());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(value = "/user/{id}/discord/link", consumes = "application/json")
+    public ResponseEntity<UsuarioResponse> vincularDiscord(
+            @PathVariable @NonNull String id,
+            @Valid @RequestBody VincularDiscordRequest request) {
+        logger.info("ℹ️ POST /v1/usuarios/user/{}/discord/link - Vinculando cuenta de Discord para usuario con ID: {}", id, id);
+
+        UsuarioDTO usuarioDTO = vincularDiscordUseCase.execute(request.toCommand(id));
+
+        UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
+
+        logger.info("✅ Cuenta de Discord vinculada exitosamente - ID: {}, Username: {}, Discord: {}", 
+                    response.id(), response.username(), response.discordUsername());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping(value = "/user/{id}/discord/unlink")
+    public ResponseEntity<UsuarioResponse> desvincularDiscord(@PathVariable String id) {
+        logger.info("ℹ️ DELETE /v1/usuarios/user/{}/discord/unlink - Desvinculando cuenta de Discord para usuario con ID: {}", id, id);
+
+        UsuarioDTO usuarioDTO = desvincularDiscordUseCase.execute(id);
+
+        UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
+
+        logger.info("✅ Cuenta de Discord desvinculada exitosamente - ID: {}, Username: {}", 
                     response.id(), response.username());
 
         return ResponseEntity.ok(response);
