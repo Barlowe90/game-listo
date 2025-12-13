@@ -381,24 +381,6 @@ class UsuarioTest {
     }
     
     @Test
-    @DisplayName("Debe eliminar usuario")
-    void debeEliminarUsuario() throws InterruptedException {
-        // Arrange
-        Usuario usuario = crearUsuarioDefault();
-        Instant updatedAtAntes = usuario.getUpdatedAt();
-        Thread.sleep(10);
-        
-        // Act
-        usuario.delete();
-        
-        // Assert
-        assertEquals(EstadoUsuario.ELIMINADO, usuario.getStatus());
-        assertTrue(usuario.isDeleted());
-        assertFalse(usuario.isActive());
-        assertTrue(usuario.getUpdatedAt().isAfter(updatedAtAntes));
-    }
-    
-    @Test
     @DisplayName("Debe lanzar excepción al intentar activar usuario eliminado")
     void debeLanzarExcepcionAlActivarUsuarioEliminado() {
         // Arrange

@@ -3,7 +3,6 @@ package com.gamelisto.usuarios_service.infrastructure.api.rest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +18,6 @@ import com.gamelisto.usuarios_service.application.usecases.CambiarCorreoUseCase;
 import com.gamelisto.usuarios_service.application.usecases.CambiarEstadoUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.CrearUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.EditarPerfilUsuarioUseCase;
-import com.gamelisto.usuarios_service.application.usecases.EliminarUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerTodosLosUsuariosUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerUsuarioPorId;
 import com.gamelisto.usuarios_service.application.usecases.ReenviarVerificacionUseCase;
@@ -51,7 +49,6 @@ public class UsuariosController {
     private final EditarPerfilUsuarioUseCase editarPerfilUsuarioUseCase;
     private final ObtenerTodosLosUsuariosUseCase obtenerTodosLosUsuariosUseCase;
     private final ObtenerUsuarioPorId obtenerUsuarioPorId;
-    private final EliminarUsuarioUseCase eliminarUsuarioUseCase;
     private final CambiarEstadoUsuarioUseCase cambiarEstadoUsuarioUseCase;
     private final VerificarEmailUseCase verificarEmailUseCase;
     private final ReenviarVerificacionUseCase reenviarVerificacionUseCase;
@@ -65,7 +62,6 @@ public class UsuariosController {
             EditarPerfilUsuarioUseCase editarPerfilUsuarioUseCase,
             ObtenerTodosLosUsuariosUseCase obtenerTodosLosUsuariosUseCase,
             ObtenerUsuarioPorId obtenerUsuarioPorId,
-            EliminarUsuarioUseCase eliminarUsuarioUseCase,
             CambiarEstadoUsuarioUseCase cambiarEstadoUsuarioUseCase,
             VerificarEmailUseCase verificarEmailUseCase,
             ReenviarVerificacionUseCase reenviarVerificacionUseCase,
@@ -77,7 +73,6 @@ public class UsuariosController {
         this.editarPerfilUsuarioUseCase = editarPerfilUsuarioUseCase;
         this.obtenerTodosLosUsuariosUseCase = obtenerTodosLosUsuariosUseCase;
         this.obtenerUsuarioPorId = obtenerUsuarioPorId;
-        this.eliminarUsuarioUseCase = eliminarUsuarioUseCase;
         this.cambiarEstadoUsuarioUseCase = cambiarEstadoUsuarioUseCase;
         this.verificarEmailUseCase = verificarEmailUseCase;
         this.reenviarVerificacionUseCase = reenviarVerificacionUseCase;
@@ -235,16 +230,5 @@ public class UsuariosController {
 
         return responses;
     }
-
-    @DeleteMapping(value = "/user/{id}")
-    public ResponseEntity<Void> eliminarUsuario(@PathVariable String id) {
-        logger.info("ℹ️ DELETE /v1/usuarios/user/{} - Eliminando usuario con ID: {}", id, id);
-
-        eliminarUsuarioUseCase.execute(id);
-
-        logger.info("✅ Usuario eliminado exitosamente - ID: {}", id);
-
-        return ResponseEntity.noContent().build();
-    }    
     
 }
