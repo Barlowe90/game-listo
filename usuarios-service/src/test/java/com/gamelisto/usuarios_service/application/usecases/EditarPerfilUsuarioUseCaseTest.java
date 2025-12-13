@@ -4,7 +4,7 @@ import com.gamelisto.usuarios_service.application.dto.EditarPerfilUsuarioCommand
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.*;
-import com.gamelisto.usuarios_service.infrastructure.exceptions.UsuarioNoEncontradoException;
+import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
