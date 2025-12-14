@@ -4,6 +4,8 @@ import java.time.Instant;
 
 public class Usuario {
 
+    private static final int PASSWORD_RESET_TOKEN_TTL_SECONDS = 60 * 60;  // 1 hora
+    private static final int EMAIL_VERIFICATION_TOKEN_TTL_SECONDS = 24 * 60 * 60; // 24 horas
     private final UsuarioId id; 
     private Username username; 
     private Email email; 
@@ -25,7 +27,7 @@ public class Usuario {
     private Instant tokenRestablecimientoExpiracion;
 
     private Usuario(UsuarioId id, Username username, Email email, PasswordHash passwordHash, Avatar avatar, Instant createdAt, Rol role, Idioma language, EstadoUsuario status) {
-        validateInvariants(username, email, passwordHash, createdAt);
+        validarArgumentosCreacion(username, email, passwordHash, createdAt);
         this.id = id;
         this.username = username;
         this.email = email;
@@ -68,7 +70,7 @@ public class Usuario {
         return usuario;
     }
 
-    private void validateInvariants(Username username, Email email, PasswordHash passwordHash, Instant createdAt) {
+    private void validarArgumentosCreacion(Username username, Email email, PasswordHash passwordHash, Instant createdAt) {
         if (username == null) {
             throw new IllegalArgumentException("El username es obligatorio");
         }
@@ -152,13 +154,13 @@ public class Usuario {
 
     public void generarTokenVerificacion() {
         this.tokenVerificacion = TokenVerificacion.generate();
-        this.tokenVerificacionExpiracion = Instant.now().plusSeconds(24 * 60 * 60); // 24 horas
+        this.tokenVerificacionExpiracion = Instant.now().plusSeconds(EMAIL_VERIFICATION_TOKEN_TTL_SECONDS);
         this.updatedAt = Instant.now();
     }
 
     public void generarTokenRestablecimiento() {
         this.tokenRestablecimiento = TokenVerificacion.generate();
-        this.tokenRestablecimientoExpiracion = Instant.now().plusSeconds(60 * 60); // 1 hora
+        this.tokenRestablecimientoExpiracion = Instant.now().plusSeconds(PASSWORD_RESET_TOKEN_TTL_SECONDS);
         this.updatedAt = Instant.now();
     }
 
