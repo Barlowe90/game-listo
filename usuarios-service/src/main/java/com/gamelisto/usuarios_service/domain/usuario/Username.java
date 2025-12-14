@@ -13,15 +13,19 @@ public final class Username {
             throw new IllegalArgumentException("El username no puede ser nulo o vacío");
         }
         
-        String trimmedValue = value.trim();
+        String usernameNormalized = value.trim();
         
-        if (!USERNAME_PATTERN.matcher(trimmedValue).matches()) {
+        if (!cumplePatronUsername(usernameNormalized)) {
             throw new IllegalArgumentException(
                 "El username debe tener entre 3 y 30 caracteres y solo puede contener letras, números, guiones y guiones bajos"
             );
         }
         
-        this.value = trimmedValue;
+        this.value = usernameNormalized;
+    }
+
+    private boolean cumplePatronUsername(String usernameNormalized) {
+        return USERNAME_PATTERN.matcher(usernameNormalized).matches();
     }
 
     public static Username of(String value) {

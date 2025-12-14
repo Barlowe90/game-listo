@@ -3,12 +3,13 @@ package com.gamelisto.usuarios_service.domain.usuario;
 public final class Avatar {
     
     private final String url;
+    private final static int MAX_URL_LENGTH = 500;
 
     private Avatar(String url) {
         if (url != null && !url.trim().isEmpty()) {
             String trimmedUrl = url.trim();
-            if (trimmedUrl.length() > 500) {
-                throw new IllegalArgumentException("La URL del avatar no puede exceder 500 caracteres");
+            if (trimmedUrl.length() > MAX_URL_LENGTH) {
+                throw new IllegalArgumentException("La URL del avatar no puede exceder " + MAX_URL_LENGTH + " caracteres");
             }
             this.url = trimmedUrl;
         } else {

@@ -8,7 +8,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.gamelisto.usuarios_service.domain.errors.EntidadNoEncontrada;
 import com.gamelisto.usuarios_service.domain.exceptions.DiscordYaVinculadoException;
 import com.gamelisto.usuarios_service.domain.exceptions.EmailYaRegistradoException;
 import com.gamelisto.usuarios_service.domain.exceptions.TokenVerificacionInvalidoException;
@@ -28,12 +27,6 @@ public class GlobalExceptionHandler {
 
     // ============ Excepciones de Negocio - 404 Not Found ============
     
-    @ExceptionHandler(EntidadNoEncontrada.class)
-    public ResponseEntity<Map<String, Object>> handleEntidadNoEncontrada(EntidadNoEncontrada ex) {
-        logger.warn("Entidad no encontrada: {}", ex.getMessage());
-        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
     @ExceptionHandler(UsuarioNoEncontradoException.class)
     public ResponseEntity<Map<String, Object>> handleUsuarioNoEncontrado(UsuarioNoEncontradoException ex) {
         logger.warn("Usuario no encontrado: {}", ex.getUsuarioId());

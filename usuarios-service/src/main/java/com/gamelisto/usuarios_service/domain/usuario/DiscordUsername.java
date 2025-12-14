@@ -3,12 +3,13 @@ package com.gamelisto.usuarios_service.domain.usuario;
 public final class DiscordUsername {
     
     private final String value;
+    private final static int MAX_USERNAME_LENGTH = 100;
 
     private DiscordUsername(String value) {
         if (value != null && !value.trim().isEmpty()) {
             String trimmedValue = value.trim();
-            if (trimmedValue.length() > 100) {
-                throw new IllegalArgumentException("El username de Discord no puede exceder 100 caracteres");
+            if (trimmedValue.length() > MAX_USERNAME_LENGTH) {
+                throw new IllegalArgumentException("El username de Discord no puede exceder " + MAX_USERNAME_LENGTH + " caracteres");
             }
             this.value = trimmedValue;
         } else {

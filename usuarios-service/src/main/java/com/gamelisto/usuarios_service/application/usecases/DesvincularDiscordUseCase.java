@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
-import com.gamelisto.usuarios_service.domain.errors.EntidadNoEncontrada;
+import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoException;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
@@ -31,7 +31,7 @@ public class DesvincularDiscordUseCase {
 
         UsuarioId usuarioId = UsuarioId.fromString(usuarioIdStr);
         Usuario usuario = repositorioUsuarios.findById(usuarioId)
-                .orElseThrow(() -> new EntidadNoEncontrada("Usuario no encontrado con ID: " + usuarioIdStr));
+                .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario no encontrado con ID: " + usuarioIdStr));
 
         usuario.unlinkDiscord();
 

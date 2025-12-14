@@ -18,7 +18,7 @@ public final class Email {
         
         String normalizedEmail = value.trim().toLowerCase();
         
-        if (!EMAIL_PATTERN.matcher(normalizedEmail).matches()) {
+        if (!cumplePatronEmail(normalizedEmail)) {
             throw new IllegalArgumentException("El formato del email es inválido: " + value);
         }
         
@@ -27,6 +27,10 @@ public final class Email {
         }
         
         this.value = normalizedEmail;
+    }
+
+    private boolean cumplePatronEmail(String normalizedEmail) {
+        return EMAIL_PATTERN.matcher(normalizedEmail).matches();
     }
 
     public static Email of(String value) {

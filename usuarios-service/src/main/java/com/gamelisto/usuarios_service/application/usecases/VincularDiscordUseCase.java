@@ -10,8 +10,8 @@ import com.gamelisto.usuarios_service.application.dto.DiscordUserCommand;
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
 import com.gamelisto.usuarios_service.application.dto.VincularDiscordCommand;
 import com.gamelisto.usuarios_service.application.ports.IDiscordService;
-import com.gamelisto.usuarios_service.domain.errors.EntidadNoEncontrada;
 import com.gamelisto.usuarios_service.domain.exceptions.DiscordYaVinculadoException;
+import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoException;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.DiscordUserId;
 import com.gamelisto.usuarios_service.domain.usuario.DiscordUsername;
@@ -40,7 +40,7 @@ public class VincularDiscordUseCase {
         // 1. Obtener el usuario
         UsuarioId usuarioId = UsuarioId.fromString(command.usuarioId());
         Usuario usuario = repositorioUsuarios.findById(usuarioId)
-                .orElseThrow(() -> new EntidadNoEncontrada("Usuario no encontrado con ID: " + command.usuarioId()));
+                .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario no encontrado con ID: " + command.usuarioId()));
 
         // 2. Intercambiar código por access token
         DiscordTokenCommand tokenResponse = discordService.exchangeCode(
