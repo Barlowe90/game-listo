@@ -45,7 +45,7 @@ class CambiarEstadoUsuarioUseCaseTest {
             .thenAnswer(invocation -> invocation.getArgument(0));
         
         CambiarEstadoUsuarioCommand command = new CambiarEstadoUsuarioCommand(
-            usuarioId, "SUSPENDIDO"
+            usuarioId, EstadoUsuario.SUSPENDIDO
         );
         
         // Act
@@ -70,7 +70,7 @@ class CambiarEstadoUsuarioUseCaseTest {
             .thenAnswer(invocation -> invocation.getArgument(0));
         
         CambiarEstadoUsuarioCommand command = new CambiarEstadoUsuarioCommand(
-            usuarioId, "ACTIVO"
+            usuarioId, EstadoUsuario.ACTIVO
         );
         
         // Act
@@ -95,7 +95,7 @@ class CambiarEstadoUsuarioUseCaseTest {
             .thenAnswer(invocation -> invocation.getArgument(0));
         
         CambiarEstadoUsuarioCommand command = new CambiarEstadoUsuarioCommand(
-            usuarioId, "SUSPENDIDO"
+            usuarioId, EstadoUsuario.SUSPENDIDO
         );
         
         // Act
@@ -120,7 +120,7 @@ class CambiarEstadoUsuarioUseCaseTest {
             .thenReturn(Optional.empty());
         
         CambiarEstadoUsuarioCommand command = new CambiarEstadoUsuarioCommand(
-            usuarioIdInexistente, "SUSPENDIDO"
+            usuarioIdInexistente, EstadoUsuario.SUSPENDIDO
         );
         
         // Act & Assert
@@ -143,7 +143,7 @@ class CambiarEstadoUsuarioUseCaseTest {
             .thenReturn(Optional.of(usuario));
         
         CambiarEstadoUsuarioCommand command = new CambiarEstadoUsuarioCommand(
-            usuarioId, "ACTIVO"
+            usuarioId, EstadoUsuario.ACTIVO
         );
         
         // Act & Assert

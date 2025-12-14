@@ -85,14 +85,6 @@ public class Usuario {
         }
     }
 
-    public void changeUsername(Username newUsername) {
-        if (newUsername == null) {
-            throw new IllegalArgumentException("El username no puede ser nulo");
-        }
-        this.username = newUsername;
-        this.updatedAt = Instant.now();
-    }
-
     public void changeEmail(Email newEmail) {
         if (newEmail == null) {
             throw new IllegalArgumentException("El email no puede ser nulo");

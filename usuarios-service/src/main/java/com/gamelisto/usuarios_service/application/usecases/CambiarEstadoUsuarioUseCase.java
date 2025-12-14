@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import com.gamelisto.usuarios_service.application.dto.CambiarEstadoUsuarioCommand;
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
+import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
 import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoException;
@@ -28,11 +29,11 @@ public class CambiarEstadoUsuarioUseCase {
                 .findById(usuarioId)
                 .orElseThrow(() -> new UsuarioNoEncontradoException(command.usuarioId()));
 
-        String nuevoEstado = command.estadoUsuario();
-        
-        if ("SUSPENDIDO".equals(nuevoEstado)) {
+        EstadoUsuario nuevoEstado = command.estadoUsuario();
+
+        if (nuevoEstado == EstadoUsuario.SUSPENDIDO) {
             usuario.suspend();
-        } else if ("ACTIVO".equals(nuevoEstado)) {
+        } else if (nuevoEstado == EstadoUsuario.ACTIVO) {
             usuario.activate();
         }
         

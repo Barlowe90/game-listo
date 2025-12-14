@@ -11,9 +11,6 @@ import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
 
-/**
- * Caso de uso para desvincular una cuenta de Discord de un usuario.
- */
 @Service
 public class DesvincularDiscordUseCase {
 

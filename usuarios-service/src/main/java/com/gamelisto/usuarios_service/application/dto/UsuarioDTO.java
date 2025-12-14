@@ -4,9 +4,6 @@ import java.time.Instant;
 
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 
-/**
- * Para enviar la info de un usuario entre capas se usa esto.
- */
 public record UsuarioDTO(
     String id,
     String username,

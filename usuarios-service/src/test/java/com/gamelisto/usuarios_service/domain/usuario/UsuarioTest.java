@@ -135,36 +135,6 @@ class UsuarioTest {
         assertTrue(exception.getMessage().contains("password hash es obligatorio"));
     }
     
-    // ========== CAMBIO DE USERNAME ==========
-    
-    @Test
-    @DisplayName("Debe cambiar username y actualizar timestamp")
-    void debeCambiarUsernameYActualizarTimestamp() throws InterruptedException {
-        // Arrange
-        Usuario usuario = crearUsuarioDefault();
-        Instant updatedAtAntes = usuario.getUpdatedAt();
-        Thread.sleep(10); // Pequeña espera para asegurar diferencia en timestamp
-        Username nuevoUsername = Username.of("nuevoNombre");
-        
-        // Act
-        usuario.changeUsername(nuevoUsername);
-        
-        // Assert
-        assertEquals("nuevoNombre", usuario.getUsername().value());
-        assertTrue(usuario.getUpdatedAt().isAfter(updatedAtAntes));
-    }
-    
-    @Test
-    @DisplayName("Debe lanzar excepción al cambiar username a nulo")
-    void debeLanzarExcepcionAlCambiarUsernameANulo() {
-        // Arrange
-        Usuario usuario = crearUsuarioDefault();
-        
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, 
-            () -> usuario.changeUsername(null));
-    }
-    
     // ========== CAMBIO DE EMAIL ==========
     
     @Test

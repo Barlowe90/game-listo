@@ -1,6 +1,7 @@
 package com.gamelisto.usuarios_service.infrastructure.api.dto;
 
 import com.gamelisto.usuarios_service.application.dto.CambiarEstadoUsuarioCommand;
+import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -11,6 +12,7 @@ public record CambiarEstadoUsuarioRequest (
     String estadoUsuario
 ) {
     public CambiarEstadoUsuarioCommand toCommand(String usuarioId) {
-        return new CambiarEstadoUsuarioCommand(usuarioId, estadoUsuario);
+        EstadoUsuario estado = EstadoUsuario.valueOf(estadoUsuario.toUpperCase());
+        return new CambiarEstadoUsuarioCommand(usuarioId, estado);
     }
 }

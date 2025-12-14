@@ -22,12 +22,10 @@ public class CrearUsuarioUseCase {
     // private final IEventosPublisher eventosPublisher;
     private final PasswordEncoder passwordEncoder;
 
-    public CrearUsuarioUseCase(
-            RepositorioUsuarios repositorioUsuarios,
-            PasswordEncoder passwordEncoder) {
+    public CrearUsuarioUseCase(RepositorioUsuarios repositorioUsuarios, PasswordEncoder passwordEncoder) {
         this.repositorioUsuarios = repositorioUsuarios;
-        // this.eventosPublisher = eventosPublisher;
         this.passwordEncoder = passwordEncoder;
+        // this.eventosPublisher = eventosPublisher;
     }
 
     @Transactional
