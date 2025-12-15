@@ -192,13 +192,13 @@ public class Usuario {
         this.updatedAt = Instant.now();
     }
 
-    public boolean isTokenVerificacionExpirado() {
-        return this.tokenVerificacionExpiracion == null || Instant.now().isAfter(this.tokenVerificacionExpiracion);
-    }
+    // public boolean isTokenVerificacionExpirado() {
+    //     return this.tokenVerificacionExpiracion == null || Instant.now().isAfter(this.tokenVerificacionExpiracion);
+    // }
 
-    public boolean isPendienteDeVerificacion() {
-        return this.status == EstadoUsuario.PENDIENTE_DE_VERIFICACION;
-    }
+    // public boolean isPendienteDeVerificacion() {
+    //     return this.status == EstadoUsuario.PENDIENTE_DE_VERIFICACION;
+    // }
 
     public void linkDiscord(DiscordUserId discordUserId, DiscordUsername discordUsername) {
         if (discordUserId == null || discordUserId.isEmpty()) {

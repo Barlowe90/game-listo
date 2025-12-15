@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios_service.application.usecases.BuscarUsuariosPorEstadoUseCase;
 import com.gamelisto.usuarios_service.application.usecases.CambiarContrasenaUseCase;
 import com.gamelisto.usuarios_service.application.usecases.CambiarCorreoUseCase;
 import com.gamelisto.usuarios_service.application.usecases.CambiarEstadoUsuarioUseCase;
@@ -28,6 +30,7 @@ import com.gamelisto.usuarios_service.application.usecases.RestablecerContrasena
 import com.gamelisto.usuarios_service.application.usecases.SolicitarRestablecimientoUseCase;
 import com.gamelisto.usuarios_service.application.usecases.VerificarEmailUseCase;
 import com.gamelisto.usuarios_service.application.usecases.VincularDiscordUseCase;
+import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarContrasenaRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarCorreoRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarEstadoUsuarioRequest;
@@ -63,6 +66,7 @@ public class UsuariosController {
     private final CambiarCorreoUseCase cambiarCorreoUseCase;
     private final VincularDiscordUseCase vincularDiscordUseCase;
     private final DesvincularDiscordUseCase desvincularDiscordUseCase;
+    private final BuscarUsuariosPorEstadoUseCase buscarUsuariosPorEstadoUseCase;
 
     public UsuariosController(
             CrearUsuarioUseCase crearUsuarioUseCase,
@@ -77,7 +81,8 @@ public class UsuariosController {
             SolicitarRestablecimientoUseCase solicitarRestablecimientoUseCase,
             CambiarCorreoUseCase cambiarCorreoUseCase,
             VincularDiscordUseCase vincularDiscordUseCase,
-            DesvincularDiscordUseCase desvincularDiscordUseCase) {
+            DesvincularDiscordUseCase desvincularDiscordUseCase,
+            BuscarUsuariosPorEstadoUseCase buscarUsuariosPorEstadoUseCase) {
         this.crearUsuarioUseCase = crearUsuarioUseCase;
         this.editarPerfilUsuarioUseCase = editarPerfilUsuarioUseCase;
         this.obtenerTodosLosUsuariosUseCase = obtenerTodosLosUsuariosUseCase;
@@ -91,6 +96,7 @@ public class UsuariosController {
         this.cambiarCorreoUseCase = cambiarCorreoUseCase;
         this.vincularDiscordUseCase = vincularDiscordUseCase;
         this.desvincularDiscordUseCase = desvincularDiscordUseCase;
+        this.buscarUsuariosPorEstadoUseCase = buscarUsuariosPorEstadoUseCase;
     }
 
     @GetMapping(value = "/health")
@@ -181,6 +187,22 @@ public class UsuariosController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping(value = "/user/{id}/discord/link", consumes = "application/json")
+    public ResponseEntity<UsuarioResponse> vincularDiscord(
+            @PathVariable @NonNull String id,
+            @Valid @RequestBody VincularDiscordRequest request) {
+        logger.info("ℹ️ POST /v1/usuarios/user/{}/discord/link - Vinculando cuenta de Discord para usuario con ID: {}", id, id);
+
+        UsuarioDTO usuarioDTO = vincularDiscordUseCase.execute(request.toCommand(id));
+
+        UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
+
+        logger.info("✅ Cuenta de Discord vinculada exitosamente - ID: {}, Username: {}, Discord: {}", 
+                    response.id(), response.username(), response.discordUsername());
+
+        return ResponseEntity.ok(response);
+    }
+
     @PatchMapping(value = "/user/{id}", consumes = "application/json")
     public ResponseEntity<UsuarioResponse> editarPerfilUsuario(
             @PathVariable String id,
@@ -227,20 +249,34 @@ public class UsuariosController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping(value = "/user/{id}/discord/link", consumes = "application/json")
-    public ResponseEntity<UsuarioResponse> vincularDiscord(
-            @PathVariable @NonNull String id,
-            @Valid @RequestBody VincularDiscordRequest request) {
-        logger.info("ℹ️ POST /v1/usuarios/user/{}/discord/link - Vinculando cuenta de Discord para usuario con ID: {}", id, id);
+    @GetMapping(value = "/users", produces = "application/json")
+    public ResponseEntity<List<UsuarioResponse>> obtenerUsuarios() {
+        logger.info("ℹ️ GET /v1/usuarios/users - Obteniendo lista de usuarios");
 
-        UsuarioDTO usuarioDTO = vincularDiscordUseCase.execute(request.toCommand(id));
+        List<UsuarioDTO> usuariosDTO = obtenerTodosLosUsuariosUseCase.execute();
 
-        UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
+        List<UsuarioResponse> responses = usuariosDTO.stream()
+                .map(UsuarioResponse::from)
+                .toList();
 
-        logger.info("✅ Cuenta de Discord vinculada exitosamente - ID: {}, Username: {}, Discord: {}", 
-                    response.id(), response.username(), response.discordUsername());
+        logger.info("✅ Lista de usuarios obtenida exitosamente - Total usuarios: {}", responses.size());
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping(value = "/users", produces = "application/json", params = "estado")
+    public ResponseEntity<List<UsuarioResponse>> obtenerUsuariosPorEstado(@RequestParam("estado") EstadoUsuario estadoUsuario) {
+        logger.info("ℹ️ GET /v1/usuarios/users?estado={} - Obteniendo lista de usuarios por estado: {}", estadoUsuario, estadoUsuario);
+
+        List<UsuarioDTO> usuariosDTO = buscarUsuariosPorEstadoUseCase.execute(estadoUsuario);
+
+        List<UsuarioResponse> responses = usuariosDTO.stream()
+                .map(UsuarioResponse::from)
+                .toList();
+
+        logger.info("✅ Lista de usuarios por estado obtenida exitosamente - Estado: {}, Total usuarios: {}", estadoUsuario, responses.size());
+
+        return ResponseEntity.ok(responses);
     }
 
     @DeleteMapping(value = "/user/{id}/discord/unlink")
@@ -255,21 +291,6 @@ public class UsuariosController {
                     response.id(), response.username());
 
         return ResponseEntity.ok(response);
-    }
-    
-    @GetMapping(value = "/users", produces = "application/json")
-    public List<UsuarioResponse> obtenerUsuarios() {
-        logger.info("ℹ️ GET /v1/usuarios/users - Obteniendo lista de usuarios");
-
-        List<UsuarioDTO> usuariosDTO = obtenerTodosLosUsuariosUseCase.execute();
-
-        List<UsuarioResponse> responses = usuariosDTO.stream()
-                .map(UsuarioResponse::from)
-                .toList();
-
-        logger.info("✅ Lista de usuarios obtenida exitosamente - Total usuarios: {}", responses.size());
-
-        return responses;
     }
     
 }

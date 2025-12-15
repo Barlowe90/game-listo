@@ -49,11 +49,11 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
                 .map(mapper::toDomain);
     }
 
-    @Override
-    public Optional<Usuario> findByUsername(Username username) {
-        return jpaRepository.findByUsername(username.value())
-                .map(mapper::toDomain);
-    }
+    // @Override
+    // public Optional<Usuario> findByUsername(Username username) {
+    //     return jpaRepository.findByUsername(username.value())
+    //             .map(mapper::toDomain);
+    // }
 
     @Override
     public Optional<Usuario> findByDiscordUserId(DiscordUserId discordUserId) {
@@ -72,13 +72,13 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public List<Usuario> findUsersWithNotificationsEnabled() {
-        return jpaRepository.findUsersWithNotificationsEnabled()
-                .stream()
-                .map(mapper::toDomain)
-                .collect(Collectors.toList());
-    }
+    // @Override
+    // public List<Usuario> findUsersWithNotificationsEnabled() {
+    //     return jpaRepository.findUsersWithNotificationsEnabled()
+    //             .stream()
+    //             .map(mapper::toDomain)
+    //             .collect(Collectors.toList());
+    // }
 
         @Override
     public Optional<Usuario> findByTokenVerificacion(TokenVerificacion token) {
@@ -99,13 +99,13 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
         return jpaRepository.existsByEmail(email.value());
     }
 
-    @Override
-    public List<Usuario> searchByUsernameFragment(String fragment) {
-        return jpaRepository.searchByUsernameFragment(fragment)
-                .stream()
-                .map(mapper::toDomain)
-                .collect(Collectors.toList());
-    }
+    // @Override
+    // public List<Usuario> searchByUsernameFragment(String fragment) {
+    //     return jpaRepository.searchByUsernameFragment(fragment)
+    //             .stream()
+    //             .map(mapper::toDomain)
+    //             .collect(Collectors.toList());
+    // }
     
     @Override
     public List<Usuario> findAll() {
@@ -115,11 +115,11 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
                 .collect(Collectors.toList());
     }
     
-    @SuppressWarnings("null")
-    @Override
-    public void delete(Usuario usuario) {
-        UsuarioEntity entity = mapper.toEntity(usuario);
-        jpaRepository.delete(entity);
-    }
+    // @SuppressWarnings("null")
+    // @Override
+    // public void delete(Usuario usuario) {
+    //     UsuarioEntity entity = mapper.toEntity(usuario);
+    //     jpaRepository.delete(entity);
+    // }
 
 }

@@ -19,23 +19,23 @@ public interface RepositorioUsuarios {
     
     Optional<Usuario> findByEmail(Email email);
 
-    Optional<Usuario> findByUsername(Username username);
+    // Optional<Usuario> findByUsername(Username username); // no usado
 
     Optional<Usuario> findByDiscordUserId(DiscordUserId discordUserId);
 
     Optional<Usuario> findByTokenVerificacion(TokenVerificacion token);
 
-    List<Usuario> findByStatus(EstadoUsuario status);
+    List<Usuario> findByStatus(EstadoUsuario status); // Para métricas: en el dashboard admin muestro cantidad total de usuarios por estado
 
-    List<Usuario> findUsersWithNotificationsEnabled();
+    // List<Usuario> findUsersWithNotificationsEnabled(); // Para el envío de notificaciones
     
     boolean existsByUsername(Username username);
 
     boolean existsByEmail(Email email);
     
-    List<Usuario> searchByUsernameFragment(String fragment);
+    // List<Usuario> searchByUsernameFragment(String fragment); // Para autocompletar en búsqueda de usuarios
     
     List<Usuario> findAll();
     
-    void delete(Usuario usuario);
+    // void delete(Usuario usuario);
 }
