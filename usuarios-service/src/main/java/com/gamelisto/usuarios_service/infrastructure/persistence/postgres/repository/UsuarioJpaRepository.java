@@ -5,7 +5,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-// import org.springframework.data.jpa.repository.Query;
 // import org.springframework.data.repository.query.Param;
 
 import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
@@ -21,8 +20,7 @@ public interface UsuarioJpaRepository extends JpaRepository<UsuarioEntity, UUID>
 
     List<UsuarioEntity> findByStatus(EstadoUsuario status);
 
-    // @Query("SELECT u FROM UsuarioEntity u WHERE u.status = 'ACTIVO' AND u.notificationsActive = true")
-    // List<UsuarioEntity> findUsersWithNotificationsEnabled();
+    List<UsuarioEntity> findByStatusAndNotificationsActive(EstadoUsuario status, boolean notificationsActive);
     
     boolean existsByUsername(String username);
 

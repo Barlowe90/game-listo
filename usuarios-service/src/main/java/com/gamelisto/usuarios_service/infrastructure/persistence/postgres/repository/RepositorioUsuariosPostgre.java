@@ -72,13 +72,13 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
                 .collect(Collectors.toList());
     }
 
-    // @Override
-    // public List<Usuario> findUsersWithNotificationsEnabled() {
-    //     return jpaRepository.findUsersWithNotificationsEnabled()
-    //             .stream()
-    //             .map(mapper::toDomain)
-    //             .collect(Collectors.toList());
-    // }
+    @Override
+    public List<Usuario> findByStatusAndNotificationsActive(EstadoUsuario status, boolean notificationsActive) {
+        return jpaRepository.findByStatusAndNotificationsActive(status, notificationsActive)
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
 
         @Override
     public Optional<Usuario> findByTokenVerificacion(TokenVerificacion token) {

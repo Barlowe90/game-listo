@@ -25,9 +25,9 @@ public interface RepositorioUsuarios {
 
     Optional<Usuario> findByTokenVerificacion(TokenVerificacion token);
 
-    List<Usuario> findByStatus(EstadoUsuario status); // Para métricas: en el dashboard admin muestro cantidad total de usuarios por estado
+    List<Usuario> findByStatus(EstadoUsuario status);
 
-    // List<Usuario> findUsersWithNotificationsEnabled(); // Para el envío de notificaciones
+    List<Usuario> findByStatusAndNotificationsActive(EstadoUsuario status, boolean notificationsActive);
     
     boolean existsByUsername(Username username);
 

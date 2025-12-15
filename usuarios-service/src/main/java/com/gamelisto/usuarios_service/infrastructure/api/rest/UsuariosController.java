@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios_service.application.usecases.BuscarUsuariosConNotificacionesActivadasUseCase;
 import com.gamelisto.usuarios_service.application.usecases.BuscarUsuariosPorEstadoUseCase;
 import com.gamelisto.usuarios_service.application.usecases.CambiarContrasenaUseCase;
 import com.gamelisto.usuarios_service.application.usecases.CambiarCorreoUseCase;
@@ -67,6 +68,7 @@ public class UsuariosController {
     private final VincularDiscordUseCase vincularDiscordUseCase;
     private final DesvincularDiscordUseCase desvincularDiscordUseCase;
     private final BuscarUsuariosPorEstadoUseCase buscarUsuariosPorEstadoUseCase;
+    private final BuscarUsuariosConNotificacionesActivadasUseCase buscarUsuariosConNotificacionesActivadasUseCase;
 
     public UsuariosController(
             CrearUsuarioUseCase crearUsuarioUseCase,
@@ -82,7 +84,8 @@ public class UsuariosController {
             CambiarCorreoUseCase cambiarCorreoUseCase,
             VincularDiscordUseCase vincularDiscordUseCase,
             DesvincularDiscordUseCase desvincularDiscordUseCase,
-            BuscarUsuariosPorEstadoUseCase buscarUsuariosPorEstadoUseCase) {
+            BuscarUsuariosPorEstadoUseCase buscarUsuariosPorEstadoUseCase,
+            BuscarUsuariosConNotificacionesActivadasUseCase buscarUsuariosConNotificacionesActivadasUseCase) {
         this.crearUsuarioUseCase = crearUsuarioUseCase;
         this.editarPerfilUsuarioUseCase = editarPerfilUsuarioUseCase;
         this.obtenerTodosLosUsuariosUseCase = obtenerTodosLosUsuariosUseCase;
@@ -97,6 +100,7 @@ public class UsuariosController {
         this.vincularDiscordUseCase = vincularDiscordUseCase;
         this.desvincularDiscordUseCase = desvincularDiscordUseCase;
         this.buscarUsuariosPorEstadoUseCase = buscarUsuariosPorEstadoUseCase;
+        this.buscarUsuariosConNotificacionesActivadasUseCase = buscarUsuariosConNotificacionesActivadasUseCase;
     }
 
     @GetMapping(value = "/health")
@@ -275,6 +279,21 @@ public class UsuariosController {
                 .toList();
 
         logger.info("✅ Lista de usuarios por estado obtenida exitosamente - Estado: {}, Total usuarios: {}", estadoUsuario, responses.size());
+
+        return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping(value = "/users/notifications-enabled", produces = "application/json")
+    public ResponseEntity<List<UsuarioResponse>> obtenerUsuariosConNotificacionesActivadas() {
+        logger.info("ℹ️ GET /v1/usuarios/users/notifications-enabled - Obteniendo lista de usuarios activos con notificaciones activadas");
+
+        List<UsuarioDTO> usuariosDTO = buscarUsuariosConNotificacionesActivadasUseCase.execute();
+
+        List<UsuarioResponse> responses = usuariosDTO.stream()
+                .map(UsuarioResponse::from)
+                .toList();
+
+        logger.info("✅ Lista de usuarios con notificaciones activadas obtenida exitosamente - Total: {}", responses.size());
 
         return ResponseEntity.ok(responses);
     }
