@@ -63,14 +63,18 @@ public class CrearUsuarioUseCase {
         // Contenido email:
         // https://gamelisto.com/verify-email?token={token}
         
+        enviarColaUsuarioCreado(usuarioGuardado);
+        
+        return UsuarioDTO.from(usuarioGuardado);
+    }
+
+    private void enviarColaUsuarioCreado(Usuario usuarioGuardado) {
         UsuarioCreado evento = UsuarioCreado.of(
             usuarioGuardado.getId().value().toString(),
             usuarioGuardado.getUsername().value(),
             usuarioGuardado.getEmail().value()
         );
         eventosPublisher.publish(ROUTING_KEY_SUFFIX, evento);
-        
-        return UsuarioDTO.from(usuarioGuardado);
     }
     
 }
