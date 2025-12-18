@@ -11,7 +11,7 @@ docker run -d --name rabbitmq \
   rabbitmq:3-management
 ```
 
-Acceso a UI: http://localhost:15672 (guest/guest)
+Acceso a UI: <http://localhost:15672> (guest/guest)
 
 ### 2. Compilar y Ejecutar
 
