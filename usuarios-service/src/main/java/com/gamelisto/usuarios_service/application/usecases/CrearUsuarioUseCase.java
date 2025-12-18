@@ -3,10 +3,10 @@ package com.gamelisto.usuarios_service.application.usecases;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-//import com.gamelisto.usuarios_service.application.IEventosPublisher;
 import com.gamelisto.usuarios_service.application.dto.CrearUsuarioCommand;
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios_service.application.ports.IUsuarioPublisher;
+import com.gamelisto.usuarios_service.domain.events.UsuarioCreado;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.Email;
 import com.gamelisto.usuarios_service.domain.usuario.PasswordHash;
@@ -18,14 +18,18 @@ import com.gamelisto.usuarios_service.domain.exceptions.UsernameYaExisteExceptio
 @Service
 public class CrearUsuarioUseCase {
     
+    private static final String ROUTING_KEY_SUFFIX = "usuario.creado";
     private final RepositorioUsuarios repositorioUsuarios;
-    // private final IEventosPublisher eventosPublisher;
+    private final IUsuarioPublisher eventosPublisher;
     private final PasswordEncoder passwordEncoder;
 
-    public CrearUsuarioUseCase(RepositorioUsuarios repositorioUsuarios, PasswordEncoder passwordEncoder) {
+    public CrearUsuarioUseCase(
+            RepositorioUsuarios repositorioUsuarios, 
+            PasswordEncoder passwordEncoder,
+            IUsuarioPublisher eventosPublisher) {
         this.repositorioUsuarios = repositorioUsuarios;
         this.passwordEncoder = passwordEncoder;
-        // this.eventosPublisher = eventosPublisher;
+        this.eventosPublisher = eventosPublisher;
     }
 
     @Transactional
@@ -59,11 +63,12 @@ public class CrearUsuarioUseCase {
         // Contenido email:
         // https://gamelisto.com/verify-email?token={token}
         
-        // eventosPublisher.publish(new UsuarioCreadoEvent(
-        //     usuarioGuardado.getId().value().toString(),
-        //     usuarioGuardado.getUsername().value(),
-        //     usuarioGuardado.getEmail().value()
-        // ));
+        UsuarioCreado evento = UsuarioCreado.of(
+            usuarioGuardado.getId().value().toString(),
+            usuarioGuardado.getUsername().value(),
+            usuarioGuardado.getEmail().value()
+        );
+        eventosPublisher.publish(ROUTING_KEY_SUFFIX, evento);
         
         return UsuarioDTO.from(usuarioGuardado);
     }
