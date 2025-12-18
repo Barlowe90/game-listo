@@ -115,11 +115,11 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
                 .collect(Collectors.toList());
     }
     
-    // @SuppressWarnings("null")
-    // @Override
-    // public void delete(Usuario usuario) {
-    //     UsuarioEntity entity = mapper.toEntity(usuario);
-    //     jpaRepository.delete(entity);
-    // }
+    @SuppressWarnings("null")
+    @Override
+    public void delete(Usuario usuario) {
+        UsuarioEntity entity = mapper.toEntity(usuario);
+        jpaRepository.delete(entity);
+    }
 
 }

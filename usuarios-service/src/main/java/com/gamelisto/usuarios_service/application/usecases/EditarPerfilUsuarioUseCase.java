@@ -21,7 +21,8 @@ public class EditarPerfilUsuarioUseCase {
     
     private final RepositorioUsuarios repositorioUsuarios;
     private final IUsuarioPublisher usuarioPublisher;
-    private static final String ROUTING_KEY_SUFFIX = "usuario.activaNotificaciones";
+    private static final String ROUTING_KEY_SUFFIX_ACTIVAR = "usuario.activaNotificaciones";
+    private static final String ROUTING_KEY_SUFFIX_DESACTIVAR = "usuario.desactivaNotificaciones";
 
     public EditarPerfilUsuarioUseCase(RepositorioUsuarios repositorioUsuarios, IUsuarioPublisher usuarioPublisher) {
         this.repositorioUsuarios = repositorioUsuarios;
@@ -63,13 +64,13 @@ public class EditarPerfilUsuarioUseCase {
         UsuarioDesactivaNotificaciones evento = UsuarioDesactivaNotificaciones.of(
             usuario.getId().value().toString()
         );
-        usuarioPublisher.publish(ROUTING_KEY_SUFFIX, evento);
+        usuarioPublisher.publish(ROUTING_KEY_SUFFIX_DESACTIVAR, evento);
     }
 
     private void avisarColaUsarioActivaNotificaciones(Usuario usuario) {
         UsuarioActiviaNotificaciones evento = UsuarioActiviaNotificaciones.of(
             usuario.getId().value().toString()
         );
-        usuarioPublisher.publish(ROUTING_KEY_SUFFIX, evento);
+        usuarioPublisher.publish(ROUTING_KEY_SUFFIX_ACTIVAR, evento);
     }
 }

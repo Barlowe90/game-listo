@@ -24,6 +24,7 @@ import com.gamelisto.usuarios_service.application.usecases.CambiarEstadoUsuarioU
 import com.gamelisto.usuarios_service.application.usecases.CrearUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.DesvincularDiscordUseCase;
 import com.gamelisto.usuarios_service.application.usecases.EditarPerfilUsuarioUseCase;
+import com.gamelisto.usuarios_service.application.usecases.EliminarUsuarioUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerTodosLosUsuariosUseCase;
 import com.gamelisto.usuarios_service.application.usecases.ObtenerUsuarioPorId;
 import com.gamelisto.usuarios_service.application.usecases.ReenviarVerificacionUseCase;
@@ -69,6 +70,7 @@ public class UsuariosController {
     private final DesvincularDiscordUseCase desvincularDiscordUseCase;
     private final BuscarUsuariosPorEstadoUseCase buscarUsuariosPorEstadoUseCase;
     private final BuscarUsuariosConNotificacionesActivadasUseCase buscarUsuariosConNotificacionesActivadasUseCase;
+    private final EliminarUsuarioUseCase eliminarUsuarioUseCase;
 
     public UsuariosController(
             CrearUsuarioUseCase crearUsuarioUseCase,
@@ -85,7 +87,8 @@ public class UsuariosController {
             VincularDiscordUseCase vincularDiscordUseCase,
             DesvincularDiscordUseCase desvincularDiscordUseCase,
             BuscarUsuariosPorEstadoUseCase buscarUsuariosPorEstadoUseCase,
-            BuscarUsuariosConNotificacionesActivadasUseCase buscarUsuariosConNotificacionesActivadasUseCase) {
+            BuscarUsuariosConNotificacionesActivadasUseCase buscarUsuariosConNotificacionesActivadasUseCase,
+            EliminarUsuarioUseCase eliminarUsuarioUseCase) {
         this.crearUsuarioUseCase = crearUsuarioUseCase;
         this.editarPerfilUsuarioUseCase = editarPerfilUsuarioUseCase;
         this.obtenerTodosLosUsuariosUseCase = obtenerTodosLosUsuariosUseCase;
@@ -101,6 +104,7 @@ public class UsuariosController {
         this.desvincularDiscordUseCase = desvincularDiscordUseCase;
         this.buscarUsuariosPorEstadoUseCase = buscarUsuariosPorEstadoUseCase;
         this.buscarUsuariosConNotificacionesActivadasUseCase = buscarUsuariosConNotificacionesActivadasUseCase;
+        this.eliminarUsuarioUseCase = eliminarUsuarioUseCase;
     }
 
     @GetMapping(value = "/health")
@@ -311,5 +315,17 @@ public class UsuariosController {
 
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping(value = "/user/{id}")
+    public ResponseEntity<Void> eliminarUsuario(@PathVariable String id){
+        logger.info("ℹ️ DELETE /v1/usuarios/user/{} - Eliminando usuario con ID: {}", id, id);
+
+        eliminarUsuarioUseCase.execute(id);
+
+        logger.info("✅ Cuenta de usuario eliminada exitosamente - ID: {}", id);
+
+        return ResponseEntity.noContent().build();
+    }
+
     
 }

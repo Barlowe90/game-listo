@@ -37,5 +37,5 @@ public interface RepositorioUsuarios {
     
     List<Usuario> findAll();
     
-    // void delete(Usuario usuario);
+    void delete(Usuario usuario);
 }
