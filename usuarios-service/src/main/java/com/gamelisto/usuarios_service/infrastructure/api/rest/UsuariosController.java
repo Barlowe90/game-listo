@@ -1,5 +1,12 @@
 package com.gamelisto.usuarios_service.infrastructure.api.rest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +59,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/v1/usuarios")
+@Tag(name = "Usuarios", description = "API de gestión de usuarios - Perfiles, autenticación y configuración")
 public class UsuariosController {
     
     private static final Logger logger = LoggerFactory.getLogger(UsuariosController.class);
@@ -107,13 +115,27 @@ public class UsuariosController {
         this.eliminarUsuarioUseCase = eliminarUsuarioUseCase;
     }
 
+    @Operation(summary = "Health check", description = "Verifica que el microservicio de usuarios esté funcionando correctamente")
+    @ApiResponse(responseCode = "200", description = "Servicio funcionando correctamente")
     @GetMapping(value = "/health")
     public void health(){
         logger.info("✅ Microservicio usuarios funcionando correctamente.");
     }
 
+    @Operation(
+        summary = "Registrar nuevo usuario",
+        description = "Crea un nuevo usuario en el sistema. El email requiere verificación posterior. Estado inicial: PENDIENTE_DE_VERIFICACION."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Usuario creado exitosamente",
+            content = @Content(schema = @Schema(implementation = UsuarioResponse.class))),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos (username/email ya existe, formato inválido)"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @PostMapping(value = "/auth/register", consumes = "application/json")
-    public ResponseEntity<UsuarioResponse> crearUsuario(@Valid @RequestBody CrearUsuarioRequest request) {
+    public ResponseEntity<UsuarioResponse> crearUsuario(
+            @Parameter(description = "Datos del nuevo usuario", required = true)
+            @Valid @RequestBody CrearUsuarioRequest request) {
         logger.info("ℹ️ POST /v1/usuarios/auth/register - Creando usuario con username: {}", request.username());
 
         UsuarioDTO usuarioDTO = crearUsuarioUseCase.execute(request.toCommand());
@@ -132,8 +154,19 @@ public class UsuariosController {
         return ResponseEntity.created(location).body(response);
     }
 
+    @Operation(
+        summary = "Verificar email de usuario",
+        description = "Valida el token de verificación enviado al email. El token expira en 24 horas. Cambia el estado a ACTIVO."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Email verificado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Token inválido o expirado"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     @PostMapping(value = "/auth/verify-email", consumes = "application/json")
-    public ResponseEntity<Void> verificarEmail(@Valid @RequestBody VerificarEmailRequest request) {
+    public ResponseEntity<Void> verificarEmail(
+            @Parameter(description = "Token de verificación del email", required = true)
+            @Valid @RequestBody VerificarEmailRequest request) {
         logger.info("ℹ️ POST /v1/usuarios/auth/verify-email - Verificando email de usuario");
         
         verificarEmailUseCase.execute(request.toCommand());
@@ -142,8 +175,19 @@ public class UsuariosController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+        summary = "Reenviar email de verificación",
+        description = "Genera un nuevo token de verificación y lo envía al email del usuario"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Email de verificación reenviado"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+        @ApiResponse(responseCode = "400", description = "Usuario ya verificado")
+    })
     @PostMapping(value = "/auth/resend-verification", consumes = "application/json")
-    public ResponseEntity<Void> reenviarVerificacion(@Valid @RequestBody ReenviarVerificacionRequest request) {
+    public ResponseEntity<Void> reenviarVerificacion(
+            @Parameter(description = "Email del usuario", required = true)
+            @Valid @RequestBody ReenviarVerificacionRequest request) {
         logger.info("ℹ️ POST /v1/usuarios/auth/resend-verification - Reenviando verificación para email: {}", request.email());
         
         reenviarVerificacionUseCase.execute(request.toCommand());
@@ -152,8 +196,18 @@ public class UsuariosController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+        summary = "Solicitar restablecimiento de contraseña",
+        description = "Genera un token de restablecimiento y lo envía al email del usuario. El token expira en 24 horas."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Email de restablecimiento enviado"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     @PostMapping(value = "/auth/forgot-password", consumes = "application/json")
-    public ResponseEntity<Void> solicitarRestablecimiento(@Valid @RequestBody SolicitarRestablecimientoRequest request) {
+    public ResponseEntity<Void> solicitarRestablecimiento(
+            @Parameter(description = "Email del usuario", required = true)
+            @Valid @RequestBody SolicitarRestablecimientoRequest request) {
         logger.info("ℹ️ POST /v1/usuarios/auth/forgot-password - Solicitando restablecimiento para email: {}", request.email());
         
         solicitarRestablecimientoUseCase.execute(request.toCommand());
@@ -162,9 +216,20 @@ public class UsuariosController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+        summary = "Cambiar contraseña (usuario autenticado)",
+        description = "Permite al usuario cambiar su contraseña proporcionando la actual y la nueva"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Contraseña cambiada exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Contraseña actual incorrecta"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     @PostMapping(value = "user/{id}/change-password", consumes = "application/json")
     public ResponseEntity<Void> cambiarContraseña(
+            @Parameter(description = "ID del usuario", required = true)
             @PathVariable String id,
+            @Parameter(description = "Contraseña actual y nueva", required = true)
             @Valid @RequestBody CambiarContrasenaRequest request) {
         logger.info("ℹ️ POST /v1/usuarios/user/{}/change-password - Cambiando contraseña para usuario con ID: {}", id, id);
 
@@ -174,9 +239,20 @@ public class UsuariosController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+        summary = "Cambiar email del usuario",
+        description = "Actualiza el email del usuario. Requiere nueva verificación."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Email cambiado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Email ya registrado"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     @PostMapping(value = "user/{id}/change-email", consumes = "application/json")
     public ResponseEntity<Void> cambiarCorreo(
+            @Parameter(description = "ID del usuario", required = true)
             @PathVariable String id,
+            @Parameter(description = "Nuevo email", required = true)
             @Valid @RequestBody CambiarCorreoRequest request) {
         logger.info("ℹ️ POST /v1/usuarios/user/{}/change-email - Cambiando correo para usuario con ID: {}", id, id);
         cambiarCorreoUseCase.execute(request.toCommand(id));
@@ -185,8 +261,19 @@ public class UsuariosController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+        summary = "Restablecer contraseña con token",
+        description = "Valida el token de restablecimiento y establece la nueva contraseña"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Contraseña restablecida exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Token inválido o expirado"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     @PostMapping(value = "/auth/reset-password", consumes = "application/json")
-    public ResponseEntity<Void> restablecerContrasena(@Valid @RequestBody RestablecerContrasenaRequest request) {
+    public ResponseEntity<Void> restablecerContrasena(
+            @Parameter(description = "Token y nueva contraseña", required = true)
+            @Valid @RequestBody RestablecerContrasenaRequest request) {
         logger.info("ℹ️ POST /v1/usuarios/auth/reset-password - Restableciendo contraseña de usuario");
 
         restablecerContrasenaUseCase.execute(request.toCommand());
@@ -195,9 +282,21 @@ public class UsuariosController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+        summary = "Vincular cuenta de Discord",
+        description = "Asocia una cuenta de Discord OAuth2 al perfil del usuario"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Cuenta de Discord vinculada exitosamente",
+            content = @Content(schema = @Schema(implementation = UsuarioResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+        @ApiResponse(responseCode = "400", description = "Discord ya vinculado a otro usuario")
+    })
     @PostMapping(value = "/user/{id}/discord/link", consumes = "application/json")
     public ResponseEntity<UsuarioResponse> vincularDiscord(
+            @Parameter(description = "ID del usuario", required = true)
             @PathVariable @NonNull String id,
+            @Parameter(description = "Datos de Discord OAuth2", required = true)
             @Valid @RequestBody VincularDiscordRequest request) {
         logger.info("ℹ️ POST /v1/usuarios/user/{}/discord/link - Vinculando cuenta de Discord para usuario con ID: {}", id, id);
 
@@ -211,9 +310,21 @@ public class UsuariosController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+        summary = "Editar perfil de usuario",
+        description = "Actualiza el perfil del usuario (username, avatar, idioma, notificaciones)"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Perfil actualizado exitosamente",
+            content = @Content(schema = @Schema(implementation = UsuarioResponse.class))),
+        @ApiResponse(responseCode = "400", description = "Username ya existe"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     @PatchMapping(value = "/user/{id}", consumes = "application/json")
     public ResponseEntity<UsuarioResponse> editarPerfilUsuario(
+            @Parameter(description = "ID del usuario", required = true)
             @PathVariable String id,
+            @Parameter(description = "Datos del perfil a actualizar", required = true)
             @Valid @RequestBody EditarPerfilUsuarioRequest request) {
         logger.info("ℹ️ PATCH /v1/usuarios/user/{id} - Editando perfil de usuario con ID: {}", id);
 
@@ -227,9 +338,20 @@ public class UsuariosController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+        summary = "Cambiar estado de usuario (Admin)",
+        description = "Actualiza el estado del usuario: PENDIENTE_DE_VERIFICACION, ACTIVO, SUSPENDIDO, ELIMINADO"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Estado cambiado exitosamente",
+            content = @Content(schema = @Schema(implementation = UsuarioResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     @PatchMapping(value = "/user/{id}/state", consumes = "application/json")
     public ResponseEntity<UsuarioResponse> cambiarEstadoUsuario(
+            @Parameter(description = "ID del usuario", required = true)
             @PathVariable String id,
+            @Parameter(description = "Nuevo estado", required = true)
             @Valid @RequestBody CambiarEstadoUsuarioRequest request) {
         logger.info("ℹ️ PATCH /v1/usuarios/user/{id}/state - Cambiando el estado de usuario con ID: {}", id);
 
@@ -243,8 +365,19 @@ public class UsuariosController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+        summary = "Obtener usuario por ID",
+        description = "Recupera los datos completos de un usuario mediante su identificador único"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuario encontrado",
+            content = @Content(schema = @Schema(implementation = UsuarioResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     @GetMapping(value = "/user/{id}", produces = "application/json")
-    public ResponseEntity<UsuarioResponse> obtenerUsuarioPorIdEndpoint(@PathVariable String id) {
+    public ResponseEntity<UsuarioResponse> obtenerUsuarioPorIdEndpoint(
+            @Parameter(description = "ID del usuario", required = true)
+            @PathVariable String id) {
         logger.info("ℹ️ GET /v1/usuarios/user/{} - Obteniendo usuario con ID: {}", id, id);
 
         UsuarioDTO usuarioDTO = obtenerUsuarioPorId.execute(id);
@@ -257,6 +390,11 @@ public class UsuariosController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+        summary = "Listar todos los usuarios",
+        description = "Recupera la lista completa de usuarios registrados en el sistema"
+    )
+    @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente")
     @GetMapping(value = "/users", produces = "application/json")
     public ResponseEntity<List<UsuarioResponse>> obtenerUsuarios() {
         logger.info("ℹ️ GET /v1/usuarios/users - Obteniendo lista de usuarios");
@@ -272,8 +410,15 @@ public class UsuariosController {
         return ResponseEntity.ok(responses);
     }
 
+    @Operation(
+        summary = "Buscar usuarios por estado",
+        description = "Filtra usuarios según su estado: PENDIENTE_DE_VERIFICACION, ACTIVO, SUSPENDIDO, ELIMINADO"
+    )
+    @ApiResponse(responseCode = "200", description = "Lista de usuarios filtrada por estado")
     @GetMapping(value = "/users", produces = "application/json", params = "estado")
-    public ResponseEntity<List<UsuarioResponse>> obtenerUsuariosPorEstado(@RequestParam("estado") EstadoUsuario estadoUsuario) {
+    public ResponseEntity<List<UsuarioResponse>> obtenerUsuariosPorEstado(
+            @Parameter(description = "Estado del usuario", required = true)
+            @RequestParam("estado") EstadoUsuario estadoUsuario) {
         logger.info("ℹ️ GET /v1/usuarios/users?estado={} - Obteniendo lista de usuarios por estado: {}", estadoUsuario, estadoUsuario);
 
         List<UsuarioDTO> usuariosDTO = buscarUsuariosPorEstadoUseCase.execute(estadoUsuario);
@@ -287,6 +432,11 @@ public class UsuariosController {
         return ResponseEntity.ok(responses);
     }
 
+    @Operation(
+        summary = "Listar usuarios con notificaciones activadas",
+        description = "Recupera usuarios activos que tienen las notificaciones habilitadas"
+    )
+    @ApiResponse(responseCode = "200", description = "Lista de usuarios con notificaciones activadas")
     @GetMapping(value = "/users/notifications-enabled", produces = "application/json")
     public ResponseEntity<List<UsuarioResponse>> obtenerUsuariosConNotificacionesActivadas() {
         logger.info("ℹ️ GET /v1/usuarios/users/notifications-enabled - Obteniendo lista de usuarios activos con notificaciones activadas");
@@ -302,8 +452,19 @@ public class UsuariosController {
         return ResponseEntity.ok(responses);
     }
 
+    @Operation(
+        summary = "Desvincular cuenta de Discord",
+        description = "Elimina la asociación entre el usuario y su cuenta de Discord"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Cuenta de Discord desvinculada exitosamente",
+            content = @Content(schema = @Schema(implementation = UsuarioResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     @DeleteMapping(value = "/user/{id}/discord/unlink")
-    public ResponseEntity<UsuarioResponse> desvincularDiscord(@PathVariable String id) {
+    public ResponseEntity<UsuarioResponse> desvincularDiscord(
+            @Parameter(description = "ID del usuario", required = true)
+            @PathVariable String id) {
         logger.info("ℹ️ DELETE /v1/usuarios/user/{}/discord/unlink - Desvinculando cuenta de Discord para usuario con ID: {}", id, id);
 
         UsuarioDTO usuarioDTO = desvincularDiscordUseCase.execute(id);
@@ -316,8 +477,18 @@ public class UsuariosController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+        summary = "Eliminar usuario",
+        description = "Elimina permanentemente un usuario del sistema (hard delete)"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Usuario eliminado exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     @DeleteMapping(value = "/user/{id}")
-    public ResponseEntity<Void> eliminarUsuario(@PathVariable String id){
+    public ResponseEntity<Void> eliminarUsuario(
+            @Parameter(description = "ID del usuario", required = true)
+            @PathVariable String id){
         logger.info("ℹ️ DELETE /v1/usuarios/user/{} - Eliminando usuario con ID: {}", id, id);
 
         eliminarUsuarioUseCase.execute(id);
