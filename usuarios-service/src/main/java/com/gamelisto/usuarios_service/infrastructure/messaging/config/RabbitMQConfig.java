@@ -22,7 +22,7 @@ import java.util.Objects;
 
 @Configuration
 @ConditionalOnClass(ConnectionFactory.class)
-@ConditionalOnProperty(name = "spring.rabbitmq.addresses", matchIfMissing = false)
+@ConditionalOnProperty(name = "messaging.rabbitmq.enabled", havingValue = "true", matchIfMissing = false)
 public class RabbitMQConfig {
 
     public static final String EXCHANGE_NAME = "bus"; // bus general

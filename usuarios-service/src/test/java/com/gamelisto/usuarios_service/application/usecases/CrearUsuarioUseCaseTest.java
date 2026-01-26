@@ -2,6 +2,7 @@ package com.gamelisto.usuarios_service.application.usecases;
 
 import com.gamelisto.usuarios_service.application.dto.CrearUsuarioCommand;
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios_service.application.ports.IUsuarioPublisher;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.*;
 import com.gamelisto.usuarios_service.domain.exceptions.*;
@@ -27,6 +28,9 @@ class CrearUsuarioUseCaseTest {
     
     @Mock
     private PasswordEncoder passwordEncoder;
+    
+    @Mock
+    private IUsuarioPublisher eventosPublisher;
     
     @InjectMocks
     private CrearUsuarioUseCase crearUsuarioUseCase;

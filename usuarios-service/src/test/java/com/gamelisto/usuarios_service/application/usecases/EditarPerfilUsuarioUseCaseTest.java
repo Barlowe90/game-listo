@@ -2,6 +2,7 @@ package com.gamelisto.usuarios_service.application.usecases;
 
 import com.gamelisto.usuarios_service.application.dto.EditarPerfilUsuarioCommand;
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios_service.application.ports.IUsuarioPublisher;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.*;
 import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoException;
@@ -25,6 +26,9 @@ class EditarPerfilUsuarioUseCaseTest {
     
     @Mock
     private RepositorioUsuarios repositorioUsuarios;
+    
+    @Mock
+    private IUsuarioPublisher usuarioPublisher;
     
     @InjectMocks
     private EditarPerfilUsuarioUseCase editarPerfilUsuarioUseCase;

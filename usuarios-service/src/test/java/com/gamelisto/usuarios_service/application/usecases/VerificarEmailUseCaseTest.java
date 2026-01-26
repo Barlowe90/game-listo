@@ -1,6 +1,7 @@
 package com.gamelisto.usuarios_service.application.usecases;
 
 import com.gamelisto.usuarios_service.application.dto.VerificarEmailCommand;
+import com.gamelisto.usuarios_service.application.ports.IUsuarioPublisher;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.*;
 import com.gamelisto.usuarios_service.domain.exceptions.TokenVerificacionInvalidoException;
@@ -25,6 +26,9 @@ class VerificarEmailUseCaseTest {
     
     @Mock
     private RepositorioUsuarios repositorioUsuarios;
+    
+    @Mock
+    private IUsuarioPublisher eventosPublisher;
     
     @InjectMocks
     private VerificarEmailUseCase verificarEmailUseCase;
