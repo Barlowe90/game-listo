@@ -5,12 +5,14 @@ import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
 import com.gamelisto.usuarios_service.application.ports.IUsuarioPublisher;
 import com.gamelisto.usuarios_service.infrastructure.messaging.config.RabbitMQConfig;
 
 @Component
+@ConditionalOnBean(RabbitTemplate.class)
 public class UsuariosPublisher implements IUsuarioPublisher {
     
     private static final Logger logger = LoggerFactory.getLogger(UsuariosPublisher.class);

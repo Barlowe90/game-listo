@@ -10,6 +10,8 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,6 +21,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.Objects;
 
 @Configuration
+@ConditionalOnClass(ConnectionFactory.class)
+@ConditionalOnProperty(name = "spring.rabbitmq.addresses", matchIfMissing = false)
 public class RabbitMQConfig {
 
     public static final String EXCHANGE_NAME = "bus"; // bus general
