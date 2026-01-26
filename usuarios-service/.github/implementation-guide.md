@@ -111,7 +111,7 @@
 ### Capa Dominio
 
 | Tipo | Ejemplo |
-|------|----------|
+| ---- | -------- |
 | Entidades | `Usuario` |
 | Value Objects | `UsuarioId`, `Email`, `Username`, `TokenVerificacion` |
 | Enums | `EstadoUsuario`, `Rol`, `Idioma` |
@@ -122,7 +122,7 @@
 ### Capa Application
 
 | Tipo | Ejemplo |
-|------|----------|
+| ---- | -------- |
 | Casos de uso | `CrearUsuarioUseCase`, `VerificarEmailUseCase`, `VincularDiscordUseCase` |
 | Commands | `CrearUsuarioCommand`, `CambiarContrasenaCommand`, `VincularDiscordCommand` |
 | DTOs | `UsuarioDTO` |
@@ -131,7 +131,7 @@
 ### Capa Infrastructure
 
 | Tipo | Ejemplo |
-|------|----------|
+| ---- | -------- |
 | Entities | `UsuarioEntity` |
 | Mappers | `UsuarioMapper` |
 | Repositorios | `RepositorioUsuariosPostgre`, `UsuarioJpaRepository` |
@@ -144,7 +144,7 @@
 ## Testing
 
 | Capa | Tipo | Herramientas |
-|------|------|-------------|
+| ---- | ---- | ------------ |
 | Domain | Unit tests puros | JUnit 5, AssertJ |
 | Application | Unit tests con mocks | Mockito, JUnit 5 |
 | Infrastructure | Integración | SpringBootTest, H2, MockMvc |

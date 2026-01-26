@@ -38,7 +38,7 @@
 ### Endpoints implementados
 
 | Método | Endpoint | Use Case |
-|--------|----------|----------|
+| ------ | -------- | -------- |
 | GET | `/health` | Health check |
 | POST | `/auth/register` | `CrearUsuarioUseCase` |
 | POST | `/auth/verify-email` | `VerificarEmailUseCase` |
