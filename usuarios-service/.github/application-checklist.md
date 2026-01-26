@@ -1,13 +1,13 @@
 # Application Checklist – Casos de Uso
 
-## ✅ Estructura de casos de uso
+## Estructura de casos de uso
 
 - [x] Cada caso de uso en `/application/usecases/`.
 - [x] Anotados con `@Service`.
 - [x] Inyección de `RepositorioUsuarios` por constructor.
 - [x] Sin acceso directo a JPA repositories.
 
-## ✅ Casos de uso implementados
+## Casos de uso implementados
 
 ### Registro y Verificación
 
@@ -25,6 +25,8 @@
 
 - [x] `ObtenerUsuarioPorId` - GET /user/{id}
 - [x] `ObtenerTodosLosUsuariosUseCase` - GET /users
+- [x] `BuscarUsuariosPorEstadoUseCase` - GET /users?estado={estado}
+- [x] `BuscarUsuariosConNotificacionesActivadasUseCase` - GET /users/notifications-enabled
 - [x] `EditarPerfilUsuarioUseCase` - PATCH /user/{id}
 - [x] `CambiarCorreoUseCase` - POST /user/{id}/change-email
 
@@ -38,19 +40,23 @@
 - [x] `VincularDiscordUseCase` - POST /auth/discord/link/callback
 - [x] `DesvincularDiscordUseCase` - DELETE /discord/link
 
-## ✅ DTOs de aplicación
+## DTOs de aplicación
 
-- [x] Commands: `CrearUsuarioCommand`, `EditarPerfilUsuarioCommand`, `CambiarContrasenaCommand`, `CambiarEstadoUsuarioCommand`, `CambiarCorreoCommand`, `VerificarEmailCommand`, `RestablecerContrasenaCommand`, `SolicitarRestablecimientoCommand`, `VincularDiscordCommand`, `ReenviarVerificacionCommand`
+- [x] Commands: `CrearUsuarioCommand`, `EditarPerfilUsuarioCommand`, `CambiarContrasenaCommand`, `CambiarEstadoUsuarioCommand`, `CambiarCorreoCommand`, `VerificarEmailCommand`, `RestablecerContrasenaCommand`, `SolicitarRestablecimientoCommand`, `VincularDiscordCommand`, `ReenviarVerificacionCommand`, `BuscarUsuariosPorEstadoCommand`
+- [x] Commands Discord: `DiscordTokenCommand`, `DiscordUserCommand`
 - [x] DTOs de salida: `UsuarioDTO`
 - [x] Conversión Domain → DTO en el caso de uso
 
-## 📋 Publicación de eventos (pendiente)
+## Publicación de eventos implementada
 
-- [ ] Interface `IEventosPublisher` en `/application/ports/`
-- [ ] Implementación en `/infrastructure/messaging/`
-- [ ] Eventos: `UsuarioCreado`, `EmailVerificado`, `ContrasenaRestablecida`
+- [x] Interface `IUsuarioPublisher` en `/application/ports/`
+- [x] Implementación `UsuariosPublisher` en `/infrastructure/messaging/publishers/`
+- [x] Eventos: `UsuarioCreado`, `EmailVerificado`, `UsuarioEliminado`
+- [x] Eventos: `UsuarioActiviaNotificaciones`, `UsuarioDesactivaNotificaciones`
+- [x] Integración con RabbitMQ (exchange: "bus", routing key prefix: "bus.usuarios")
+- [x] Publicación de eventos en use cases: `CrearUsuarioUseCase`, `VerificarEmailUseCase`, `EliminarUsuarioUseCase`, `EditarPerfilUsuarioUseCase`
 
-## ✅ Reglas implementadas
+## Reglas implementadas
 
 - [x] Casos de uso coordinan flujo, no ejecutan lógica de negocio
 - [x] Lógica de negocio en entidad de dominio (`Usuario`)
@@ -58,7 +64,7 @@
 - [x] Retornan `UsuarioDTO`
 - [x] Lanzan excepciones de dominio, no HTTP
 
-## ⛔ Prohibiciones en /application
+## Prohibiciones en /application
 
 - [x] No usar entities JPA (`UsuarioEntity`)
 - [x] No usar anotaciones REST (`@RestController`, `@GetMapping`)
@@ -66,7 +72,7 @@
 - [x] No lanzar excepciones HTTP (usar excepciones de dominio)
 - [x] No acceder directamente a bases de datos
 
-## ℹ️ Permitido en /application
+## Permitido en /application
 
 - [x] Logger (SLF4J) para trazabilidad de casos de uso
 - [x] Anotaciones Spring (`@Service`, `@Transactional`)

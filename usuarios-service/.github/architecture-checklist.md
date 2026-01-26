@@ -1,6 +1,6 @@
 # Architecture Checklist – Hexagonal + DDD
 
-## ✅ Estructura de carpetas completada
+## Estructura de carpetas completada
 
 ```text
 /domain
@@ -13,6 +13,12 @@
     Rol.java, Idioma.java, EstadoUsuario.java (Enums)
   /repositories
     RepositorioUsuarios.java (Port)
+  /events
+    UsuarioCreado.java
+    EmailVerificado.java
+    UsuarioEliminado.java
+    UsuarioActiviaNotificaciones.java
+    UsuarioDesactivaNotificaciones.java
   /exceptions
     EntidadNoEncontrada.java (genérico)
     UsuarioNoEncontradoException.java
@@ -35,10 +41,18 @@
     SolicitarRestablecimientoCommand.java
     ReenviarVerificacionCommand.java
     VincularDiscordCommand.java
+    BuscarUsuariosPorEstadoCommand.java
+    DiscordTokenCommand.java
+    DiscordUserCommand.java
+  /ports
+    IUsuarioPublisher.java (Port para eventos)
+    IDiscordService.java (Port para Discord)
   /usecases
     CrearUsuarioUseCase.java
     ObtenerUsuarioPorId.java
     ObtenerTodosLosUsuariosUseCase.java
+    BuscarUsuariosPorEstadoUseCase.java
+    BuscarUsuariosConNotificacionesActivadasUseCase.java
     EditarPerfilUsuarioUseCase.java
     EliminarUsuarioUseCase.java (soft delete)
     CambiarEstadoUsuarioUseCase.java
@@ -86,9 +100,18 @@
     GlobalExceptionHandler.java
   /config
     RestTemplateConfig.java
+  /messaging
+    /config
+      RabbitMQConfig.java
+    /publishers
+      UsuariosPublisher.java
+    /listeners
+      UsuariosListener.java
+    /dto
+      (DTOs de eventos si necesario)
 ```
 
-## ✅ Principios DDD implementados
+## Principios DDD implementados
 
 - [x] **Aggregate Root**: `Usuario` controla su propio ciclo de vida
 - [x] **Value Objects**: Todos los atributos son VOs inmutables con validación
@@ -97,8 +120,9 @@
 - [x] **Encapsulación**: Solo métodos de comportamiento, no setters
 - [x] **Invariantes protegidos**: Validación en constructores privados de VOs
 - [x] **Excepciones de dominio**: Errores específicos del negocio
+- [x] **Domain Events**: Eventos de dominio como records inmutables (UsuarioCreado, EmailVerificado, etc.)
 
-## ✅ Arquitectura Hexagonal implementada
+## Arquitectura Hexagonal implementada
 
 - [x] **Dominio independiente**: Sin dependencias externas
 - [x] **Ports**: Interface `RepositorioUsuarios` en domain
@@ -106,7 +130,7 @@
 - [x] **Anti-Corruption Layer**: `UsuarioMapper` traduce entre capas
 - [x] **Dependency Inversion**: Dominio define interfaces, infrastructure implementa
 
-## ✅ Dependencias entre capas (validado)
+## Dependencias entre capas (validado)
 
 ```text
 infrastructure → application → domain
@@ -119,7 +143,7 @@ infrastructure → application → domain
 - [x] `infrastructure` puede importar de `domain` y `application`
 - [x] No hay ciclos de dependencia
 
-## ✅ Testing strategy implementada
+## Testing strategy implementada
 
 - [x] **Unit tests de dominio**: Sin Spring, sin BD
 - [x] **Tests de Value Objects**: Validaciones completas
@@ -128,7 +152,7 @@ infrastructure → application → domain
 - [ ] **Tests de integración**: Spring Boot Test con H2 (parcial)
 - [ ] **Tests de API**: MockMvc (pendiente)
 
-## ✅ Flujo de datos implementado
+## Flujo de datos implementado
 
 ```text
 HTTP Request
@@ -150,18 +174,19 @@ UsuarioMapper + UsuarioEntity
 H2 / PostgreSQL
 ```
 
-## 📋 Eventos de dominio (pendiente)
+## Eventos de dominio implementados
 
-- [ ] Interface `IEventosPublisher` en application
-- [ ] Implementación RabbitMQ en infrastructure
-- [ ] Eventos: `UsuarioCreado`, `EmailVerificado`, `ContrasenaRestablecida`
+- [x] Interface `IUsuarioPublisher` en application/ports
+- [x] Implementación `UsuariosPublisher` con RabbitMQ en infrastructure/messaging
+- [x] Eventos: `UsuarioCreado`, `EmailVerificado`, `UsuarioEliminado`, `UsuarioActiviaNotificaciones`, `UsuarioDesactivaNotificaciones`
 
-- [ ] Implementar patrón Domain Events.
-- [ ] `Usuario` publica eventos internos.
-- [ ] Casos de uso los consumen y publican a mensajería.
-- [ ] Desacoplamiento entre microservicios vía eventos.
+- [x] Patrón Domain Events implementado con records inmutables.
+- [x] Eventos definidos en `/domain/events/` (sin dependencias externas).
+- [x] Casos de uso publican eventos vía `IUsuarioPublisher` port.
+- [x] Desacoplamiento entre microservicios vía exchange "bus" de RabbitMQ.
+- [x] `RabbitMQConfig` completo con DLQ, routing keys y message converter JSON.
 
-## ⛔ Antipatrones a evitar
+## Antipatrones a evitar
 
 - [x] **Anemic Domain Model**: Usuario tiene comportamiento, no solo getters/setters.
 - [x] **Smart UI**: Lógica en dominio, no en controladores.
@@ -169,9 +194,9 @@ H2 / PostgreSQL
 - [x] **Leaky Abstractions**: UsuarioEntity no se expone fuera de infrastructure.
 - [x] **Transaction Script**: Se usan objetos de dominio, no servicios procedurales.
 
-## ✅ Verificación de cumplimiento DDD/Hexagonal
+## Verificación de cumplimiento DDD/Hexagonal
 
-### ✓ Dominio puro
+### Dominio puro
 
 - Sin anotaciones de frameworks
 - Sin dependencias de infraestructura
@@ -179,7 +204,7 @@ H2 / PostgreSQL
 - Aggregate Root con comportamiento completo
 - Excepciones específicas de dominio
 
-### ✓ Ports & Adapters
+### Ports & Adapters
 
 - Interface `RepositorioUsuarios` define contrato (port)
 - `RepositorioUsuariosPostgre` implementa adaptación a JPA
@@ -187,7 +212,7 @@ H2 / PostgreSQL
 - `DiscordClient` adapta integración externa
 - Anti-Corruption Layer con `UsuarioMapper`
 
-### ✓ Dependency Inversion
+### Dependency Inversion
 
 - Dominio define interfaces, infrastructure implementa
 - Application depende de domain, no de infrastructure

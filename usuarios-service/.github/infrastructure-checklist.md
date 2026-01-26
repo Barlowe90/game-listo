@@ -1,6 +1,6 @@
 # Infrastructure Checklist – Microservicio Usuarios
 
-## ✅ Persistencia completada
+## Persistencia completada
 
 - [x] `UsuarioEntity` en `/infrastructure/persistence/postgres/entity/`
 - [x] Entity como POJO puro con anotaciones JPA
@@ -9,7 +9,7 @@
 - [x] Campos de verificación: `tokenVerificacion`, `tokenVerificacionExpiracion`
 - [x] Campos de Discord: `discordUserId`, `discordUsername`, `discordLinkedAt`, `discordConsent`
 
-## ✅ Mapper (Anti-Corruption Layer)
+## Mapper (Anti-Corruption Layer)
 
 - [x] `UsuarioMapper` en `/infrastructure/persistence/postgres/mapper/`
 - [x] Anotado con `@Component`
@@ -18,7 +18,7 @@
 - [x] Extrae valores de VOs y reconstruye correctamente
 - [x] Maneja campos opcionales (avatar, discord, token)
 
-## ✅ Repositorio JPA implementado
+## Repositorio JPA implementado
 
 - [x] Interface `UsuarioJpaRepository extends JpaRepository<UsuarioEntity, UUID>`
 - [x] Implementación `RepositorioUsuariosPostgre implements RepositorioUsuarios`
@@ -26,7 +26,7 @@
 - [x] Query methods: `findByEmail()`, `findByUsername()`, `existsByUsername()`, `existsByEmail()`
 - [x] Query method: `findByTokenVerificacion()` para verificación de email
 
-## ✅ Controladores REST implementados
+## Controladores REST implementados
 
 - [x] Base path: `/v1/usuarios`
 - [x] `UsuariosController` con todos los endpoints
@@ -46,6 +46,8 @@
 | POST | `/auth/forgot-password` | `SolicitarRestablecimientoUseCase` |
 | POST | `/auth/reset-password` | `RestablecerContrasenaUseCase` |
 | GET | `/users` | `ObtenerTodosLosUsuariosUseCase` |
+| GET | `/users?estado={estado}` | `BuscarUsuariosPorEstadoUseCase` |
+| GET | `/users/notifications-enabled` | `BuscarUsuariosConNotificacionesActivadasUseCase` |
 | GET | `/user/{id}` | `ObtenerUsuarioPorId` |
 | PATCH | `/user/{id}` | `EditarPerfilUsuarioUseCase` |
 | DELETE | `/user/{id}` | `EliminarUsuarioUseCase` |
@@ -55,31 +57,56 @@
 | POST | `/auth/discord/link/callback` | `VincularDiscordUseCase` |
 | DELETE | `/discord/link` | `DesvincularDiscordUseCase` |
 
-## ✅ Seguridad configurada
+## Seguridad JWT (pendiente)
 
-- [x] `SecurityConfig` con BCryptPasswordEncoder (strength: 10)
-- [x] Configuración permite todas las requests (modo desarrollo)
-- [ ] Integración JWT pendiente (delegar a `auth-service`)
-- [ ] `@PreAuthorize` donde corresponda
+- [ ] Dependencias JWT (jjwt) agregadas en `pom.xml`
+- [ ] `JwtConfig.java` - Configuración JWT (secret, expiration, issuer)
+- [ ] `JwtUtil.java` - Utilidades para validar y extraer claims
+- [ ] `JwtAuthenticationFilter.java` - Filtro para validar JWT en requests
+- [ ] `CustomAuthenticationEntryPoint.java` - Manejo de errores 401/403
+- [ ] `OwnershipValidator.java` - Validación de ownership de recursos
+- [ ] `SecurityConfig` actualizado con reglas de autorización:
+  - [ ] Endpoints públicos configurados (register, verify-email, etc.)
+  - [ ] Endpoints protegidos USER (requieren autenticación + ownership)
+  - [ ] Endpoints protegidos ADMIN (solo administradores)
+- [ ] Validación de ownership en controladores
+- [ ] Configuración JWT en `application.properties`
+- [ ] Variables de entorno en `.env.example`
+- [ ] Coordinación con `auth-service` para `jwt.secret` compartida
+- [ ] Testing con tokens válidos e inválidos
+- [ ] **Guía completa**: `.github/jwt-integration-plan.md`
 
-## ✅ Discord OAuth2 (parcialmente implementado)
+## Discord OAuth2 (completamente implementado)
 
 - [x] `DiscordClient` para integración con API de Discord
+- [x] `DiscordServiceAdapter` implementando `IDiscordService` port
 - [x] `DiscordTokenResponse`, `DiscordUserResponse` DTOs
 - [x] `VincularDiscordUseCase`, `DesvincularDiscordUseCase` implementados
 - [x] Endpoints de vinculación/desvinculación
-- [ ] Flujo completo OAuth2 callback pendiente de configuración
-- [ ] Variables de entorno para Discord App (CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
+- [x] Configuración completa en `application.properties`:
+  - [x] URLs de OAuth2 (authorization, token, user-info)
+  - [x] Redirect URIs para desarrollo y producción
+  - [x] Scopes configurados (identify)
+- [x] Variables de entorno configuradas (CLIENT_ID, CLIENT_SECRET, REDIRECT_URIs)
+- [x] Guía de configuración paso a paso en `.github/discord-oauth2-setup.md`
+- [x] Archivo `.env.example` creado como plantilla
+- [ ] Crear aplicación en Discord Developer Portal (paso manual del usuario)
+- [ ] Configurar redirect URIs en Discord Portal (paso manual del usuario)
 
-## ✅ Manejo de errores implementado
+## Manejo de errores implementado
 
 - [x] `@RestControllerAdvice` para excepciones (`GlobalExceptionHandler`)
 - [x] Mapea excepciones de dominio a HTTP status
 - [x] Respuestas de error estandarizadas
 
-## 📋 Mensajería (pendiente)
+## Mensajería implementada
 
-- [ ] Publishers en `/infrastructure/messaging/publishers/`
-- [ ] Listeners en `/infrastructure/messaging/listeners/`
-- [ ] Config RabbitMQ en `/infrastructure/messaging/config/`
-- [ ] Eventos: `UsuarioCreado`, `EmailVerificado`, `ContrasenaRestablecida`
+- [x] `UsuariosPublisher` en `/infrastructure/messaging/publishers/`
+- [x] `UsuariosListener` en `/infrastructure/messaging/listeners/`
+- [x] `RabbitMQConfig` en `/infrastructure/messaging/config/`
+- [x] Exchange: "bus" (TopicExchange)
+- [x] Queue: "usuarios.queue" con DLQ configurada
+- [x] Routing key prefix: "bus.usuarios"
+- [x] Binding pattern: "bus.*.#" para escuchar eventos de otros servicios
+- [x] Converter JSON configurado con Jackson (soporte JavaTimeModule)
+- [x] Eventos publicados: `UsuarioCreado`, `EmailVerificado`, `UsuarioEliminado`, `UsuarioActiviaNotificaciones`, `UsuarioDesactivaNotificaciones`

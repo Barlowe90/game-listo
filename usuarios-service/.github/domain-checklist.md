@@ -1,6 +1,6 @@
 # Domain Checklist – Microservicio Usuarios
 
-## ✅ Modelado completado
+## Modelado completado
 
 - [x] Usuario con ID inmutable (`UsuarioId` final)
 - [x] Email y Username como Value Objects
@@ -10,7 +10,7 @@
 - [x] `TokenVerificacion` para verificación de email y reset de contraseña
 - [x] Enums: `Rol`, `Idioma`, `EstadoUsuario`
 
-## ✅ Invariantes implementados
+## Invariantes implementados
 
 - [x] Email válido obligatorio (validación regex, normalizado a minúsculas)
 - [x] Username válido (3-30 caracteres alfanuméricos)
@@ -19,7 +19,7 @@
 - [x] Token de verificación generado automáticamente al crear usuario
 - [x] Token expira en 24 horas
 
-## ✅ Métodos de dominio
+## Métodos de dominio
 
 ### Factory Methods
 
@@ -56,16 +56,27 @@
 - [x] `unlinkDiscord()`
 - [x] `hasDiscordLinked()`
 
-## ✅ Repositorio implementado
+## Eventos de dominio
+
+- [x] `UsuarioCreado` - Publicado al crear un usuario
+- [x] `EmailVerificado` - Publicado al verificar el email
+- [x] `UsuarioEliminado` - Publicado al eliminar un usuario
+- [x] `UsuarioActiviaNotificaciones` - Publicado al activar notificaciones
+- [x] `UsuarioDesactivaNotificaciones` - Publicado al desactivar notificaciones
+- [x] Eventos como records inmutables con timestamp
+
+## Repositorio implementado
 
 - [x] Interface `RepositorioUsuarios` en `/domain/repositories/`
 - [x] Métodos: `save()`, `findById()`, `findByEmail()`, `findByUsername()`
 - [x] Métodos: `existsByUsername()`, `existsByEmail()`
-- [x] Métodos: `findByTokenVerificacion()`, `findAll()`
+- [x] Métodos: `findByTokenVerificacion()`, `findByDiscordUserId()`
+- [x] Métodos: `findByStatus()`, `findByStatusAndNotificationsActive()`
+- [x] Método: `findAll()`
 - [x] Sin anotaciones Spring/JPA
 - [x] Retorna `Optional<Usuario>` o `List<Usuario>`
 
-## ✅ Excepciones de dominio
+## Excepciones de dominio
 
 - [x] `EntidadNoEncontrada` - Entidad genérica no encontrada
 - [x] `UsuarioNoEncontradoException` - Usuario no encontrado por ID
@@ -75,7 +86,7 @@
 - [x] `UsuarioYaVerificadoException` - Usuario ya verificado
 - [x] `DiscordYaVinculadoException` - Cuenta de Discord ya vinculada
 
-## ⛔ Código prohibido en /domain (verificado)
+## Código prohibido en /domain (verificado)
 
 - [x] Sin Spring (`@Component`, `@Service`, etc.)
 - [x] Sin JPA (`@Entity`, `@Table`, etc.)
