@@ -11,53 +11,53 @@ import java.util.UUID;
 @Entity
 @Table(name = "usuarios")
 public class UsuarioEntity {
-    
+
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
-    
+
     @Column(name = "username", nullable = false, unique = true, length = 30)
     private String username;
-    
+
     @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
-    
-    @Column(name = "password_hash", nullable = false)
+
+    @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
-    
+
     @Column(name = "avatar", length = 500)
     private String avatar;
-    
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
-    
+
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
-    
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
     private Rol role;
-    
+
     @Enumerated(EnumType.STRING)
     @Column(name = "language", nullable = false, length = 3)
     private Idioma language;
-    
+
     @Column(name = "is_notifications_active", nullable = false)
     private boolean notificationsActive;
-    
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(name = "status", nullable = false, length = 30)
     private EstadoUsuario status;
-    
+
     @Column(name = "id_user_discord", length = 100)
     private String discordUserId;
-    
+
     @Column(name = "discord_username", length = 100)
     private String discordUsername;
-    
+
     @Column(name = "discord_linked_at")
     private Instant discordLinkedAt;
-    
+
     @Column(name = "discord_consent", nullable = false)
     private boolean discordConsent;
 
