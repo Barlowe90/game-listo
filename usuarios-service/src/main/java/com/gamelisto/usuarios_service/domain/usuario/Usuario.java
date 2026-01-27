@@ -4,29 +4,29 @@ import java.time.Instant;
 
 public class Usuario {
 
-    private static final int PASSWORD_RESET_TOKEN_TTL_SECONDS = 60 * 60;  // 1 hora
+    private static final int PASSWORD_RESET_TOKEN_TTL_SECONDS = 60 * 60; // 1 hora
     private static final int EMAIL_VERIFICATION_TOKEN_TTL_SECONDS = 24 * 60 * 60; // 24 horas
-    private final UsuarioId id; 
-    private Username username; 
-    private Email email; 
-    private PasswordHash passwordHash; 
-    private Avatar avatar; 
-    private final Instant createdAt; 
-    private Instant updatedAt; 
-    private Rol role; 
-    private Idioma language; 
-    private boolean notificationsActive; 
-    private EstadoUsuario status; 
-    private DiscordUserId discordUserId; 
-    private DiscordUsername discordUsername; 
-    private Instant discordLinkedAt; 
-    private boolean discordConsent;
+    private final UsuarioId id;
+    private Username username;
+    private Email email;
+    private PasswordHash passwordHash;
+    private Avatar avatar;
+    private final Instant createdAt;
+    private Instant updatedAt;
+    private Rol role;
+    private Idioma language;
+    private boolean notificationsActive;
+    private EstadoUsuario status;
+    private DiscordUserId discordUserId;
+    private DiscordUsername discordUsername;
+    private Instant discordLinkedAt;
     private TokenVerificacion tokenVerificacion;
     private Instant tokenVerificacionExpiracion;
     private TokenVerificacion tokenRestablecimiento;
     private Instant tokenRestablecimientoExpiracion;
 
-    private Usuario(UsuarioId id, Username username, Email email, PasswordHash passwordHash, Avatar avatar, Instant createdAt, Rol role, Idioma language, EstadoUsuario status) {
+    private Usuario(UsuarioId id, Username username, Email email, PasswordHash passwordHash, Avatar avatar,
+            Instant createdAt, Rol role, Idioma language, EstadoUsuario status) {
         validarArgumentosCreacion(username, email, passwordHash, createdAt);
         this.id = id;
         this.username = username;
@@ -42,7 +42,6 @@ public class Usuario {
         this.discordUserId = DiscordUserId.empty();
         this.discordUsername = DiscordUsername.empty();
         this.discordLinkedAt = null;
-        this.discordConsent = false;
         this.tokenVerificacion = TokenVerificacion.empty();
         this.tokenVerificacionExpiracion = null;
         this.tokenRestablecimiento = TokenVerificacion.empty();
@@ -50,27 +49,33 @@ public class Usuario {
     }
 
     public static Usuario create(Username username, Email email, PasswordHash passwordHash) {
-        Usuario usuario = new Usuario(UsuarioId.generate(), username, email, passwordHash, Avatar.empty(), Instant.now(), Rol.USER, Idioma.ESP, EstadoUsuario.PENDIENTE_DE_VERIFICACION);
+        Usuario usuario = new Usuario(UsuarioId.generate(), username, email, passwordHash, Avatar.empty(),
+                Instant.now(), Rol.USER, Idioma.ESP, EstadoUsuario.PENDIENTE_DE_VERIFICACION);
         usuario.generarTokenVerificacion();
         return usuario;
     }
 
-    public static Usuario reconstitute(UsuarioId id, Username username, Email email, PasswordHash passwordHash, Avatar avatar, Instant createdAt, Instant updatedAt, Rol role, Idioma language, boolean notificationsActive, EstadoUsuario status, DiscordUserId discordUserId, DiscordUsername discordUsername, Instant discordLinkedAt, boolean discordConsent, TokenVerificacion tokenVerificacion, Instant tokenVerificacionExpiracion, TokenVerificacion tokenRestablecimiento, Instant tokenRestablecimientoExpiracion) {
+    public static Usuario reconstitute(UsuarioId id, Username username, Email email, PasswordHash passwordHash,
+            Avatar avatar, Instant createdAt, Instant updatedAt, Rol role, Idioma language, boolean notificationsActive,
+            EstadoUsuario status, DiscordUserId discordUserId, DiscordUsername discordUsername, Instant discordLinkedAt,
+            TokenVerificacion tokenVerificacion, Instant tokenVerificacionExpiracion,
+            TokenVerificacion tokenRestablecimiento, Instant tokenRestablecimientoExpiracion) {
         Usuario usuario = new Usuario(id, username, email, passwordHash, avatar, createdAt, role, language, status);
         usuario.updatedAt = updatedAt != null ? updatedAt : createdAt;
         usuario.notificationsActive = notificationsActive;
         usuario.discordUserId = discordUserId != null ? discordUserId : DiscordUserId.empty();
         usuario.discordUsername = discordUsername != null ? discordUsername : DiscordUsername.empty();
         usuario.discordLinkedAt = discordLinkedAt;
-        usuario.discordConsent = discordConsent;
         usuario.tokenVerificacion = tokenVerificacion != null ? tokenVerificacion : TokenVerificacion.empty();
         usuario.tokenVerificacionExpiracion = tokenVerificacionExpiracion;
-        usuario.tokenRestablecimiento = tokenRestablecimiento != null ? tokenRestablecimiento : TokenVerificacion.empty();
+        usuario.tokenRestablecimiento = tokenRestablecimiento != null ? tokenRestablecimiento
+                : TokenVerificacion.empty();
         usuario.tokenRestablecimientoExpiracion = tokenRestablecimientoExpiracion;
         return usuario;
     }
 
-    private void validarArgumentosCreacion(Username username, Email email, PasswordHash passwordHash, Instant createdAt) {
+    private void validarArgumentosCreacion(Username username, Email email, PasswordHash passwordHash,
+            Instant createdAt) {
         if (username == null) {
             throw new IllegalArgumentException("El username es obligatorio");
         }
@@ -160,7 +165,8 @@ public class Usuario {
         if (this.tokenRestablecimiento == null || this.tokenRestablecimiento.isEmpty()) {
             return false;
         }
-        if (this.tokenRestablecimientoExpiracion == null || Instant.now().isAfter(this.tokenRestablecimientoExpiracion)) {
+        if (this.tokenRestablecimientoExpiracion == null
+                || Instant.now().isAfter(this.tokenRestablecimientoExpiracion)) {
             return false;
         }
         return this.tokenRestablecimiento.equals(token);
@@ -185,7 +191,7 @@ public class Usuario {
         if (this.tokenVerificacionExpiracion == null || Instant.now().isAfter(this.tokenVerificacionExpiracion)) {
             throw new IllegalArgumentException("El token de verificación ha expirado");
         }
-        
+
         this.status = EstadoUsuario.ACTIVO;
         this.tokenVerificacion = TokenVerificacion.empty();
         this.tokenVerificacionExpiracion = null;
@@ -193,11 +199,12 @@ public class Usuario {
     }
 
     // public boolean isTokenVerificacionExpirado() {
-    //     return this.tokenVerificacionExpiracion == null || Instant.now().isAfter(this.tokenVerificacionExpiracion);
+    // return this.tokenVerificacionExpiracion == null ||
+    // Instant.now().isAfter(this.tokenVerificacionExpiracion);
     // }
 
     // public boolean isPendienteDeVerificacion() {
-    //     return this.status == EstadoUsuario.PENDIENTE_DE_VERIFICACION;
+    // return this.status == EstadoUsuario.PENDIENTE_DE_VERIFICACION;
     // }
 
     public void linkDiscord(DiscordUserId discordUserId, DiscordUsername discordUsername) {
@@ -210,7 +217,6 @@ public class Usuario {
         this.discordUserId = discordUserId;
         this.discordUsername = discordUsername;
         this.discordLinkedAt = Instant.now();
-        this.discordConsent = true;
         this.updatedAt = Instant.now();
     }
 
@@ -218,7 +224,6 @@ public class Usuario {
         this.discordUserId = DiscordUserId.empty();
         this.discordUsername = DiscordUsername.empty();
         this.discordLinkedAt = null;
-        this.discordConsent = false;
         this.updatedAt = Instant.now();
     }
 
@@ -295,10 +300,6 @@ public class Usuario {
         return discordLinkedAt;
     }
 
-    public boolean isDiscordConsent() {
-        return discordConsent;
-    }
-
     public TokenVerificacion getTokenVerificacion() {
         return tokenVerificacion;
     }
@@ -317,6 +318,6 @@ public class Usuario {
 
     @Override
     public String toString() {
-        return "Usuario{" + "id=" + id + ", username=" + username + ", email=" + email + ", status=" + status +'}';
+        return "Usuario{" + "id=" + id + ", username=" + username + ", email=" + email + ", status=" + status + '}';
     }
 }

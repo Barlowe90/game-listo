@@ -231,7 +231,6 @@ class CambiarCorreoUseCaseTest {
             DiscordUserId.empty(),
             DiscordUsername.empty(),
             null,
-            false,
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),

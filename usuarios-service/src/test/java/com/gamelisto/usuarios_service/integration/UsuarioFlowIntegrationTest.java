@@ -74,10 +74,9 @@ class UsuarioFlowIntegrationTest {
     void flujoCompletoCrearVerificarYEditar() {
         // 1. Crear usuario
         CrearUsuarioCommand crearCommand = new CrearUsuarioCommand(
-            "testuser",
-            "testuser@example.com",
-            "Password123!"
-        );
+                "testuser",
+                "testuser@example.com",
+                "Password123!");
         UsuarioDTO usuarioCreado = crearUsuarioUseCase.execute(crearCommand);
 
         assertThat(usuarioCreado).isNotNull();
@@ -87,46 +86,41 @@ class UsuarioFlowIntegrationTest {
         // 2. Verificar email - buscar usuario en BD para obtener token
         Usuario usuarioEnBD = repositorioUsuarios.findByEmail(Email.of("testuser@example.com")).orElseThrow();
         VerificarEmailCommand verificarCommand = new VerificarEmailCommand(
-            usuarioEnBD.getTokenVerificacion().value()
-        );
+                usuarioEnBD.getTokenVerificacion().value());
         verificarEmailUseCase.execute(verificarCommand);
-        
+
         // Obtener usuario actualizado
         UsuarioDTO usuarioVerificado = obtenerUsuarioPorId.execute(usuarioCreado.id());
         assertThat(usuarioVerificado.status()).isEqualTo("ACTIVO");
 
         // 3. Editar perfil
         EditarPerfilUsuarioCommand editarCommand = new EditarPerfilUsuarioCommand(
-            usuarioVerificado.id(),
-            "https://i.imgur.com/avatar.png",
-            "ENG",
-            true
-        );
+                usuarioVerificado.id(),
+                "https://i.imgur.com/avatar.png",
+                "ENG",
+                true);
         UsuarioDTO usuarioEditado = editarPerfilUsuarioUseCase.execute(editarCommand);
 
         assertThat(usuarioEditado.avatar()).isEqualTo("https://i.imgur.com/avatar.png");
         assertThat(usuarioEditado.language()).isEqualTo("ENG");
         assertThat(usuarioEditado.notificationsActive()).isTrue();
     }
-    
-    @Disabled("Requiere integración real con Discord API - habilitar solo para pruebas manuales")
+
     @Test
     @DisplayName("Flujo completo: Crear usuario → Vincular Discord → Desvincular Discord")
     void flujoCompletoDiscordIntegration() {
         // 1. Crear usuario
         CrearUsuarioCommand crearCommand = new CrearUsuarioCommand(
-            "discorduser",
-            "discord@example.com",
-            "Password123!"
-        );
+                "discorduser",
+                "discord@example.com",
+                "Password123!");
         UsuarioDTO usuarioCreado = crearUsuarioUseCase.execute(crearCommand);
 
         // 2. Vincular Discord
         VincularDiscordCommand vincularCommand = new VincularDiscordCommand(
-            usuarioCreado.id(),
-            "123456789",
-            "DiscordUser#1234"
-        );
+                usuarioCreado.id(),
+                "123456789",
+                "DiscordUser#1234");
         UsuarioDTO usuarioVinculado = vincularDiscordUseCase.execute(vincularCommand);
 
         assertThat(usuarioVinculado.discordUserId()).isEqualTo("123456789");
@@ -144,26 +138,23 @@ class UsuarioFlowIntegrationTest {
     void flujoCompletoGestionEstados() {
         // 1. Crear usuario
         CrearUsuarioCommand crearCommand = new CrearUsuarioCommand(
-            "stateuser",
-            "state@example.com",
-            "Password123!"
-        );
+                "stateuser",
+                "state@example.com",
+                "Password123!");
         UsuarioDTO usuarioCreado = crearUsuarioUseCase.execute(crearCommand);
 
         // 2. Activar (verificar email)
         Usuario usuarioEnBD = repositorioUsuarios.findByEmail(Email.of("state@example.com")).orElseThrow();
         VerificarEmailCommand verificarCommand = new VerificarEmailCommand(
-            usuarioEnBD.getTokenVerificacion().value()
-        );
+                usuarioEnBD.getTokenVerificacion().value());
         verificarEmailUseCase.execute(verificarCommand);
         UsuarioDTO usuarioActivo = obtenerUsuarioPorId.execute(usuarioCreado.id());
         assertThat(usuarioActivo.status()).isEqualTo("ACTIVO");
 
         // 3. Suspender
         CambiarEstadoUsuarioCommand suspenderCommand = new CambiarEstadoUsuarioCommand(
-            usuarioActivo.id(),
-            EstadoUsuario.SUSPENDIDO
-        );
+                usuarioActivo.id(),
+                EstadoUsuario.SUSPENDIDO);
         UsuarioDTO usuarioSuspendido = cambiarEstadoUsuarioUseCase.execute(suspenderCommand);
         assertThat(usuarioSuspendido.status()).isEqualTo("SUSPENDIDO");
 
@@ -181,31 +172,28 @@ class UsuarioFlowIntegrationTest {
     void flujoCompletoResetPassword() {
         // 1. Crear y verificar usuario
         CrearUsuarioCommand crearCommand = new CrearUsuarioCommand(
-            "resetuser",
-            "reset@example.com",
-            "OldPassword123!"
-        );
+                "resetuser",
+                "reset@example.com",
+                "OldPassword123!");
         UsuarioDTO usuarioCreado = crearUsuarioUseCase.execute(crearCommand);
-        
+
         Usuario usuarioEnBD = repositorioUsuarios.findByEmail(Email.of("reset@example.com")).orElseThrow();
         VerificarEmailCommand verificarCommand = new VerificarEmailCommand(
-            usuarioEnBD.getTokenVerificacion().value()
-        );
+                usuarioEnBD.getTokenVerificacion().value());
         verificarEmailUseCase.execute(verificarCommand);
 
         // 2. Solicitar reset de contraseña (genera token)
         Usuario usuario = repositorioUsuarios.findByEmail(Email.of("reset@example.com")).orElseThrow();
         usuario.generarTokenRestablecimiento();
         repositorioUsuarios.save(usuario);
-        
+
         String tokenReset = usuario.getTokenRestablecimiento().value();
 
         // 3. Restablecer contraseña con el token
         RestablecerContrasenaCommand resetCommand = new RestablecerContrasenaCommand(
-            "reset@example.com",
-            tokenReset,
-            "NewPassword456!"
-        );
+                "reset@example.com",
+                tokenReset,
+                "NewPassword456!");
         restablecerContrasenaUseCase.execute(resetCommand);
 
         // Verificar que el usuario aún existe
@@ -219,14 +207,11 @@ class UsuarioFlowIntegrationTest {
     void flujoCompletoBusquedaPorCriterios() {
         // 1. Crear varios usuarios con diferentes estados
         CrearUsuarioCommand user1 = new CrearUsuarioCommand(
-            "activeuser1", "active1@example.com", "Pass123!"
-        );
+                "activeuser1", "active1@example.com", "Pass123!");
         CrearUsuarioCommand user2 = new CrearUsuarioCommand(
-            "activeuser2", "active2@example.com", "Pass123!"
-        );
+                "activeuser2", "active2@example.com", "Pass123!");
         CrearUsuarioCommand user3 = new CrearUsuarioCommand(
-            "pendinguser", "pending@example.com", "Pass123!"
-        );
+                "pendinguser", "pending@example.com", "Pass123!");
 
         crearUsuarioUseCase.execute(user1);
         crearUsuarioUseCase.execute(user2);
@@ -243,15 +228,16 @@ class UsuarioFlowIntegrationTest {
 
         assertThat(usuariosActivos).hasSizeGreaterThanOrEqualTo(2);
         assertThat(usuariosActivos)
-            .extracting(UsuarioDTO::status)
-            .containsOnly("ACTIVO");
+                .extracting(UsuarioDTO::status)
+                .containsOnly("ACTIVO");
 
         // 4. Buscar por estado PENDIENTE_DE_VERIFICACION
-        List<UsuarioDTO> usuariosPendientes = buscarUsuariosPorEstadoUseCase.execute(EstadoUsuario.PENDIENTE_DE_VERIFICACION);
+        List<UsuarioDTO> usuariosPendientes = buscarUsuariosPorEstadoUseCase
+                .execute(EstadoUsuario.PENDIENTE_DE_VERIFICACION);
 
         assertThat(usuariosPendientes).isNotEmpty();
         assertThat(usuariosPendientes)
-            .anyMatch(u -> u.username().equals("pendinguser"));
+                .anyMatch(u -> u.username().equals("pendinguser"));
     }
 
     @Test
@@ -259,30 +245,27 @@ class UsuarioFlowIntegrationTest {
     void flujoCompletoReenviarVerificacion() {
         // 1. Crear usuario
         CrearUsuarioCommand crearCommand = new CrearUsuarioCommand(
-            "reenviouser",
-            "reenvio@example.com",
-            "Password123!"
-        );
+                "reenviouser",
+                "reenvio@example.com",
+                "Password123!");
         UsuarioDTO usuarioCreado = crearUsuarioUseCase.execute(crearCommand);
         Usuario usuarioOriginal = repositorioUsuarios.findByEmail(Email.of("reenvio@example.com")).orElseThrow();
         String tokenOriginal = usuarioOriginal.getTokenVerificacion().value();
 
         // 2. Reenviar verificación (genera nuevo token)
         ReenviarVerificacionCommand reenviarCommand = new ReenviarVerificacionCommand(
-            "reenvio@example.com"
-        );
+                "reenvio@example.com");
         reenviarVerificacionUseCase.execute(reenviarCommand);
-        
+
         Usuario usuarioReenviado = repositorioUsuarios.findByEmail(Email.of("reenvio@example.com")).orElseThrow();
         assertThat(usuarioReenviado.getTokenVerificacion()).isNotNull();
         assertThat(usuarioReenviado.getTokenVerificacion().value()).isNotEqualTo(tokenOriginal);
 
         // 3. Verificar con el nuevo token
         VerificarEmailCommand verificarCommand = new VerificarEmailCommand(
-            usuarioReenviado.getTokenVerificacion().value()
-        );
+                usuarioReenviado.getTokenVerificacion().value());
         verificarEmailUseCase.execute(verificarCommand);
-        
+
         UsuarioDTO usuarioVerificado = obtenerUsuarioPorId.execute(usuarioCreado.id());
         assertThat(usuarioVerificado.status()).isEqualTo("ACTIVO");
     }
@@ -292,57 +275,58 @@ class UsuarioFlowIntegrationTest {
     void debeValidarUsuariosDuplicados() {
         // 1. Crear primer usuario
         CrearUsuarioCommand command1 = new CrearUsuarioCommand(
-            "duplicateuser",
-            "duplicate@example.com",
-            "Password123!"
-        );
+                "duplicateuser",
+                "duplicate@example.com",
+                "Password123!");
         crearUsuarioUseCase.execute(command1);
 
         // 2. Intentar crear con mismo username
         CrearUsuarioCommand command2 = new CrearUsuarioCommand(
-            "duplicateuser", // Username duplicado
-            "different@example.com",
-            "Password123!"
-        );
+                "duplicateuser", // Username duplicado
+                "different@example.com",
+                "Password123!");
         assertThatThrownBy(() -> crearUsuarioUseCase.execute(command2))
-            .hasMessageContaining("duplicateuser");
+                .hasMessageContaining("duplicateuser");
 
         // 3. Intentar crear con mismo email
         CrearUsuarioCommand command3 = new CrearUsuarioCommand(
-            "differentuser",
-            "duplicate@example.com", // Email duplicado
-            "Password123!"
-        );
+                "differentuser",
+                "duplicate@example.com", // Email duplicado
+                "Password123!");
         assertThatThrownBy(() -> crearUsuarioUseCase.execute(command3))
-            .hasMessageContaining("duplicate@example.com");
+                .hasMessageContaining("duplicate@example.com");
     }
 
-    // TODO: Descomentar cuando se implementen BuscarUsuarioPorEmailUseCase y BuscarUsuarioPorUsernameUseCase
+    // TODO: Descomentar cuando se implementen BuscarUsuarioPorEmailUseCase y
+    // BuscarUsuarioPorUsernameUseCase
     /*
-    @Test
-    @DisplayName("Debe permitir buscar usuario por email y username")
-    void debeBuscarPorEmailYUsername() {
-        // 1. Crear usuario
-        CrearUsuarioCommand crearCommand = new CrearUsuarioCommand(
-            "searchuser",
-            "search@example.com",
-            "Password123!",
-            null
-        );
-        UsuarioDTO usuarioCreado = crearUsuarioUseCase.execute(crearCommand);
-
-        // 2. Buscar por email
-        UsuarioDTO porEmail = buscarUsuarioPorEmailUseCase.execute("search@example.com");
-        assertThat(porEmail).isNotNull();
-        assertThat(porEmail.email()).isEqualTo("search@example.com");
-
-        // 3. Buscar por username
-        UsuarioDTO porUsername = buscarUsuarioPorUsernameUseCase.execute("searchuser");
-        assertThat(porUsername).isNotNull();
-        assertThat(porUsername.username()).isEqualTo("searchuser");
-
-        // 4. Verificar que son el mismo usuario
-        assertThat(porEmail.id()).isEqualTo(porUsername.id());
-    }
-    */
+     * @Test
+     * 
+     * @DisplayName("Debe permitir buscar usuario por email y username")
+     * void debeBuscarPorEmailYUsername() {
+     * // 1. Crear usuario
+     * CrearUsuarioCommand crearCommand = new CrearUsuarioCommand(
+     * "searchuser",
+     * "search@example.com",
+     * "Password123!",
+     * null
+     * );
+     * UsuarioDTO usuarioCreado = crearUsuarioUseCase.execute(crearCommand);
+     * 
+     * // 2. Buscar por email
+     * UsuarioDTO porEmail =
+     * buscarUsuarioPorEmailUseCase.execute("search@example.com");
+     * assertThat(porEmail).isNotNull();
+     * assertThat(porEmail.email()).isEqualTo("search@example.com");
+     * 
+     * // 3. Buscar por username
+     * UsuarioDTO porUsername =
+     * buscarUsuarioPorUsernameUseCase.execute("searchuser");
+     * assertThat(porUsername).isNotNull();
+     * assertThat(porUsername.username()).isEqualTo("searchuser");
+     * 
+     * // 4. Verificar que son el mismo usuario
+     * assertThat(porEmail.id()).isEqualTo(porUsername.id());
+     * }
+     */
 }

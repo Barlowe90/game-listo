@@ -58,9 +58,6 @@ public class UsuarioEntity {
     @Column(name = "discord_linked_at")
     private Instant discordLinkedAt;
 
-    @Column(name = "discord_consent", nullable = false)
-    private boolean discordConsent;
-
     @Column(name = "token_verificacion", length = 100)
     private String tokenVerificacion;
 
@@ -187,14 +184,6 @@ public class UsuarioEntity {
 
     public void setDiscordLinkedAt(Instant discordLinkedAt) {
         this.discordLinkedAt = discordLinkedAt;
-    }
-
-    public boolean isDiscordConsent() {
-        return discordConsent;
-    }
-
-    public void setDiscordConsent(boolean discordConsent) {
-        this.discordConsent = discordConsent;
     }
 
     public String getTokenVerificacion() {

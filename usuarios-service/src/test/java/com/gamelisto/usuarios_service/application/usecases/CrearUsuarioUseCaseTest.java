@@ -223,7 +223,6 @@ class CrearUsuarioUseCaseTest {
         assertEquals("USER", resultado.role());
         assertEquals("ESP", resultado.language());
         assertTrue(resultado.notificationsActive());
-        assertFalse(resultado.discordConsent());
     }
     
     @Test

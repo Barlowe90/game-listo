@@ -5,11 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.gamelisto.usuarios_service.application.dto.DiscordTokenCommand;
-import com.gamelisto.usuarios_service.application.dto.DiscordUserCommand;
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
 import com.gamelisto.usuarios_service.application.dto.VincularDiscordCommand;
-import com.gamelisto.usuarios_service.application.ports.IDiscordService;
 import com.gamelisto.usuarios_service.domain.exceptions.DiscordYaVinculadoException;
 import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoException;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
@@ -24,13 +21,9 @@ public class VincularDiscordUseCase {
     private static final Logger logger = LoggerFactory.getLogger(VincularDiscordUseCase.class);
 
     private final RepositorioUsuarios repositorioUsuarios;
-    private final IDiscordService discordService;
 
-    public VincularDiscordUseCase(
-            RepositorioUsuarios repositorioUsuarios,
-            IDiscordService discordService) {
+    public VincularDiscordUseCase(RepositorioUsuarios repositorioUsuarios) {
         this.repositorioUsuarios = repositorioUsuarios;
-        this.discordService = discordService;
     }
 
     @Transactional
@@ -40,34 +33,26 @@ public class VincularDiscordUseCase {
         // 1. Obtener el usuario
         UsuarioId usuarioId = UsuarioId.fromString(command.usuarioId());
         Usuario usuario = repositorioUsuarios.findById(usuarioId)
-                .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario no encontrado con ID: " + command.usuarioId()));
+                .orElseThrow(
+                        () -> new UsuarioNoEncontradoException("Usuario no encontrado con ID: " + command.usuarioId()));
 
-        // 2. Intercambiar código por access token
-        DiscordTokenCommand tokenResponse = discordService.exchangeCode(
-                command.code(),
-                command.redirectUri()
-        );
-
-        // 3. Obtener información del usuario de Discord
-        DiscordUserCommand discordUser = discordService.getUserInfo(tokenResponse.accessToken());
-
-        // 4. Validar que la cuenta de Discord no esté vinculada a otro usuario
-        DiscordUserId discordUserId = DiscordUserId.of(discordUser.id());
+        // 2. Validar que la cuenta de Discord no esté vinculada a otro usuario
+        DiscordUserId discordUserId = DiscordUserId.of(command.discordUserId());
         repositorioUsuarios.findByDiscordUserId(discordUserId).ifPresent(existingUser -> {
             if (!existingUser.getId().equals(usuarioId)) {
-                throw new DiscordYaVinculadoException(discordUser.id());
+                throw new DiscordYaVinculadoException(command.discordUserId());
             }
         });
 
-        // 5. Vincular la cuenta de Discord
-        DiscordUsername discordUsername = DiscordUsername.of(discordUser.username());
+        // 3. Vincular la cuenta de Discord
+        DiscordUsername discordUsername = DiscordUsername.of(command.discordUsername());
         usuario.linkDiscord(discordUserId, discordUsername);
 
-        // 6. Guardar cambios
+        // 4. Guardar cambios
         Usuario usuarioActualizado = repositorioUsuarios.save(usuario);
 
-        logger.info("Cuenta de Discord vinculada exitosamente: {} -> {}", 
-                discordUser.username(), command.usuarioId());
+        logger.info("Cuenta de Discord vinculada exitosamente: {} -> {}",
+                command.discordUsername(), command.usuarioId());
 
         return UsuarioDTO.from(usuarioActualizado);
     }

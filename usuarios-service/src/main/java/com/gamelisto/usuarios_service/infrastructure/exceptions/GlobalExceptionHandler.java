@@ -14,7 +14,6 @@ import com.gamelisto.usuarios_service.domain.exceptions.TokenVerificacionInvalid
 import com.gamelisto.usuarios_service.domain.exceptions.UsernameYaExisteException;
 import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoException;
 import com.gamelisto.usuarios_service.domain.exceptions.UsuarioYaVerificadoException;
-import com.gamelisto.usuarios_service.infrastructure.discord.DiscordApiException;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -26,7 +25,7 @@ public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // ============ Excepciones de Negocio - 404 Not Found ============
-    
+
     @ExceptionHandler(UsuarioNoEncontradoException.class)
     public ResponseEntity<Map<String, Object>> handleUsuarioNoEncontrado(UsuarioNoEncontradoException ex) {
         logger.warn("Usuario no encontrado: {}", ex.getUsuarioId());
@@ -59,14 +58,6 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
-    // ============ Excepciones de Integración - 502 Bad Gateway ============
-
-    @ExceptionHandler(DiscordApiException.class)
-    public ResponseEntity<Map<String, Object>> handleDiscordApiException(DiscordApiException ex) {
-        logger.error("Error con la API de Discord: {}", ex.getMessage());
-        return buildErrorResponse("Error al comunicarse con Discord. Intenta nuevamente.", HttpStatus.BAD_GATEWAY);
-    }
-
     // ============ Excepciones de Validación - 400 Bad Request ============
 
     @ExceptionHandler(TokenVerificacionInvalidoException.class)
@@ -90,11 +81,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex) {
         logger.warn("Error de validación en request");
-        
+
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> 
-            errors.put(error.getField(), error.getDefaultMessage())
-        );
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
         Map<String, Object> response = new HashMap<>();
         response.put("error", "Error de validación");

@@ -7,7 +7,7 @@ import com.gamelisto.usuarios_service.infrastructure.persistence.postgres.entity
 
 @Component
 public class UsuarioMapper {
-    
+
     public UsuarioEntity toEntity(Usuario usuario) {
         UsuarioEntity entity = new UsuarioEntity();
         entity.setId(usuario.getId().value());
@@ -24,10 +24,14 @@ public class UsuarioMapper {
         entity.setDiscordUserId(usuario.getDiscordUserId().isEmpty() ? null : usuario.getDiscordUserId().value());
         entity.setDiscordUsername(usuario.getDiscordUsername().isEmpty() ? null : usuario.getDiscordUsername().value());
         entity.setDiscordLinkedAt(usuario.getDiscordLinkedAt());
-        entity.setDiscordConsent(usuario.isDiscordConsent());
-        entity.setTokenVerificacion(usuario.getTokenVerificacion() != null && !usuario.getTokenVerificacion().isEmpty() ? usuario.getTokenVerificacion().value() : null);
+        entity.setTokenVerificacion(usuario.getTokenVerificacion() != null && !usuario.getTokenVerificacion().isEmpty()
+                ? usuario.getTokenVerificacion().value()
+                : null);
         entity.setTokenVerificacionExpiracion(usuario.getTokenVerificacionExpiracion());
-        entity.setTokenRestablecimiento(usuario.getTokenRestablecimiento() != null && !usuario.getTokenRestablecimiento().isEmpty() ? usuario.getTokenRestablecimiento().value() : null);
+        entity.setTokenRestablecimiento(
+                usuario.getTokenRestablecimiento() != null && !usuario.getTokenRestablecimiento().isEmpty()
+                        ? usuario.getTokenRestablecimiento().value()
+                        : null);
         entity.setTokenRestablecimientoExpiracion(usuario.getTokenRestablecimientoExpiracion());
         return entity;
     }
@@ -46,13 +50,14 @@ public class UsuarioMapper {
                 entity.isNotificationsActive(),
                 entity.getStatus(),
                 entity.getDiscordUserId() != null ? DiscordUserId.of(entity.getDiscordUserId()) : DiscordUserId.empty(),
-                entity.getDiscordUsername() != null ? DiscordUsername.of(entity.getDiscordUsername()) : DiscordUsername.empty(),
+                entity.getDiscordUsername() != null ? DiscordUsername.of(entity.getDiscordUsername())
+                        : DiscordUsername.empty(),
                 entity.getDiscordLinkedAt(),
-                entity.isDiscordConsent(),
-                entity.getTokenVerificacion() != null ? TokenVerificacion.of(entity.getTokenVerificacion()) : TokenVerificacion.empty(),
+                entity.getTokenVerificacion() != null ? TokenVerificacion.of(entity.getTokenVerificacion())
+                        : TokenVerificacion.empty(),
                 entity.getTokenVerificacionExpiracion(),
-                entity.getTokenRestablecimiento() != null ? TokenVerificacion.of(entity.getTokenRestablecimiento()) : TokenVerificacion.empty(),
-                entity.getTokenRestablecimientoExpiracion()
-        );
+                entity.getTokenRestablecimiento() != null ? TokenVerificacion.of(entity.getTokenRestablecimiento())
+                        : TokenVerificacion.empty(),
+                entity.getTokenRestablecimientoExpiracion());
     }
 }
