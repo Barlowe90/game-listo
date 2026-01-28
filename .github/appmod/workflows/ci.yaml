@@ -1,0 +1,216 @@
+name: CI - SolidarianID
+
+on:
+  # El CI se ejecutará en cada push o pull request a la rama develop
+  push:
+    paths:
+      - "solidarian-id/**"
+      - "!docs/**"
+    branches: [develop]
+  pull_request:
+    paths:
+      - "solidarian-id/**"
+      - "deployment/**"
+    branches: [develop]
+  workflow_dispatch:
+
+jobs:
+  ci:
+    name: CI Pipeline
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+    permissions:
+      contents: write
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: solidarian-id
+    strategy:
+      matrix:
+        node-version: [24.x]
+
+    services:
+      db:
+        image: postgres@sha256:ff4ccc02b97e0ebb6b328ef9ff92522f95586f83be6801896b615088defc8ad2 # postgres:17 alpine
+        env:
+          POSTGRES_USER: sonar
+          POSTGRES_PASSWORD: sonar
+          POSTGRES_DB: sonar
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U sonar -d sonar"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=30
+
+      sonarqube:
+        image: sonarqube@sha256:47e573f85879254dafd7be9845f750155f33de8a6f33542015c31ce050917059 # sonarqube:25.12.0.117093-community
+        env:
+          SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+          SONAR_JDBC_USERNAME: sonar
+          SONAR_JDBC_PASSWORD: sonar
+        ports:
+          - 9000:9000
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 #actions/checkout@v6.0.1
+        with:
+          fetch-depth: 0
+
+      ## INSTALAR JAVA CORRESPONDIENTE Y DEPENDENCIAS DE JAVA (MVN INSTALL)
+      - name: Setup Node.js
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f #actions/setup-node@v6.0.1
+        with:
+          node-version: ${{ matrix['node-version'] }}
+          cache: npm
+          cache-dependency-path: solidarian-id/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # NO HACER EN JAVA
+      - name: Run prettier check
+        id: prettier_check
+        continue-on-error: true
+        run: npx prettier --check '**/*.{ts,js,json,css,html}'
+
+      - name: Run prettier format
+        if: steps.prettier_check.outcome == 'failure'
+        run: npx prettier --write '**/*.{ts,js,json,css,html}'
+
+      - name: Commit formatted files
+        if: steps.prettier_check.outcome == 'failure'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+          git add .
+          git commit -m "chore(prettier-formatting): apply prettier formatting [skip ci]" || exit 0
+
+          # Determinar rama destino
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            TARGET_BRANCH="${{ github.head_ref }}"
+          else
+            TARGET_BRANCH="${{ github.ref_name }}"
+          fi
+
+          echo "Pushing to branch: $TARGET_BRANCH"
+
+          # Traer remoto y rebasar para evitar non-fast-forward
+          git fetch origin "$TARGET_BRANCH"
+          git rebase "origin/$TARGET_BRANCH" || (git rebase --abort && exit 1)
+
+          # Push
+          git push origin "HEAD:$TARGET_BRANCH"
+
+      # VER CHECKS-STYLE-JAVA CLI ("lint:ci": "eslint \"{apps,libs}/**/*.{ts,tsx}\" --max-warnings=0",)
+      - name: Run linter
+        run: npm run lint:ci
+
+      # JAVA MAVEN BUILD
+      - name: Build project
+        run: npm run build:all
+
+      # JAVA MAVEN TEST AND USE TEST CONTAINERS
+      - name: Run all tests with combined coverage
+        run: npm run test:all:coverage
+
+
+      ## OPCIONAL - GENERAR REPORTES DE SONARQUBE USANDO CONTENEDOR LOCAL DE SONARQUBE
+      # DONDE SE ALMACENA EL REPORTE DE COBERTURA DEL CÓDIGO
+      # SI SE EJECUTAN LOS TEST UNITARIOS Y DE INTEGRACIÓN CON COBERTURA Y SI AMBOS SE SOLAPAN O NO EN EL MISMO ARCHIVO
+      # SI SE USAN OTROS TIPOS DE TESTS (E2E) Y CÓMO INCLUIRLOS EN EL REPORTE DE SONARQUBE
+      
+      - name: Install jq (for JSON parsing)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Wait for SonarQube to be UP
+        run: |
+          for i in {1..90}; do
+            STATUS="$(curl -s http://localhost:9000/api/system/status | jq -r '.status' || true)"
+            echo "SonarQube status: $STATUS"
+            if [ "$STATUS" = "UP" ]; then
+              echo "SonarQube is UP"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "SonarQube did not become UP in time"
+          docker ps
+          docker logs "$(docker ps -q --filter "ancestor=sonarqube:25.12.0.117093-community")" || true
+          exit 1
+
+      - name: Create project (idempotent) + generate token
+        run: |
+          PROJECT_KEY="SolidarianID"
+          PROJECT_NAME="SolidarianID"
+
+          # Sonarqube API to create project (idempotent)
+          curl -s -u admin:admin -X POST "http://localhost:9000/api/projects/create" \
+            -d "name=$PROJECT_NAME&project=$PROJECT_KEY" >/dev/null || true
+
+          # Sonarqube API to generate token
+          TOKEN_JSON="$(curl -s -u admin:admin -X POST "http://localhost:9000/api/user_tokens/generate" \
+            -d "name=ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}")"
+
+          SONAR_TOKEN="$(echo "$TOKEN_JSON" | jq -r '.token')"
+
+          if [ -z "$SONAR_TOKEN" ] || [ "$SONAR_TOKEN" = "null" ]; then
+            echo "Failed to generate SONAR_TOKEN. Response:"
+            echo "$TOKEN_JSON"
+            exit 1
+          fi
+
+          echo "SONAR_TOKEN=$SONAR_TOKEN" >> "$GITHUB_ENV"
+          echo "SONAR_PROJECT_KEY=$PROJECT_KEY" >> "$GITHUB_ENV"
+          echo "SONAR_PROJECT_NAME=$PROJECT_NAME" >> "$GITHUB_ENV"
+
+      - name: Run SonarQube Scanner
+        uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9 #SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+          SONAR_HOST_URL: http://localhost:9000
+        with:
+          projectBaseDir: solidarian-id
+          args: >
+            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+            -Dsonar.projectName=${{ env.SONAR_PROJECT_NAME }}
+            -Dsonar.sources=apps
+            -Dsonar.inclusions=apps/**/src/**/*.ts
+            -Dsonar.exclusions=**/dist/**,**/node_modules/**,**/coverage/**,**/*.spec.ts,**/*.test.ts,**/*.e2e-spec.ts,**/*.js,**/*.json,**/*.css,**/*.html
+            -Dsonar.tests=apps
+            -Dsonar.test.inclusions=**/*.spec.ts,**/*.test.ts,**/*.e2e-spec.ts
+            -Dsonar.coverage.exclusions=**/*.entity.ts,**/*.dto.ts,**/*.filter.ts,**/*.guard.ts,**/*.mapper.ts,**/*.port.ts,**/fake*.ts,**/enums/**,**/model/**,**/models/**,**/main.ts,**/*.module.ts,**/jest*.config.ts,**/*.config.ts,**/*.d.ts,**/index.ts,**/*.data.ts,**/*-view.controller.ts,**/*-Auto.ts,**/data-source.ts
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.qualitygate.wait=true
+
+      - name: Setup Java (required by CNES)
+        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e #actions/setup-java@v5.1.0
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Download CNES Report (standalone jar)
+        run: |
+          mkdir -p reports
+          curl -L -o reports/sonar-cnes-report.jar \
+           https://github.com/cnescatlab/sonar-cnes-report/releases/download/5.0.2/sonar-cnes-report-5.0.2.jar
+
+      - name: Generate CNES report
+        run: |
+          mkdir -p reports/sonar
+          java -jar reports/sonar-cnes-report.jar \
+            -s http://localhost:9000 \
+            -t "${{ env.SONAR_TOKEN }}" \
+            -p "${{ env.SONAR_PROJECT_KEY }}" \
+            -o reports/sonar
+
+      - name: Upload CNES report
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: sonar-cnes-report
+          path: solidarian-id/reports/sonar
