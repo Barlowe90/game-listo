@@ -292,8 +292,7 @@ class UsuarioFlowIntegrationTest {
                                 .hasMessageContaining("duplicate@example.com");
         }
 
-        // TODO: Descomentar cuando se implementen BuscarUsuarioPorEmailUseCase y
-        // BuscarUsuarioPorUsernameUseCase
+        // TODO: Descomentar cuando se implementen BuscarUsuarioPorUsernameUseCase
         /*
          * @Test
          * 
@@ -307,12 +306,6 @@ class UsuarioFlowIntegrationTest {
          * null
          * );
          * UsuarioDTO usuarioCreado = crearUsuarioUseCase.execute(crearCommand);
-         * 
-         * // 2. Buscar por email
-         * UsuarioDTO porEmail =
-         * buscarUsuarioPorEmailUseCase.execute("search@example.com");
-         * assertThat(porEmail).isNotNull();
-         * assertThat(porEmail.email()).isEqualTo("search@example.com");
          * 
          * // 3. Buscar por username
          * UsuarioDTO porUsername =

@@ -42,7 +42,6 @@ import com.gamelisto.usuarios_service.application.usecases.SolicitarRestablecimi
 import com.gamelisto.usuarios_service.application.usecases.VerificarEmailUseCase;
 import com.gamelisto.usuarios_service.application.usecases.VincularDiscordUseCase;
 import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
-import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarContrasenaRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarCorreoRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarEstadoUsuarioRequest;

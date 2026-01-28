@@ -55,10 +55,9 @@ class UsuariosControllerIntegrationTest {
     void setUp() {
         // Crear usuario existente en la base de datos
         usuarioExistente = Usuario.create(
-            Username.of("existinguser"),
-            Email.of("existing@example.com"),
-            PasswordHash.of("$2a$10$hashedPassword")
-        );
+                Username.of("existinguser"),
+                Email.of("existing@example.com"),
+                PasswordHash.of("$2a$10$hashedPassword"));
         usuarioExistente = repositorioUsuarios.save(usuarioExistente);
     }
 
@@ -67,20 +66,19 @@ class UsuariosControllerIntegrationTest {
     void debeCrearNuevoUsuario() throws Exception {
         // Arrange
         CrearUsuarioRequest request = new CrearUsuarioRequest(
-            "newuser",
-            "newuser@example.com",
-            "Password123!"
-        );
+                "newuser",
+                "newuser@example.com",
+                "Password123!");
 
         // Act & Assert
         mockMvc.perform(post("/v1/usuarios/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.id").exists())
-            .andExpect(jsonPath("$.username").value("newuser"))
-            .andExpect(jsonPath("$.email").value("newuser@example.com"))
-            .andExpect(jsonPath("$.status").value("PENDIENTE_DE_VERIFICACION"));
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.username").value("newuser"))
+                .andExpect(jsonPath("$.email").value("newuser@example.com"))
+                .andExpect(jsonPath("$.status").value("PENDIENTE_DE_VERIFICACION"));
     }
 
     @Test
@@ -88,17 +86,16 @@ class UsuariosControllerIntegrationTest {
     void debeFallarSiUsernameYaExiste() throws Exception {
         // Arrange
         CrearUsuarioRequest request = new CrearUsuarioRequest(
-            "existinguser", // Ya existe
-            "another@example.com",
-            "Password123!"
-        );
+                "existinguser", // Ya existe
+                "another@example.com",
+                "Password123!");
 
         // Act & Assert
         mockMvc.perform(post("/v1/usuarios/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.error").value(containsString("existinguser")));
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value(containsString("existinguser")));
     }
 
     @Test
@@ -106,17 +103,16 @@ class UsuariosControllerIntegrationTest {
     void debeFallarSiEmailYaExiste() throws Exception {
         // Arrange
         CrearUsuarioRequest request = new CrearUsuarioRequest(
-            "uniqueuser",
-            "existing@example.com", // Ya existe
-            "Password123!"
-        );
+                "uniqueuser",
+                "existing@example.com", // Ya existe
+                "Password123!");
 
         // Act & Assert
         mockMvc.perform(post("/v1/usuarios/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.error").value(containsString("existing@example.com")));
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error").value(containsString("existing@example.com")));
     }
 
     @Test
@@ -124,16 +120,15 @@ class UsuariosControllerIntegrationTest {
     void debeValidarFormatoEmail() throws Exception {
         // Arrange
         CrearUsuarioRequest request = new CrearUsuarioRequest(
-            "newuser",
-            "invalid-email", // Email inválido
-            "Password123!"
-        );
+                "newuser",
+                "invalid-email", // Email inválido
+                "Password123!");
 
         // Act & Assert
         mockMvc.perform(post("/v1/usuarios/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -142,10 +137,10 @@ class UsuariosControllerIntegrationTest {
         // Act & Assert
         mockMvc.perform(get("/v1/usuarios/user/{id}", usuarioExistente.getId().value())
                 .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").exists())
-            .andExpect(jsonPath("$.username").value("existinguser"))
-            .andExpect(jsonPath("$.email").value("existing@example.com"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.username").value("existinguser"))
+                .andExpect(jsonPath("$.email").value("existing@example.com"));
     }
 
     @Test
@@ -154,7 +149,7 @@ class UsuariosControllerIntegrationTest {
         // Act & Assert - usar UUID válido pero inexistente
         mockMvc.perform(get("/v1/usuarios/user/{id}", "00000000-0000-0000-0000-000000000000")
                 .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -163,10 +158,10 @@ class UsuariosControllerIntegrationTest {
         // Act & Assert
         mockMvc.perform(get("/v1/usuarios/users")
                 .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
-            .andExpect(jsonPath("$[*].username", hasItem("existinguser")));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
+                .andExpect(jsonPath("$[*].username", hasItem("existinguser")));
     }
 
     @Test
@@ -174,19 +169,18 @@ class UsuariosControllerIntegrationTest {
     void debeEditarPerfilUsuario() throws Exception {
         // Arrange
         EditarPerfilUsuarioRequest request = new EditarPerfilUsuarioRequest(
-            "https://i.imgur.com/newavatar.png",
-            "ENG",
-            true
-        );
+                "https://i.imgur.com/newavatar.png",
+                "ENG",
+                true);
 
         // Act & Assert
         mockMvc.perform(patch("/v1/usuarios/user/{id}", usuarioExistente.getId().value())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.avatar").value("https://i.imgur.com/newavatar.png"))
-            .andExpect(jsonPath("$.language").value("ENG"))
-            .andExpect(jsonPath("$.notificationsActive").value(true));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.avatar").value("https://i.imgur.com/newavatar.png"))
+                .andExpect(jsonPath("$.language").value("ENG"))
+                .andExpect(jsonPath("$.notificationsActive").value(true));
     }
 
     @Test
@@ -195,13 +189,13 @@ class UsuariosControllerIntegrationTest {
         // Act & Assert
         mockMvc.perform(delete("/v1/usuarios/user/{id}", usuarioExistente.getId().value())
                 .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNoContent());
+                .andExpect(status().isNoContent());
 
         // Verificar que el usuario ahora tiene estado ELIMINADO
         mockMvc.perform(get("/v1/usuarios/user/{id}", usuarioExistente.getId().value())
                 .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("ELIMINADO"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ELIMINADO"));
     }
 
     @Test
@@ -215,8 +209,8 @@ class UsuariosControllerIntegrationTest {
         mockMvc.perform(patch("/v1/usuarios/user/{id}/state", usuarioExistente.getId().value())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("SUSPENDIDO"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("SUSPENDIDO"));
     }
 
     @Test
@@ -224,22 +218,20 @@ class UsuariosControllerIntegrationTest {
     void debeCambiarContrasena() throws Exception {
         // Arrange - Crear usuario con contraseña conocida
         Usuario usuario = Usuario.create(
-            Username.of("userpasstest"),
-            Email.of("passtest@example.com"),
-            PasswordHash.of(passwordEncoder.encode("OldPassword123!"))
-        );
+                Username.of("userpasstest"),
+                Email.of("passtest@example.com"),
+                PasswordHash.of(passwordEncoder.encode("OldPassword123!")));
         usuario = repositorioUsuarios.save(usuario);
-        
+
         CambiarContrasenaRequest request = new CambiarContrasenaRequest(
-            "OldPassword123!",
-            "NewPassword456!"
-        );
+                "OldPassword123!",
+                "NewPassword456!");
 
         // Act & Assert
         mockMvc.perform(post("/v1/usuarios/user/{id}/change-password", usuario.getId().value())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isOk());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -253,7 +245,7 @@ class UsuariosControllerIntegrationTest {
         mockMvc.perform(post("/v1/usuarios/auth/verify-email")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isOk());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -266,12 +258,9 @@ class UsuariosControllerIntegrationTest {
         mockMvc.perform(post("/v1/usuarios/auth/verify-email")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
-    // Tests de búsqueda comentados - endpoints no implementados en el controller
-    // TODO: Implementar GET /v1/usuarios/buscar/username y /v1/usuarios/buscar/email si son necesarios
-    
     @Test
     @DisplayName("GET /v1/usuarios/users?estado=... - Debe filtrar usuarios por estado")
     void debeFiltrarPorEstado() throws Exception {
@@ -279,9 +268,8 @@ class UsuariosControllerIntegrationTest {
         mockMvc.perform(get("/v1/usuarios/users")
                 .param("estado", "PENDIENTE_DE_VERIFICACION")
                 .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$").isArray());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
     }
 
 }
-
