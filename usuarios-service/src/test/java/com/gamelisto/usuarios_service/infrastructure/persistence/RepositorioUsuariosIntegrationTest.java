@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ActiveProfiles("test")
 @Import(TestMessagingConfig.class)
 @Transactional
-@DisplayName("Tests de Integración - RepositorioUsuarios con H2")
+@DisplayName("Tests de Integración - RepositorioUsuarios con PostgreSQL")
 class RepositorioUsuariosIntegrationTest {
 
   @Autowired private RepositorioUsuarios repositorioUsuarios;
