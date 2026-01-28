@@ -1,22 +1,25 @@
-name: CI - SolidarianID
+name: CI - GameListo
 
 on:
-  # El CI se ejecutará en cada push o pull request a la rama develop
+  # El CI se ejecutará en cada push o pull request a la rama main
   push:
     paths:
-      - "solidarian-id/**"
-      - "!docs/**"
-    branches: [develop]
+      - "usuarios-service/**"
+      - ".github/workflows/ci.yaml"
+      - "!**/*.md"
+      - "!**/docs/**"
+    branches: [main]
   pull_request:
     paths:
-      - "solidarian-id/**"
-      - "deployment/**"
-    branches: [develop]
+      - "usuarios-service/**"
+      - ".github/workflows/ci.yaml"
+      - "!**/*.md"
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   ci:
-    name: CI Pipeline
+    name: CI Pipeline - Usuarios Service
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
     permissions:
@@ -24,34 +27,39 @@ jobs:
       pull-requests: write
     defaults:
       run:
-        working-directory: solidarian-id
+        working-directory: usuarios-service
     strategy:
       matrix:
-        node-version: [24.x]
+        java-version: [21]
 
     services:
-      db:
+      postgres:
         image: postgres@sha256:ff4ccc02b97e0ebb6b328ef9ff92522f95586f83be6801896b615088defc8ad2 # postgres:17 alpine
         env:
-          POSTGRES_USER: sonar
-          POSTGRES_PASSWORD: sonar
-          POSTGRES_DB: sonar
+          POSTGRES_USER: guest
+          POSTGRES_PASSWORD: guest
+          POSTGRES_DB: usuarios_db
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U sonar -d sonar"
+          --health-cmd="pg_isready -U guest -d usuarios_db"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=30
 
-      sonarqube:
-        image: sonarqube@sha256:47e573f85879254dafd7be9845f750155f33de8a6f33542015c31ce050917059 # sonarqube:25.12.0.117093-community
+      rabbitmq:
+        image: rabbitmq:3.13-management-alpine
         env:
-          SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
-          SONAR_JDBC_USERNAME: sonar
-          SONAR_JDBC_PASSWORD: sonar
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
         ports:
-          - 9000:9000
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd="rabbitmq-diagnostics -q ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - name: Checkout code
@@ -59,35 +67,40 @@ jobs:
         with:
           fetch-depth: 0
 
-      ## INSTALAR JAVA CORRESPONDIENTE Y DEPENDENCIAS DE JAVA (MVN INSTALL)
-      - name: Setup Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f #actions/setup-node@v6.0.1
+      - name: Setup Java ${{ matrix.java-version }}
+        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e #actions/setup-java@v5.1.0
         with:
-          node-version: ${{ matrix['node-version'] }}
-          cache: npm
-          cache-dependency-path: solidarian-id/package-lock.json
+          distribution: 'temurin'
+          java-version: ${{ matrix.java-version }}
+          cache: 'maven'
+
+      - name: Verify Java installation
+        run: |
+          java -version
+          ./mvnw -version
 
       - name: Install dependencies
-        run: npm ci
+        run: ./mvnw clean install -DskipTests
 
-      # NO HACER EN JAVA
-      - name: Run prettier check
-        id: prettier_check
+      - name: Check code formatting with Spotless
+        id: spotless-check
         continue-on-error: true
-        run: npx prettier --check '**/*.{ts,js,json,css,html}'
+        run: ./mvnw spotless:check
 
-      - name: Run prettier format
-        if: steps.prettier_check.outcome == 'failure'
-        run: npx prettier --write '**/*.{ts,js,json,css,html}'
+      - name: Apply code formatting
+        if: steps.spotless-check.outcome == 'failure'
+        run: |
+          ./mvnw spotless:apply
+          echo "Code formatting applied automatically"
 
       - name: Commit formatted files
-        if: steps.prettier_check.outcome == 'failure'
+        if: steps.spotless-check.outcome == 'failure'
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
           git add .
-          git commit -m "chore(prettier-formatting): apply prettier formatting [skip ci]" || exit 0
+          git commit -m "style: apply spotless formatting [skip ci]" || exit 0
 
           # Determinar rama destino
           if [ "${{ github.event_name }}" = "pull_request" ]; then
@@ -105,112 +118,60 @@ jobs:
           # Push
           git push origin "HEAD:$TARGET_BRANCH"
 
-      # VER CHECKS-STYLE-JAVA CLI ("lint:ci": "eslint \"{apps,libs}/**/*.{ts,tsx}\" --max-warnings=0",)
-      - name: Run linter
-        run: npm run lint:ci
-
-      # JAVA MAVEN BUILD
       - name: Build project
-        run: npm run build:all
+        run: ./mvnw clean package -DskipTests
 
-      # JAVA MAVEN TEST AND USE TEST CONTAINERS
-      - name: Run all tests with combined coverage
-        run: npm run test:all:coverage
+      - name: Run unit tests
+        run: ./mvnw test
 
-
-      ## OPCIONAL - GENERAR REPORTES DE SONARQUBE USANDO CONTENEDOR LOCAL DE SONARQUBE
-      # DONDE SE ALMACENA EL REPORTE DE COBERTURA DEL CÓDIGO
-      # SI SE EJECUTAN LOS TEST UNITARIOS Y DE INTEGRACIÓN CON COBERTURA Y SI AMBOS SE SOLAPAN O NO EN EL MISMO ARCHIVO
-      # SI SE USAN OTROS TIPOS DE TESTS (E2E) Y CÓMO INCLUIRLOS EN EL REPORTE DE SONARQUBE
-      
-      - name: Install jq (for JSON parsing)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
-
-      - name: Wait for SonarQube to be UP
-        run: |
-          for i in {1..90}; do
-            STATUS="$(curl -s http://localhost:9000/api/system/status | jq -r '.status' || true)"
-            echo "SonarQube status: $STATUS"
-            if [ "$STATUS" = "UP" ]; then
-              echo "SonarQube is UP"
-              exit 0
-            fi
-            sleep 5
-          done
-          echo "SonarQube did not become UP in time"
-          docker ps
-          docker logs "$(docker ps -q --filter "ancestor=sonarqube:25.12.0.117093-community")" || true
-          exit 1
-
-      - name: Create project (idempotent) + generate token
-        run: |
-          PROJECT_KEY="SolidarianID"
-          PROJECT_NAME="SolidarianID"
-
-          # Sonarqube API to create project (idempotent)
-          curl -s -u admin:admin -X POST "http://localhost:9000/api/projects/create" \
-            -d "name=$PROJECT_NAME&project=$PROJECT_KEY" >/dev/null || true
-
-          # Sonarqube API to generate token
-          TOKEN_JSON="$(curl -s -u admin:admin -X POST "http://localhost:9000/api/user_tokens/generate" \
-            -d "name=ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}")"
-
-          SONAR_TOKEN="$(echo "$TOKEN_JSON" | jq -r '.token')"
-
-          if [ -z "$SONAR_TOKEN" ] || [ "$SONAR_TOKEN" = "null" ]; then
-            echo "Failed to generate SONAR_TOKEN. Response:"
-            echo "$TOKEN_JSON"
-            exit 1
-          fi
-
-          echo "SONAR_TOKEN=$SONAR_TOKEN" >> "$GITHUB_ENV"
-          echo "SONAR_PROJECT_KEY=$PROJECT_KEY" >> "$GITHUB_ENV"
-          echo "SONAR_PROJECT_NAME=$PROJECT_NAME" >> "$GITHUB_ENV"
-
-      - name: Run SonarQube Scanner
-        uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9 #SonarSource/sonarqube-scan-action@v7
+      - name: Run integration tests
+        run: ./mvnw verify -DskipUnitTests
         env:
-          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
-          SONAR_HOST_URL: http://localhost:9000
-        with:
-          projectBaseDir: solidarian-id
-          args: >
-            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
-            -Dsonar.projectName=${{ env.SONAR_PROJECT_NAME }}
-            -Dsonar.sources=apps
-            -Dsonar.inclusions=apps/**/src/**/*.ts
-            -Dsonar.exclusions=**/dist/**,**/node_modules/**,**/coverage/**,**/*.spec.ts,**/*.test.ts,**/*.e2e-spec.ts,**/*.js,**/*.json,**/*.css,**/*.html
-            -Dsonar.tests=apps
-            -Dsonar.test.inclusions=**/*.spec.ts,**/*.test.ts,**/*.e2e-spec.ts
-            -Dsonar.coverage.exclusions=**/*.entity.ts,**/*.dto.ts,**/*.filter.ts,**/*.guard.ts,**/*.mapper.ts,**/*.port.ts,**/fake*.ts,**/enums/**,**/model/**,**/models/**,**/main.ts,**/*.module.ts,**/jest*.config.ts,**/*.config.ts,**/*.d.ts,**/index.ts,**/*.data.ts,**/*-view.controller.ts,**/*-Auto.ts,**/data-source.ts
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.qualitygate.wait=true
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/usuarios_db
+          SPRING_DATASOURCE_USERNAME: guest
+          SPRING_DATASOURCE_PASSWORD: guest
+          SPRING_RABBITMQ_HOST: localhost
+          SPRING_RABBITMQ_PORT: 5672
+          SPRING_RABBITMQ_USERNAME: guest
+          SPRING_RABBITMQ_PASSWORD: guest
 
-      - name: Setup Java (required by CNES)
-        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e #actions/setup-java@v5.1.0
-        with:
-          distribution: temurin
-          java-version: "17"
+      - name: Generate coverage report
+        run: ./mvnw jacoco:report
 
-      - name: Download CNES Report (standalone jar)
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@7afa10ed9b269c561c2336fd862446844e0cbf71 #codecov/codecov-action@v5.2.1
+        with:
+          files: ./usuarios-service/target/site/jacoco/jacoco.xml
+          flags: usuarios-service
+          name: usuarios-service-coverage
+          fail_ci_if_error: false
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #actions/upload-artifact@v4.6.0
+        with:
+          name: test-results
+          path: |
+            usuarios-service/target/surefire-reports/
+            usuarios-service/target/failsafe-reports/
+            usuarios-service/target/site/jacoco/
+
+      - name: Build Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          mkdir -p reports
-          curl -L -o reports/sonar-cnes-report.jar \
-           https://github.com/cnescatlab/sonar-cnes-report/releases/download/5.0.2/sonar-cnes-report-5.0.2.jar
+          cd ..
+          docker build -t gamelisto/usuarios-service:latest -f usuarios-service/Dockerfile .
 
-      - name: Generate CNES report
+      - name: Save Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          mkdir -p reports/sonar
-          java -jar reports/sonar-cnes-report.jar \
-            -s http://localhost:9000 \
-            -t "${{ env.SONAR_TOKEN }}" \
-            -p "${{ env.SONAR_PROJECT_KEY }}" \
-            -o reports/sonar
+          cd ..
+          docker save gamelisto/usuarios-service:latest | gzip > usuarios-service-image.tar.gz
 
-      - name: Upload CNES report
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+      - name: Upload Docker image artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #actions/upload-artifact@v4.6.0
         with:
-          name: sonar-cnes-report
-          path: solidarian-id/reports/sonar
+          name: docker-image
+          path: usuarios-service-image.tar.gz
+          retention-days: 7
