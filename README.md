@@ -1,13 +1,13 @@
 # 🎮 GameListo — Plataforma social para jugadores
 
-> *Gestión de videojuegos, listas personalizadas, publicaciones, amigos y seguimiento del progreso.  
+> *Gestión de videojuegos, listas personalizadas, publicaciones y amigos.  
 Arquitectura basada en microservicios con DDD + Hexagonal Architecture.*
 
 ## 🧩 Descripción general
 
-**GameListo** es una plataforma web moderna donde los jugadores pueden **gestionar su biblioteca de videojuegos**, crear **listas personalizadas**, descubrir nuevos títulos y **compartir su experiencia** con una comunidad social.
+**GameListo** es una plataforma web moderna donde los jugadores pueden **gestionar su biblioteca de videojuegos**, crear **listas personalizadas**, descubrir nuevos títulos y **buscar compañeros** en una comunidad social.
 
-El proyecto está construido como parte de un Trabajo Fin de Grado en Ingeniería Informática, aplicando principios profesionales de arquitectura de software, despliegue cloud y diseño UI/UX.
+El proyecto está construido como parte del Trabajo Fin de Grado de Ingeniería Informática, aplicando principios profesionales de arquitectura de software, despliegue cloud y diseño UI/UX.
 
 ## 🚀 Características principales
 
@@ -21,20 +21,17 @@ El proyecto está construido como parte de un Trabajo Fin de Grado en Ingenierí
 
 - Juegos obtenidos y enriquecidos desde la API de IGDB  
 - Filtros avanzados por género, plataforma, etiquetas, estilo de juego  
-- Próximos lanzamientos por mes  
-- Top juegos del catálogo
 
 ### 👥 Social
 
 - Sistema de amigos  
 - Publicaciones
 - Grupos de juego y solicitudes  
-- Chat y mensajería  
 
 ### 🔔 Notificaciones
 
 - Nuevos amigos  
-- Invitaciones  
+- Invitación a grupos de juego  
 
 ## 🏗️ Arquitectura
 
@@ -52,9 +49,9 @@ GameListo está construido con **microservicios desacoplados** basados en:
 ### 🧱 Microservicios
 
 | Microservicio | Tecnología | Descripción |
-|---------------|------------|-------------|
+| ------------- | ---------- | ----------- |
 | **auth-service** | Spring Boot + JWT | Login, logout, gestión de sesiones |
-| **usuarios-service** | Spring Boot + PostgreSQL | Registro, verificación email, perfil de usuario, reset contraseña, Discord OAuth2 |
+| **usuarios-service** | Spring Boot + PostgreSQL | Registro, verificación email, perfil de usuario, reset contraseña |
 | **catalogo-service** | Spring Boot + PostgreSQL + MongoDB | Juegos, búsqueda y sincronización con IGDB |
 | **biblioteca-service** | Spring Boot + PostgreSQL | Estados, listas, reseñas |
 | **publicaciones-service** | Spring Boot + MongoDB | Posts, screenshots, vídeos |
@@ -102,7 +99,3 @@ Stack utilizado:
 
 **Barlowe — Estudiante de ingeniería informática**  
 Apasionado por la arquitectura de software, microservicios y desarrollo full‑stack.
-
-## ⭐ Contribuye
-
-Si te gusta el proyecto, ¡déjale una estrella ⭐ en GitHub!
