@@ -1,76 +1,78 @@
 package com.gamelisto.usuarios_service.infrastructure.email;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.gamelisto.usuarios_service.application.ports.IEmailService;
 import com.gamelisto.usuarios_service.domain.exceptions.EmailSendingException;
 import com.resend.Resend;
 import com.resend.core.exception.ResendException;
 import com.resend.services.emails.model.CreateEmailOptions;
 import com.resend.services.emails.model.CreateEmailResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ResendEmailService implements IEmailService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ResendEmailService.class);
+  private static final Logger logger = LoggerFactory.getLogger(ResendEmailService.class);
 
-    private final Resend resend;
-    private final String fromEmail;
-    private final String frontendUrl;
+  private final Resend resend;
+  private final String fromEmail;
+  private final String frontendUrl;
 
-    public ResendEmailService(
-            @Value("${resend.api-key}") String apiKey,
-            @Value("${resend.from-email}") String fromEmail,
-            @Value("${app.frontend.url}") String frontendUrl) {
-        this.resend = new Resend(apiKey);
-        this.fromEmail = fromEmail;
-        this.frontendUrl = frontendUrl;
-        logger.info("✅ Servicio de email Resend inicializado correctamente");
+  public ResendEmailService(
+      @Value("${resend.api-key}") String apiKey,
+      @Value("${resend.from-email}") String fromEmail,
+      @Value("${app.frontend.url}") String frontendUrl) {
+    this.resend = new Resend(apiKey);
+    this.fromEmail = fromEmail;
+    this.frontendUrl = frontendUrl;
+    logger.info("✅ Servicio de email Resend inicializado correctamente");
+  }
+
+  @Override
+  public void sendVerificationEmail(String toEmail, String username, String verificationToken) {
+    String subject = "Verifica tu cuenta en GameListo";
+    String htmlBody = buildVerificationEmailHtml(username, verificationToken);
+
+    sendEmail(toEmail, subject, htmlBody, "verificación");
+  }
+
+  @Override
+  public void sendPasswordResetEmail(String toEmail, String username, String resetToken) {
+    String subject = "Restablece tu contraseña en GameListo";
+    String htmlBody = buildPasswordResetEmailHtml(username, resetToken);
+
+    sendEmail(toEmail, subject, htmlBody, "restablecimiento de contraseña");
+  }
+
+  private void sendEmail(String toEmail, String subject, String htmlBody, String emailType) {
+    CreateEmailOptions params =
+        CreateEmailOptions.builder()
+            .from(fromEmail)
+            .to(toEmail)
+            .subject(subject)
+            .html(htmlBody)
+            .build();
+
+    try {
+      CreateEmailResponse response = resend.emails().send(params);
+      logger.info(
+          "📧 Email de {} enviado exitosamente a {} - ID: {}",
+          emailType,
+          toEmail,
+          response.getId());
+    } catch (ResendException e) {
+      logger.error("❌ Error al enviar email de {} a {}: {}", emailType, toEmail, e.getMessage(), e);
+      throw new EmailSendingException(
+          "No se pudo enviar el email de " + emailType + " a " + toEmail, e);
     }
+  }
 
-    @Override
-    public void sendVerificationEmail(String toEmail, String username, String verificationToken) {
-        String subject = "Verifica tu cuenta en GameListo";
-        String htmlBody = buildVerificationEmailHtml(username, verificationToken);
+  private String buildVerificationEmailHtml(String username, String verificationToken) {
+    String verificationUrl = frontendUrl + "/verify-email?token=" + verificationToken;
 
-        sendEmail(toEmail, subject, htmlBody, "verificación");
-    }
-
-    @Override
-    public void sendPasswordResetEmail(String toEmail, String username, String resetToken) {
-        String subject = "Restablece tu contraseña en GameListo";
-        String htmlBody = buildPasswordResetEmailHtml(username, resetToken);
-
-        sendEmail(toEmail, subject, htmlBody, "restablecimiento de contraseña");
-    }
-
-    private void sendEmail(String toEmail, String subject, String htmlBody, String emailType) {
-        CreateEmailOptions params = CreateEmailOptions.builder()
-                .from(fromEmail)
-                .to(toEmail)
-                .subject(subject)
-                .html(htmlBody)
-                .build();
-
-        try {
-            CreateEmailResponse response = resend.emails().send(params);
-            logger.info("📧 Email de {} enviado exitosamente a {} - ID: {}",
-                    emailType, toEmail, response.getId());
-        } catch (ResendException e) {
-            logger.error("❌ Error al enviar email de {} a {}: {}",
-                    emailType, toEmail, e.getMessage(), e);
-            throw new EmailSendingException(
-                    "No se pudo enviar el email de " + emailType + " a " + toEmail, e);
-        }
-    }
-
-    private String buildVerificationEmailHtml(String username, String verificationToken) {
-        String verificationUrl = frontendUrl + "/verify-email?token=" + verificationToken;
-
-        return """
+    return """
                 <!DOCTYPE html>
                 <html lang="es">
                 <head>
@@ -147,13 +149,13 @@ public class ResendEmailService implements IEmailService {
                 </body>
                 </html>
                 """
-                .formatted(username, verificationUrl, verificationUrl);
-    }
+        .formatted(username, verificationUrl, verificationUrl);
+  }
 
-    private String buildPasswordResetEmailHtml(String username, String resetToken) {
-        String resetUrl = frontendUrl + "/reset-password?token=" + resetToken;
+  private String buildPasswordResetEmailHtml(String username, String resetToken) {
+    String resetUrl = frontendUrl + "/reset-password?token=" + resetToken;
 
-        return """
+    return """
                 <!DOCTYPE html>
                 <html lang="es">
                 <head>
@@ -230,6 +232,6 @@ public class ResendEmailService implements IEmailService {
                 </body>
                 </html>
                 """
-                .formatted(username, resetUrl, resetUrl);
-    }
+        .formatted(username, resetUrl, resetUrl);
+  }
 }

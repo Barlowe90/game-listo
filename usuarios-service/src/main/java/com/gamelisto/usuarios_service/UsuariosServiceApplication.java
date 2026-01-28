@@ -8,12 +8,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class UsuariosServiceApplication {
 
-	private static final Logger logger = LoggerFactory.getLogger(UsuariosServiceApplication.class);
+  private static final Logger logger = LoggerFactory.getLogger(UsuariosServiceApplication.class);
 
-	public static void main(String[] args) {
-		SpringApplication.run(UsuariosServiceApplication.class, args);
+  public static void main(String[] args) {
+    SpringApplication.run(UsuariosServiceApplication.class, args);
 
-		logger.info("🟢 Microservicio usuarios arrancado.");
-	}
-
+    logger.info("🟢 Microservicio usuarios arrancado.");
+  }
 }

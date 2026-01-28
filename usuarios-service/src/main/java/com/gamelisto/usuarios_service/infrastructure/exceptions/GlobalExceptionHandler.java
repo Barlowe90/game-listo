@@ -1,5 +1,14 @@
 package com.gamelisto.usuarios_service.infrastructure.exceptions;
 
+import com.gamelisto.usuarios_service.domain.exceptions.DiscordYaVinculadoException;
+import com.gamelisto.usuarios_service.domain.exceptions.EmailYaRegistradoException;
+import com.gamelisto.usuarios_service.domain.exceptions.TokenVerificacionInvalidoException;
+import com.gamelisto.usuarios_service.domain.exceptions.UsernameYaExisteException;
+import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoException;
+import com.gamelisto.usuarios_service.domain.exceptions.UsuarioYaVerificadoException;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -8,108 +17,105 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.gamelisto.usuarios_service.domain.exceptions.DiscordYaVinculadoException;
-import com.gamelisto.usuarios_service.domain.exceptions.EmailYaRegistradoException;
-import com.gamelisto.usuarios_service.domain.exceptions.TokenVerificacionInvalidoException;
-import com.gamelisto.usuarios_service.domain.exceptions.UsernameYaExisteException;
-import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoException;
-import com.gamelisto.usuarios_service.domain.exceptions.UsuarioYaVerificadoException;
-
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+  private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // ============ Excepciones de Negocio - 404 Not Found ============
+  // ============ Excepciones de Negocio - 404 Not Found ============
 
-    @ExceptionHandler(UsuarioNoEncontradoException.class)
-    public ResponseEntity<Map<String, Object>> handleUsuarioNoEncontrado(UsuarioNoEncontradoException ex) {
-        logger.warn("Usuario no encontrado: {}", ex.getUsuarioId());
-        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
+  @ExceptionHandler(UsuarioNoEncontradoException.class)
+  public ResponseEntity<Map<String, Object>> handleUsuarioNoEncontrado(
+      UsuarioNoEncontradoException ex) {
+    logger.warn("Usuario no encontrado: {}", ex.getUsuarioId());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+  }
 
-    // ============ Excepciones de Negocio - 409 Conflict ============
+  // ============ Excepciones de Negocio - 409 Conflict ============
 
-    @ExceptionHandler(UsernameYaExisteException.class)
-    public ResponseEntity<Map<String, Object>> handleUsernameYaExiste(UsernameYaExisteException ex) {
-        logger.warn("Username ya existe: {}", ex.getUsername());
-        return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
-    }
+  @ExceptionHandler(UsernameYaExisteException.class)
+  public ResponseEntity<Map<String, Object>> handleUsernameYaExiste(UsernameYaExisteException ex) {
+    logger.warn("Username ya existe: {}", ex.getUsername());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+  }
 
-    @ExceptionHandler(EmailYaRegistradoException.class)
-    public ResponseEntity<Map<String, Object>> handleEmailYaRegistrado(EmailYaRegistradoException ex) {
-        logger.warn("Email ya registrado: {}", ex.getEmail());
-        return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
-    }
+  @ExceptionHandler(EmailYaRegistradoException.class)
+  public ResponseEntity<Map<String, Object>> handleEmailYaRegistrado(
+      EmailYaRegistradoException ex) {
+    logger.warn("Email ya registrado: {}", ex.getEmail());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+  }
 
-    @ExceptionHandler(DiscordYaVinculadoException.class)
-    public ResponseEntity<Map<String, Object>> handleDiscordYaVinculado(DiscordYaVinculadoException ex) {
-        logger.warn("Discord ya vinculado: {}", ex.getMessage());
-        return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
-    }
+  @ExceptionHandler(DiscordYaVinculadoException.class)
+  public ResponseEntity<Map<String, Object>> handleDiscordYaVinculado(
+      DiscordYaVinculadoException ex) {
+    logger.warn("Discord ya vinculado: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+  }
 
-    @ExceptionHandler(UsuarioYaVerificadoException.class)
-    public ResponseEntity<Map<String, Object>> handleUsuarioYaVerificado(UsuarioYaVerificadoException ex) {
-        logger.warn("Usuario ya verificado: {}", ex.getEmail());
-        return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
-    }
+  @ExceptionHandler(UsuarioYaVerificadoException.class)
+  public ResponseEntity<Map<String, Object>> handleUsuarioYaVerificado(
+      UsuarioYaVerificadoException ex) {
+    logger.warn("Usuario ya verificado: {}", ex.getEmail());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+  }
 
-    // ============ Excepciones de Validación - 400 Bad Request ============
+  // ============ Excepciones de Validación - 400 Bad Request ============
 
-    @ExceptionHandler(TokenVerificacionInvalidoException.class)
-    public ResponseEntity<Map<String, Object>> handleTokenVerificacionInvalido(TokenVerificacionInvalidoException ex) {
-        logger.warn("Token de verificación inválido o expirado");
-        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
+  @ExceptionHandler(TokenVerificacionInvalidoException.class)
+  public ResponseEntity<Map<String, Object>> handleTokenVerificacionInvalido(
+      TokenVerificacionInvalidoException ex) {
+    logger.warn("Token de verificación inválido o expirado");
+    return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+  }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
-        logger.warn("Argumento inválido: {}", ex.getMessage());
-        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+    logger.warn("Argumento inválido: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+  }
 
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
-        logger.warn("Estado inválido: {}", ex.getMessage());
-        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
+  @ExceptionHandler(IllegalStateException.class)
+  public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
+    logger.warn("Estado inválido: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+  }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex) {
-        logger.warn("Error de validación en request");
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<Map<String, Object>> handleValidationException(
+      MethodArgumentNotValidException ex) {
+    logger.warn("Error de validación en request");
 
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors()
-                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+    Map<String, String> errors = new HashMap<>();
+    ex.getBindingResult()
+        .getFieldErrors()
+        .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("error", "Error de validación");
-        response.put("errors", errors);
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("timestamp", Instant.now().toString());
+    Map<String, Object> response = new HashMap<>();
+    response.put("error", "Error de validación");
+    response.put("errors", errors);
+    response.put("status", HttpStatus.BAD_REQUEST.value());
+    response.put("timestamp", Instant.now().toString());
 
-        return ResponseEntity.badRequest().body(response);
-    }
+    return ResponseEntity.badRequest().body(response);
+  }
 
-    // ============ Excepciones Genéricas - 500 Internal Server Error ============
+  // ============ Excepciones Genéricas - 500 Internal Server Error ============
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
-        logger.error("Error inesperado: {}", ex.getMessage(), ex);
-        return buildErrorResponse("Error interno del servidor", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
+    logger.error("Error inesperado: {}", ex.getMessage(), ex);
+    return buildErrorResponse("Error interno del servidor", HttpStatus.INTERNAL_SERVER_ERROR);
+  }
 
-    // ============ Helper Methods ============
+  // ============ Helper Methods ============
 
-    private ResponseEntity<Map<String, Object>> buildErrorResponse(String message, HttpStatus status) {
-        Map<String, Object> error = new HashMap<>();
-        error.put("error", message);
-        error.put("status", status.value());
-        error.put("timestamp", Instant.now().toString());
-        return ResponseEntity.status(status).body(error);
-    }
+  private ResponseEntity<Map<String, Object>> buildErrorResponse(
+      String message, HttpStatus status) {
+    Map<String, Object> error = new HashMap<>();
+    error.put("error", message);
+    error.put("status", status.value());
+    error.put("timestamp", Instant.now().toString());
+    return ResponseEntity.status(status).body(error);
+  }
 }

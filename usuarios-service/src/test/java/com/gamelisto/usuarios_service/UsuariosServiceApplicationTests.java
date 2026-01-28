@@ -11,8 +11,6 @@ import org.springframework.test.context.ActiveProfiles;
 @Import(TestMessagingConfig.class)
 class UsuariosServiceApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
-
+  @Test
+  void contextLoads() {}
 }

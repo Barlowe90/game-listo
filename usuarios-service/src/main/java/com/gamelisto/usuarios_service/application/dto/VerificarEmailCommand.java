@@ -1,5 +1,3 @@
 package com.gamelisto.usuarios_service.application.dto;
 
-public record VerificarEmailCommand (
-    String token
-) {}
+public record VerificarEmailCommand(String token) {}
