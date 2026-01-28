@@ -1,0 +1,177 @@
+name: CI - GameListo
+
+on:
+  # El CI se ejecutará en cada push o pull request a la rama main
+  push:
+    paths:
+      - "usuarios-service/**"
+      - ".github/workflows/ci.yaml"
+      - "!**/*.md"
+      - "!**/docs/**"
+    branches: [main]
+  pull_request:
+    paths:
+      - "usuarios-service/**"
+      - ".github/workflows/ci.yaml"
+      - "!**/*.md"
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  ci:
+    name: CI Pipeline - Usuarios Service
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+    permissions:
+      contents: write
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: usuarios-service
+    strategy:
+      matrix:
+        java-version: [21]
+
+    services:
+      postgres:
+        image: postgres@sha256:ff4ccc02b97e0ebb6b328ef9ff92522f95586f83be6801896b615088defc8ad2 # postgres:17 alpine
+        env:
+          POSTGRES_USER: guest
+          POSTGRES_PASSWORD: guest
+          POSTGRES_DB: usuarios_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U guest -d usuarios_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=30
+
+      rabbitmq:
+        image: rabbitmq:3.13-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd="rabbitmq-diagnostics -q ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 #actions/checkout@v6.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java ${{ matrix.java-version }}
+        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e #actions/setup-java@v5.1.0
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java-version }}
+          cache: 'maven'
+
+      - name: Verify Java installation
+        run: |
+          java -version
+          ./mvnw -version
+
+      - name: Install dependencies
+        run: ./mvnw clean install -DskipTests
+
+      - name: Check code formatting with Spotless
+        id: spotless-check
+        continue-on-error: true
+        run: ./mvnw spotless:check
+
+      - name: Apply code formatting
+        if: steps.spotless-check.outcome == 'failure'
+        run: |
+          ./mvnw spotless:apply
+          echo "Code formatting applied automatically"
+
+      - name: Commit formatted files
+        if: steps.spotless-check.outcome == 'failure'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+          git add .
+          git commit -m "style: apply spotless formatting [skip ci]" || exit 0
+
+          # Determinar rama destino
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            TARGET_BRANCH="${{ github.head_ref }}"
+          else
+            TARGET_BRANCH="${{ github.ref_name }}"
+          fi
+
+          echo "Pushing to branch: $TARGET_BRANCH"
+
+          # Traer remoto y rebasar para evitar non-fast-forward
+          git fetch origin "$TARGET_BRANCH"
+          git rebase "origin/$TARGET_BRANCH" || (git rebase --abort && exit 1)
+
+          # Push
+          git push origin "HEAD:$TARGET_BRANCH"
+
+      - name: Build project
+        run: ./mvnw clean package -DskipTests
+
+      - name: Run unit tests
+        run: ./mvnw test
+
+      - name: Run integration tests
+        run: ./mvnw verify -DskipUnitTests
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/usuarios_db
+          SPRING_DATASOURCE_USERNAME: guest
+          SPRING_DATASOURCE_PASSWORD: guest
+          SPRING_RABBITMQ_HOST: localhost
+          SPRING_RABBITMQ_PORT: 5672
+          SPRING_RABBITMQ_USERNAME: guest
+          SPRING_RABBITMQ_PASSWORD: guest
+
+      - name: Generate coverage report
+        run: ./mvnw jacoco:report
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@7afa10ed9b269c561c2336fd862446844e0cbf71 #codecov/codecov-action@v5.2.1
+        with:
+          files: ./usuarios-service/target/site/jacoco/jacoco.xml
+          flags: usuarios-service
+          name: usuarios-service-coverage
+          fail_ci_if_error: false
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #actions/upload-artifact@v4.6.0
+        with:
+          name: test-results
+          path: |
+            usuarios-service/target/surefire-reports/
+            usuarios-service/target/failsafe-reports/
+            usuarios-service/target/site/jacoco/
+
+      - name: Build Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          cd ..
+          docker build -t gamelisto/usuarios-service:latest -f usuarios-service/Dockerfile .
+
+      - name: Save Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          cd ..
+          docker save gamelisto/usuarios-service:latest | gzip > usuarios-service-image.tar.gz
+
+      - name: Upload Docker image artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #actions/upload-artifact@v4.6.0
+        with:
+          name: docker-image
+          path: usuarios-service-image.tar.gz
+          retention-days: 7

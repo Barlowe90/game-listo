@@ -1,0 +1,26 @@
+package com.gamelisto.usuarios_service.infrastructure.messaging.publishers;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
+
+import com.gamelisto.usuarios_service.application.ports.IUsuarioPublisher;
+
+/**
+ * Implementación No-Op del publisher de eventos.
+ * Se usa cuando RabbitMQ no está disponible (por ejemplo, en tests).
+ */
+@Component
+@Primary
+@ConditionalOnMissingBean(value = UsuariosPublisher.class)
+public class NoOpUsuarioPublisher implements IUsuarioPublisher {
+    
+    private static final Logger logger = LoggerFactory.getLogger(NoOpUsuarioPublisher.class);
+
+    @Override
+    public void publish(String routingKeySuffix, Object event) {
+        logger.debug("No-Op Publisher: evento '{}' no publicado (RabbitMQ no disponible)", routingKeySuffix);
+    }
+}
