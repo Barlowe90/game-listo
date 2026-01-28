@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 
 /**
- * Configuración de test para messaging y servicios externos. Proporciona mocks de
- * IUsuarioPublisher e IEmailService para evitar dependencias externas en tests.
+ * Configuración de test para messaging y servicios externos. Proporciona mocks de IUsuarioPublisher
+ * e IEmailService para evitar dependencias externas en tests.
  */
 @TestConfiguration
 public class TestMessagingConfig {
