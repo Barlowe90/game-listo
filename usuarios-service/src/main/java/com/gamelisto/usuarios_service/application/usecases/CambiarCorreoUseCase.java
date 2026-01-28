@@ -13,7 +13,7 @@ import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoExcep
 
 @Service
 public class CambiarCorreoUseCase {
-    
+
     private final RepositorioUsuarios repositorioUsuarios;
 
     public CambiarCorreoUseCase(RepositorioUsuarios repositorioUsuarios) {
@@ -26,25 +26,23 @@ public class CambiarCorreoUseCase {
         UsuarioId id = UsuarioId.fromString(command.usuarioId());
 
         Usuario usuario = repositorioUsuarios
-            .findById(id)
-            .orElseThrow(() -> new UsuarioNoEncontradoException(command.usuarioId()));
+                .findById(id)
+                .orElseThrow(() -> new UsuarioNoEncontradoException(command.usuarioId()));
 
         // Validar que el nuevo email no esté ya registrado por otro usuario
         repositorioUsuarios.findByEmail(nuevoEmail)
-            .filter(u -> !u.getId().equals(id))
-            .ifPresent(u -> {
-                throw new EmailYaRegistradoException(command.email());
-            });
+                .filter(u -> !u.getId().equals(id))
+                .ifPresent(u -> {
+                    throw new EmailYaRegistradoException(command.email());
+                });
 
         // Solo procesar si el email realmente cambió
         if (!usuario.getEmail().equals(nuevoEmail)) {
             usuario.changeEmail(nuevoEmail);
             usuario.marcarPendienteVerificacion();
             usuario.generarTokenVerificacion();
-            
+
             repositorioUsuarios.save(usuario);
-            
-            // TODO: Enviar email de verificación al nuevo correo
         }
     }
 }

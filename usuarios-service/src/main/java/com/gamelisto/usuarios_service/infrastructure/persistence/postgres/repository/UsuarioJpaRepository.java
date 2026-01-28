@@ -11,23 +11,25 @@ import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
 import com.gamelisto.usuarios_service.infrastructure.persistence.postgres.entity.UsuarioEntity;
 
 public interface UsuarioJpaRepository extends JpaRepository<UsuarioEntity, UUID> {
-    
+
     Optional<UsuarioEntity> findByEmail(String email);
 
-    // Optional<UsuarioEntity> findByUsername(String username);
+    Optional<UsuarioEntity> findByUsername(String username);
 
     Optional<UsuarioEntity> findByDiscordUserId(String discordUserId);
 
     List<UsuarioEntity> findByStatus(EstadoUsuario status);
 
     List<UsuarioEntity> findByStatusAndNotificationsActive(EstadoUsuario status, boolean notificationsActive);
-    
+
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
-    
-    // @Query("SELECT u FROM UsuarioEntity u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :fragment, '%'))")
-    // List<UsuarioEntity> searchByUsernameFragment(@Param("fragment") String fragment);
+
+    // @Query("SELECT u FROM UsuarioEntity u WHERE LOWER(u.username) LIKE
+    // LOWER(CONCAT('%', :fragment, '%'))")
+    // List<UsuarioEntity> searchByUsernameFragment(@Param("fragment") String
+    // fragment);
 
     Optional<UsuarioEntity> findByTokenVerificacion(String tokenVerificacion);
 }
