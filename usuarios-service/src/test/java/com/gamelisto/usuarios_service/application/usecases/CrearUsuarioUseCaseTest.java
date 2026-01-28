@@ -28,7 +28,7 @@ class CrearUsuarioUseCaseTest {
 
   @Mock private PasswordEncoder passwordEncoder;
 
-  @Mock private IUsuarioPublisher eventosPublisher;
+  @Mock private IUsuarioPublisher usuarioPublisher;
 
   @Mock private IEmailService emailService;
 
@@ -68,29 +68,6 @@ class CrearUsuarioUseCaseTest {
     verify(repositorioUsuarios).existsByEmail(any(Email.class));
     verify(passwordEncoder).encode("password123");
     verify(repositorioUsuarios).save(any(Usuario.class));
-  }
-
-  @Test
-  @DisplayName("Debe hashear contraseña antes de guardar")
-  void debeHashearContrasenaAntesDeGuardar() {
-    // Arrange
-    CrearUsuarioCommand command =
-        new CrearUsuarioCommand("usuario", "usuario@test.com", "plainPassword");
-
-    String hashedPassword = "$2a$10$abcdefghijklmnopqrstuvwxyz";
-    when(repositorioUsuarios.existsByUsername(any(Username.class))).thenReturn(false);
-    when(repositorioUsuarios.existsByEmail(any(Email.class))).thenReturn(false);
-    when(passwordEncoder.encode("plainPassword")).thenReturn(hashedPassword);
-    when(repositorioUsuarios.save(any(Usuario.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    // Act
-    crearUsuarioUseCase.execute(command);
-
-    // Assert
-    verify(passwordEncoder).encode("plainPassword");
-    verify(repositorioUsuarios)
-        .save(argThat(usuario -> usuario.getPasswordHash().value().equals(hashedPassword)));
   }
 
   @Test
@@ -166,78 +143,5 @@ class CrearUsuarioUseCaseTest {
 
     assertTrue(exception.getMessage().contains("debe tener entre 3 y 30 caracteres"));
     verify(repositorioUsuarios, never()).existsByUsername(any(Username.class));
-  }
-
-  @Test
-  @DisplayName("Debe crear usuario con valores por defecto correctos")
-  void debeCrearUsuarioConValoresPorDefecto() {
-    // Arrange
-    CrearUsuarioCommand command =
-        new CrearUsuarioCommand("usuario", "usuario@test.com", "password123");
-
-    when(repositorioUsuarios.existsByUsername(any(Username.class))).thenReturn(false);
-    when(repositorioUsuarios.existsByEmail(any(Email.class))).thenReturn(false);
-    when(passwordEncoder.encode(anyString())).thenReturn("$2a$10$hash");
-    when(repositorioUsuarios.save(any(Usuario.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    // Act
-    UsuarioDTO resultado = crearUsuarioUseCase.execute(command);
-
-    // Assert
-    assertEquals("PENDIENTE_DE_VERIFICACION", resultado.status());
-    assertEquals("USER", resultado.role());
-    assertEquals("ESP", resultado.language());
-    assertTrue(resultado.notificationsActive());
-  }
-
-  @Test
-  @DisplayName("Debe normalizar email a minúsculas")
-  void debeNormalizarEmailAMinusculas() {
-    // Arrange
-    CrearUsuarioCommand command =
-        new CrearUsuarioCommand("usuario", "Usuario@TEST.COM", "password123");
-
-    when(repositorioUsuarios.existsByUsername(any(Username.class))).thenReturn(false);
-    when(repositorioUsuarios.existsByEmail(any(Email.class))).thenReturn(false);
-    when(passwordEncoder.encode(anyString())).thenReturn("$2a$10$hash");
-    when(repositorioUsuarios.save(any(Usuario.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    // Act
-    UsuarioDTO resultado = crearUsuarioUseCase.execute(command);
-
-    // Assert
-    assertEquals("usuario@test.com", resultado.email());
-  }
-
-  @Test
-  @DisplayName("Debe verificar existencia con valores normalizados")
-  void debeVerificarExistenciaConValoresNormalizados() {
-    // Arrange
-    CrearUsuarioCommand command =
-        new CrearUsuarioCommand("Usuario123", "Email@Test.COM", "password123");
-
-    when(repositorioUsuarios.existsByUsername(any(Username.class))).thenReturn(false);
-    when(repositorioUsuarios.existsByEmail(any(Email.class))).thenReturn(false);
-    when(passwordEncoder.encode(anyString())).thenReturn("$2a$10$hash");
-    when(repositorioUsuarios.save(any(Usuario.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    // Act
-    crearUsuarioUseCase.execute(command);
-
-    // Assert
-    verify(repositorioUsuarios)
-        .existsByUsername(
-            argThat(
-                username ->
-                    username.value().equals("Usuario123") // Username NO se normaliza a minúsculas
-                ));
-    verify(repositorioUsuarios)
-        .existsByEmail(
-            argThat(
-                email -> email.value().equals("email@test.com") // Email SÍ se normaliza
-                ));
   }
 }

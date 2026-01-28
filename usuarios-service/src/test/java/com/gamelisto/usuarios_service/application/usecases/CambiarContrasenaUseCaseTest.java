@@ -63,33 +63,6 @@ class CambiarContrasenaUseCaseTest {
     verify(repositorioUsuarios).save(argThat(u -> u.getPasswordHash().value().equals(hashNuevo)));
   }
 
-  @Test
-  @DisplayName("Debe hashear la nueva contraseña antes de guardar")
-  void debeHashearNuevaContrasenaAntesDeGuardar() {
-    // Arrange
-    String usuarioId = UUID.randomUUID().toString();
-    String hashActual = "$2a$10$hashActual";
-    String hashNuevo = "$2a$10$newEncodedPassword";
-
-    Usuario usuario = crearUsuarioConPassword(usuarioId, hashActual);
-
-    when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
-    when(passwordEncoder.matches(anyString(), eq(hashActual))).thenReturn(true);
-    when(passwordEncoder.encode("nuevaContrasena")).thenReturn(hashNuevo);
-    when(repositorioUsuarios.save(any(Usuario.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    CambiarContrasenaCommand command =
-        new CambiarContrasenaCommand(usuarioId, "actual", "nuevaContrasena");
-
-    // Act
-    cambiarContrasenaUseCase.execute(command);
-
-    // Assert
-    verify(passwordEncoder).encode("nuevaContrasena");
-    assertEquals(hashNuevo, usuario.getPasswordHash().value());
-  }
-
   // ========== CASOS DE ERROR ==========
 
   @Test

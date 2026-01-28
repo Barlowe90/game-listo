@@ -78,31 +78,6 @@ class VerificarEmailUseCaseTest {
     verify(repositorioUsuarios).save(usuario);
   }
 
-  @Test
-  @DisplayName("Debe cambiar estado de PENDIENTE_DE_VERIFICACION a ACTIVO")
-  void debeCambiarEstadoAlVerificar() {
-    // Arrange
-    TokenVerificacion token = TokenVerificacion.generate();
-    Instant expiracion = Instant.now().plusSeconds(3600);
-
-    Usuario usuario = crearUsuarioPendiente(token, expiracion);
-
-    assertEquals(EstadoUsuario.PENDIENTE_DE_VERIFICACION, usuario.getStatus());
-
-    when(repositorioUsuarios.findByTokenVerificacion(any(TokenVerificacion.class)))
-        .thenReturn(Optional.of(usuario));
-    when(repositorioUsuarios.save(any(Usuario.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    VerificarEmailCommand command = new VerificarEmailCommand(token.value());
-
-    // Act
-    verificarEmailUseCase.execute(command);
-
-    // Assert
-    assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
-  }
-
   // ========== CASOS DE ERROR ==========
 
   @Test

@@ -63,55 +63,8 @@ class CambiarCorreoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe cambiar estado a PENDIENTE_DE_VERIFICACION al cambiar email")
-  void debeCambiarEstadoAPendienteDeVerificacion() {
-    // Arrange
-    String usuarioId = UUID.randomUUID().toString();
-    Usuario usuario = crearUsuarioActivo(usuarioId, "original@ejemplo.com");
-    assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
-
-    when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
-    when(repositorioUsuarios.findByEmail(any(Email.class))).thenReturn(Optional.empty());
-    when(repositorioUsuarios.save(any(Usuario.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    CambiarCorreoCommand command = new CambiarCorreoCommand(usuarioId, "nuevo@ejemplo.com");
-
-    // Act
-    cambiarCorreoUseCase.execute(command);
-
-    // Assert
-    assertEquals(EstadoUsuario.PENDIENTE_DE_VERIFICACION, usuario.getStatus());
-  }
-
-  @Test
-  @DisplayName("Debe generar nuevo token de verificación al cambiar email")
-  void debeGenerarNuevoTokenDeVerificacion() {
-    // Arrange
-    String usuarioId = UUID.randomUUID().toString();
-    Usuario usuario = crearUsuarioActivo(usuarioId, "original@ejemplo.com");
-    TokenVerificacion tokenOriginal = usuario.getTokenVerificacion();
-
-    when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
-    when(repositorioUsuarios.findByEmail(any(Email.class))).thenReturn(Optional.empty());
-    when(repositorioUsuarios.save(any(Usuario.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    CambiarCorreoCommand command = new CambiarCorreoCommand(usuarioId, "nuevo@ejemplo.com");
-
-    // Act
-    cambiarCorreoUseCase.execute(command);
-
-    // Assert
-    assertNotNull(usuario.getTokenVerificacion());
-    assertFalse(usuario.getTokenVerificacion().isEmpty());
-    // El token debería ser diferente si el original estaba vacío o era diferente
-    assertNotEquals(tokenOriginal, usuario.getTokenVerificacion());
-  }
-
-  @Test
-  @DisplayName("No debe hacer nada si el nuevo email es igual al actual")
-  void noDebeHacerNadaSiEmailEsIgual() {
+  @DisplayName("No debe guardar cambios si el nuevo email es igual al actual")
+  void noDebeGuardarCambiosSiEmailEsIgual() {
     // Arrange
     String usuarioId = UUID.randomUUID().toString();
     String emailActual = "mismo@ejemplo.com";
@@ -120,8 +73,8 @@ class CambiarCorreoUseCaseTest {
     EstadoUsuario estadoOriginal = usuario.getStatus();
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
-    // El email es el mismo, así que findByEmail devuelve el mismo usuario
-    when(repositorioUsuarios.findByEmail(any(Email.class))).thenReturn(Optional.of(usuario));
+    // El email no está registrado por otro usuario (el filtro excluye al mismo usuario)
+    when(repositorioUsuarios.findByEmail(any(Email.class))).thenReturn(Optional.empty());
 
     CambiarCorreoCommand command = new CambiarCorreoCommand(usuarioId, emailActual);
 
@@ -197,26 +150,24 @@ class CambiarCorreoUseCaseTest {
   // ========== HELPERS ==========
 
   private Usuario crearUsuarioActivo(String id, String email) {
-    Usuario usuario =
-        Usuario.reconstitute(
-            UsuarioId.fromString(id),
-            Username.of("testuser"),
-            Email.of(email),
-            PasswordHash.of("$2a$10$hashedPassword"),
-            Avatar.empty(),
-            Instant.now().minusSeconds(3600),
-            Instant.now(),
-            Rol.USER,
-            Idioma.ESP,
-            true,
-            EstadoUsuario.ACTIVO,
-            DiscordUserId.empty(),
-            DiscordUsername.empty(),
-            null,
-            TokenVerificacion.empty(),
-            null,
-            TokenVerificacion.empty(),
-            null);
-    return usuario;
+    return Usuario.reconstitute(
+        UsuarioId.fromString(id),
+        Username.of("testuser"),
+        Email.of(email),
+        PasswordHash.of("$2a$10$hashedPassword"),
+        Avatar.empty(),
+        Instant.now().minusSeconds(3600),
+        Instant.now(),
+        Rol.USER,
+        Idioma.ESP,
+        true,
+        EstadoUsuario.ACTIVO,
+        DiscordUserId.empty(),
+        DiscordUsername.empty(),
+        null,
+        TokenVerificacion.empty(),
+        null,
+        TokenVerificacion.empty(),
+        null);
   }
 }

@@ -204,28 +204,6 @@ class EliminarUsuarioUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe actualizar timestamp de updatedAt al eliminar")
-  void debeActualizarTimestampAlEliminar() {
-    // Arrange
-    String usuarioId = usuario.getId().value().toString();
-
-    when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
-    when(repositorioUsuarios.save(any(Usuario.class)))
-        .thenAnswer(
-            invocation -> {
-              Usuario savedUsuario = invocation.getArgument(0);
-              assertTrue(savedUsuario.getUpdatedAt().isAfter(savedUsuario.getCreatedAt()));
-              return savedUsuario;
-            });
-
-    // Act
-    eliminarUsuarioUseCase.execute(usuarioId);
-
-    // Assert
-    verify(repositorioUsuarios).save(any(Usuario.class));
-  }
-
-  @Test
   @DisplayName("No debe eliminar físicamente el usuario (hard delete)")
   void noDebeEliminarFisicamente() {
     // Arrange

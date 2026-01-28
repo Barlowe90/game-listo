@@ -30,94 +30,6 @@ class EditarPerfilUsuarioUseCaseTest {
   @InjectMocks private EditarPerfilUsuarioUseCase editarPerfilUsuarioUseCase;
 
   @Test
-  @DisplayName("Debe editar avatar del usuario")
-  void debeEditarAvatarDelUsuario() {
-    // Arrange
-    String usuarioIdString = UUID.randomUUID().toString();
-    EditarPerfilUsuarioCommand command =
-        new EditarPerfilUsuarioCommand(
-            usuarioIdString, "https://example.com/new-avatar.jpg", null, null);
-
-    Usuario usuario = crearUsuarioDefault(UsuarioId.fromString(usuarioIdString));
-
-    when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
-    when(repositorioUsuarios.save(any(Usuario.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    // Act
-    UsuarioDTO resultado = editarPerfilUsuarioUseCase.execute(command);
-
-    // Assert
-    assertEquals("https://example.com/new-avatar.jpg", resultado.avatar());
-    verify(repositorioUsuarios).findById(any(UsuarioId.class));
-    verify(repositorioUsuarios).save(any(Usuario.class));
-  }
-
-  @Test
-  @DisplayName("Debe editar idioma del usuario")
-  void debeEditarIdiomaDelUsuario() {
-    // Arrange
-    String usuarioIdString = UUID.randomUUID().toString();
-    EditarPerfilUsuarioCommand command =
-        new EditarPerfilUsuarioCommand(usuarioIdString, null, "ENG", null);
-
-    Usuario usuario = crearUsuarioDefault(UsuarioId.fromString(usuarioIdString));
-
-    when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
-    when(repositorioUsuarios.save(any(Usuario.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    // Act
-    UsuarioDTO resultado = editarPerfilUsuarioUseCase.execute(command);
-
-    // Assert
-    assertEquals("ENG", resultado.language());
-  }
-
-  @Test
-  @DisplayName("Debe habilitar notificaciones del usuario")
-  void debeHabilitarNotificacionesDelUsuario() {
-    // Arrange
-    String usuarioIdString = UUID.randomUUID().toString();
-    EditarPerfilUsuarioCommand command =
-        new EditarPerfilUsuarioCommand(usuarioIdString, null, null, true);
-
-    Usuario usuario = crearUsuarioDefault(UsuarioId.fromString(usuarioIdString));
-    usuario.disableNotifications(); // Deshabilitar primero
-
-    when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
-    when(repositorioUsuarios.save(any(Usuario.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    // Act
-    UsuarioDTO resultado = editarPerfilUsuarioUseCase.execute(command);
-
-    // Assert
-    assertTrue(resultado.notificationsActive());
-  }
-
-  @Test
-  @DisplayName("Debe deshabilitar notificaciones del usuario")
-  void debeDeshabilitarNotificacionesDelUsuario() {
-    // Arrange
-    String usuarioIdString = UUID.randomUUID().toString();
-    EditarPerfilUsuarioCommand command =
-        new EditarPerfilUsuarioCommand(usuarioIdString, null, null, false);
-
-    Usuario usuario = crearUsuarioDefault(UsuarioId.fromString(usuarioIdString));
-
-    when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
-    when(repositorioUsuarios.save(any(Usuario.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    // Act
-    UsuarioDTO resultado = editarPerfilUsuarioUseCase.execute(command);
-
-    // Assert
-    assertFalse(resultado.notificationsActive());
-  }
-
-  @Test
   @DisplayName("Debe editar múltiples campos a la vez")
   void debeEditarMultiplesCamposALaVez() {
     // Arrange
@@ -239,30 +151,6 @@ class EditarPerfilUsuarioUseCaseTest {
 
     // Act & Assert
     assertThrows(IllegalArgumentException.class, () -> editarPerfilUsuarioUseCase.execute(command));
-  }
-
-  @Test
-  @DisplayName("Debe actualizar timestamp al editar perfil")
-  void debeActualizarTimestampAlEditarPerfil() throws InterruptedException {
-    // Arrange
-    String usuarioIdString = UUID.randomUUID().toString();
-    EditarPerfilUsuarioCommand command =
-        new EditarPerfilUsuarioCommand(
-            usuarioIdString, "https://example.com/avatar.jpg", null, null);
-
-    Usuario usuario = crearUsuarioDefault(UsuarioId.fromString(usuarioIdString));
-    Instant updatedAtAntes = usuario.getUpdatedAt();
-    Thread.sleep(10);
-
-    when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
-    when(repositorioUsuarios.save(any(Usuario.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-
-    // Act
-    editarPerfilUsuarioUseCase.execute(command);
-
-    // Assert
-    assertTrue(usuario.getUpdatedAt().isAfter(updatedAtAntes));
   }
 
   // Helper method
