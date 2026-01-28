@@ -162,7 +162,7 @@
                     <excludes>
                         <exclude>**/integration/**</exclude>
                     </excludes>
-                    <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+                    <argLine>@{argLine} -XX:+EnableDynamicAgentLoading</argLine>
                 </configuration>
             </plugin>
 
@@ -185,7 +185,7 @@
                         <include>**/integration/**/*Tests.java</include>
                         <include>**/*IT.java</include>
                     </includes>
-                    <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+                    <argLine>@{argLine} -XX:+EnableDynamicAgentLoading</argLine>
                 </configuration>
             </plugin>
 
