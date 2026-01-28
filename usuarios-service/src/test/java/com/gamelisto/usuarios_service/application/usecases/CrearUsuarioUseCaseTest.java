@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios_service.application.dto.CrearUsuarioCommand;
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios_service.application.ports.IEmailService;
 import com.gamelisto.usuarios_service.application.ports.IUsuarioPublisher;
 import com.gamelisto.usuarios_service.domain.exceptions.*;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
@@ -28,6 +29,8 @@ class CrearUsuarioUseCaseTest {
   @Mock private PasswordEncoder passwordEncoder;
 
   @Mock private IUsuarioPublisher eventosPublisher;
+
+  @Mock private IEmailService emailService;
 
   @InjectMocks private CrearUsuarioUseCase crearUsuarioUseCase;
 

@@ -140,7 +140,7 @@ class ObtenerUsuarioPorIdTest {
     assertEquals("https://example.com/avatar.jpg", resultado.avatar());
     assertEquals("ADMIN", resultado.role());
     assertEquals("ENG", resultado.language());
-    assertFalse(resultado.notificationsActive());
+    assertTrue(resultado.notificationsActive());
     assertEquals("SUSPENDIDO", resultado.status());
     assertEquals("123456", resultado.discordUserId());
     assertEquals("player#1234", resultado.discordUsername());

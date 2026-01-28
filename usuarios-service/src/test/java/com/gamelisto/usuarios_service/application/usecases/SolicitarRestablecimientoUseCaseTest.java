@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios_service.application.dto.SolicitarRestablecimientoCommand;
+import com.gamelisto.usuarios_service.application.ports.IEmailService;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.*;
 import java.time.Instant;
@@ -21,6 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SolicitarRestablecimientoUseCaseTest {
 
   @Mock private RepositorioUsuarios repositorioUsuarios;
+
+  @Mock private IEmailService emailService;
 
   @InjectMocks private SolicitarRestablecimientoUseCase solicitarRestablecimientoUseCase;
 

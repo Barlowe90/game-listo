@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios_service.application.dto.ReenviarVerificacionCommand;
+import com.gamelisto.usuarios_service.application.ports.IEmailService;
 import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoException;
 import com.gamelisto.usuarios_service.domain.exceptions.UsuarioYaVerificadoException;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
@@ -23,6 +24,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ReenviarVerificacionUseCaseTest {
 
   @Mock private RepositorioUsuarios repositorioUsuarios;
+
+  @Mock private IEmailService emailService;
 
   @InjectMocks private ReenviarVerificacionUseCase reenviarVerificacionUseCase;
 

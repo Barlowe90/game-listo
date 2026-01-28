@@ -137,12 +137,12 @@ class UsuariosControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("GET /v1/usuarios/user/{id} - Debe obtener un usuario por ID")
+  @DisplayName("GET /v1/usuarios/{id} - Debe obtener un usuario por ID")
   void debeObtenerUsuarioPorId() throws Exception {
     // Act & Assert
     mockMvc
         .perform(
-            get("/v1/usuarios/user/{id}", usuarioExistente.getId().value())
+            get("/v1/usuarios/{id}", usuarioExistente.getId().value())
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").exists())
@@ -151,12 +151,12 @@ class UsuariosControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("GET /v1/usuarios/user/{id} - Debe retornar 404 si el usuario no existe")
+  @DisplayName("GET /v1/usuarios/{id} - Debe retornar 404 si el usuario no existe")
   void debeRetornar404SiUsuarioNoExiste() throws Exception {
     // Act & Assert - usar UUID válido pero inexistente
     mockMvc
         .perform(
-            get("/v1/usuarios/user/{id}", "00000000-0000-0000-0000-000000000000")
+            get("/v1/usuarios/{id}", "00000000-0000-0000-0000-000000000000")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
   }
@@ -174,7 +174,7 @@ class UsuariosControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("PATCH /v1/usuarios/user/{id} - Debe editar el perfil de un usuario")
+  @DisplayName("PATCH /v1/usuarios/{id} - Debe editar el perfil de un usuario")
   void debeEditarPerfilUsuario() throws Exception {
     // Arrange
     EditarPerfilUsuarioRequest request =
@@ -183,7 +183,7 @@ class UsuariosControllerIntegrationTest {
     // Act & Assert
     mockMvc
         .perform(
-            patch("/v1/usuarios/user/{id}", usuarioExistente.getId().value())
+            patch("/v1/usuarios/{id}", usuarioExistente.getId().value())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
@@ -193,26 +193,26 @@ class UsuariosControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("DELETE /v1/usuarios/user/{id} - Debe eliminar un usuario")
+  @DisplayName("DELETE /v1/usuarios/{id} - Debe eliminar un usuario")
   void debeEliminarUsuario() throws Exception {
     // Act & Assert
     mockMvc
         .perform(
-            delete("/v1/usuarios/user/{id}", usuarioExistente.getId().value())
+            delete("/v1/usuarios/{id}", usuarioExistente.getId().value())
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNoContent());
 
     // Verificar que el usuario ahora tiene estado ELIMINADO
     mockMvc
         .perform(
-            get("/v1/usuarios/user/{id}", usuarioExistente.getId().value())
+            get("/v1/usuarios/{id}", usuarioExistente.getId().value())
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("ELIMINADO"));
   }
 
   @Test
-  @DisplayName("PATCH /v1/usuarios/user/{id}/state - Debe cambiar el estado del usuario")
+  @DisplayName("PATCH /v1/usuarios/{id}/estado - Debe cambiar el estado del usuario")
   void debeCambiarEstadoUsuario() throws Exception {
     // Arrange - Usar el nombre de campo correcto: estadoUsuario
     Map<String, String> request = new HashMap<>();
@@ -221,7 +221,7 @@ class UsuariosControllerIntegrationTest {
     // Act & Assert
     mockMvc
         .perform(
-            patch("/v1/usuarios/user/{id}/state", usuarioExistente.getId().value())
+            patch("/v1/usuarios/{id}/estado", usuarioExistente.getId().value())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
@@ -229,7 +229,7 @@ class UsuariosControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("POST /v1/usuarios/user/{id}/change-password - Debe cambiar la contraseña")
+  @DisplayName("PUT /v1/usuarios/{id}/password - Debe cambiar la contraseña")
   void debeCambiarContrasena() throws Exception {
     // Arrange - Crear usuario con contraseña conocida
     Usuario usuario =
@@ -245,7 +245,7 @@ class UsuariosControllerIntegrationTest {
     // Act & Assert
     mockMvc
         .perform(
-            post("/v1/usuarios/user/{id}/change-password", usuario.getId().value())
+            put("/v1/usuarios/{id}/password", usuario.getId().value())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk());
