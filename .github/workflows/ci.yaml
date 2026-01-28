@@ -8,13 +8,13 @@ on:
       - ".github/workflows/ci.yaml"
       - "!**/*.md"
       - "!**/docs/**"
-    branches: [main]
+    branches: [ main ]
   pull_request:
     paths:
       - "usuarios-service/**"
       - ".github/workflows/ci.yaml"
       - "!**/*.md"
-    branches: [main]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
         working-directory: usuarios-service
     strategy:
       matrix:
-        java-version: [21]
+        java-version: [ 21 ]
 
     services:
       postgres:
@@ -73,6 +73,9 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ matrix.java-version }}
           cache: 'maven'
+
+      - name: Make mvnw executable
+        run: chmod +x ./mvnw
 
       - name: Verify Java installation
         run: |
