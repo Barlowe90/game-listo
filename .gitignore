@@ -30,6 +30,6 @@ replay_pid*
 *.ipr
 
 ### VS Code ###
-.vscode/
+.vscode
 
 
