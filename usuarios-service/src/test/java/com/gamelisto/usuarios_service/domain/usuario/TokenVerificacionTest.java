@@ -134,9 +134,10 @@ class TokenVerificacionTest {
   void noDebeSerIgualAObjetoDeOtroTipo() {
     // Arrange
     TokenVerificacion token = TokenVerificacion.of("token_value");
+    Object otroTipo = "token_value";
 
     // Assert
-    assertNotEquals("token_value", token);
+    assertNotEquals(otroTipo, token);
   }
 
   // ========== TESTS DE toString() ==========

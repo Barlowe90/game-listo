@@ -73,13 +73,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Embedded database - No longer used in tests (Testcontainers instead) -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- Springdoc OpenAPI (Swagger UI) -->
         <dependency>
             <groupId>org.springdoc</groupId>
@@ -126,6 +119,23 @@
             <artifactId>resend-java</artifactId>
             <version>4.12.0</version>
         </dependency>
+
+        <!-- Lombok - Reduce boilerplate code -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.42</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- En vez de usar sleep uso await() -->
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>4.3.0</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
 
     <build>

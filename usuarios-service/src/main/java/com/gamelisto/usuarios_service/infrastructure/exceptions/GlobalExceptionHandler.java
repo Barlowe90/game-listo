@@ -1,14 +1,11 @@
 package com.gamelisto.usuarios_service.infrastructure.exceptions;
 
-import com.gamelisto.usuarios_service.domain.exceptions.DiscordYaVinculadoException;
-import com.gamelisto.usuarios_service.domain.exceptions.EmailYaRegistradoException;
-import com.gamelisto.usuarios_service.domain.exceptions.TokenVerificacionInvalidoException;
-import com.gamelisto.usuarios_service.domain.exceptions.UsernameYaExisteException;
-import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoException;
-import com.gamelisto.usuarios_service.domain.exceptions.UsuarioYaVerificadoException;
+import com.gamelisto.usuarios_service.domain.exceptions.*;
+
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -21,6 +18,20 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
   private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+  @ExceptionHandler(EventoPublicacionException.class)
+  public ResponseEntity<Map<String, Object>> handleUsuarioPubliserException(
+      EventoPublicacionException ex) {
+    logger.warn("Error al publicar evento: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(EventoListenerException.class)
+  public ResponseEntity<Map<String, Object>> handleUsuarioListenerException(
+      EventoListenerException ex) {
+    logger.warn("Error al escuchar evento: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+  }
 
   // ============ Excepciones de Negocio - 404 Not Found ============
 

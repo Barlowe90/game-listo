@@ -4,6 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @DisplayName("DiscordUsername - Tests de Value Object")
 class DiscordUsernameTest {
@@ -32,33 +36,14 @@ class DiscordUsernameTest {
     assertTrue(discordUsername.isEmpty());
   }
 
-  @Test
-  @DisplayName("Debe crear DiscordUsername vacío con valor null")
-  void debeCrearDiscordUsernameVacioConValorNull() {
+  @ParameterizedTest
+  @NullSource
+  @EmptySource
+  @ValueSource(strings = {"   ", "  ", "\t", "\n"})
+  @DisplayName("Debe crear DiscordUsername vacío con valor null, cadena vacía o espacios en blanco")
+  void debeCrearDiscordUsernameVacioConValoresInvalidos(String valor) {
     // Arrange & Act
-    DiscordUsername discordUsername = DiscordUsername.of(null);
-
-    // Assert
-    assertNull(discordUsername.value());
-    assertTrue(discordUsername.isEmpty());
-  }
-
-  @Test
-  @DisplayName("Debe crear DiscordUsername vacío con cadena vacía")
-  void debeCrearDiscordUsernameVacioConCadenaVacia() {
-    // Arrange & Act
-    DiscordUsername discordUsername = DiscordUsername.of("");
-
-    // Assert
-    assertNull(discordUsername.value());
-    assertTrue(discordUsername.isEmpty());
-  }
-
-  @Test
-  @DisplayName("Debe crear DiscordUsername vacío con espacios en blanco")
-  void debeCrearDiscordUsernameVacioConEspaciosEnBlanco() {
-    // Arrange & Act
-    DiscordUsername discordUsername = DiscordUsername.of("   ");
+    DiscordUsername discordUsername = DiscordUsername.of(valor);
 
     // Assert
     assertNull(discordUsername.value());

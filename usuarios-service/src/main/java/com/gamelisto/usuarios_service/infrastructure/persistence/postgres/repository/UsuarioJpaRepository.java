@@ -7,8 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-// import org.springframework.data.repository.query.Param;
-
 public interface UsuarioJpaRepository extends JpaRepository<UsuarioEntity, UUID> {
 
   Optional<UsuarioEntity> findByEmail(String email);
@@ -25,11 +23,6 @@ public interface UsuarioJpaRepository extends JpaRepository<UsuarioEntity, UUID>
   boolean existsByUsername(String username);
 
   boolean existsByEmail(String email);
-
-  // @Query("SELECT u FROM UsuarioEntity u WHERE LOWER(u.username) LIKE
-  // LOWER(CONCAT('%', :fragment, '%'))")
-  // List<UsuarioEntity> searchByUsernameFragment(@Param("fragment") String
-  // fragment);
 
   Optional<UsuarioEntity> findByTokenVerificacion(String tokenVerificacion);
 }

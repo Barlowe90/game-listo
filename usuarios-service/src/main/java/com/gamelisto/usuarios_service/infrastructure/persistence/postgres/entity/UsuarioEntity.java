@@ -69,7 +69,10 @@ public class UsuarioEntity {
   @Column(name = "token_restablecimiento_expiracion")
   private Instant tokenRestablecimientoExpiracion;
 
-  public UsuarioEntity() {}
+  /** Constructor sin argumentos requerido por JPA. */
+  public UsuarioEntity() {
+    // Constructor vacío requerido por JPA/Hibernate para instanciación vía reflection
+  }
 
   // Getters and setters
   public UUID getId() {

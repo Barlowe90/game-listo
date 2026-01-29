@@ -1,6 +1,7 @@
 package com.gamelisto.usuarios_service.infrastructure.messaging.publishers;
 
 import com.gamelisto.usuarios_service.application.ports.IUsuarioPublisher;
+import com.gamelisto.usuarios_service.domain.exceptions.EventoPublicacionException;
 import com.gamelisto.usuarios_service.infrastructure.messaging.config.RabbitMQConfig;
 import java.time.Instant;
 import org.slf4j.Logger;
@@ -40,8 +41,7 @@ public class UsuariosPublisher implements IUsuarioPublisher {
           "Evento publicado: {} a routing key: {}", event.getClass().getSimpleName(), routingKey);
 
     } catch (Exception e) {
-      logger.error("Error al publicar evento: {}", event.getClass().getSimpleName(), e);
-      throw new RuntimeException("Error al publicar evento", e);
+      throw new EventoPublicacionException("Error al publicar evento en RabbitMQ", e);
     }
   }
 }

@@ -40,6 +40,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -58,6 +59,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/v1/usuarios")
+@RequiredArgsConstructor
 @Tag(
     name = "Usuarios",
     description = "API de gestión de usuarios - Perfiles, autenticación y configuración")
@@ -71,7 +73,7 @@ public class UsuariosController {
   private final CambiarEstadoUsuarioUseCase cambiarEstadoUsuarioUseCase;
   private final VerificarEmailUseCase verificarEmailUseCase;
   private final ReenviarVerificacionUseCase reenviarVerificacionUseCase;
-  private final CambiarContrasenaUseCase cambiarContraseñaUseCase;
+  private final CambiarContrasenaUseCase cambiarContrasenaUseCase;
   private final RestablecerContrasenaUseCase restablecerContrasenaUseCase;
   private final SolicitarRestablecimientoUseCase solicitarRestablecimientoUseCase;
   private final CambiarCorreoUseCase cambiarCorreoUseCase;
@@ -82,45 +84,6 @@ public class UsuariosController {
       buscarUsuariosConNotificacionesActivadasUseCase;
   private final EliminarUsuarioUseCase eliminarUsuarioUseCase;
   private final BuscarUsuariosPorNombreUseCase buscarUsuariosPorNombreUseCase;
-
-  public UsuariosController(
-      CrearUsuarioUseCase crearUsuarioUseCase,
-      EditarPerfilUsuarioUseCase editarPerfilUsuarioUseCase,
-      ObtenerTodosLosUsuariosUseCase obtenerTodosLosUsuariosUseCase,
-      ObtenerUsuarioPorId obtenerUsuarioPorId,
-      CambiarEstadoUsuarioUseCase cambiarEstadoUsuarioUseCase,
-      VerificarEmailUseCase verificarEmailUseCase,
-      ReenviarVerificacionUseCase reenviarVerificacionUseCase,
-      CambiarContrasenaUseCase cambiarContraseñaUseCase,
-      RestablecerContrasenaUseCase restablecerContrasenaUseCase,
-      SolicitarRestablecimientoUseCase solicitarRestablecimientoUseCase,
-      CambiarCorreoUseCase cambiarCorreoUseCase,
-      VincularDiscordUseCase vincularDiscordUseCase,
-      DesvincularDiscordUseCase desvincularDiscordUseCase,
-      BuscarUsuariosPorEstadoUseCase buscarUsuariosPorEstadoUseCase,
-      BuscarUsuariosConNotificacionesActivadasUseCase
-          buscarUsuariosConNotificacionesActivadasUseCase,
-      EliminarUsuarioUseCase eliminarUsuarioUseCase,
-      BuscarUsuariosPorNombreUseCase buscarUsuariosPorNombreUseCase) {
-    this.crearUsuarioUseCase = crearUsuarioUseCase;
-    this.editarPerfilUsuarioUseCase = editarPerfilUsuarioUseCase;
-    this.obtenerTodosLosUsuariosUseCase = obtenerTodosLosUsuariosUseCase;
-    this.obtenerUsuarioPorId = obtenerUsuarioPorId;
-    this.cambiarEstadoUsuarioUseCase = cambiarEstadoUsuarioUseCase;
-    this.verificarEmailUseCase = verificarEmailUseCase;
-    this.reenviarVerificacionUseCase = reenviarVerificacionUseCase;
-    this.cambiarContraseñaUseCase = cambiarContraseñaUseCase;
-    this.restablecerContrasenaUseCase = restablecerContrasenaUseCase;
-    this.solicitarRestablecimientoUseCase = solicitarRestablecimientoUseCase;
-    this.cambiarCorreoUseCase = cambiarCorreoUseCase;
-    this.vincularDiscordUseCase = vincularDiscordUseCase;
-    this.desvincularDiscordUseCase = desvincularDiscordUseCase;
-    this.buscarUsuariosPorEstadoUseCase = buscarUsuariosPorEstadoUseCase;
-    this.buscarUsuariosConNotificacionesActivadasUseCase =
-        buscarUsuariosConNotificacionesActivadasUseCase;
-    this.eliminarUsuarioUseCase = eliminarUsuarioUseCase;
-    this.buscarUsuariosPorNombreUseCase = buscarUsuariosPorNombreUseCase;
-  }
 
   @Operation(
       summary = "Health check",
@@ -250,14 +213,14 @@ public class UsuariosController {
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
       })
   @PutMapping(value = "/{id}/password", consumes = "application/json")
-  public ResponseEntity<Void> cambiarContraseña(
+  public ResponseEntity<Void> cambiarContrasena(
       @Parameter(description = "ID del usuario", required = true) @PathVariable String id,
       @Parameter(description = "Contraseña actual y nueva", required = true) @Valid @RequestBody
           CambiarContrasenaRequest request) {
     logger.info(
         "ℹ️ PUT /v1/usuarios/{}/password - Cambiando contraseña para usuario con ID: {}", id, id);
 
-    cambiarContraseñaUseCase.execute(request.toCommand(id));
+    cambiarContrasenaUseCase.execute(request.toCommand(id));
 
     logger.info("✅ Contraseña cambiada exitosamente para usuario con ID: {}", id);
     return ResponseEntity.ok().build();
@@ -434,40 +397,12 @@ public class UsuariosController {
   }
 
   @Operation(
-      summary = "Listar todos los usuarios o buscar por username",
-      description =
-          "Recupera la lista completa de usuarios o busca uno específico por username usando el parámetro de consulta")
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Lista de usuarios obtenida exitosamente o usuario encontrado"),
-        @ApiResponse(
-            responseCode = "404",
-            description = "Usuario no encontrado (cuando se busca por username)")
-      })
-  @GetMapping(value = "/users", produces = "application/json", params = "!estado")
-  public ResponseEntity<?> obtenerUsuarios(
-      @Parameter(description = "Username del usuario (opcional)") @RequestParam(required = false)
-          String username) {
-
-    // Búsqueda por username
-    if (username != null && !username.isBlank()) {
-      logger.info(
-          "ℹ️ GET /v1/usuarios/users?username={} - Buscando usuario con username: {}",
-          username,
-          username);
-
-      UsuarioDTO usuarioDTO = buscarUsuariosPorNombreUseCase.execute(username);
-      UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
-
-      logger.info(
-          "✅ Usuario encontrado - ID: {}, Username: {}", response.id(), response.username());
-      return ResponseEntity.ok(response);
-    }
-
-    // Listar todos
-    logger.info("ℹ️ GET /v1/usuarios/users - Obteniendo lista de usuarios");
+      summary = "Listar todos los usuarios",
+      description = "Recupera la lista completa de usuarios registrados en el sistema")
+  @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente")
+  @GetMapping(value = "/users", produces = "application/json")
+  public ResponseEntity<List<UsuarioResponse>> obtenerTodosLosUsuarios() {
+    logger.info("ℹ️ GET /v1/usuarios/users - Obteniendo lista de todos los usuarios");
 
     List<UsuarioDTO> usuariosDTO = obtenerTodosLosUsuariosUseCase.execute();
 
@@ -479,16 +414,43 @@ public class UsuariosController {
   }
 
   @Operation(
+      summary = "Buscar usuario por username",
+      description = "Busca un usuario específico por su nombre de usuario")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Usuario encontrado",
+            content = @Content(schema = @Schema(implementation = UsuarioResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+      })
+  @GetMapping(value = "/users/search", produces = "application/json")
+  public ResponseEntity<UsuarioResponse> buscarUsuarioPorUsername(
+      @Parameter(description = "Username del usuario", required = true) @RequestParam("username")
+          String username) {
+    logger.info(
+        "ℹ️ GET /v1/usuarios/users/search?username={} - Buscando usuario con username: {}",
+        username,
+        username);
+
+    UsuarioDTO usuarioDTO = buscarUsuariosPorNombreUseCase.execute(username);
+    UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
+
+    logger.info("✅ Usuario encontrado - ID: {}, Username: {}", response.id(), response.username());
+    return ResponseEntity.ok(response);
+  }
+
+  @Operation(
       summary = "Buscar usuarios por estado",
       description =
           "Filtra usuarios según su estado: PENDIENTE_DE_VERIFICACION, ACTIVO, SUSPENDIDO, ELIMINADO")
   @ApiResponse(responseCode = "200", description = "Lista de usuarios filtrada por estado")
-  @GetMapping(value = "/users", produces = "application/json", params = "estado")
+  @GetMapping(value = "/users/estado", produces = "application/json")
   public ResponseEntity<List<UsuarioResponse>> obtenerUsuariosPorEstado(
       @Parameter(description = "Estado del usuario", required = true) @RequestParam("estado")
           EstadoUsuario estadoUsuario) {
     logger.info(
-        "ℹ️ GET /v1/usuarios/users?estado={} - Obteniendo lista de usuarios por estado: {}",
+        "ℹ️ GET /v1/usuarios/users/estado?estado={} - Obteniendo lista de usuarios por estado: {}",
         estadoUsuario,
         estadoUsuario);
 

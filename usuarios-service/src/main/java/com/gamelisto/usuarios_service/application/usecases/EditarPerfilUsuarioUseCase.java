@@ -46,10 +46,10 @@ public class EditarPerfilUsuarioUseCase {
     }
 
     if (command.notificationsActive() != null) {
-      if (command.notificationsActive()) {
+      if (Boolean.TRUE.equals(command.notificationsActive())) {
         usuario.enableNotifications();
         avisarColaUsarioActivaNotificaciones(usuario);
-      } else {
+      } else if (Boolean.FALSE.equals(command.notificationsActive())) {
         usuario.disableNotifications();
         avisarColaUsarioDesactivaNotificaciones(usuario);
       }

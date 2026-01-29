@@ -195,15 +195,16 @@ class UsuarioFlowIntegrationTest {
     // 3. Buscar por estado ACTIVO
     List<UsuarioDTO> usuariosActivos = buscarUsuariosPorEstadoUseCase.execute(EstadoUsuario.ACTIVO);
 
-    assertThat(usuariosActivos).hasSizeGreaterThanOrEqualTo(2);
-    assertThat(usuariosActivos).extracting(UsuarioDTO::status).containsOnly("ACTIVO");
+    assertThat(usuariosActivos)
+        .hasSizeGreaterThanOrEqualTo(2)
+        .extracting(UsuarioDTO::status)
+        .containsOnly("ACTIVO");
 
     // 4. Buscar por estado PENDIENTE_DE_VERIFICACION
     List<UsuarioDTO> usuariosPendientes =
         buscarUsuariosPorEstadoUseCase.execute(EstadoUsuario.PENDIENTE_DE_VERIFICACION);
 
-    assertThat(usuariosPendientes).isNotEmpty();
-    assertThat(usuariosPendientes).anyMatch(u -> u.username().equals("pendinguser"));
+    assertThat(usuariosPendientes).isNotEmpty().anyMatch(u -> u.username().equals("pendinguser"));
   }
 
   @Test
@@ -262,30 +263,4 @@ class UsuarioFlowIntegrationTest {
     assertThatThrownBy(() -> crearUsuarioUseCase.execute(command3))
         .hasMessageContaining("duplicate@example.com");
   }
-
-  // TODO: Descomentar cuando se implementen BuscarUsuarioPorUsernameUseCase
-  /*
-   * @Test
-   *
-   * @DisplayName("Debe permitir buscar usuario por email y username")
-   * void debeBuscarPorEmailYUsername() {
-   * // 1. Crear usuario
-   * CrearUsuarioCommand crearCommand = new CrearUsuarioCommand(
-   * "searchuser",
-   * "search@example.com",
-   * "Password123!",
-   * null
-   * );
-   * UsuarioDTO usuarioCreado = crearUsuarioUseCase.execute(crearCommand);
-   *
-   * // 3. Buscar por username
-   * UsuarioDTO porUsername =
-   * buscarUsuarioPorUsernameUseCase.execute("searchuser");
-   * assertThat(porUsername).isNotNull();
-   * assertThat(porUsername.username()).isEqualTo("searchuser");
-   *
-   * // 4. Verificar que son el mismo usuario
-   * assertThat(porEmail.id()).isEqualTo(porUsername.id());
-   * }
-   */
 }

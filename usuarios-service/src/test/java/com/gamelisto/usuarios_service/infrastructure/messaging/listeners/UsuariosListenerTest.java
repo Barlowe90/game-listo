@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+import com.gamelisto.usuarios_service.domain.exceptions.EventoListenerException;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -97,16 +98,20 @@ class UsuariosListenerTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar RuntimeException cuando ocurre error en procesamiento")
-  void debeLanzarRuntimeExceptionCuandoOcurreError() {
+  @DisplayName("Debe lanzar EventoListenerException cuando ocurre error en procesamiento")
+  void debeLanzarEventoListenerExceptionCuandoOcurreError() {
     // Given
     headers.put("eventType", "ErrorEvent");
-    when(messageProperties.getHeaders()).thenThrow(new RuntimeException("Simulated error"));
+    RuntimeException simulatedError = new RuntimeException("Simulated error");
+    when(messageProperties.getHeaders()).thenThrow(simulatedError);
+
+    TestPayload payload = new TestPayload("data");
 
     // When & Then
-    assertThatThrownBy(() -> listener.handleEvent(message, new TestPayload("data")))
-        .isInstanceOf(RuntimeException.class)
-        .hasMessageContaining("Error al procesar evento");
+    assertThatThrownBy(() -> listener.handleEvent(message, payload))
+        .isInstanceOf(EventoListenerException.class)
+        .hasMessageContaining("Error al procesar evento")
+        .hasCause(simulatedError);
   }
 
   @Test

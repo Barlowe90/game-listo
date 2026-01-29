@@ -157,10 +157,10 @@ class UsuarioMensajeTest {
         new UsuarioMensaje<>("different-id", eventType, "usuarios-service", timestamp, data);
 
     // Then
-    assertThat(mensaje1).isEqualTo(mensaje2);
-    assertThat(mensaje1).isNotEqualTo(mensaje3);
-    assertThat(mensaje1.hashCode()).isEqualTo(mensaje2.hashCode());
-    assertThat(mensaje1.hashCode()).isNotEqualTo(mensaje3.hashCode());
+    assertThat(mensaje1).isEqualTo(mensaje2).isNotEqualTo(mensaje3);
+    assertThat(mensaje1.hashCode())
+        .isEqualTo(mensaje2.hashCode())
+        .isNotEqualTo(mensaje3.hashCode());
   }
 
   @Test

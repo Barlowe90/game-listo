@@ -12,7 +12,6 @@ import com.gamelisto.usuarios_service.infrastructure.persistence.postgres.entity
 import com.gamelisto.usuarios_service.infrastructure.persistence.postgres.mapper.UsuarioMapper;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -60,9 +59,7 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
 
   @Override
   public List<Usuario> findByStatus(EstadoUsuario status) {
-    return jpaRepository.findByStatus(status).stream()
-        .map(mapper::toDomain)
-        .collect(Collectors.toList());
+    return jpaRepository.findByStatus(status).stream().map(mapper::toDomain).toList();
   }
 
   @Override
@@ -70,7 +67,7 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
       EstadoUsuario status, boolean notificationsActive) {
     return jpaRepository.findByStatusAndNotificationsActive(status, notificationsActive).stream()
         .map(mapper::toDomain)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override
@@ -91,17 +88,9 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
     return jpaRepository.existsByEmail(email.value());
   }
 
-  // @Override
-  // public List<Usuario> searchByUsernameFragment(String fragment) {
-  // return jpaRepository.searchByUsernameFragment(fragment)
-  // .stream()
-  // .map(mapper::toDomain)
-  // .collect(Collectors.toList());
-  // }
-
   @Override
   public List<Usuario> findAll() {
-    return jpaRepository.findAll().stream().map(mapper::toDomain).collect(Collectors.toList());
+    return jpaRepository.findAll().stream().map(mapper::toDomain).toList();
   }
 
   @SuppressWarnings("null")

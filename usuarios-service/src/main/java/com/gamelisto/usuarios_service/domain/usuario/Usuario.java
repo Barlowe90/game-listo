@@ -25,53 +25,176 @@ public class Usuario {
   private TokenVerificacion tokenRestablecimiento;
   private Instant tokenRestablecimientoExpiracion;
 
-  private Usuario(
-      UsuarioId id,
-      Username username,
-      Email email,
-      PasswordHash passwordHash,
-      Avatar avatar,
-      Instant createdAt,
-      Rol role,
-      Idioma language,
-      EstadoUsuario status) {
-    validarArgumentosCreacion(username, email, passwordHash, createdAt);
-    this.id = id;
-    this.username = username;
-    this.email = email;
-    this.passwordHash = passwordHash;
-    this.avatar = avatar != null ? avatar : Avatar.empty();
-    this.createdAt = createdAt;
-    this.updatedAt = createdAt;
-    this.role = role != null ? role : Rol.USER;
-    this.language = language != null ? language : Idioma.ESP;
-    this.notificationsActive = true;
-    this.status = status != null ? status : EstadoUsuario.ACTIVO;
-    this.discordUserId = DiscordUserId.empty();
-    this.discordUsername = DiscordUsername.empty();
-    this.discordLinkedAt = null;
-    this.tokenVerificacion = TokenVerificacion.empty();
-    this.tokenVerificacionExpiracion = null;
-    this.tokenRestablecimiento = TokenVerificacion.empty();
-    this.tokenRestablecimientoExpiracion = null;
+  private Usuario(Builder builder) {
+    validarArgumentosCreacion(
+        builder.username, builder.email, builder.passwordHash, builder.createdAt);
+    this.id = builder.id;
+    this.username = builder.username;
+    this.email = builder.email;
+    this.passwordHash = builder.passwordHash;
+    this.avatar = builder.avatar != null ? builder.avatar : Avatar.empty();
+    this.createdAt = builder.createdAt;
+    this.updatedAt = builder.updatedAt != null ? builder.updatedAt : builder.createdAt;
+    this.role = builder.role != null ? builder.role : Rol.USER;
+    this.language = builder.language != null ? builder.language : Idioma.ESP;
+    this.notificationsActive = builder.notificationsActive;
+    this.status = builder.status != null ? builder.status : EstadoUsuario.ACTIVO;
+    this.discordUserId =
+        builder.discordUserId != null ? builder.discordUserId : DiscordUserId.empty();
+    this.discordUsername =
+        builder.discordUsername != null ? builder.discordUsername : DiscordUsername.empty();
+    this.discordLinkedAt = builder.discordLinkedAt;
+    this.tokenVerificacion =
+        builder.tokenVerificacion != null ? builder.tokenVerificacion : TokenVerificacion.empty();
+    this.tokenVerificacionExpiracion = builder.tokenVerificacionExpiracion;
+    this.tokenRestablecimiento =
+        builder.tokenRestablecimiento != null
+            ? builder.tokenRestablecimiento
+            : TokenVerificacion.empty();
+    this.tokenRestablecimientoExpiracion = builder.tokenRestablecimientoExpiracion;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private UsuarioId id;
+    private Username username;
+    private Email email;
+    private PasswordHash passwordHash;
+    private Avatar avatar;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private Rol role;
+    private Idioma language;
+    private boolean notificationsActive = true;
+    private EstadoUsuario status;
+    private DiscordUserId discordUserId;
+    private DiscordUsername discordUsername;
+    private Instant discordLinkedAt;
+    private TokenVerificacion tokenVerificacion;
+    private Instant tokenVerificacionExpiracion;
+    private TokenVerificacion tokenRestablecimiento;
+    private Instant tokenRestablecimientoExpiracion;
+
+    private Builder() {}
+
+    public Builder id(UsuarioId id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder username(Username username) {
+      this.username = username;
+      return this;
+    }
+
+    public Builder email(Email email) {
+      this.email = email;
+      return this;
+    }
+
+    public Builder passwordHash(PasswordHash passwordHash) {
+      this.passwordHash = passwordHash;
+      return this;
+    }
+
+    public Builder avatar(Avatar avatar) {
+      this.avatar = avatar;
+      return this;
+    }
+
+    public Builder createdAt(Instant createdAt) {
+      this.createdAt = createdAt;
+      return this;
+    }
+
+    public Builder updatedAt(Instant updatedAt) {
+      this.updatedAt = updatedAt;
+      return this;
+    }
+
+    public Builder role(Rol role) {
+      this.role = role;
+      return this;
+    }
+
+    public Builder language(Idioma language) {
+      this.language = language;
+      return this;
+    }
+
+    public Builder notificationsActive(boolean notificationsActive) {
+      this.notificationsActive = notificationsActive;
+      return this;
+    }
+
+    public Builder status(EstadoUsuario status) {
+      this.status = status;
+      return this;
+    }
+
+    public Builder discordUserId(DiscordUserId discordUserId) {
+      this.discordUserId = discordUserId;
+      return this;
+    }
+
+    public Builder discordUsername(DiscordUsername discordUsername) {
+      this.discordUsername = discordUsername;
+      return this;
+    }
+
+    public Builder discordLinkedAt(Instant discordLinkedAt) {
+      this.discordLinkedAt = discordLinkedAt;
+      return this;
+    }
+
+    public Builder tokenVerificacion(TokenVerificacion tokenVerificacion) {
+      this.tokenVerificacion = tokenVerificacion;
+      return this;
+    }
+
+    public Builder tokenVerificacionExpiracion(Instant tokenVerificacionExpiracion) {
+      this.tokenVerificacionExpiracion = tokenVerificacionExpiracion;
+      return this;
+    }
+
+    public Builder tokenRestablecimiento(TokenVerificacion tokenRestablecimiento) {
+      this.tokenRestablecimiento = tokenRestablecimiento;
+      return this;
+    }
+
+    public Builder tokenRestablecimientoExpiracion(Instant tokenRestablecimientoExpiracion) {
+      this.tokenRestablecimientoExpiracion = tokenRestablecimientoExpiracion;
+      return this;
+    }
+
+    public Usuario build() {
+      return new Usuario(this);
+    }
   }
 
   public static Usuario create(Username username, Email email, PasswordHash passwordHash) {
     Usuario usuario =
-        new Usuario(
-            UsuarioId.generate(),
-            username,
-            email,
-            passwordHash,
-            Avatar.empty(),
-            Instant.now(),
-            Rol.USER,
-            Idioma.ESP,
-            EstadoUsuario.PENDIENTE_DE_VERIFICACION);
+        Usuario.builder()
+            .id(UsuarioId.generate())
+            .username(username)
+            .email(email)
+            .passwordHash(passwordHash)
+            .avatar(Avatar.empty())
+            .createdAt(Instant.now())
+            .role(Rol.USER)
+            .language(Idioma.ESP)
+            .status(EstadoUsuario.PENDIENTE_DE_VERIFICACION)
+            .notificationsActive(true)
+            .build();
     usuario.generarTokenVerificacion();
     return usuario;
   }
 
+  @SuppressWarnings(
+      "java:S107") // Reconstitución desde persistencia requiere todos los parámetros del aggregate
   public static Usuario reconstitute(
       UsuarioId id,
       Username username,
@@ -91,20 +214,26 @@ public class Usuario {
       Instant tokenVerificacionExpiracion,
       TokenVerificacion tokenRestablecimiento,
       Instant tokenRestablecimientoExpiracion) {
-    Usuario usuario =
-        new Usuario(id, username, email, passwordHash, avatar, createdAt, role, language, status);
-    usuario.updatedAt = updatedAt != null ? updatedAt : createdAt;
-    usuario.notificationsActive = notificationsActive;
-    usuario.discordUserId = discordUserId != null ? discordUserId : DiscordUserId.empty();
-    usuario.discordUsername = discordUsername != null ? discordUsername : DiscordUsername.empty();
-    usuario.discordLinkedAt = discordLinkedAt;
-    usuario.tokenVerificacion =
-        tokenVerificacion != null ? tokenVerificacion : TokenVerificacion.empty();
-    usuario.tokenVerificacionExpiracion = tokenVerificacionExpiracion;
-    usuario.tokenRestablecimiento =
-        tokenRestablecimiento != null ? tokenRestablecimiento : TokenVerificacion.empty();
-    usuario.tokenRestablecimientoExpiracion = tokenRestablecimientoExpiracion;
-    return usuario;
+    return Usuario.builder()
+        .id(id)
+        .username(username)
+        .email(email)
+        .passwordHash(passwordHash)
+        .avatar(avatar)
+        .createdAt(createdAt)
+        .updatedAt(updatedAt)
+        .role(role)
+        .language(language)
+        .notificationsActive(notificationsActive)
+        .status(status)
+        .discordUserId(discordUserId)
+        .discordUsername(discordUsername)
+        .discordLinkedAt(discordLinkedAt)
+        .tokenVerificacion(tokenVerificacion)
+        .tokenVerificacionExpiracion(tokenVerificacionExpiracion)
+        .tokenRestablecimiento(tokenRestablecimiento)
+        .tokenRestablecimientoExpiracion(tokenRestablecimientoExpiracion)
+        .build();
   }
 
   private void validarArgumentosCreacion(
@@ -233,15 +362,6 @@ public class Usuario {
     this.tokenVerificacionExpiracion = null;
     this.updatedAt = Instant.now();
   }
-
-  // public boolean isTokenVerificacionExpirado() {
-  // return this.tokenVerificacionExpiracion == null ||
-  // Instant.now().isAfter(this.tokenVerificacionExpiracion);
-  // }
-
-  // public boolean isPendienteDeVerificacion() {
-  // return this.status == EstadoUsuario.PENDIENTE_DE_VERIFICACION;
-  // }
 
   public void linkDiscord(DiscordUserId discordUserId, DiscordUsername discordUsername) {
     if (discordUserId == null || discordUserId.isEmpty()) {

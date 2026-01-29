@@ -4,7 +4,6 @@ import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,8 +18,6 @@ public class BuscarUsuariosPorEstadoUseCase {
 
   @Transactional(readOnly = true)
   public List<UsuarioDTO> execute(EstadoUsuario estadoUsuario) {
-    return repositorioUsuarios.findByStatus(estadoUsuario).stream()
-        .map(UsuarioDTO::from)
-        .collect(Collectors.toList());
+    return repositorioUsuarios.findByStatus(estadoUsuario).stream().map(UsuarioDTO::from).toList();
   }
 }

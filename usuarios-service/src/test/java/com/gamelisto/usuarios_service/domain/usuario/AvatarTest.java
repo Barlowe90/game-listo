@@ -4,6 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @DisplayName("Avatar - Tests de Value Object")
 class AvatarTest {
@@ -32,33 +36,14 @@ class AvatarTest {
     assertTrue(avatar.isEmpty());
   }
 
-  @Test
-  @DisplayName("Debe crear avatar vacío con valor null")
-  void debeCrearAvatarVacioConValorNull() {
+  @ParameterizedTest
+  @NullSource
+  @EmptySource
+  @ValueSource(strings = {"   ", "  ", "\t", "\n"})
+  @DisplayName("Debe crear avatar vacío con valor null, cadena vacía o espacios en blanco")
+  void debeCrearAvatarVacioConValoresInvalidos(String valor) {
     // Arrange & Act
-    Avatar avatar = Avatar.of(null);
-
-    // Assert
-    assertNull(avatar.url());
-    assertTrue(avatar.isEmpty());
-  }
-
-  @Test
-  @DisplayName("Debe crear avatar vacío con cadena vacía")
-  void debeCrearAvatarVacioConCadenaVacia() {
-    // Arrange & Act
-    Avatar avatar = Avatar.of("");
-
-    // Assert
-    assertNull(avatar.url());
-    assertTrue(avatar.isEmpty());
-  }
-
-  @Test
-  @DisplayName("Debe crear avatar vacío con espacios en blanco")
-  void debeCrearAvatarVacioConEspaciosEnBlanco() {
-    // Arrange & Act
-    Avatar avatar = Avatar.of("   ");
+    Avatar avatar = Avatar.of(valor);
 
     // Assert
     assertNull(avatar.url());

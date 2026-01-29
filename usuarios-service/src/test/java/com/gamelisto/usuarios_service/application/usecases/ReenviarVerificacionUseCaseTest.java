@@ -158,27 +158,25 @@ class ReenviarVerificacionUseCaseTest {
   // ========== MÉTODOS AUXILIARES ==========
 
   private Usuario crearUsuarioPendiente(String email) {
-    Usuario usuario =
-        Usuario.reconstitute(
-            UsuarioId.generate(),
-            Username.of("testuser"),
-            Email.of(email),
-            PasswordHash.of("$2a$10$hash"),
-            Avatar.empty(),
-            Instant.now(),
-            Instant.now(),
-            Rol.USER,
-            Idioma.ESP,
-            true,
-            EstadoUsuario.PENDIENTE_DE_VERIFICACION,
-            DiscordUserId.empty(),
-            DiscordUsername.empty(),
-            null,
-            TokenVerificacion.generate(),
-            Instant.now().plusSeconds(3600),
-            TokenVerificacion.empty(),
-            null);
-    return usuario;
+    return Usuario.reconstitute(
+        UsuarioId.generate(),
+        Username.of("testuser"),
+        Email.of(email),
+        PasswordHash.of("$2a$10$hash"),
+        Avatar.empty(),
+        Instant.now(),
+        Instant.now(),
+        Rol.USER,
+        Idioma.ESP,
+        true,
+        EstadoUsuario.PENDIENTE_DE_VERIFICACION,
+        DiscordUserId.empty(),
+        DiscordUsername.empty(),
+        null,
+        TokenVerificacion.generate(),
+        Instant.now().plusSeconds(3600),
+        TokenVerificacion.empty(),
+        null);
   }
 
   private Usuario crearUsuarioActivo(String email) {

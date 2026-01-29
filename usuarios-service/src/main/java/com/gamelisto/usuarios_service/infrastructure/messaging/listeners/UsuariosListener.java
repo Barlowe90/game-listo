@@ -1,5 +1,6 @@
 package com.gamelisto.usuarios_service.infrastructure.messaging.listeners;
 
+import com.gamelisto.usuarios_service.domain.exceptions.EventoListenerException;
 import com.gamelisto.usuarios_service.infrastructure.messaging.config.RabbitMQConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,21 +22,12 @@ public class UsuariosListener {
       logger.info("Evento recibido - Tipo: {}, Servicio origen: {}", eventType, service);
       logger.debug("Payload: {}", payload);
 
-      // TODO: implementar la diferenciación de eventos escuchados
-      // if ("EventoCreado".equals(eventType)) {
-      //     procesarEventoCreado(payload);
-      // } else if ("EventoCreado2".equals(eventType)) {
-      //     procesarEventoCreado2(payload);
-      // }
+      // TODO: implementar la diferenciación de eventos escuchados y funciones
 
       logger.info("Evento procesado exitosamente: {}", eventType);
 
     } catch (Exception e) {
-      logger.error("Error al procesar evento", e);
-      throw new RuntimeException("Error al procesar evento", e);
+      throw new EventoListenerException("Error al procesar evento", e);
     }
   }
-
-  // TODO: implementar funciones
-  // private void procesarEventoCreado(Object payload) { ... }
 }

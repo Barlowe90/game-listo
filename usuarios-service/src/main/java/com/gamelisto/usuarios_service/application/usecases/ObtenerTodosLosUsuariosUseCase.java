@@ -3,7 +3,6 @@ package com.gamelisto.usuarios_service.application.usecases;
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +17,6 @@ public class ObtenerTodosLosUsuariosUseCase {
 
   @Transactional(readOnly = true)
   public List<UsuarioDTO> execute() {
-    return repositorioUsuarios.findAll().stream()
-        .map(UsuarioDTO::from)
-        .collect(Collectors.toList());
+    return repositorioUsuarios.findAll().stream().map(UsuarioDTO::from).toList();
   }
 }

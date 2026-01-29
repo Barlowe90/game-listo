@@ -1,8 +1,11 @@
 package com.gamelisto.usuarios_service.domain.usuario;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.Duration;
 import java.time.Instant;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -146,11 +149,13 @@ class UsuarioTest {
 
   @Test
   @DisplayName("Debe cambiar email y actualizar timestamp")
-  void debeCambiarEmailYActualizarTimestamp() throws InterruptedException {
+  void debeCambiarEmailYActualizarTimestamp() {
     // Arrange
     Usuario usuario = crearUsuarioDefault();
     Instant updatedAtAntes = usuario.getUpdatedAt();
-    Thread.sleep(10);
+    await()
+        .pollDelay(Duration.ofMillis(10))
+        .until(() -> true); // Esperar 10ms para asegurar que el timestamp sea diferente
     Email nuevoEmail = Email.of("nuevo@test.com");
 
     // Act
@@ -175,11 +180,11 @@ class UsuarioTest {
 
   @Test
   @DisplayName("Debe cambiar password hash y actualizar timestamp")
-  void debeCambiarPasswordHashYActualizarTimestamp() throws InterruptedException {
+  void debeCambiarPasswordHashYActualizarTimestamp() {
     // Arrange
     Usuario usuario = crearUsuarioDefault();
     Instant updatedAtAntes = usuario.getUpdatedAt();
-    Thread.sleep(10);
+    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
     PasswordHash nuevoHash = PasswordHash.of("$2a$10$newHash");
 
     // Act
@@ -204,11 +209,11 @@ class UsuarioTest {
 
   @Test
   @DisplayName("Debe cambiar avatar y actualizar timestamp")
-  void debeCambiarAvatarYActualizarTimestamp() throws InterruptedException {
+  void debeCambiarAvatarYActualizarTimestamp() {
     // Arrange
     Usuario usuario = crearUsuarioDefault();
     Instant updatedAtAntes = usuario.getUpdatedAt();
-    Thread.sleep(10);
+    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
     Avatar nuevoAvatar = Avatar.of("https://example.com/new-avatar.jpg");
 
     // Act
@@ -236,11 +241,11 @@ class UsuarioTest {
 
   @Test
   @DisplayName("Debe cambiar idioma y actualizar timestamp")
-  void debeCambiarIdiomaYActualizarTimestamp() throws InterruptedException {
+  void debeCambiarIdiomaYActualizarTimestamp() {
     // Arrange
     Usuario usuario = crearUsuarioDefault();
     Instant updatedAtAntes = usuario.getUpdatedAt();
-    Thread.sleep(10);
+    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
 
     // Act
     usuario.changeLanguage(Idioma.ENG);
@@ -267,12 +272,12 @@ class UsuarioTest {
 
   @Test
   @DisplayName("Debe habilitar notificaciones")
-  void debeHabilitarNotificaciones() throws InterruptedException {
+  void debeHabilitarNotificaciones() {
     // Arrange
     Usuario usuario = crearUsuarioDefault();
     usuario.disableNotifications();
     Instant updatedAtAntes = usuario.getUpdatedAt();
-    Thread.sleep(10);
+    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
 
     // Act
     usuario.enableNotifications();
@@ -284,11 +289,11 @@ class UsuarioTest {
 
   @Test
   @DisplayName("Debe deshabilitar notificaciones")
-  void debeDeshabilitarNotificaciones() throws InterruptedException {
+  void debeDeshabilitarNotificaciones() {
     // Arrange
     Usuario usuario = crearUsuarioDefault();
     Instant updatedAtAntes = usuario.getUpdatedAt();
-    Thread.sleep(10);
+    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
 
     // Act
     usuario.disableNotifications();
@@ -302,11 +307,11 @@ class UsuarioTest {
 
   @Test
   @DisplayName("Debe suspender usuario")
-  void debeSuspenderUsuario() throws InterruptedException {
+  void debeSuspenderUsuario() {
     // Arrange
     Usuario usuario = crearUsuarioDefault();
     Instant updatedAtAntes = usuario.getUpdatedAt();
-    Thread.sleep(10);
+    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
 
     // Act
     usuario.suspend();
@@ -320,12 +325,12 @@ class UsuarioTest {
 
   @Test
   @DisplayName("Debe activar usuario suspendido")
-  void debeActivarUsuarioSuspendido() throws InterruptedException {
+  void debeActivarUsuarioSuspendido() {
     // Arrange
     Usuario usuario = crearUsuarioDefault();
     usuario.suspend();
     Instant updatedAtAntes = usuario.getUpdatedAt();
-    Thread.sleep(10);
+    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
 
     // Act
     usuario.activate();
@@ -361,8 +366,7 @@ class UsuarioTest {
     usuario.delete();
 
     // Act & Assert
-    IllegalStateException exception =
-        assertThrows(IllegalStateException.class, () -> usuario.activate());
+    IllegalStateException exception = assertThrows(IllegalStateException.class, usuario::activate);
 
     assertTrue(exception.getMessage().contains("No se puede activar un usuario eliminado"));
   }
@@ -371,13 +375,13 @@ class UsuarioTest {
 
   @Test
   @DisplayName("Debe vincular cuenta de Discord")
-  void debeVincularCuentaDeDiscord() throws InterruptedException {
+  void debeVincularCuentaDeDiscord() {
     // Arrange
     Usuario usuario = crearUsuarioDefault();
     DiscordUserId discordId = DiscordUserId.of("123456789");
     DiscordUsername discordUsername = DiscordUsername.of("player#1234");
     Instant beforeLink = Instant.now();
-    Thread.sleep(10);
+    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
 
     // Act
     usuario.linkDiscord(discordId, discordUsername);
@@ -440,14 +444,14 @@ class UsuarioTest {
 
   @Test
   @DisplayName("Debe desvincular cuenta de Discord")
-  void debeDesvincularCuentaDeDiscord() throws InterruptedException {
+  void debeDesvincularCuentaDeDiscord() {
     // Arrange
     Usuario usuario = crearUsuarioDefault();
     DiscordUserId discordId = DiscordUserId.of("123456789");
     DiscordUsername discordUsername = DiscordUsername.of("player#1234");
     usuario.linkDiscord(discordId, discordUsername);
     Instant updatedAtAntes = usuario.getUpdatedAt();
-    Thread.sleep(10);
+    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
 
     // Act
     usuario.unlinkDiscord();

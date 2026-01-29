@@ -26,8 +26,7 @@ class SecurityConfigTest {
     PasswordEncoder passwordEncoder = securityConfig.passwordEncoder();
 
     // Then
-    assertThat(passwordEncoder).isNotNull();
-    assertThat(passwordEncoder).isInstanceOf(BCryptPasswordEncoder.class);
+    assertThat(passwordEncoder).isNotNull().isInstanceOf(BCryptPasswordEncoder.class);
   }
 
   @Test
@@ -41,9 +40,10 @@ class SecurityConfigTest {
     String encodedPassword = encoder.encode(rawPassword);
 
     // Then
-    assertThat(encodedPassword).isNotNull();
-    assertThat(encodedPassword).isNotEqualTo(rawPassword);
-    assertThat(encodedPassword).startsWith("$2a$"); // BCrypt prefix
+    assertThat(encodedPassword)
+        .isNotNull()
+        .isNotEqualTo(rawPassword)
+        .startsWith("$2a$"); // BCrypt prefix
     assertThat(encoder.matches(rawPassword, encodedPassword)).isTrue();
   }
 
@@ -104,8 +104,7 @@ class SecurityConfigTest {
 
     // Then
     // BCrypt con strength 10 genera hashes de 60 caracteres
-    assertThat(encoded).hasSize(60);
-    assertThat(encoded).matches("\\$2[ayb]\\$\\d{2}\\$.+"); // Formato BCrypt
+    assertThat(encoded).hasSize(60).matches("\\$2[ayb]\\$\\d{2}\\$.+"); // Formato BCrypt
   }
 
   @Test
@@ -118,8 +117,7 @@ class SecurityConfigTest {
     String encodedEmpty = encoder.encode("");
 
     // Then
-    assertThat(encodedEmpty).isNotNull();
-    assertThat(encodedEmpty).isNotEmpty();
+    assertThat(encodedEmpty).isNotNull().isNotEmpty();
     assertThat(encoder.matches("", encodedEmpty)).isTrue();
   }
 
