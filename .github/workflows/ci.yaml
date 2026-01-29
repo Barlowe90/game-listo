@@ -4,12 +4,12 @@ on:
   push:
     paths:
       - "usuarios-service/**"
-    branches: [main]
+    branches: [ main ]
   pull_request:
     paths:
       - "usuarios-service/**"
       - "deployment/**" # cambiar?
-    branches: [main]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -122,6 +122,7 @@ jobs:
           SPRING_RABBITMQ_PORT: "5672"
           SPRING_RABBITMQ_USERNAME: guest
           SPRING_RABBITMQ_PASSWORD: guest
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: ./mvnw -B -ntp verify
 
       - name: Generate JaCoCo report

@@ -152,11 +152,11 @@ class SecurityConfigTest {
   }
 
   @Test
-  @DisplayName("Debe manejar contraseñas muy largas")
-  void debeManejarContrasenaMuyLargas() {
+  @DisplayName("Debe manejar contraseñas largas (hasta 72 bytes)")
+  void debeManejarContrasenasLargas() {
     // Given
     PasswordEncoder encoder = securityConfig.passwordEncoder();
-    String longPassword = "a".repeat(100);
+    String longPassword = "a".repeat(72); // BCrypt acepta hasta 72 bytes
 
     // When
     String encoded = encoder.encode(longPassword);
@@ -166,13 +166,28 @@ class SecurityConfigTest {
   }
 
   @Test
-  @DisplayName("No debe aceptar contraseñas null")
-  void noDebeAceptarContrasenasNull() {
+  @DisplayName("Debe rechazar contraseñas mayores a 72 bytes")
+  void debeRechazarContrasenasMayoresA72Bytes() {
+    // Given
+    PasswordEncoder encoder = securityConfig.passwordEncoder();
+    String tooLongPassword = "a".repeat(73); // Más de 72 bytes
+
+    // When & Then
+    org.junit.jupiter.api.Assertions.assertThrows(
+        IllegalArgumentException.class,
+        () -> encoder.encode(tooLongPassword),
+        "password cannot be more than 72 bytes");
+  }
+
+  @Test
+  @DisplayName("Debe rechazar contraseñas null")
+  void debeRechazarContrasenasNull() {
     // Given
     PasswordEncoder encoder = securityConfig.passwordEncoder();
 
     // When & Then
-    assertThat(encoder.encode(null)).isNotNull();
+    org.junit.jupiter.api.Assertions.assertThrows(
+        IllegalArgumentException.class, () -> encoder.encode(null), "rawPassword cannot be null");
   }
 
   // Test de integración básico para SecurityFilterChain
