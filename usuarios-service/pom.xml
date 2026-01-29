@@ -159,14 +159,23 @@
                             <goal>check</goal>
                         </goals>
                         <configuration>
+                            <excludes>
+                                <!-- Exclude only the Spring Boot main application class -->
+                                <exclude>com/gamelisto/usuarios_service/UsuariosServiceApplication.class</exclude>
+                            </excludes>
                             <rules>
                                 <rule>
-                                    <element>PACKAGE</element>
+                                    <element>BUNDLE</element>
                                     <limits>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.50</minimum>
+                                            <minimum>0.80</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>BRANCH</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
