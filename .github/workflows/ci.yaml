@@ -1,25 +1,20 @@
 name: CI - GameListo
 
 on:
-  # El CI se ejecutará en cada push o pull request a la rama main
   push:
     paths:
       - "usuarios-service/**"
-      - ".github/workflows/ci.yaml"
-      - "!**/*.md"
-      - "!**/docs/**"
-    branches: [ main ]
+    branches: [main]
   pull_request:
     paths:
       - "usuarios-service/**"
-      - ".github/workflows/ci.yaml"
-      - "!**/*.md"
-    branches: [ main ]
+      - "deployment/**" # cambiar?
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   ci:
-    name: CI Pipeline - Usuarios Service
+    name: usuarios-service - tests
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
     permissions:
@@ -28,13 +23,10 @@ jobs:
     defaults:
       run:
         working-directory: usuarios-service
-    strategy:
-      matrix:
-        java-version: [ 21 ]
 
     services:
       postgres:
-        image: postgres@sha256:ff4ccc02b97e0ebb6b328ef9ff92522f95586f83be6801896b615088defc8ad2 # postgres:17 alpine
+        image: postgres:17 alpine
         env:
           POSTGRES_USER: guest
           POSTGRES_PASSWORD: guest
@@ -61,120 +53,89 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 #actions/checkout@v6.0.1
+    steps: # esto es lo que ejecutará actions
+      - name: Checkout code # esto lo tiene antonio en su CI
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Java ${{ matrix.java-version }}
-        uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e #actions/setup-java@v5.1.0
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: ${{ matrix.java-version }}
-          cache: 'maven'
+          distribution: "temurin"
+          java-version: "21"
+          cache: maven
 
-      - name: Make mvnw executable
-        run: chmod +x ./mvnw
+      - name: Give execute permission to mvnw
+        run: chmod +x mvnw
 
-      - name: Verify Java installation
+      # Auto-formateo con Spotless + commit/push a la rama del PR.
+      # OJO: en PRs desde forks, GitHub no permite pushear con GITHUB_TOKEN (solo lectura).
+      - name: Spotless apply (and push if it changed files)
+        id: spotless
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
+        env:
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
         run: |
-          java -version
-          ./mvnw -version
+          set -euo pipefail
 
-      - name: Install dependencies
-        run: ./mvnw clean install -DskipTests
+          cd usuarios-service
+          ./mvnw -B -ntp spotless:apply
+          cd ..
 
-      - name: Check code formatting with Spotless
-        id: spotless-check
-        continue-on-error: true
-        run: ./mvnw spotless:check
-
-      - name: Apply code formatting
-        if: steps.spotless-check.outcome == 'failure'
-        run: |
-          ./mvnw spotless:apply
-          echo "Code formatting applied automatically"
-
-      - name: Commit formatted files
-        if: steps.spotless-check.outcome == 'failure'
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-
-          git add .
-          git commit -m "style: apply spotless formatting [skip ci]" || exit 0
-
-          # Determinar rama destino
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            TARGET_BRANCH="${{ github.head_ref }}"
-          else
-            TARGET_BRANCH="${{ github.ref_name }}"
+          if git diff --quiet; then
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
 
-          echo "Pushing to branch: $TARGET_BRANCH"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Traer remoto y rebasar para evitar non-fast-forward
-          git fetch origin "$TARGET_BRANCH"
-          git rebase "origin/$TARGET_BRANCH" || (git rebase --abort && exit 1)
+          git add usuarios-service
+          git commit -m "style: apply spotless formatting"
+          git push origin "HEAD:${PR_BRANCH}"
 
-          # Push
-          git push origin "HEAD:$TARGET_BRANCH"
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
 
-      - name: Build project
-        run: ./mvnw clean package -DskipTests
+      # Si Spotless ha pusheado cambios, este run ya no es el “bueno”:
+      # se disparará otro run sobre el nuevo commit.
+      - name: Stop early (a formatting commit was pushed)
+        if: steps.spotless.outputs.pushed == 'true'
+        run: echo "Spotless changes pushed. A new CI run will start for the new commit."
 
-      - name: Run unit tests
-        run: ./mvnw test
+      # En PR ejecutamos sobre el merge-ref (lo que realmente se mergearía a main)
+      - name: Checkout merge ref (PR) for accurate tests
+        if: github.event_name == 'pull_request' && steps.spotless.outputs.pushed != 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
-      - name: Run integration tests
-        run: ./mvnw verify -DskipUnitTests
+      - name: Run tests (mvn verify)
+        if: github.event_name != 'pull_request' || steps.spotless.outputs.pushed != 'true'
+        working-directory: usuarios-service
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/usuarios_db
           SPRING_DATASOURCE_USERNAME: guest
           SPRING_DATASOURCE_PASSWORD: guest
           SPRING_RABBITMQ_HOST: localhost
-          SPRING_RABBITMQ_PORT: 5672
+          SPRING_RABBITMQ_PORT: "5672"
           SPRING_RABBITMQ_USERNAME: guest
           SPRING_RABBITMQ_PASSWORD: guest
+        run: ./mvnw -B -ntp verify
 
-      - name: Generate coverage report
-        run: ./mvnw jacoco:report
+      - name: Generate JaCoCo report
+        if: github.event_name != 'pull_request' || steps.spotless.outputs.pushed != 'true'
+        working-directory: usuarios-service
+        run: ./mvnw -B -ntp jacoco:report
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@7afa10ed9b269c561c2336fd862446844e0cbf71 #codecov/codecov-action@v5.2.1
+      - name: Upload test artifacts
+        if: always() && (github.event_name != 'pull_request' || steps.spotless.outputs.pushed != 'true')
+        uses: actions/upload-artifact@v4
         with:
-          files: ./usuarios-service/target/site/jacoco/jacoco.xml
-          flags: usuarios-service
-          name: usuarios-service-coverage
-          fail_ci_if_error: false
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #actions/upload-artifact@v4.6.0
-        with:
-          name: test-results
+          name: usuarios-service-test-artifacts
           path: |
             usuarios-service/target/surefire-reports/
             usuarios-service/target/failsafe-reports/
             usuarios-service/target/site/jacoco/
-
-      - name: Build Docker image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          cd ..
-          docker build -t gamelisto/usuarios-service:latest -f usuarios-service/Dockerfile .
-
-      - name: Save Docker image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          cd ..
-          docker save gamelisto/usuarios-service:latest | gzip > usuarios-service-image.tar.gz
-
-      - name: Upload Docker image artifact
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #actions/upload-artifact@v4.6.0
-        with:
-          name: docker-image
-          path: usuarios-service-image.tar.gz
           retention-days: 7
