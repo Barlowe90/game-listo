@@ -1,4 +1,4 @@
-name: CI - GameListo
+name: CI - GameListo v1
 
 on:
   push:
