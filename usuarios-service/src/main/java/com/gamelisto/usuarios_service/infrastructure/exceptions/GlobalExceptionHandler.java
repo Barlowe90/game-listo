@@ -13,11 +13,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
   private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+  public ResponseEntity<Map<String, Object>> handleAlgoritmoNoEncontradoException(
+      AlgoritmoNoEncontradoException ex) {
+    logger.warn("Error al seleccionar algoritmo de encriptacion: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+  }
 
   @ExceptionHandler(EventoPublicacionException.class)
   public ResponseEntity<Map<String, Object>> handleUsuarioPubliserException(

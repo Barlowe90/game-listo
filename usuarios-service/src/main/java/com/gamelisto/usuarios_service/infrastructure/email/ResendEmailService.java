@@ -27,7 +27,7 @@ public class ResendEmailService implements IEmailService {
     this.resend = new Resend(apiKey);
     this.fromEmail = fromEmail;
     this.frontendUrl = frontendUrl;
-    logger.info("✅ Servicio de email Resend inicializado correctamente");
+    logger.info("🟢 Servicio de email Resend inicializado correctamente");
   }
 
   @Override
