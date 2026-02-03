@@ -51,9 +51,14 @@ public class RefreshTokenUseCase {
         repositorioRefreshTokens
             .buscarActivo(tokenHash)
             .orElseThrow(
-                () -> new RefreshTokenInvalidoException("Refresh token inválido o revocado"));
+                () -> {
+                  logger.warn(
+                      "❌ Intento de reutilizar refresh token inválido o ya revocado (Refresh Token Rotation)");
+                  return new RefreshTokenInvalidoException("Refresh token inválido o revocado");
+                });
 
     if (repositorioRefreshTokens.estaRevocado(tokenHash)) {
+      logger.warn("❌ Intento de uso de refresh token revocado (posible ataque)");
       throw new RefreshTokenInvalidoException("Refresh token revocado");
     }
 
@@ -67,6 +72,8 @@ public class RefreshTokenUseCase {
             .findById(refreshToken.getUsuarioId())
             .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario no encontrado"));
 
+    // ✅ Refresh Token Rotation: revocamos el token antiguo inmediatamente
+    logger.debug("🔄 Revocando refresh token antiguo (Refresh Token Rotation)");
     repositorioRefreshTokens.revocar(tokenHash, refreshToken.getTtl());
 
     Jti jti = Jti.generate();
@@ -84,7 +91,9 @@ public class RefreshTokenUseCase {
     repositorioRefreshTokens.guardarActivo(
         newRefreshTokenHash, usuario.getId(), newRefreshTokenExpiresAt);
 
-    logger.info("Tokens renovados para usuario: {}", usuario.getUsername().value());
+    logger.info(
+        "✅ Tokens renovados para usuario: {} (nuevo refresh token generado)",
+        usuario.getUsername().value());
 
     TokenDTO accessToken = new TokenDTO(accessTokenString, accessTokenExpiresAt);
     TokenDTO refreshTokenDto = new TokenDTO(newRefreshTokenString, newRefreshTokenExpiresAt);

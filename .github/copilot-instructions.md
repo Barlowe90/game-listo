@@ -190,6 +190,73 @@ public class UsuariosController {
 
 ## Microservice Context
 
+### api-gateway (Spring Cloud Gateway)
+
+**API Gateway** - Puerta de entrada única para todos los microservicios:
+
+**Responsibilities:**
+
+- ✅ JWT Token Validation: Verifica firma, expiración y claims de tokens JWT
+- ✅ Token Revocation: Verifica blacklist de tokens revocados en Redis (`revoked:jti:<JTI>`)
+- ✅ Rate Limiting: Limita 100 peticiones/minuto por IP usando Redis (`rate_limit:<IP>`)
+- ✅ CORS Management: Políticas CORS centralizadas para frontend
+- ✅ Request Routing: Enruta peticiones a microservicios según el path
+- ✅ Header Enrichment: Agrega headers `X-User-*` con información del usuario autenticado
+- ✅ Public/Protected Routes: Diferencia rutas públicas (login, registro) de protegidas
+
+**Components:**
+
+- `JwtAuthenticationFilter` (Order: -100): Valida JWT y enriquece headers
+- `RateLimitFilter` (Order: -50): Control de tráfico por IP
+- `JwtValidator`: Parsea y valida tokens JWT usando JJWT library
+- `TokenRevocationService`: Verifica tokens revocados en Redis
+- `RedisConfig`: Configuración de Redis reactivo (WebFlux)
+- `SecurityConfig`: Desactiva autenticación por defecto de Spring Security
+
+**Routes Configuration:**
+
+```properties
+# Public routes (no JWT required)
+/v1/usuarios/auth/login
+/v1/usuarios/auth/refresh
+/v1/usuarios/registro
+/v1/usuarios/verificar-email
+/actuator/health
+# Protected routes (JWT required)
+/v1/usuarios/** → usuarios-service:8081
+/v1/catalogo/** → catalogo-service:8082 (planned)
+```
+
+**Critical Notes:**
+
+- ⚠️ `jwt.secret` MUST be identical in Gateway and usuarios-service
+- ⚠️ Gateway uses WebFlux (reactive), NOT Spring MVC
+- ⚠️ Redis is required for rate limiting and token revocation
+- ⚠️ Microservices trust `X-User-*` headers (internal network only)
+- ⚠️ Gateway validates tokens, microservices DO NOT
+
+**Testing:**
+
+```powershell
+# Run test script
+.\api-gateway\test-gateway.ps1
+
+# Manual tests
+curl http://localhost:8090/actuator/health
+curl -X POST http://localhost:8090/v1/usuarios/auth/login -H "Content-Type: application/json" -d '{"username":"test","password":"pass"}'
+curl http://localhost:8090/v1/usuarios/auth/me -H "Authorization: Bearer <token>"
+```
+
+**Documentation:**
+
+- Main README: `api-gateway/README-gateway.md`
+- Architecture: `api-gateway/ARQUITECTURA.md`
+- Next steps: `api-gateway/GUIA-CONTINUACION.md`
+
+---
+
+### usuarios-service
+
 **usuarios-service** manages user profiles, authentication and token generation:
 
 **Profile & Account Management:**

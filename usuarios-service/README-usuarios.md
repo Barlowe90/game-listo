@@ -43,7 +43,8 @@ toda la información del usuario.
 - **Roles de usuario**: `USER`, `ADMIN`, `MODERATOR`
 
 > **Separación de responsabilidades**: Este servicio **genera** tokens JWT, pero **NO los valida** en peticiones
-> entrantes. La validación es responsabilidad del API Gateway.
+> entrantes. La validación es responsabilidad del API Gateway. El Gateway envía headers de confianza (`X-User-Id`,
+> `X-User-Username`, etc.) que este servicio usa sin validar el JWT nuevamente.
 
 ### Stack tecnológico
 

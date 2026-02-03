@@ -13,13 +13,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
   private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+  @ExceptionHandler(AlgoritmoNoEncontradoException.class)
   public ResponseEntity<Map<String, Object>> handleAlgoritmoNoEncontradoException(
       AlgoritmoNoEncontradoException ex) {
     logger.warn("Error al seleccionar algoritmo de encriptacion: {}", ex.getMessage());
@@ -76,6 +76,29 @@ public class GlobalExceptionHandler {
       UsuarioYaVerificadoException ex) {
     logger.warn("Usuario ya verificado: {}", ex.getEmail());
     return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+  }
+
+  // ============ Excepciones de Autenticación - 401 Unauthorized ============
+
+  @ExceptionHandler(RefreshTokenInvalidoException.class)
+  public ResponseEntity<Map<String, Object>> handleRefreshTokenInvalido(
+      RefreshTokenInvalidoException ex) {
+    logger.warn("❌ Refresh token inválido o revocado: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+  }
+
+  @ExceptionHandler(RefreshTokenExpiradoException.class)
+  public ResponseEntity<Map<String, Object>> handleRefreshTokenExpirado(
+      RefreshTokenExpiradoException ex) {
+    logger.warn("❌ Refresh token expirado: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+  }
+
+  @ExceptionHandler(CredencialesInvalidasException.class)
+  public ResponseEntity<Map<String, Object>> handleCredencialesInvalidas(
+      CredencialesInvalidasException ex) {
+    logger.warn("❌ Credenciales inválidas");
+    return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
   }
 
   // ============ Excepciones de Validación - 400 Bad Request ============

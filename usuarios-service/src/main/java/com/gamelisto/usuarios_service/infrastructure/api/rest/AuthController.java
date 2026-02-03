@@ -142,7 +142,7 @@ public class AuthController {
       summary = "Obtener perfil autenticado",
       description =
           "Retorna los datos del usuario autenticado. "
-              + "El userId se extrae del access token JWT (claim 'sub') por el API Gateway.")
+              + "El userId se extrae del access token JWT (claim 'sub') por el API Gateway y se envía en el header X-User-Id.")
   @ApiResponses(
       value = {
         @ApiResponse(
@@ -152,33 +152,35 @@ public class AuthController {
                 @Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = UsuarioResponse.class))),
-        @ApiResponse(responseCode = "401", description = "No autenticado"),
+        @ApiResponse(
+            responseCode = "401",
+            description = "No autenticado - Header X-User-Id ausente"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
       })
   @GetMapping("/me")
   public ResponseEntity<UsuarioResponse> getAuthenticatedProfile(
       @Parameter(
               description = "User ID extraído del JWT por el Gateway",
-              required = false,
+              required = true,
               hidden = true)
           @RequestHeader(value = "X-User-Id", required = false)
           String userId) {
 
-    logger.info("📥 Request de perfil autenticado para userId: {}", userId);
+    logger.info("📥 Request de perfil autenticado - X-User-Id: {}", userId);
 
-    // TODO: Cuando el Gateway esté implementado, userId vendrá del header X-User-Id
-    // Por ahora, para desarrollo/testing, se puede pasar como parámetro de query
-    // Este endpoint requiere autenticación, el Gateway validará el JWT
-
+    // El Gateway valida el JWT y envía el userId en el header X-User-Id
+    // Si el header no está presente, significa que:
+    // 1. Se está accediendo directamente al servicio (sin pasar por el Gateway)
+    // 2. El Gateway no pudo validar el token
     if (userId == null || userId.isBlank()) {
-      logger.warn("Request sin X-User-Id header (Gateway no configurado)");
+      logger.warn("❌ Request sin X-User-Id header - El Gateway debe validar el JWT primero");
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     UsuarioDTO usuarioDTO = obtenerPerfilAutenticadoUseCase.execute(userId);
     UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
-    logger.info("Perfil obtenido para usuario: {}", usuarioDTO.username());
+    logger.info("✅ Perfil obtenido para usuario: {} (ID: {})", usuarioDTO.username(), userId);
     return ResponseEntity.ok(response);
   }
 }

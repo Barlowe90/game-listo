@@ -32,4 +32,9 @@ replay_pid*
 ### VS Code ###
 .vscode
 
+### Docker ###
+.env
+docker-compose.override.yml
 
+### Additional Logs ###
+logs/
