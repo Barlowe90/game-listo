@@ -1,6 +1,6 @@
 package com.gamelisto.api_gateway.security;
 
-import com.gamelisto.api_gateway.config.SecurityConfig;
+import com.gamelisto.api_gateway.security.config.SecurityConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

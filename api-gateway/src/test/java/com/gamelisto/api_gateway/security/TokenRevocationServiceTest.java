@@ -25,6 +25,7 @@ class TokenRevocationServiceTest {
   @Mock private ReactiveRedisTemplate<String, String> redisTemplate;
   @Mock private ReactiveValueOperations<String, String> valueOps;
 
+  private static final String MENSAJE_REVOCAR = "revoked";
   private TokenRevocationService service;
 
   @BeforeEach
@@ -120,14 +121,14 @@ class TokenRevocationServiceTest {
     String expectedKey = "revoked:jti:jti-to-revoke-111";
 
     when(redisTemplate.opsForValue()).thenReturn(valueOps);
-    when(valueOps.set(eq(expectedKey), eq("revoked"), eq(ttl))).thenReturn(Mono.just(true));
+    when(valueOps.set(eq(expectedKey), eq(MENSAJE_REVOCAR), eq(ttl))).thenReturn(Mono.just(true));
 
     // Act
     Mono<Boolean> result = service.revokeToken(jti, ttl);
 
     // Assert
     StepVerifier.create(result).expectNext(true).verifyComplete();
-    verify(valueOps, times(1)).set(expectedKey, "revoked", ttl);
+    verify(valueOps, times(1)).set(expectedKey, MENSAJE_REVOCAR, ttl);
   }
 
   @Test
@@ -139,14 +140,14 @@ class TokenRevocationServiceTest {
     String expectedKey = "revoked:jti:jti-long-ttl-222";
 
     when(redisTemplate.opsForValue()).thenReturn(valueOps);
-    when(valueOps.set(eq(expectedKey), eq("revoked"), eq(ttl))).thenReturn(Mono.just(true));
+    when(valueOps.set(eq(expectedKey), eq(MENSAJE_REVOCAR), eq(ttl))).thenReturn(Mono.just(true));
 
     // Act
     Mono<Boolean> result = service.revokeToken(jti, ttl);
 
     // Assert
     StepVerifier.create(result).expectNext(true).verifyComplete();
-    verify(valueOps, times(1)).set(expectedKey, "revoked", ttl);
+    verify(valueOps, times(1)).set(expectedKey, MENSAJE_REVOCAR, ttl);
   }
 
   @Test

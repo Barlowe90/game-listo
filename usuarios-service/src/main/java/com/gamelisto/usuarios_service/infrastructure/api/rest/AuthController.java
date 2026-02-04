@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -209,7 +210,9 @@ public class AuthController {
       summary = "Renovar access token",
       description =
           "Genera un nuevo access token usando un refresh token válido. "
-              + "Implementa Refresh Token Rotation: el refresh token antiguo se revoca automáticamente.")
+              + "Implementa Refresh Token Rotation: el refresh token antiguo se revoca automáticamente. "
+              + "Requiere autenticación.",
+      security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponses(
       value = {
         @ApiResponse(
@@ -245,7 +248,9 @@ public class AuthController {
       summary = "Logout de usuario",
       description =
           "Cierra la sesión revocando el refresh token. "
-              + "Si se proporciona el access token, su JTI se agrega a la blacklist para invalidación inmediata.")
+              + "Si se proporciona el access token, su JTI se agrega a la blacklist para invalidación inmediata. "
+              + "Requiere autenticación.",
+      security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponses(
       value = {
         @ApiResponse(responseCode = "204", description = "Logout exitoso"),
@@ -271,7 +276,9 @@ public class AuthController {
       summary = "Obtener perfil autenticado",
       description =
           "Retorna los datos del usuario autenticado. "
-              + "El userId se extrae del access token JWT (claim 'sub') por el API Gateway y se envía en el header X-User-Id.")
+              + "El userId se extrae del access token JWT (claim 'sub') por el API Gateway y se envía en el header X-User-Id. "
+              + "Requiere autenticación.",
+      security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponses(
       value = {
         @ApiResponse(

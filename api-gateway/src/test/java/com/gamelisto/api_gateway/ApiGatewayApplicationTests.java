@@ -13,5 +13,7 @@ class ApiGatewayApplicationTests {
   @MockBean private ReactiveRedisTemplate<String, String> redisTemplate;
 
   @Test
-  void contextLoads() {}
+  void contextLoads() {
+    // Test para verificar que el contexto de Spring se carga correctamente
+  }
 }

@@ -27,6 +27,12 @@ import static org.mockito.Mockito.*;
 @DisplayName("RateLimitFilter - Control de tráfico por IP")
 class RateLimitFilterTest {
 
+  public static final String HTTP_LOCALHOST_8090_V_1_USUARIOS_PERFIL =
+      "http://localhost:8090/v1/usuarios/perfil";
+  public static final String DIRECCION_IP = "192.168.1.100";
+  public static final String RATE_LIMIT_10_0_0_5 = "rate_limit:10.0.0.5";
+  public static final String RATE_LIMIT_UNKNOWN = "rate_limit:unknown";
+  public static final String RATE_LIMIT_192_168_1_100 = "rate_limit:192.168.1.100";
   @Mock private ReactiveRedisTemplate<String, String> redisTemplate;
   @Mock private ReactiveValueOperations<String, String> valueOps;
   @Mock private GatewayFilterChain chain;
@@ -40,18 +46,18 @@ class RateLimitFilterTest {
 
   @Test
   @DisplayName("Debe permitir request si límite no se ha excedido (primera petición)")
-  void debePermitirRequestSiLimiteNoExcedido_PrimeraPeticion() {
+  void debePermitirRequestSiLimiteNoExcedidoPrimeraPeticion() {
     // Arrange
-    InetSocketAddress address = new InetSocketAddress("192.168.1.100", 8080);
+    InetSocketAddress address = new InetSocketAddress(DIRECCION_IP, 8080);
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
+        MockServerHttpRequest.get(HTTP_LOCALHOST_8090_V_1_USUARIOS_PERFIL)
             .remoteAddress(address)
             .build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
 
     when(redisTemplate.opsForValue()).thenReturn(valueOps);
-    when(valueOps.increment(eq("rate_limit:192.168.1.100"))).thenReturn(Mono.just(1L));
-    when(redisTemplate.expire(eq("rate_limit:192.168.1.100"), any(Duration.class)))
+    when(valueOps.increment(eq(RATE_LIMIT_192_168_1_100))).thenReturn(Mono.just(1L));
+    when(redisTemplate.expire(eq(RATE_LIMIT_192_168_1_100), any(Duration.class)))
         .thenReturn(Mono.just(true));
     when(chain.filter(exchange)).thenReturn(Mono.empty());
 
@@ -60,24 +66,24 @@ class RateLimitFilterTest {
 
     // Assert
     StepVerifier.create(result).verifyComplete();
-    verify(valueOps, times(1)).increment("rate_limit:192.168.1.100");
-    verify(redisTemplate, times(1)).expire(eq("rate_limit:192.168.1.100"), any(Duration.class));
+    verify(valueOps, times(1)).increment(RATE_LIMIT_192_168_1_100);
+    verify(redisTemplate, times(1)).expire(eq(RATE_LIMIT_192_168_1_100), any(Duration.class));
     verify(chain, times(1)).filter(exchange);
   }
 
   @Test
   @DisplayName("Debe permitir request si límite no se ha excedido (petición 50)")
-  void debePermitirRequestSiLimiteNoExcedido_PeticionIntermedia() {
+  void debePermitirRequestSiLimiteNoExcedidoPeticionIntermedia() {
     // Arrange
-    InetSocketAddress address = new InetSocketAddress("192.168.1.100", 8080);
+    InetSocketAddress address = new InetSocketAddress(DIRECCION_IP, 8080);
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
+        MockServerHttpRequest.get(HTTP_LOCALHOST_8090_V_1_USUARIOS_PERFIL)
             .remoteAddress(address)
             .build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
 
     when(redisTemplate.opsForValue()).thenReturn(valueOps);
-    when(valueOps.increment(eq("rate_limit:192.168.1.100"))).thenReturn(Mono.just(50L));
+    when(valueOps.increment(eq(RATE_LIMIT_192_168_1_100))).thenReturn(Mono.just(50L));
     when(chain.filter(exchange)).thenReturn(Mono.empty());
 
     // Act
@@ -93,15 +99,15 @@ class RateLimitFilterTest {
   @DisplayName("Debe bloquear request con 429 Too Many Requests si se excede límite (101 req)")
   void debeBloquerRequestSiSeExcedeLimite() {
     // Arrange
-    InetSocketAddress address = new InetSocketAddress("192.168.1.100", 8080);
+    InetSocketAddress address = new InetSocketAddress(DIRECCION_IP, 8080);
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
+        MockServerHttpRequest.get(HTTP_LOCALHOST_8090_V_1_USUARIOS_PERFIL)
             .remoteAddress(address)
             .build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
 
     when(redisTemplate.opsForValue()).thenReturn(valueOps);
-    when(valueOps.increment(eq("rate_limit:192.168.1.100"))).thenReturn(Mono.just(101L));
+    when(valueOps.increment(eq(RATE_LIMIT_192_168_1_100))).thenReturn(Mono.just(101L));
 
     // Act
     Mono<Void> result = filter.filter(exchange, chain);
@@ -118,14 +124,14 @@ class RateLimitFilterTest {
     // Arrange
     InetSocketAddress address = new InetSocketAddress("10.0.0.5", 8080);
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
+        MockServerHttpRequest.get(HTTP_LOCALHOST_8090_V_1_USUARIOS_PERFIL)
             .remoteAddress(address)
             .build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
 
     when(redisTemplate.opsForValue()).thenReturn(valueOps);
-    when(valueOps.increment(eq("rate_limit:10.0.0.5"))).thenReturn(Mono.just(1L));
-    when(redisTemplate.expire(eq("rate_limit:10.0.0.5"), any(Duration.class)))
+    when(valueOps.increment(eq(RATE_LIMIT_10_0_0_5))).thenReturn(Mono.just(1L));
+    when(redisTemplate.expire(eq(RATE_LIMIT_10_0_0_5), any(Duration.class)))
         .thenReturn(Mono.just(true));
     when(chain.filter(exchange)).thenReturn(Mono.empty());
 
@@ -134,23 +140,23 @@ class RateLimitFilterTest {
 
     // Assert
     StepVerifier.create(result).verifyComplete();
-    verify(valueOps, times(1)).increment("rate_limit:10.0.0.5");
+    verify(valueOps, times(1)).increment(RATE_LIMIT_10_0_0_5);
   }
 
   @Test
   @DisplayName("Debe respetar TTL de 1 minuto en Redis")
   void debeRespetarTTLDeUnMinuto() {
     // Arrange
-    InetSocketAddress address = new InetSocketAddress("192.168.1.100", 8080);
+    InetSocketAddress address = new InetSocketAddress(DIRECCION_IP, 8080);
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
+        MockServerHttpRequest.get(HTTP_LOCALHOST_8090_V_1_USUARIOS_PERFIL)
             .remoteAddress(address)
             .build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
 
     when(redisTemplate.opsForValue()).thenReturn(valueOps);
-    when(valueOps.increment(eq("rate_limit:192.168.1.100"))).thenReturn(Mono.just(1L));
-    when(redisTemplate.expire(eq("rate_limit:192.168.1.100"), eq(Duration.ofMinutes(1))))
+    when(valueOps.increment(eq(RATE_LIMIT_192_168_1_100))).thenReturn(Mono.just(1L));
+    when(redisTemplate.expire(eq(RATE_LIMIT_192_168_1_100), eq(Duration.ofMinutes(1))))
         .thenReturn(Mono.just(true));
     when(chain.filter(exchange)).thenReturn(Mono.empty());
 
@@ -159,17 +165,16 @@ class RateLimitFilterTest {
 
     // Assert
     StepVerifier.create(result).verifyComplete();
-    verify(redisTemplate, times(1))
-        .expire(eq("rate_limit:192.168.1.100"), eq(Duration.ofMinutes(1)));
+    verify(redisTemplate, times(1)).expire(eq(RATE_LIMIT_192_168_1_100), eq(Duration.ofMinutes(1)));
   }
 
   @Test
   @DisplayName("Debe manejar múltiples IPs concurrentemente")
   void debeManejarMultiplesIPsConcurrentemente() {
     // Arrange IP 1
-    InetSocketAddress address1 = new InetSocketAddress("192.168.1.100", 8080);
+    InetSocketAddress address1 = new InetSocketAddress(DIRECCION_IP, 8080);
     MockServerHttpRequest request1 =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
+        MockServerHttpRequest.get(HTTP_LOCALHOST_8090_V_1_USUARIOS_PERFIL)
             .remoteAddress(address1)
             .build();
     ServerWebExchange exchange1 = MockServerWebExchange.from(request1);
@@ -177,13 +182,13 @@ class RateLimitFilterTest {
     // Arrange IP 2
     InetSocketAddress address2 = new InetSocketAddress("192.168.1.200", 8080);
     MockServerHttpRequest request2 =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
+        MockServerHttpRequest.get(HTTP_LOCALHOST_8090_V_1_USUARIOS_PERFIL)
             .remoteAddress(address2)
             .build();
     ServerWebExchange exchange2 = MockServerWebExchange.from(request2);
 
     when(redisTemplate.opsForValue()).thenReturn(valueOps);
-    when(valueOps.increment(eq("rate_limit:192.168.1.100"))).thenReturn(Mono.just(1L));
+    when(valueOps.increment(eq(RATE_LIMIT_192_168_1_100))).thenReturn(Mono.just(1L));
     when(valueOps.increment(eq("rate_limit:192.168.1.200"))).thenReturn(Mono.just(1L));
     when(redisTemplate.expire(anyString(), any(Duration.class))).thenReturn(Mono.just(true));
     when(chain.filter(any())).thenReturn(Mono.empty());
@@ -196,7 +201,7 @@ class RateLimitFilterTest {
     StepVerifier.create(result1).verifyComplete();
     StepVerifier.create(result2).verifyComplete();
 
-    verify(valueOps, times(1)).increment("rate_limit:192.168.1.100");
+    verify(valueOps, times(1)).increment(RATE_LIMIT_192_168_1_100);
     verify(valueOps, times(1)).increment("rate_limit:192.168.1.200");
     verify(chain, times(2)).filter(any());
   }
@@ -205,9 +210,9 @@ class RateLimitFilterTest {
   @DisplayName("Debe manejar error de conexión a Redis gracefully (fail-open)")
   void debeManejarErrorDeConexionARedis() {
     // Arrange
-    InetSocketAddress address = new InetSocketAddress("192.168.1.100", 8080);
+    InetSocketAddress address = new InetSocketAddress(DIRECCION_IP, 8080);
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
+        MockServerHttpRequest.get(HTTP_LOCALHOST_8090_V_1_USUARIOS_PERFIL)
             .remoteAddress(address)
             .build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
@@ -230,12 +235,12 @@ class RateLimitFilterTest {
   void debeManejarIPNulaOUnknown() {
     // Arrange - sin remote address
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil").build();
+        MockServerHttpRequest.get(HTTP_LOCALHOST_8090_V_1_USUARIOS_PERFIL).build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
 
     when(redisTemplate.opsForValue()).thenReturn(valueOps);
-    when(valueOps.increment(eq("rate_limit:unknown"))).thenReturn(Mono.just(1L));
-    when(redisTemplate.expire(eq("rate_limit:unknown"), any(Duration.class)))
+    when(valueOps.increment(eq(RATE_LIMIT_UNKNOWN))).thenReturn(Mono.just(1L));
+    when(redisTemplate.expire(eq(RATE_LIMIT_UNKNOWN), any(Duration.class)))
         .thenReturn(Mono.just(true));
     when(chain.filter(exchange)).thenReturn(Mono.empty());
 
@@ -244,22 +249,22 @@ class RateLimitFilterTest {
 
     // Assert
     StepVerifier.create(result).verifyComplete();
-    verify(valueOps, times(1)).increment("rate_limit:unknown");
+    verify(valueOps, times(1)).increment(RATE_LIMIT_UNKNOWN);
   }
 
   @Test
   @DisplayName("Debe permitir petición 100 (límite exacto)")
   void debePermitirPeticionEnLimiteExacto() {
     // Arrange
-    InetSocketAddress address = new InetSocketAddress("192.168.1.100", 8080);
+    InetSocketAddress address = new InetSocketAddress(DIRECCION_IP, 8080);
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
+        MockServerHttpRequest.get(HTTP_LOCALHOST_8090_V_1_USUARIOS_PERFIL)
             .remoteAddress(address)
             .build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
 
     when(redisTemplate.opsForValue()).thenReturn(valueOps);
-    when(valueOps.increment(eq("rate_limit:192.168.1.100"))).thenReturn(Mono.just(100L));
+    when(valueOps.increment(eq(RATE_LIMIT_192_168_1_100))).thenReturn(Mono.just(100L));
     when(chain.filter(exchange)).thenReturn(Mono.empty());
 
     // Act

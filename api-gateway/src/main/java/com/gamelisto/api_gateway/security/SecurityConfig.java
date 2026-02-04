@@ -1,4 +1,4 @@
-package com.gamelisto.api_gateway.config;
+package com.gamelisto.api_gateway.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

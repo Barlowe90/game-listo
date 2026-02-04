@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -61,8 +62,16 @@ public class UsuariosController {
 
   @Operation(
       summary = "Health check",
-      description = "Verifica que el microservicio de usuarios esté funcionando correctamente")
-  @ApiResponse(responseCode = "200", description = "Servicio funcionando correctamente")
+      description = "Verifica que el microservicio de usuarios esté funcionando correctamente",
+      security = @SecurityRequirement(name = "bearerAuth"))
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Servicio funcionando correctamente"),
+        @ApiResponse(
+            responseCode = "401",
+            description = "No autenticado - Token ausente o inválido"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado - Requiere rol ADMIN")
+      })
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping(value = "/health")
   public void health() {
@@ -71,11 +80,21 @@ public class UsuariosController {
 
   @Operation(
       summary = "Cambiar contraseña (usuario autenticado)",
-      description = "Permite al usuario cambiar su contraseña proporcionando la actual y la nueva")
+      description =
+          "Permite al usuario cambiar su contraseña proporcionando la actual y la nueva. "
+              + "Los usuarios pueden cambiar su propia contraseña, o un ADMIN puede cambiar la contraseña de cualquier usuario.",
+      security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponses(
       value = {
         @ApiResponse(responseCode = "200", description = "Contraseña cambiada exitosamente"),
         @ApiResponse(responseCode = "400", description = "Contraseña actual incorrecta"),
+        @ApiResponse(
+            responseCode = "401",
+            description = "No autenticado - Token ausente o inválido"),
+        @ApiResponse(
+            responseCode = "403",
+            description =
+                "Acceso denegado - Solo el propietario o ADMIN pueden cambiar la contraseña"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
       })
   @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
@@ -95,11 +114,20 @@ public class UsuariosController {
 
   @Operation(
       summary = "Cambiar email del usuario",
-      description = "Actualiza el email del usuario. Requiere nueva verificación.")
+      description =
+          "Actualiza el email del usuario. Requiere nueva verificación. "
+              + "Los usuarios pueden cambiar su propio email, o un ADMIN puede cambiar el email de cualquier usuario.",
+      security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponses(
       value = {
         @ApiResponse(responseCode = "200", description = "Email cambiado exitosamente"),
         @ApiResponse(responseCode = "400", description = "Email ya registrado"),
+        @ApiResponse(
+            responseCode = "401",
+            description = "No autenticado - Token ausente o inválido"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Acceso denegado - Solo el propietario o ADMIN pueden cambiar el email"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
       })
   @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
@@ -117,13 +145,22 @@ public class UsuariosController {
 
   @Operation(
       summary = "Vincular cuenta de Discord",
-      description = "Asocia una cuenta de Discord al perfil del usuario")
+      description =
+          "Asocia una cuenta de Discord al perfil del usuario. "
+              + "Los usuarios pueden vincular su propia cuenta, o un ADMIN puede vincular cualquier cuenta.",
+      security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponses(
       value = {
         @ApiResponse(
             responseCode = "200",
             description = "Cuenta de Discord vinculada exitosamente",
             content = @Content(schema = @Schema(implementation = UsuarioResponse.class))),
+        @ApiResponse(
+            responseCode = "401",
+            description = "No autenticado - Token ausente o inválido"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Acceso denegado - Solo el propietario o ADMIN pueden vincular Discord"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
         @ApiResponse(responseCode = "400", description = "Discord ya vinculado a otro usuario")
       })
@@ -155,7 +192,10 @@ public class UsuariosController {
 
   @Operation(
       summary = "Editar perfil de usuario",
-      description = "Actualiza el perfil del usuario (username, avatar, idioma, notificaciones)")
+      description =
+          "Actualiza el perfil del usuario (username, avatar, idioma, notificaciones). "
+              + "Los usuarios pueden editar su propio perfil, o un ADMIN puede editar cualquier perfil.",
+      security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponses(
       value = {
         @ApiResponse(
@@ -163,6 +203,12 @@ public class UsuariosController {
             description = "Perfil actualizado exitosamente",
             content = @Content(schema = @Schema(implementation = UsuarioResponse.class))),
         @ApiResponse(responseCode = "400", description = "Username ya existe"),
+        @ApiResponse(
+            responseCode = "401",
+            description = "No autenticado - Token ausente o inválido"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Acceso denegado - Solo el propietario o ADMIN pueden editar el perfil"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
       })
   @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
@@ -188,13 +234,19 @@ public class UsuariosController {
   @Operation(
       summary = "Cambiar estado de usuario (Admin)",
       description =
-          "Actualiza el estado del usuario: PENDIENTE_DE_VERIFICACION, ACTIVO, SUSPENDIDO, ELIMINADO")
+          "Actualiza el estado del usuario: PENDIENTE_DE_VERIFICACION, ACTIVO, SUSPENDIDO, ELIMINADO. "
+              + "Requiere rol ADMIN.",
+      security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponses(
       value = {
         @ApiResponse(
             responseCode = "200",
             description = "Estado cambiado exitosamente",
             content = @Content(schema = @Schema(implementation = UsuarioResponse.class))),
+        @ApiResponse(
+            responseCode = "401",
+            description = "No autenticado - Token ausente o inválido"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado - Requiere rol ADMIN"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
       })
   @PreAuthorize("hasRole('ADMIN')")
@@ -220,15 +272,19 @@ public class UsuariosController {
 
   @Operation(
       summary = "Cambiar rol de usuario (Admin)",
-      description = "Actualiza el rol del usuario: USER, ADMIN")
+      description = "Actualiza el rol del usuario: USER, ADMIN. Requiere rol ADMIN.",
+      security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponses(
       value = {
         @ApiResponse(
             responseCode = "200",
             description = "Rol cambiado exitosamente",
             content = @Content(schema = @Schema(implementation = UsuarioResponse.class))),
+        @ApiResponse(
+            responseCode = "401",
+            description = "No autenticado - Token ausente o inválido"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado - requiere rol ADMIN")
+        @ApiResponse(responseCode = "403", description = "Acceso denegado - Requiere rol ADMIN")
       })
   @PreAuthorize("hasRole('ADMIN')")
   @PatchMapping(value = "/{id}/rol", consumes = "application/json")
@@ -253,13 +309,19 @@ public class UsuariosController {
 
   @Operation(
       summary = "Obtener usuario por ID",
-      description = "Recupera los datos completos de un usuario mediante su identificador único")
+      description =
+          "Recupera los datos completos de un usuario mediante su identificador único. Requiere rol ADMIN.",
+      security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponses(
       value = {
         @ApiResponse(
             responseCode = "200",
             description = "Usuario encontrado",
             content = @Content(schema = @Schema(implementation = UsuarioResponse.class))),
+        @ApiResponse(
+            responseCode = "401",
+            description = "No autenticado - Token ausente o inválido"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado - Requiere rol ADMIN"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
       })
   @PreAuthorize("hasRole('ADMIN')")
@@ -282,8 +344,17 @@ public class UsuariosController {
 
   @Operation(
       summary = "Listar todos los usuarios",
-      description = "Recupera la lista completa de usuarios registrados en el sistema.")
-  @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente")
+      description =
+          "Recupera la lista completa de usuarios registrados en el sistema. Requiere rol ADMIN.",
+      security = @SecurityRequirement(name = "bearerAuth"))
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente"),
+        @ApiResponse(
+            responseCode = "401",
+            description = "No autenticado - Token ausente o inválido"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado - Requiere rol ADMIN")
+      })
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping(value = "/users", produces = "application/json")
   public ResponseEntity<List<UsuarioResponse>> obtenerTodosLosUsuarios() {
@@ -300,13 +371,17 @@ public class UsuariosController {
 
   @Operation(
       summary = "Buscar usuario por username",
-      description = "Busca un usuario específico por su nombre de usuario")
+      description = "Busca un usuario específico por su nombre de usuario. Requiere autenticación.",
+      security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponses(
       value = {
         @ApiResponse(
             responseCode = "200",
             description = "Usuario encontrado",
             content = @Content(schema = @Schema(implementation = UsuarioResponse.class))),
+        @ApiResponse(
+            responseCode = "401",
+            description = "No autenticado - Token ausente o inválido"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
       })
   @PreAuthorize("isAuthenticated()")
@@ -329,8 +404,17 @@ public class UsuariosController {
   @Operation(
       summary = "Buscar usuarios por estado",
       description =
-          "Filtra usuarios según su estado: PENDIENTE_DE_VERIFICACION, ACTIVO, SUSPENDIDO, ELIMINADO")
-  @ApiResponse(responseCode = "200", description = "Lista de usuarios filtrada por estado")
+          "Filtra usuarios según su estado: PENDIENTE_DE_VERIFICACION, ACTIVO, SUSPENDIDO, ELIMINADO. "
+              + "Requiere rol ADMIN.",
+      security = @SecurityRequirement(name = "bearerAuth"))
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Lista de usuarios filtrada por estado"),
+        @ApiResponse(
+            responseCode = "401",
+            description = "No autenticado - Token ausente o inválido"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado - Requiere rol ADMIN")
+      })
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping(value = "/users/estado", produces = "application/json")
   public ResponseEntity<List<UsuarioResponse>> obtenerUsuariosPorEstado(
@@ -355,8 +439,19 @@ public class UsuariosController {
 
   @Operation(
       summary = "Listar usuarios con notificaciones activadas",
-      description = "Recupera usuarios activos que tienen las notificaciones habilitadas")
-  @ApiResponse(responseCode = "200", description = "Lista de usuarios con notificaciones activadas")
+      description =
+          "Recupera usuarios activos que tienen las notificaciones habilitadas. Requiere rol ADMIN.",
+      security = @SecurityRequirement(name = "bearerAuth"))
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Lista de usuarios con notificaciones activadas"),
+        @ApiResponse(
+            responseCode = "401",
+            description = "No autenticado - Token ausente o inválido"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado - Requiere rol ADMIN")
+      })
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping(value = "/users/notifications-enabled", produces = "application/json")
   public ResponseEntity<List<UsuarioResponse>> obtenerUsuariosConNotificacionesActivadas() {
@@ -376,13 +471,23 @@ public class UsuariosController {
 
   @Operation(
       summary = "Desvincular cuenta de Discord",
-      description = "Elimina la asociación entre el usuario y su cuenta de Discord")
+      description =
+          "Elimina la asociación entre el usuario y su cuenta de Discord. "
+              + "Los usuarios pueden desvincular su propia cuenta, o un ADMIN puede desvincular cualquier cuenta.",
+      security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponses(
       value = {
         @ApiResponse(
             responseCode = "200",
             description = "Cuenta de Discord desvinculada exitosamente",
             content = @Content(schema = @Schema(implementation = UsuarioResponse.class))),
+        @ApiResponse(
+            responseCode = "401",
+            description = "No autenticado - Token ausente o inválido"),
+        @ApiResponse(
+            responseCode = "403",
+            description =
+                "Acceso denegado - Solo el propietario o ADMIN pueden desvincular Discord"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
       })
   @DeleteMapping(value = "/{id}/discord")
@@ -408,10 +513,16 @@ public class UsuariosController {
 
   @Operation(
       summary = "Eliminar usuario",
-      description = "Elimina permanentemente un usuario del sistema (hard delete)")
+      description =
+          "Elimina permanentemente un usuario del sistema (hard delete). Requiere rol ADMIN.",
+      security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponses(
       value = {
         @ApiResponse(responseCode = "204", description = "Usuario eliminado exitosamente"),
+        @ApiResponse(
+            responseCode = "401",
+            description = "No autenticado - Token ausente o inválido"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado - Requiere rol ADMIN"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
       })
   @PreAuthorize("hasRole('ADMIN')")

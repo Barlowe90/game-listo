@@ -39,6 +39,11 @@ import static org.mockito.Mockito.*;
 @DisplayName("JwtAuthenticationFilter - Filtro de autenticación JWT")
 class JwtAuthenticationFilterTest {
 
+  public static final String URL = "http://localhost:8090/v1/usuarios/perfil";
+  public static final String HMAC_SHA_256 = "HmacSHA256";
+  public static final String USERNAME = "username";
+  public static final String EMAIL = "email";
+  public static final String ROLES = "roles";
   @Mock private TokenRevocationService tokenRevocationService;
   @Mock private GatewayFilterChain chain;
 
@@ -59,7 +64,7 @@ class JwtAuthenticationFilterTest {
 
   @Test
   @DisplayName("Debe permitir acceso a rutas públicas sin token (login)")
-  void debePermitirRutasPublicasSinToken_Login() {
+  void debePermitirRutasPublicasSinTokenLogin() {
     // Arrange
     MockServerHttpRequest request =
         MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/auth/login").build();
@@ -78,7 +83,7 @@ class JwtAuthenticationFilterTest {
 
   @Test
   @DisplayName("Debe permitir acceso a rutas públicas sin token (registro)")
-  void debePermitirRutasPublicasSinToken_Register() {
+  void debePermitirRutasPublicasSinTokenRegister() {
     // Arrange
     MockServerHttpRequest request =
         MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/auth/register").build();
@@ -96,7 +101,7 @@ class JwtAuthenticationFilterTest {
 
   @Test
   @DisplayName("Debe permitir acceso a rutas públicas sin token (health)")
-  void debePermitirRutasPublicasSinToken_Health() {
+  void debePermitirRutasPublicasSinTokenHealth() {
     // Arrange
     MockServerHttpRequest request =
         MockServerHttpRequest.get("http://localhost:8090/actuator/health").build();
@@ -116,8 +121,7 @@ class JwtAuthenticationFilterTest {
   @DisplayName("Debe bloquear rutas protegidas sin token (401 Unauthorized)")
   void debeBloquerRutasProtegidasSinToken() {
     // Arrange
-    MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil").build();
+    MockServerHttpRequest request = MockServerHttpRequest.get(URL).build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
 
     // Act
@@ -134,7 +138,7 @@ class JwtAuthenticationFilterTest {
   void debeBloquerRutasProtegidasConTokenInvalido() {
     // Arrange
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
+        MockServerHttpRequest.get(URL)
             .header(HttpHeaders.AUTHORIZATION, "Bearer token-invalido-xyz")
             .build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
@@ -154,7 +158,7 @@ class JwtAuthenticationFilterTest {
     // Arrange
     String expiredToken = generateExpiredToken();
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
+        MockServerHttpRequest.get(URL)
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + expiredToken)
             .build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
@@ -176,9 +180,7 @@ class JwtAuthenticationFilterTest {
     String token = generateValidToken(jti);
 
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-            .build();
+        MockServerHttpRequest.get(URL).header(HttpHeaders.AUTHORIZATION, "Bearer " + token).build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
 
     when(tokenRevocationService.isTokenRevoked(jti)).thenReturn(Mono.just(false));
@@ -204,9 +206,7 @@ class JwtAuthenticationFilterTest {
     String token = generateValidTokenWithClaims(jti, userId, username, email, List.of("USER"));
 
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-            .build();
+        MockServerHttpRequest.get(URL).header(HttpHeaders.AUTHORIZATION, "Bearer " + token).build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
 
     when(tokenRevocationService.isTokenRevoked(jti)).thenReturn(Mono.just(false));
@@ -242,7 +242,7 @@ class JwtAuthenticationFilterTest {
     String tokenWithWrongSecret = generateTokenWithWrongSecret(jti);
 
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
+        MockServerHttpRequest.get(URL)
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenWithWrongSecret)
             .build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
@@ -264,9 +264,7 @@ class JwtAuthenticationFilterTest {
     String token = generateValidToken(jti);
 
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-            .build();
+        MockServerHttpRequest.get(URL).header(HttpHeaders.AUTHORIZATION, "Bearer " + token).build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
 
     when(tokenRevocationService.isTokenRevoked(jti)).thenReturn(Mono.just(true));
@@ -287,7 +285,7 @@ class JwtAuthenticationFilterTest {
     // Arrange
     String token = generateValidToken("jti-test");
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/perfil")
+        MockServerHttpRequest.get(URL)
             .header(HttpHeaders.AUTHORIZATION, token) // Sin prefijo Bearer
             .build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
@@ -320,12 +318,12 @@ class JwtAuthenticationFilterTest {
     Instant expiresAt = now.plusMillis(900000); // 15 minutos
 
     Map<String, Object> claims = new HashMap<>();
-    claims.put("username", username);
-    claims.put("email", email);
-    claims.put("roles", roles);
+    claims.put(USERNAME, username);
+    claims.put(EMAIL, email);
+    claims.put(ROLES, roles);
     claims.put("jti", jti);
 
-    SecretKey key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+    SecretKey key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HMAC_SHA_256);
 
     return Jwts.builder()
         .setClaims(claims)
@@ -341,12 +339,12 @@ class JwtAuthenticationFilterTest {
     Instant expiresAt = now.minusMillis(10000); // Expirado hace 10 segundos
 
     Map<String, Object> claims = new HashMap<>();
-    claims.put("username", "testuser");
-    claims.put("email", "test@example.com");
-    claims.put("roles", List.of("USER"));
+    claims.put(USERNAME, "testuser");
+    claims.put(EMAIL, "test@example.com");
+    claims.put(ROLES, List.of("USER"));
     claims.put("jti", "expired-jti");
 
-    SecretKey key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+    SecretKey key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), HMAC_SHA_256);
 
     return Jwts.builder()
         .setClaims(claims)
@@ -362,14 +360,14 @@ class JwtAuthenticationFilterTest {
     Instant expiresAt = now.plusMillis(900000);
 
     Map<String, Object> claims = new HashMap<>();
-    claims.put("username", "testuser");
-    claims.put("email", "test@example.com");
-    claims.put("roles", List.of("USER"));
+    claims.put(USERNAME, "testuser");
+    claims.put(EMAIL, "test@example.com");
+    claims.put(ROLES, List.of("USER"));
     claims.put("jti", jti);
 
     // Usar un secreto diferente para que la firma no coincida
     String wrongSecret = "wrong-secret-key-different-from-configured-secret";
-    SecretKey key = new SecretKeySpec(wrongSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+    SecretKey key = new SecretKeySpec(wrongSecret.getBytes(StandardCharsets.UTF_8), HMAC_SHA_256);
 
     return Jwts.builder()
         .setClaims(claims)

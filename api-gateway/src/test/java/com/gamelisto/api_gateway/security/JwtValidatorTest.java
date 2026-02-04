@@ -22,6 +22,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("JwtValidator - Validación de tokens JWT")
 class JwtValidatorTest {
 
+  public static final String USERNAME = "username";
+  public static final String EMAIL = "email";
+  public static final String ROLES = "roles";
   private JwtValidator jwtValidator;
   private SecretKey secretKey;
   private static final String TEST_SECRET =
@@ -127,9 +130,9 @@ class JwtValidatorTest {
 
     return Jwts.builder()
         .subject(userId)
-        .claim("username", username)
-        .claim("email", email)
-        .claim("roles", roles)
+        .claim(USERNAME, username)
+        .claim(EMAIL, email)
+        .claim(ROLES, roles)
         .id(jti)
         .issuedAt(Date.from(now))
         .expiration(Date.from(expiration))
@@ -143,9 +146,9 @@ class JwtValidatorTest {
 
     return Jwts.builder()
         .subject(UUID.randomUUID().toString())
-        .claim("username", "expireduser")
-        .claim("email", "expired@example.com")
-        .claim("roles", List.of("USER"))
+        .claim(USERNAME, "expireduser")
+        .claim(EMAIL, "expired@example.com")
+        .claim(ROLES, List.of("USER"))
         .id(UUID.randomUUID().toString())
         .issuedAt(Date.from(past))
         .expiration(Date.from(expiration))
@@ -164,9 +167,9 @@ class JwtValidatorTest {
 
     return Jwts.builder()
         .subject(UUID.randomUUID().toString())
-        .claim("username", "testuser")
-        .claim("email", "test@example.com")
-        .claim("roles", List.of("USER"))
+        .claim(USERNAME, "testuser")
+        .claim(EMAIL, "test@example.com")
+        .claim(ROLES, List.of("USER"))
         .id(UUID.randomUUID().toString())
         .issuedAt(Date.from(now))
         .expiration(Date.from(expiration))
