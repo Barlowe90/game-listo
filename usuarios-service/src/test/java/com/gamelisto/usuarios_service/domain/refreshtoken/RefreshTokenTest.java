@@ -283,9 +283,10 @@ class RefreshTokenTest {
     String resultado = token.toString();
 
     // Assert
-    assertThat(resultado).isNotNull();
-    assertThat(resultado).contains("RefreshToken");
-    assertThat(resultado).contains("tokenHash");
-    assertThat(resultado).contains("usuarioId");
+    assertThat(resultado)
+        .isNotNull()
+        .contains("RefreshToken")
+        .contains("tokenHash")
+        .contains("usuarioId");
   }
 }

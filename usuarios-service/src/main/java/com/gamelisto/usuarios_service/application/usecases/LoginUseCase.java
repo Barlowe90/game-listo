@@ -87,12 +87,6 @@ public class LoginUseCase {
     Instant refreshTokenExpiresAt =
         Instant.now().plusMillis(jwtProperties.getRefreshExpirationMs());
 
-    RefreshToken refreshToken =
-        RefreshToken.create(
-            refreshTokenHash,
-            usuario.getId(),
-            Duration.ofMillis(jwtProperties.getRefreshExpirationMs()));
-
     // 6. Guardar refresh token en Redis
     repositorioRefreshTokens.guardarActivo(
         refreshTokenHash, usuario.getId(), refreshTokenExpiresAt);
