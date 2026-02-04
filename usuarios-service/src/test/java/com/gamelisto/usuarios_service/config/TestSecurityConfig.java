@@ -1,6 +1,6 @@
-package com.gamelisto.usuarios_service.infrastructure.security;
+package com.gamelisto.usuarios_service.config;
 
-import lombok.RequiredArgsConstructor;
+import com.gamelisto.usuarios_service.infrastructure.security.GatewayAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -8,40 +8,31 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * Configuración de seguridad para el microservicio de usuarios.
+ * Configuración de seguridad para el entorno de testing.
  *
- * <p>Este servicio confía en la validación JWT realizada por el API Gateway. El Gateway envía
- * información del usuario autenticado en headers (X-User-Id, X-User-Roles, etc.), que son
- * procesados por {@link GatewayAuthenticationFilter} para construir el Authentication de Spring
- * Security.
- *
- * <p>Esto permite usar @PreAuthorize en los controladores para control de acceso basado en roles.
+ * <p>Incluye el mismo filtro {@link GatewayAuthenticationFilter} que en producción para poder
+ * simular headers del Gateway en los tests y validar @PreAuthorize.
  */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor
-@Profile("!test")
-public class SecurityConfig {
-
-  private final GatewayAuthenticationFilter gatewayAuthenticationFilter;
+@Profile("test")
+public class TestSecurityConfig {
 
   @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
+  public GatewayAuthenticationFilter gatewayAuthenticationFilter() {
+    return new GatewayAuthenticationFilter();
   }
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
-        // Agregar filtro que procesa headers del Gateway
-        .addFilterBefore(gatewayAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        // Agregar filtro que procesa headers del Gateway (simulados en tests)
+        .addFilterBefore(gatewayAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
         // Permitir todas las peticiones - la autorización se maneja con @PreAuthorize
         .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 

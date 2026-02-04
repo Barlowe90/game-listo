@@ -37,14 +37,17 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
   // Rutas que NO requieren autenticación
   private static final List<String> PUBLIC_PATHS =
       List.of(
-          "/v1/usuarios/auth/login",
-          "/v1/usuarios/auth/refresh",
-          "/v1/usuarios/auth/register",
-          "/v1/usuarios/auth/verify-email",
-          "/v1/usuarios/auth/resend-verification",
-          "/v1/usuarios/auth/forgot-password",
-          "/v1/usuarios/auth/reset-password",
-          "/v1/usuarios/health");
+          // AuthController - Endpoints públicos de autenticación
+          "/v1/usuarios/auth/register", // Registro de nuevos usuarios
+          "/v1/usuarios/auth/verify-email", // Verificación de email
+          "/v1/usuarios/auth/resend-verification", // Reenvío de verificación
+          "/v1/usuarios/auth/forgot-password", // Solicitud de restablecimiento
+          "/v1/usuarios/auth/reset-password", // Restablecimiento con token
+          "/v1/usuarios/auth/login", // Login
+          "/v1/usuarios/auth/refresh", // Renovación de tokens (semi-público)
+          // Health checks
+          "/v1/usuarios/health",
+          "/actuator/health");
 
   private final JwtValidator jwtValidator;
   private final TokenRevocationService tokenRevocationService;

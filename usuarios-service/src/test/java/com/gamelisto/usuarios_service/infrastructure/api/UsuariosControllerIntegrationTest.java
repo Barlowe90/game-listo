@@ -12,6 +12,7 @@ import com.gamelisto.usuarios_service.infrastructure.api.dto.CambiarContrasenaRe
 import com.gamelisto.usuarios_service.infrastructure.api.dto.CrearUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.EditarPerfilUsuarioRequest;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.VerificarEmailRequest;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +46,7 @@ class UsuariosControllerIntegrationTest {
   @Autowired private PasswordEncoder passwordEncoder;
 
   private Usuario usuarioExistente;
+  private Usuario adminUser;
 
   @BeforeEach
   void setUp() {
@@ -55,6 +57,30 @@ class UsuariosControllerIntegrationTest {
             Email.of("existing@example.com"),
             PasswordHash.of("$2a$10$hashedPassword"));
     usuarioExistente = repositorioUsuarios.save(usuarioExistente);
+
+    // Crear usuario ADMIN para los tests que requieren privilegios
+    Instant now = Instant.now();
+    adminUser =
+        Usuario.reconstitute(
+            UsuarioId.generate(),
+            Username.of("admintest"),
+            Email.of("admin@test.com"),
+            PasswordHash.of(passwordEncoder.encode("Admin123!")),
+            Avatar.empty(),
+            now,
+            now,
+            Rol.ADMIN,
+            Idioma.ESP,
+            true,
+            EstadoUsuario.ACTIVO,
+            DiscordUserId.empty(),
+            DiscordUsername.empty(),
+            null,
+            TokenVerificacion.generate(),
+            now.plusSeconds(24 * 60 * 60),
+            TokenVerificacion.empty(),
+            null);
+    adminUser = repositorioUsuarios.save(adminUser);
   }
 
   @Test
@@ -143,6 +169,9 @@ class UsuariosControllerIntegrationTest {
     mockMvc
         .perform(
             get("/v1/usuarios/{id}", usuarioExistente.getId().value())
+                .header("X-User-Id", adminUser.getId().value())
+                .header("X-User-Username", adminUser.getUsername().value())
+                .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").exists())
@@ -157,6 +186,9 @@ class UsuariosControllerIntegrationTest {
     mockMvc
         .perform(
             get("/v1/usuarios/{id}", "00000000-0000-0000-0000-000000000000")
+                .header("X-User-Id", adminUser.getId().value())
+                .header("X-User-Username", adminUser.getUsername().value())
+                .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
   }
@@ -166,7 +198,12 @@ class UsuariosControllerIntegrationTest {
   void debeListarTodosLosUsuarios() throws Exception {
     // Act & Assert
     mockMvc
-        .perform(get("/v1/usuarios/users").contentType(MediaType.APPLICATION_JSON))
+        .perform(
+            get("/v1/usuarios/users")
+                .header("X-User-Id", adminUser.getId().value())
+                .header("X-User-Username", adminUser.getUsername().value())
+                .header("X-User-Roles", "ADMIN")
+                .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$", hasSize(greaterThanOrEqualTo(1))))
@@ -180,10 +217,13 @@ class UsuariosControllerIntegrationTest {
     EditarPerfilUsuarioRequest request =
         new EditarPerfilUsuarioRequest("https://i.imgur.com/newavatar.png", "ENG", true);
 
-    // Act & Assert
+    // Act & Assert - Usuario edita su propio perfil
     mockMvc
         .perform(
             patch("/v1/usuarios/{id}", usuarioExistente.getId().value())
+                .header("X-User-Id", usuarioExistente.getId().value())
+                .header("X-User-Username", usuarioExistente.getUsername().value())
+                .header("X-User-Roles", "USER")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
@@ -195,10 +235,13 @@ class UsuariosControllerIntegrationTest {
   @Test
   @DisplayName("DELETE /v1/usuarios/{id} - Debe eliminar un usuario")
   void debeEliminarUsuario() throws Exception {
-    // Act & Assert
+    // Act & Assert - ADMIN elimina usuario
     mockMvc
         .perform(
             delete("/v1/usuarios/{id}", usuarioExistente.getId().value())
+                .header("X-User-Id", adminUser.getId().value())
+                .header("X-User-Username", adminUser.getUsername().value())
+                .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNoContent());
 
@@ -206,6 +249,9 @@ class UsuariosControllerIntegrationTest {
     mockMvc
         .perform(
             get("/v1/usuarios/{id}", usuarioExistente.getId().value())
+                .header("X-User-Id", adminUser.getId().value())
+                .header("X-User-Username", adminUser.getUsername().value())
+                .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("ELIMINADO"));
@@ -218,10 +264,13 @@ class UsuariosControllerIntegrationTest {
     Map<String, String> request = new HashMap<>();
     request.put("estadoUsuario", "SUSPENDIDO");
 
-    // Act & Assert
+    // Act & Assert - ADMIN cambia estado
     mockMvc
         .perform(
             patch("/v1/usuarios/{id}/estado", usuarioExistente.getId().value())
+                .header("X-User-Id", adminUser.getId().value())
+                .header("X-User-Username", adminUser.getUsername().value())
+                .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
@@ -242,10 +291,13 @@ class UsuariosControllerIntegrationTest {
     CambiarContrasenaRequest request =
         new CambiarContrasenaRequest("OldPassword123!", "NewPassword456!");
 
-    // Act & Assert
+    // Act & Assert - Usuario cambia su propia contraseña
     mockMvc
         .perform(
             put("/v1/usuarios/{id}/password", usuario.getId().value())
+                .header("X-User-Id", usuario.getId().value())
+                .header("X-User-Username", usuario.getUsername().value())
+                .header("X-User-Roles", "USER")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk());
@@ -285,11 +337,14 @@ class UsuariosControllerIntegrationTest {
   @Test
   @DisplayName("GET /v1/usuarios/users?estado=... - Debe filtrar usuarios por estado")
   void debeFiltrarPorEstado() throws Exception {
-    // Act & Assert
+    // Act & Assert - ADMIN puede filtrar
     mockMvc
         .perform(
             get("/v1/usuarios/users")
                 .param("estado", "PENDIENTE_DE_VERIFICACION")
+                .header("X-User-Id", adminUser.getId().value())
+                .header("X-User-Username", adminUser.getUsername().value())
+                .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray());

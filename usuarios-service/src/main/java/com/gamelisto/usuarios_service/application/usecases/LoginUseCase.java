@@ -97,8 +97,6 @@ public class LoginUseCase {
     repositorioRefreshTokens.guardarActivo(
         refreshTokenHash, usuario.getId(), refreshTokenExpiresAt);
 
-    logger.info("Login exitoso para usuario: {}", usuario.getUsername().value());
-
     // 7. Construir respuesta
     TokenDTO accessToken = new TokenDTO(accessTokenString, accessTokenExpiresAt);
     TokenDTO refreshTokenDto = new TokenDTO(refreshTokenString, refreshTokenExpiresAt);

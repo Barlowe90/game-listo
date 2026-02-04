@@ -383,6 +383,14 @@ public class Usuario {
     this.updatedAt = Instant.now();
   }
 
+  public void changeRole(Rol newRole) {
+    if (newRole == null) {
+      throw new IllegalArgumentException("El rol no puede ser nulo");
+    }
+    this.role = newRole;
+    this.updatedAt = Instant.now();
+  }
+
   public boolean isActive() {
     return this.status == EstadoUsuario.ACTIVO;
   }

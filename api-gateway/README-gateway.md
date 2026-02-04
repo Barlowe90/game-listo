@@ -52,13 +52,13 @@ Petición → RateLimitFilter (-50) → JwtAuthenticationFilter (-100) → Enrut
 
 #### Públicas (sin JWT)
 
+- `POST /v1/usuarios/auth/register` - Registro de nuevos usuarios
+- `POST /v1/usuarios/auth/verify-email` - Verificar email con token
+- `POST /v1/usuarios/auth/resend-verification` - Reenviar email de verificación
+- `POST /v1/usuarios/auth/forgot-password` - Solicitar restablecimiento de contraseña
+- `POST /v1/usuarios/auth/reset-password` - Restablecer contraseña con token
 - `POST /v1/usuarios/auth/login` - Login
-- `POST /v1/usuarios/auth/refresh` - Renovar token
-- `POST /v1/usuarios/auth/register` - Registro
-- `POST /v1/usuarios/auth/verificar-email` - Verificar email
-- `POST /v1/usuarios/auth/resend-verification` - Reenviar verificación
-- `POST /v1/usuarios/auth/forgot-password` - Restablecer contraseña
-- `POST /v1/usuarios/auth/reset-password` - Resetear constraseña
+- `POST /v1/usuarios/auth/refresh` - Renovar access token
 - `GET /v1/usuarios/health` - Health check
 
 #### Protegidas (requieren JWT)
@@ -67,21 +67,6 @@ Petición → RateLimitFilter (-50) → JwtAuthenticationFilter (-100) → Enrut
 - Futuras rutas de otros microservicios
 
 ## Configuración
-
-### Variables de Entorno
-
-```properties
-# JWT (debe coincidir con usuarios-service)
-JWT_SECRET=secreto-super-seguro-en-produccion-debe-ser-muy-largo
-jwt.expiration=900000  # 15 minutos
-jwt.refresh-expiration=604800000  # 7 días
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
-# Puerto del Gateway
-server.port=8090
-```
 
 ### Redis
 
@@ -92,46 +77,11 @@ El Gateway usa Redis para:
 
 ## Ejecución
 
-### Local
-
-```bash
-# Asegúrate de tener Redis corriendo
-# Desde el directorio api-gateway/
-mvnw.cmd spring-boot:run
-```
-
 ### Docker
 
 ```bash
 # Desde la raíz del proyecto
 docker-compose up -d
-```
-
-## Testing
-
-### Probar rutas públicas
-
-```bash
-# Login (sin token)
-curl -X POST http://localhost:8090/v1/usuarios/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"testuser","password":"password123"}'
-```
-
-### Probar rutas protegidas
-
-```bash
-# Obtener perfil (con token)
-curl http://localhost:8090/v1/usuarios/auth/me \
-  -H "Authorization: Bearer <tu_token_jwt>"
-```
-
-### Probar rate limiting
-
-```bash
-# Ejecutar 101 peticiones rápidas
-for i in {1..101}; do curl http://localhost:8090/v1/usuarios/health; done
-# La petición 101 debería retornar 429 Too Many Requests
 ```
 
 ## Flujo de Autenticación
@@ -145,19 +95,3 @@ for i in {1..101}; do curl http://localhost:8090/v1/usuarios/health; done
     - Verifica que no esté en blacklist (Redis)
 5. Gateway agrega headers con info del usuario
 6. Microservicio recibe petición con headers `X-User-*`
-
-## Estructura
-
-```
-api-gateway/
-├── config/
-│   └── JwtProperties.java      # Propiedades JWT
-├── security/
-│   ├── JwtValidator.java       # Validación de tokens
-│   ├── TokenRevocationService.java  # Blacklist de tokens
-│   └── SecurityConfig.java     # Configuración Spring Security
-├── filters/
-│   ├── JwtAuthenticationFilter.java  # Filtro JWT
-│   └── RateLimitFilter.java         # Filtro rate limiting
-└── ApiGatewayApplication.java
-```

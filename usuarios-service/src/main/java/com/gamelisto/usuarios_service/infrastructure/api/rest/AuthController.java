@@ -1,19 +1,8 @@
 package com.gamelisto.usuarios_service.infrastructure.api.rest;
 
-import com.gamelisto.usuarios_service.application.dto.AuthResponseDTO;
-import com.gamelisto.usuarios_service.application.dto.LoginCommand;
-import com.gamelisto.usuarios_service.application.dto.LogoutCommand;
-import com.gamelisto.usuarios_service.application.dto.RefreshTokenCommand;
-import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
-import com.gamelisto.usuarios_service.application.usecases.LoginUseCase;
-import com.gamelisto.usuarios_service.application.usecases.LogoutUseCase;
-import com.gamelisto.usuarios_service.application.usecases.ObtenerPerfilAutenticadoUseCase;
-import com.gamelisto.usuarios_service.application.usecases.RefreshTokenUseCase;
-import com.gamelisto.usuarios_service.infrastructure.api.dto.AuthResponse;
-import com.gamelisto.usuarios_service.infrastructure.api.dto.LoginRequest;
-import com.gamelisto.usuarios_service.infrastructure.api.dto.LogoutRequest;
-import com.gamelisto.usuarios_service.infrastructure.api.dto.RefreshTokenRequest;
-import com.gamelisto.usuarios_service.infrastructure.api.dto.UsuarioResponse;
+import com.gamelisto.usuarios_service.application.dto.*;
+import com.gamelisto.usuarios_service.application.usecases.*;
+import com.gamelisto.usuarios_service.infrastructure.api.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(
     name = "Autenticación",
-    description = "Endpoints de autenticación JWT - Login, Refresh, Logout")
+    description = "Registro, login, tokens, verificación de email y recuperación de cuenta")
 public class AuthController {
 
   private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -43,6 +33,143 @@ public class AuthController {
   private final RefreshTokenUseCase refreshTokenUseCase;
   private final LogoutUseCase logoutUseCase;
   private final ObtenerPerfilAutenticadoUseCase obtenerPerfilAutenticadoUseCase;
+  private final CrearUsuarioUseCase crearUsuarioUseCase;
+  private final VerificarEmailUseCase verificarEmailUseCase;
+  private final ReenviarVerificacionUseCase reenviarVerificacionUseCase;
+  private final SolicitarRestablecimientoUseCase solicitarRestablecimientoUseCase;
+  private final RestablecerContrasenaUseCase restablecerContrasenaUseCase;
+
+  @Operation(
+      summary = "Registrar nuevo usuario",
+      description =
+          "Crea una nueva cuenta de usuario en estado PENDIENTE_DE_VERIFICACION. "
+              + "Envía un email con token de verificación (válido 24h).")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            responseCode = "201",
+            description = "Usuario creado exitosamente",
+            content =
+                @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = UsuarioResponse.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Datos inválidos o email/username ya registrados")
+      })
+  @PostMapping("/register")
+  public ResponseEntity<UsuarioResponse> registrar(
+      @Parameter(description = "Datos del nuevo usuario", required = true) @Valid @RequestBody
+          CrearUsuarioRequest request) {
+
+    logger.info("Request de registro para email: {}", request.email());
+
+    CrearUsuarioCommand command = request.toCommand();
+    UsuarioDTO usuarioDTO = crearUsuarioUseCase.execute(command);
+    UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
+
+    logger.info("Usuario registrado exitosamente: {}", usuarioDTO.username());
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  @Operation(
+      summary = "Verificar email",
+      description =
+          "Activa la cuenta del usuario mediante el token enviado por email. "
+              + "Cambia el estado de PENDIENTE_DE_VERIFICACION a ACTIVO.")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Email verificado exitosamente"),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Token inválido, expirado o usuario ya verificado")
+      })
+  @PostMapping("/verify-email")
+  public ResponseEntity<Void> verificarEmail(
+      @Parameter(description = "Token de verificación", required = true) @Valid @RequestBody
+          VerificarEmailRequest request) {
+
+    logger.info("Request de verificación de email con token: {}", request.token());
+
+    VerificarEmailCommand command = new VerificarEmailCommand(request.token());
+    verificarEmailUseCase.execute(command);
+
+    logger.info("Email verificado exitosamente");
+    return ResponseEntity.ok().build();
+  }
+
+  @Operation(
+      summary = "Reenviar email de verificación",
+      description =
+          "Genera y envía un nuevo token de verificación al email del usuario. "
+              + "Solo funciona si el usuario está en estado PENDIENTE_DE_VERIFICACION.")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Email de verificación reenviado"),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Email no registrado o usuario ya verificado")
+      })
+  @PostMapping("/resend-verification")
+  public ResponseEntity<Void> reenviarVerificacion(
+      @Parameter(description = "Email del usuario", required = true) @Valid @RequestBody
+          ReenviarVerificacionRequest request) {
+
+    logger.info("Request de reenvío de verificación para email: {}", request.email());
+
+    reenviarVerificacionUseCase.execute(request.toCommand());
+
+    logger.info("Email de verificación reenviado");
+    return ResponseEntity.ok().build();
+  }
+
+  @Operation(
+      summary = "Solicitar restablecimiento de contraseña",
+      description =
+          "Genera y envía un token de restablecimiento al email (válido 1h). "
+              + "Si el email no existe, retorna 200 OK por seguridad (no revela si el email está registrado).")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Si el email existe, se envió el token de restablecimiento")
+      })
+  @PostMapping("/forgot-password")
+  public ResponseEntity<Void> solicitarRestablecimiento(
+      @Parameter(description = "Email del usuario", required = true) @Valid @RequestBody
+          SolicitarRestablecimientoRequest request) {
+
+    logger.info("Request de restablecimiento de contraseña para email: {}", request.email());
+
+    solicitarRestablecimientoUseCase.execute(request.toCommand());
+
+    logger.info("Proceso de restablecimiento iniciado (si el email existe)");
+    return ResponseEntity.ok().build();
+  }
+
+  @Operation(
+      summary = "Restablecer contraseña",
+      description =
+          "Cambia la contraseña del usuario usando el token de restablecimiento. "
+              + "El token se invalida después de usarse.")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Contraseña restablecida exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Token inválido o expirado")
+      })
+  @PostMapping("/reset-password")
+  public ResponseEntity<Void> restablecerContrasena(
+      @Parameter(description = "Token y nueva contraseña", required = true) @Valid @RequestBody
+          RestablecerContrasenaRequest request) {
+
+    logger.info("Request de restablecimiento de contraseña con token");
+
+    RestablecerContrasenaCommand command = request.toCommand();
+    restablecerContrasenaUseCase.execute(command);
+
+    logger.info("Contraseña restablecida exitosamente");
+    return ResponseEntity.ok().build();
+  }
 
   @Operation(
       summary = "Login de usuario",
@@ -97,6 +224,7 @@ public class AuthController {
             description = "Refresh token inválido, revocado o expirado"),
         @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
       })
+  @PreAuthorize("isAuthenticated()")
   @PostMapping("/refresh")
   public ResponseEntity<AuthResponse> refresh(
       @Parameter(description = "Refresh token válido", required = true) @Valid @RequestBody
@@ -124,6 +252,7 @@ public class AuthController {
         @ApiResponse(responseCode = "401", description = "Refresh token inválido"),
         @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
       })
+  @PreAuthorize("isAuthenticated()")
   @PostMapping("/logout")
   public ResponseEntity<Void> logout(
       @Parameter(description = "Tokens a revocar", required = true) @Valid @RequestBody
@@ -157,6 +286,7 @@ public class AuthController {
             description = "No autenticado - Header X-User-Id ausente"),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
       })
+  @PreAuthorize("isAuthenticated()")
   @GetMapping("/me")
   public ResponseEntity<UsuarioResponse> getAuthenticatedProfile(
       @Parameter(

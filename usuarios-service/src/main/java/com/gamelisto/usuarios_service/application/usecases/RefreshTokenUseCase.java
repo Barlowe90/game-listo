@@ -91,10 +91,6 @@ public class RefreshTokenUseCase {
     repositorioRefreshTokens.guardarActivo(
         newRefreshTokenHash, usuario.getId(), newRefreshTokenExpiresAt);
 
-    logger.info(
-        "✅ Tokens renovados para usuario: {} (nuevo refresh token generado)",
-        usuario.getUsername().value());
-
     TokenDTO accessToken = new TokenDTO(accessTokenString, accessTokenExpiresAt);
     TokenDTO refreshTokenDto = new TokenDTO(newRefreshTokenString, newRefreshTokenExpiresAt);
     UsuarioDTO usuarioDto = UsuarioDTO.from(usuario);

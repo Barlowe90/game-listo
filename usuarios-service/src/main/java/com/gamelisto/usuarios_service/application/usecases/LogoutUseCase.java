@@ -72,7 +72,5 @@ public class LogoutUseCase {
         // No lanzamos excepción, el refresh token ya fue revocado
       }
     }
-
-    logger.info("Logout completado");
   }
 }
