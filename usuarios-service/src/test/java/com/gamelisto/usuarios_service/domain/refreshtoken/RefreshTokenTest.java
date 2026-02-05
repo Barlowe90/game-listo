@@ -1,14 +1,13 @@
 package com.gamelisto.usuarios_service.domain.refreshtoken;
 
-import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
-import java.time.Duration;
-import java.time.Instant;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
+import java.time.Duration;
+import java.time.Instant;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 @DisplayName("RefreshToken - Aggregate root para tokens de refresco")
 class RefreshTokenTest {

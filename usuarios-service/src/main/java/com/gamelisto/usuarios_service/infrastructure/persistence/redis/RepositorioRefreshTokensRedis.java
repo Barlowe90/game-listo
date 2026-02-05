@@ -6,13 +6,12 @@ import com.gamelisto.usuarios_service.domain.refreshtoken.RefreshToken;
 import com.gamelisto.usuarios_service.domain.refreshtoken.TokenHash;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioRefreshTokens;
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Repository;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Repository;
 
 /** Tokens activos y revocados con TTL automático. */
 @Repository

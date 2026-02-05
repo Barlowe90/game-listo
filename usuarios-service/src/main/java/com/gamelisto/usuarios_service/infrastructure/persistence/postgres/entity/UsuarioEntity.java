@@ -4,11 +4,10 @@ import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
 import com.gamelisto.usuarios_service.domain.usuario.Idioma;
 import com.gamelisto.usuarios_service.domain.usuario.Rol;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.Instant;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
 @Setter
 @Getter

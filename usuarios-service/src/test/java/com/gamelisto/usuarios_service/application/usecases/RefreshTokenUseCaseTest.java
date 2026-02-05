@@ -1,5 +1,9 @@
 package com.gamelisto.usuarios_service.application.usecases;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.gamelisto.usuarios_service.application.dto.AuthResponseDTO;
 import com.gamelisto.usuarios_service.application.dto.RefreshTokenCommand;
 import com.gamelisto.usuarios_service.domain.exceptions.RefreshTokenExpiradoException;
@@ -11,6 +15,10 @@ import com.gamelisto.usuarios_service.domain.repositories.RepositorioRefreshToke
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.*;
 import com.gamelisto.usuarios_service.infrastructure.auth.JwtProperties;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,15 +28,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)

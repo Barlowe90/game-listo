@@ -1,10 +1,16 @@
 package com.gamelisto.usuarios_service.infrastructure.persistence.redis;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.gamelisto.usuarios_service.domain.refreshtoken.RefreshToken;
 import com.gamelisto.usuarios_service.domain.refreshtoken.TokenHash;
 import com.gamelisto.usuarios_service.domain.refreshtoken.TokenValue;
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
 import com.gamelisto.usuarios_service.test.config.RedisTestContainerExtension;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,13 +20,6 @@ import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @DataRedisTest
 @Import(RepositorioRefreshTokensRedis.class)
