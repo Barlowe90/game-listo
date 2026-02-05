@@ -1,12 +1,9 @@
 package com.gamelisto.usuarios_service.infrastructure.exceptions;
 
 import com.gamelisto.usuarios_service.domain.exceptions.*;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.gamelisto.usuarios_service.domain.usuario.Email;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

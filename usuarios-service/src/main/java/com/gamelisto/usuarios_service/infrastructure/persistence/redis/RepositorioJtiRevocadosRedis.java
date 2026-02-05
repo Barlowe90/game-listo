@@ -2,11 +2,10 @@ package com.gamelisto.usuarios_service.infrastructure.persistence.redis;
 
 import com.gamelisto.usuarios_service.domain.refreshtoken.Jti;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioJtiRevocados;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Repository;
-
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Repository;
 
 /** Blacklist para invalidación inmediata de access tokens. */
 @Repository

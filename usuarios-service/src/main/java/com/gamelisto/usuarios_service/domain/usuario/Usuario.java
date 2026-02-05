@@ -1,8 +1,7 @@
 package com.gamelisto.usuarios_service.domain.usuario;
 
-import lombok.Getter;
-
 import java.time.Instant;
+import lombok.Getter;
 
 @Getter
 public class Usuario {

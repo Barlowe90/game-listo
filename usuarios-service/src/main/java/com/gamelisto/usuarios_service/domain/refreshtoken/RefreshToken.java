@@ -1,11 +1,10 @@
 package com.gamelisto.usuarios_service.domain.refreshtoken;
 
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
-import lombok.Getter;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
+import lombok.Getter;
 
 @Getter
 public class RefreshToken {
