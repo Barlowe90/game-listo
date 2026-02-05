@@ -5,33 +5,35 @@ Arquitectura basada en microservicios con DDD + Hexagonal Architecture.*
 
 ## 🧩 Descripción general
 
-**GameListo** es una plataforma web moderna donde los jugadores pueden **gestionar su biblioteca de videojuegos**, crear **listas personalizadas**, descubrir nuevos títulos y **buscar compañeros** en una comunidad social.
+**GameListo** es una plataforma web moderna donde los jugadores pueden **gestionar su biblioteca de videojuegos**, crear
+**listas personalizadas**, descubrir nuevos títulos y **buscar compañeros** en una comunidad social.
 
-El proyecto está construido como parte del Trabajo Fin de Grado de Ingeniería Informática, aplicando principios profesionales de arquitectura de software, despliegue cloud y diseño UI/UX.
+El proyecto está construido como parte del Trabajo Fin de Grado de Ingeniería Informática, aplicando principios
+profesionales de arquitectura de software, despliegue cloud y diseño UI/UX.
 
 ## 🚀 Características principales
 
 ### 🕹️ Biblioteca del usuario
 
-- Estado del juego: *Lo quiero*, *Lo tengo*, *Jugando*, *Completado*  
-- Valoración personal  
+- Estado del juego: *Lo quiero*, *Lo tengo*, *Jugando*, *Completado*
+- Valoración personal
 - Listas personalizadas (ej. *“Completados 2025”*)
 
 ### 🔍 Catálogo
 
-- Juegos obtenidos y enriquecidos desde la API de IGDB  
-- Filtros avanzados por género, plataforma, etiquetas, estilo de juego  
+- Juegos obtenidos y enriquecidos desde la API de IGDB
+- Filtros avanzados por género, plataforma, etiquetas, estilo de juego
 
 ### 👥 Social
 
-- Sistema de amigos  
+- Sistema de amigos
 - Publicaciones
-- Grupos de juego y solicitudes  
+- Grupos de juego y solicitudes
 
 ### 🔔 Notificaciones
 
-- Nuevos amigos  
-- Invitación a grupos de juego  
+- Nuevos amigos
+- Invitación a grupos de juego
 
 ## 🏗️ Arquitectura
 
@@ -48,29 +50,43 @@ GameListo está construido con **microservicios desacoplados** basados en:
 
 ### 🧱 Microservicios
 
-| Microservicio | Tecnología | Descripción |
-| ------------- | ---------- | ----------- |
-| **auth-service** | Spring Boot + JWT | Login, logout, gestión de sesiones |
-| **usuarios-service** | Spring Boot + PostgreSQL | Registro, verificación email, perfil de usuario, reset contraseña |
-| **catalogo-service** | Spring Boot + PostgreSQL + MongoDB | Juegos, búsqueda y sincronización con IGDB |
-| **biblioteca-service** | Spring Boot + PostgreSQL | Estados, listas, reseñas |
-| **publicaciones-service** | Spring Boot + MongoDB | Posts, screenshots, vídeos |
-| **notificaciones-service** | Spring Boot + MongoDB | Notificaciones del sistema |
-| **social-service** | Spring Boot + Neo4j | Amigos, relaciones y recomendaciones |
-| **search-service** | Spring Boot + OpenSearch | Buscador y autosuggest |
+| Microservicio              | Tecnología                         | Puerto | Descripción                                            |
+|----------------------------|------------------------------------|--------|--------------------------------------------------------|
+| **api-gateway**            | Spring Cloud Gateway + Redis       | 8090   | Puerta de entrada, validación JWT, rate limiting, CORS |
+| **usuarios-service**       | Spring Boot + PostgreSQL + Redis   | 8081   | Registro, login, perfil, JWT, integrado con Gateway    |
+| **catalogo-service**       | Spring Boot + PostgreSQL + MongoDB | 8082   | Juegos, búsqueda y sincronización con IGDB             |
+| **biblioteca-service**     | Spring Boot + PostgreSQL           | 8083   | Estados, listas, reseñas                               |
+| **publicaciones-service**  | Spring Boot + MongoDB              | 8084   | Posts, screenshots, vídeos                             |
+| **notificaciones-service** | Spring Boot + MongoDB              | 8085   | Notificaciones del sistema                             |
+| **social-service**         | Spring Boot + Neo4j                | 8086   | Amigos, relaciones y recomendaciones                   |
+| **search-service**         | Spring Boot + OpenSearch           | 8087   | Buscador y autosuggest                                 |
+| **graphql-bff**            | Spring GraphQL                     | 8088   | Backend for Frontend, agregación de datos              |
+
+### División de Responsabilidades
+
+| Componente           | Responsabilidad                             |
+|----------------------|---------------------------------------------|
+| **API Gateway**      | Validar JWT (firma, expiración, revocación) |
+|                      | Rate limiting (100 req/min por IP)          |
+|                      | Agregar headers X-User-*                    |
+|                      | Enrutar a microservicios                    |
+| **usuarios-service** | Generar JWT + Refresh Token                 |
+|                      | CRUD de usuarios                            |
+|                      | Confiar en headers del Gateway              |
+|                      | Gestionar refresh tokens en BD              |
 
 ### 🔌 Comunicación
 
-- **REST** para consultas simples  
-- **GraphQL BFF** para agregación de datos  
-- **Eventos en RabbitMQ** para sincronización eventual  
+- **REST** para consultas simples
+- **GraphQL BFF** para agregación de datos
+- **Eventos en RabbitMQ** para sincronización eventual
 
 ### 🗄️ Persistencia
 
-- PostgreSQL (relacional)  
-- MongoDB (documentos)  
-- Neo4j (grafos)  
-- OpenSearch (búsqueda)  
+- PostgreSQL (relacional)
+- MongoDB (documentos)
+- Neo4j (grafos)
+- OpenSearch (búsqueda)
 - Redis (caché + mensaje corto)
 
 ## 🖥️ Front-End
@@ -82,7 +98,6 @@ Stack utilizado:
 - **TypeScript**
 - **TanStack Query**
 - **TailwindCSS + ShadCN UI**
-- **Zustand**
 - **React Router**
 - **GraphQL (Apollo Client)**
 
@@ -90,12 +105,35 @@ Stack utilizado:
 
 - **Docker + Docker Compose**
 - **RabbitMQ**
-- **OpenSearch**
-- **MongoDB / PostgreSQL / Redis / Neo4j**
+- **Redis**
+- **PostgreSQL**
+- **MongoDB / OpenSearch / Neo4j**
 - **CI/CD con GitHub Actions**
 - **Despliegue en AWS (S3, EC2, ECR, RDS, etc.)**
 
+## 🐳 Inicio Rápido con Docker Compose
+
+### Requisitos Previos
+
+- Docker Desktop instalado y ejecutándose
+- Git
+- Terminal
+
+### Levantar Todo el Sistema
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/tu-usuario/game-listo.git
+cd game-listo
+
+# 2. (Opcional) Configurar variables de entorno
+cp .env.example .env
+# Editar .env y cambiar JWT_SECRET
+
+# 3. Levantar todos los servicios
+docker-compose up -d
+```
+
 ## 👨‍💻 Autor
 
-**Barlowe — Estudiante de ingeniería informática**  
-Apasionado por la arquitectura de software, microservicios y desarrollo full‑stack.
+**Barlowe — Estudiante de ingeniería informática**

@@ -9,15 +9,11 @@ import com.gamelisto.usuarios_service.domain.usuario.DiscordUserId;
 import com.gamelisto.usuarios_service.domain.usuario.DiscordUsername;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class VincularDiscordUseCase {
-
-  private static final Logger logger = LoggerFactory.getLogger(VincularDiscordUseCase.class);
 
   private final RepositorioUsuarios repositorioUsuarios;
 
@@ -27,9 +23,7 @@ public class VincularDiscordUseCase {
 
   @Transactional
   public UsuarioDTO execute(VincularDiscordCommand command) {
-    logger.info("Vinculando cuenta de Discord para usuario: {}", command.usuarioId());
 
-    // 1. Obtener el usuario
     UsuarioId usuarioId = UsuarioId.fromString(command.usuarioId());
     Usuario usuario =
         repositorioUsuarios
@@ -39,7 +33,6 @@ public class VincularDiscordUseCase {
                     new UsuarioNoEncontradoException(
                         "Usuario no encontrado con ID: " + command.usuarioId()));
 
-    // 2. Validar que la cuenta de Discord no esté vinculada a otro usuario
     DiscordUserId discordUserId = DiscordUserId.of(command.discordUserId());
     repositorioUsuarios
         .findByDiscordUserId(discordUserId)
@@ -50,17 +43,10 @@ public class VincularDiscordUseCase {
               }
             });
 
-    // 3. Vincular la cuenta de Discord
     DiscordUsername discordUsername = DiscordUsername.of(command.discordUsername());
     usuario.linkDiscord(discordUserId, discordUsername);
 
-    // 4. Guardar cambios
     Usuario usuarioActualizado = repositorioUsuarios.save(usuario);
-
-    logger.info(
-        "Cuenta de Discord vinculada exitosamente: {} -> {}",
-        command.discordUsername(),
-        command.usuarioId());
 
     return UsuarioDTO.from(usuarioActualizado);
   }
