@@ -6,16 +6,11 @@ import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
 import java.util.UUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ObtenerPerfilAutenticadoUseCase {
-
-  private static final Logger logger =
-      LoggerFactory.getLogger(ObtenerPerfilAutenticadoUseCase.class);
 
   private final RepositorioUsuarios repositorioUsuarios;
 
@@ -24,16 +19,15 @@ public class ObtenerPerfilAutenticadoUseCase {
   }
 
   @Transactional(readOnly = true)
-  public UsuarioDTO execute(String userIdString) {
-    logger.debug("Obteniendo perfil autenticado para userId: {}", userIdString);
+  public UsuarioDTO execute(String idUsuario) {
 
-    UsuarioId usuarioId = UsuarioId.of(UUID.fromString(userIdString));
+    UsuarioId id = UsuarioId.of(UUID.fromString(idUsuario));
 
     Usuario usuario =
         repositorioUsuarios
-            .findById(usuarioId)
+            .findById(id)
             .orElseThrow(
-                () -> new UsuarioNoEncontradoException("Usuario no encontrado: " + userIdString));
+                () -> new UsuarioNoEncontradoException("Usuario no encontrado: " + idUsuario));
 
     return UsuarioDTO.from(usuario);
   }

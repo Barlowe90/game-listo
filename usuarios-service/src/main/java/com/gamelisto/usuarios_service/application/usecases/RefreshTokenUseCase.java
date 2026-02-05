@@ -18,15 +18,11 @@ import com.gamelisto.usuarios_service.infrastructure.auth.JwtProperties;
 import com.gamelisto.usuarios_service.infrastructure.auth.JwtUtils;
 import java.time.Duration;
 import java.time.Instant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class RefreshTokenUseCase {
-
-  private static final Logger logger = LoggerFactory.getLogger(RefreshTokenUseCase.class);
 
   private final RepositorioUsuarios repositorioUsuarios;
   private final RepositorioRefreshTokens repositorioRefreshTokens;
@@ -43,7 +39,6 @@ public class RefreshTokenUseCase {
 
   @Transactional
   public AuthResponseDTO execute(RefreshTokenCommand command) {
-    logger.debug("Procesando refresh token");
 
     TokenValue tokenValue = TokenValue.of(command.refreshToken());
     TokenHash tokenHash = TokenHash.from(tokenValue);
@@ -51,14 +46,9 @@ public class RefreshTokenUseCase {
         repositorioRefreshTokens
             .buscarActivo(tokenHash)
             .orElseThrow(
-                () -> {
-                  logger.warn(
-                      "❌ Intento de reutilizar refresh token inválido o ya revocado (Refresh Token Rotation)");
-                  return new RefreshTokenInvalidoException("Refresh token inválido o revocado");
-                });
+                () -> new RefreshTokenInvalidoException("Refresh token inválido o revocado"));
 
     if (repositorioRefreshTokens.estaRevocado(tokenHash)) {
-      logger.warn("❌ Intento de uso de refresh token revocado (posible ataque)");
       throw new RefreshTokenInvalidoException("Refresh token revocado");
     }
 
@@ -73,7 +63,6 @@ public class RefreshTokenUseCase {
             .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario no encontrado"));
 
     // ✅ Refresh Token Rotation: revocamos el token antiguo inmediatamente
-    logger.debug("🔄 Revocando refresh token antiguo (Refresh Token Rotation)");
     repositorioRefreshTokens.revocar(tokenHash, refreshToken.getTtl());
 
     Jti jti = Jti.generate();

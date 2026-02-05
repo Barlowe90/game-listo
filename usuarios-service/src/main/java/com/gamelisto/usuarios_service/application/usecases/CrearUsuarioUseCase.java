@@ -12,8 +12,6 @@ import com.gamelisto.usuarios_service.domain.usuario.Email;
 import com.gamelisto.usuarios_service.domain.usuario.PasswordHash;
 import com.gamelisto.usuarios_service.domain.usuario.Username;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CrearUsuarioUseCase {
 
-  private static final Logger logger = LoggerFactory.getLogger(CrearUsuarioUseCase.class);
   private static final String ROUTING_KEY_SUFFIX = "usuario.creado";
 
   private final RepositorioUsuarios repositorioUsuarios;
@@ -42,21 +39,15 @@ public class CrearUsuarioUseCase {
 
   @Transactional
   public UsuarioDTO execute(CrearUsuarioCommand command) {
-    logger.debug(
-        "🔍 Iniciando creación de usuario con username: {} y email: {}",
-        command.username(),
-        command.email());
 
     Username username = Username.of(command.username());
     Email email = Email.of(command.email());
 
     if (repositorioUsuarios.existsByUsername(username)) {
-      logger.warn("⚠️ Intento de registro con username ya existente: {}", command.username());
       throw new UsernameYaExisteException(command.username());
     }
 
     if (repositorioUsuarios.existsByEmail(email)) {
-      logger.warn("⚠️ Intento de registro con email ya registrado: {}", command.email());
       throw new EmailYaRegistradoException(command.email());
     }
 
@@ -66,19 +57,12 @@ public class CrearUsuarioUseCase {
     Usuario usuario = Usuario.create(username, email, passwordHash);
     Usuario usuarioGuardado = repositorioUsuarios.save(usuario);
 
-    logger.info(
-        "✅ Usuario creado exitosamente - ID: {}, Username: {}",
-        usuarioGuardado.getId().value(),
-        usuarioGuardado.getUsername().value());
-
-    // Enviar email de verificación
     String verificationToken = usuarioGuardado.getTokenVerificacion().value();
     emailService.sendVerificationEmail(
         usuarioGuardado.getEmail().value(),
         usuarioGuardado.getUsername().value(),
         verificationToken);
 
-    // Publicar evento de usuario creado
     enviarColaUsuarioCreado(usuarioGuardado);
 
     return UsuarioDTO.from(usuarioGuardado);
@@ -91,9 +75,5 @@ public class CrearUsuarioUseCase {
             usuarioGuardado.getUsername().value(),
             usuarioGuardado.getEmail().value());
     eventosPublisher.publish(ROUTING_KEY_SUFFIX, evento);
-
-    logger.debug(
-        "📨 Evento 'usuario.creado' publicado para usuario ID: {}",
-        usuarioGuardado.getId().value());
   }
 }

@@ -1,5 +1,8 @@
 package com.gamelisto.usuarios_service.domain.exceptions;
 
+import lombok.Getter;
+
+@Getter
 public class TokenVerificacionInvalidoException extends RuntimeException {
 
   private final String token;
@@ -12,9 +15,5 @@ public class TokenVerificacionInvalidoException extends RuntimeException {
   public TokenVerificacionInvalidoException(String token, String message) {
     super(message);
     this.token = token;
-  }
-
-  public String getToken() {
-    return token;
   }
 }

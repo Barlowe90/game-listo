@@ -17,7 +17,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class JwtUtils {
 
   private JwtUtils() {
-    // Constructor privado para evitar instanciación
+    // Constructor privado para evitar instanciacion
   }
 
   public static String generateAccessToken(
@@ -51,6 +51,8 @@ public class JwtUtils {
    * <p>OJOOOOO. NO se usa en producción. La validación de tokens es responsabilidad del API
    * Gateway. Solo se incluye para tests.
    *
+   * <p>TODO eliminar antes de producción
+   *
    * @param token Token JWT a parsear
    * @param secret Clave secreta usada para firmar
    * @return Claims del token
@@ -62,19 +64,16 @@ public class JwtUtils {
     return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
   }
 
-  /** Extrae el userId (claim 'sub') de un token JWT. */
   public static String extractUserId(String token, String secret) {
     Claims claims = parseToken(token, secret);
     return claims.getSubject();
   }
 
-  /** Extrae el jti (JWT ID) de un token JWT. */
   public static String extractJti(String token, String secret) {
     Claims claims = parseToken(token, secret);
     return claims.get("jti", String.class);
   }
 
-  /** Verifica si un token ha expirado. */
   public static boolean isTokenExpired(String token, String secret) {
     Claims claims = parseToken(token, secret);
     return claims.getExpiration().before(new Date());

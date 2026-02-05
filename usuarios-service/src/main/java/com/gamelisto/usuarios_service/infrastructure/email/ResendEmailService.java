@@ -58,10 +58,7 @@ public class ResendEmailService implements IEmailService {
     try {
       CreateEmailResponse response = resend.emails().send(params);
       logger.info(
-          "📧 Email de {} enviado exitosamente a {} - ID: {}",
-          emailType,
-          toEmail,
-          response.getId());
+          "Email de {} enviado exitosamente a {} - ID: {}", emailType, toEmail, response.getId());
     } catch (ResendException e) {
       throw new EmailSendingException(
           "No se pudo enviar el email de " + emailType + " a " + toEmail, e);

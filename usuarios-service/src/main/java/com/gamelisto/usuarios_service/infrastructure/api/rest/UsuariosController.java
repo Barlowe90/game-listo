@@ -75,7 +75,7 @@ public class UsuariosController {
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping(value = "/health")
   public void health() {
-    logger.info("✅ Microservicio usuarios funcionando correctamente.");
+    logger.info("Microservicio usuarios funcionando correctamente.");
   }
 
   @Operation(
@@ -104,11 +104,11 @@ public class UsuariosController {
       @Parameter(description = "Contraseña actual y nueva", required = true) @Valid @RequestBody
           CambiarContrasenaRequest request) {
     logger.info(
-        "ℹ️ PUT /v1/usuarios/{}/password - Cambiando contraseña para usuario con ID: {}", id, id);
+        "PUT /v1/usuarios/{}/password - Cambiando contraseña para usuario con ID: {}", id, id);
 
     cambiarContrasenaUseCase.execute(request.toCommand(id));
 
-    logger.info("✅ Contraseña cambiada exitosamente para usuario con ID: {}", id);
+    logger.info("Contraseña cambiada exitosamente para usuario con ID: {}", id);
     return ResponseEntity.ok().build();
   }
 
@@ -136,10 +136,10 @@ public class UsuariosController {
       @Parameter(description = "ID del usuario", required = true) @PathVariable String id,
       @Parameter(description = "Nuevo email", required = true) @Valid @RequestBody
           CambiarCorreoRequest request) {
-    logger.info("ℹ️ PUT /v1/usuarios/{}/email - Cambiando correo para usuario con ID: {}", id, id);
+    logger.info("PUT /v1/usuarios/{}/email - Cambiando correo para usuario con ID: {}", id, id);
     cambiarCorreoUseCase.execute(request.toCommand(id));
 
-    logger.info("✅ Email cambiado exitosamente para usuario con ID: {}", id);
+    logger.info("Email cambiado exitosamente para usuario con ID: {}", id);
     return ResponseEntity.ok().build();
   }
 
@@ -173,7 +173,7 @@ public class UsuariosController {
           @RequestBody
           VincularDiscordRequest request) {
     logger.info(
-        "ℹ️ PUT /v1/usuarios/{}/discord - Vinculando cuenta de Discord para usuario con ID: {}",
+        "PUT /v1/usuarios/{}/discord - Vinculando cuenta de Discord para usuario con ID: {}",
         id,
         id);
 
@@ -182,7 +182,7 @@ public class UsuariosController {
     UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
     logger.info(
-        "✅ Cuenta de Discord vinculada exitosamente - ID: {}, Username: {}, Discord: {}",
+        "Cuenta de Discord vinculada exitosamente - ID: {}, Username: {}, Discord: {}",
         response.id(),
         response.username(),
         response.discordUsername());
@@ -217,14 +217,14 @@ public class UsuariosController {
       @Parameter(description = "ID del usuario", required = true) @PathVariable String id,
       @Parameter(description = "Datos del perfil a actualizar", required = true) @Valid @RequestBody
           EditarPerfilUsuarioRequest request) {
-    logger.info("ℹ️ PATCH /v1/usuarios/{} - Editando perfil de usuario con ID: {}", id, id);
+    logger.info("PATCH /v1/usuarios/{} - Editando perfil de usuario con ID: {}", id, id);
 
     UsuarioDTO usuarioDTO = editarPerfilUsuarioUseCase.execute(request.toCommand(id));
 
     UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
     logger.info(
-        "✅ Perfil de usuario editado exitosamente - ID: {}, Username: {}",
+        "Perfil de usuario editado exitosamente - ID: {}, Username: {}",
         response.id(),
         response.username());
 
@@ -255,15 +255,14 @@ public class UsuariosController {
       @Parameter(description = "ID del usuario", required = true) @PathVariable String id,
       @Parameter(description = "Nuevo estado", required = true) @Valid @RequestBody
           CambiarEstadoUsuarioRequest request) {
-    logger.info(
-        "ℹ️ PATCH /v1/usuarios/{}/estado - Cambiando el estado de usuario con ID: {}", id, id);
+    logger.info("PATCH /v1/usuarios/{}/estado - Cambiando el estado de usuario con ID: {}", id, id);
 
     UsuarioDTO usuarioDTO = cambiarEstadoUsuarioUseCase.execute(request.toCommand(id));
 
     UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
     logger.info(
-        "✅ Estado de usuario cambiado exitosamente - ID: {}, Username: {}",
+        "Estado de usuario cambiado exitosamente - ID: {}, Username: {}",
         response.id(),
         response.username());
 
@@ -292,14 +291,14 @@ public class UsuariosController {
       @Parameter(description = "ID del usuario", required = true) @PathVariable String id,
       @Parameter(description = "Nuevo rol", required = true) @Valid @RequestBody
           CambiarRolUsuarioRequest request) {
-    logger.info("ℹ️ PATCH /v1/usuarios/{}/rol - Cambiando el rol de usuario con ID: {}", id, id);
+    logger.info("PATCH /v1/usuarios/{}/rol - Cambiando el rol de usuario con ID: {}", id, id);
 
     UsuarioDTO usuarioDTO = cambiarRolUsuarioUseCase.execute(request.toCommand(id));
 
     UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
     logger.info(
-        "✅ Rol de usuario cambiado exitosamente - ID: {}, Username: {}, Nuevo Rol: {}",
+        "Rol de usuario cambiado exitosamente - ID: {}, Username: {}, Nuevo Rol: {}",
         response.id(),
         response.username(),
         response.role());
@@ -328,16 +327,14 @@ public class UsuariosController {
   @GetMapping(value = "/{id}", produces = "application/json")
   public ResponseEntity<UsuarioResponse> obtenerUsuarioPorIdEndpoint(
       @Parameter(description = "ID del usuario", required = true) @PathVariable String id) {
-    logger.info("ℹ️ GET /v1/usuarios/{} - Obteniendo usuario con ID: {}", id, id);
+    logger.info("GET /v1/usuarios/{} - Obteniendo usuario con ID: {}", id, id);
 
     UsuarioDTO usuarioDTO = obtenerUsuarioPorId.execute(id);
 
     UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
     logger.info(
-        "✅ Usuario obtenido exitosamente - ID: {}, Username: {}",
-        response.id(),
-        response.username());
+        "Usuario obtenido exitosamente - ID: {}, Username: {}", response.id(), response.username());
 
     return ResponseEntity.ok(response);
   }
@@ -358,13 +355,13 @@ public class UsuariosController {
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping(value = "/users", produces = "application/json")
   public ResponseEntity<List<UsuarioResponse>> obtenerTodosLosUsuarios() {
-    logger.info("ℹ️ GET /v1/usuarios/users - Obteniendo lista de todos los usuarios");
+    logger.info("GET /v1/usuarios/users - Obteniendo lista de todos los usuarios");
 
     List<UsuarioDTO> usuariosDTO = obtenerTodosLosUsuariosUseCase.execute();
 
     List<UsuarioResponse> responses = usuariosDTO.stream().map(UsuarioResponse::from).toList();
 
-    logger.info("✅ Lista de usuarios obtenida exitosamente - Total usuarios: {}", responses.size());
+    logger.info("Lista de usuarios obtenida exitosamente - Total usuarios: {}", responses.size());
 
     return ResponseEntity.ok(responses);
   }
@@ -390,14 +387,14 @@ public class UsuariosController {
       @Parameter(description = "Username del usuario", required = true) @RequestParam("username")
           String username) {
     logger.info(
-        "ℹ️ GET /v1/usuarios/users/search?username={} - Buscando usuario con username: {}",
+        "GET /v1/usuarios/users/search?username={} - Buscando usuario con username: {}",
         username,
         username);
 
     UsuarioDTO usuarioDTO = buscarUsuariosPorNombreUseCase.execute(username);
     UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
-    logger.info("✅ Usuario encontrado - ID: {}, Username: {}", response.id(), response.username());
+    logger.info("Usuario encontrado - ID: {}, Username: {}", response.id(), response.username());
     return ResponseEntity.ok(response);
   }
 
@@ -421,7 +418,7 @@ public class UsuariosController {
       @Parameter(description = "Estado del usuario", required = true) @RequestParam("estado")
           EstadoUsuario estadoUsuario) {
     logger.info(
-        "ℹ️ GET /v1/usuarios/users/estado?estado={} - Obteniendo lista de usuarios por estado: {}",
+        "GET /v1/usuarios/users/estado?estado={} - Obteniendo lista de usuarios por estado: {}",
         estadoUsuario,
         estadoUsuario);
 
@@ -430,7 +427,7 @@ public class UsuariosController {
     List<UsuarioResponse> responses = usuariosDTO.stream().map(UsuarioResponse::from).toList();
 
     logger.info(
-        "✅ Lista de usuarios por estado obtenida exitosamente - Estado: {}, Total usuarios: {}",
+        "Lista de usuarios por estado obtenida exitosamente - Estado: {}, Total usuarios: {}",
         estadoUsuario,
         responses.size());
 
@@ -456,14 +453,14 @@ public class UsuariosController {
   @GetMapping(value = "/users/notifications-enabled", produces = "application/json")
   public ResponseEntity<List<UsuarioResponse>> obtenerUsuariosConNotificacionesActivadas() {
     logger.info(
-        "ℹ️ GET /v1/usuarios/users/notifications-enabled - Obteniendo lista de usuarios activos con notificaciones activadas");
+        "GET /v1/usuarios/users/notifications-enabled - Obteniendo lista de usuarios activos con notificaciones activadas");
 
     List<UsuarioDTO> usuariosDTO = buscarUsuariosConNotificacionesActivadasUseCase.execute();
 
     List<UsuarioResponse> responses = usuariosDTO.stream().map(UsuarioResponse::from).toList();
 
     logger.info(
-        "✅ Lista de usuarios con notificaciones activadas obtenida exitosamente - Total: {}",
+        "Lista de usuarios con notificaciones activadas obtenida exitosamente - Total: {}",
         responses.size());
 
     return ResponseEntity.ok(responses);
@@ -495,7 +492,7 @@ public class UsuariosController {
   public ResponseEntity<UsuarioResponse> desvincularDiscord(
       @Parameter(description = "ID del usuario", required = true) @PathVariable String id) {
     logger.info(
-        "ℹ️ DELETE /v1/usuarios/{}/discord - Desvinculando cuenta de Discord para usuario con ID: {}",
+        "DELETE /v1/usuarios/{}/discord - Desvinculando cuenta de Discord para usuario con ID: {}",
         id,
         id);
 
@@ -504,7 +501,7 @@ public class UsuariosController {
     UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
     logger.info(
-        "✅ Cuenta de Discord desvinculada exitosamente - ID: {}, Username: {}",
+        "Cuenta de Discord desvinculada exitosamente - ID: {}, Username: {}",
         response.id(),
         response.username());
 
@@ -529,11 +526,11 @@ public class UsuariosController {
   @DeleteMapping(value = "/{id}")
   public ResponseEntity<Void> eliminarUsuario(
       @Parameter(description = "ID del usuario", required = true) @PathVariable String id) {
-    logger.info("ℹ️ DELETE /v1/usuarios/{} - Eliminando usuario con ID: {}", id, id);
+    logger.info("DELETE /v1/usuarios/{} - Eliminando usuario con ID: {}", id, id);
 
     eliminarUsuarioUseCase.execute(id);
 
-    logger.info("✅ Cuenta de usuario eliminada exitosamente - ID: {}", id);
+    logger.info("Cuenta de usuario eliminada exitosamente - ID: {}", id);
 
     return ResponseEntity.noContent().build();
   }

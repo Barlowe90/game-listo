@@ -310,14 +310,14 @@ public class AuthController {
     // 1. Se está accediendo directamente al servicio (sin pasar por el Gateway)
     // 2. El Gateway no pudo validar el token
     if (userId == null || userId.isBlank()) {
-      logger.warn("❌ Request sin X-User-Id header - El Gateway debe validar el JWT primero");
+      logger.warn("Request sin X-User-Id header - El Gateway debe validar el JWT primero");
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     UsuarioDTO usuarioDTO = obtenerPerfilAutenticadoUseCase.execute(userId);
     UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
-    logger.info("✅ Perfil obtenido para usuario: {} (ID: {})", usuarioDTO.username(), userId);
+    logger.info("Perfil obtenido para usuario: {} (ID: {})", usuarioDTO.username(), userId);
     return ResponseEntity.ok(response);
   }
 }

@@ -1,11 +1,15 @@
 package com.gamelisto.usuarios_service.domain.usuario;
 
+import lombok.Getter;
+
 import java.time.Instant;
 
+@Getter
 public class Usuario {
 
   private static final int PASSWORD_RESET_TOKEN_TTL_SECONDS = 60 * 60; // 1 hora
   private static final int EMAIL_VERIFICATION_TOKEN_TTL_SECONDS = 24 * 60 * 60; // 24 horas
+  // Getters
   private final UsuarioId id;
   private Username username;
   private Email email;
@@ -343,6 +347,15 @@ public class Usuario {
   }
 
   public void verificarEmail(TokenVerificacion token) {
+    comprobarEstadoNuloTokenYTokenVExpiracion(token);
+
+    this.status = EstadoUsuario.ACTIVO;
+    this.tokenVerificacion = TokenVerificacion.empty();
+    this.tokenVerificacionExpiracion = null;
+    this.updatedAt = Instant.now();
+  }
+
+  private void comprobarEstadoNuloTokenYTokenVExpiracion(TokenVerificacion token) {
     if (this.status != EstadoUsuario.PENDIENTE_DE_VERIFICACION) {
       throw new IllegalStateException("El usuario ya ha sido verificado");
     }
@@ -356,11 +369,6 @@ public class Usuario {
         || Instant.now().isAfter(this.tokenVerificacionExpiracion)) {
       throw new IllegalArgumentException("El token de verificación ha expirado");
     }
-
-    this.status = EstadoUsuario.ACTIVO;
-    this.tokenVerificacion = TokenVerificacion.empty();
-    this.tokenVerificacionExpiracion = null;
-    this.updatedAt = Instant.now();
   }
 
   public void linkDiscord(DiscordUserId discordUserId, DiscordUsername discordUsername) {
@@ -405,79 +413,6 @@ public class Usuario {
 
   public boolean hasDiscordLinked() {
     return !this.discordUserId.isEmpty() && !this.discordUsername.isEmpty();
-  }
-
-  // Getters
-  public UsuarioId getId() {
-    return id;
-  }
-
-  public Username getUsername() {
-    return username;
-  }
-
-  public Email getEmail() {
-    return email;
-  }
-
-  public PasswordHash getPasswordHash() {
-    return passwordHash;
-  }
-
-  public Avatar getAvatar() {
-    return avatar;
-  }
-
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public Instant getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public Rol getRole() {
-    return role;
-  }
-
-  public Idioma getLanguage() {
-    return language;
-  }
-
-  public boolean isNotificationsActive() {
-    return notificationsActive;
-  }
-
-  public EstadoUsuario getStatus() {
-    return status;
-  }
-
-  public DiscordUserId getDiscordUserId() {
-    return discordUserId;
-  }
-
-  public DiscordUsername getDiscordUsername() {
-    return discordUsername;
-  }
-
-  public Instant getDiscordLinkedAt() {
-    return discordLinkedAt;
-  }
-
-  public TokenVerificacion getTokenVerificacion() {
-    return tokenVerificacion;
-  }
-
-  public Instant getTokenVerificacionExpiracion() {
-    return tokenVerificacionExpiracion;
-  }
-
-  public TokenVerificacion getTokenRestablecimiento() {
-    return tokenRestablecimiento;
-  }
-
-  public Instant getTokenRestablecimientoExpiracion() {
-    return tokenRestablecimientoExpiracion;
   }
 
   @Override

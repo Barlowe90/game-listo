@@ -65,12 +65,12 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
       SecurityContextHolder.getContext().setAuthentication(authentication);
 
       log.debug(
-          "✅ Authentication creado desde headers del Gateway - UserId: {}, Username: {}, Roles: {}",
+          "Authentication creado desde headers del Gateway - UserId: {}, Username: {}, Roles: {}",
           userId,
           username,
           rolesHeader);
     } else {
-      log.debug("ℹ️ Headers del Gateway no presentes - Petición pública o directa al servicio");
+      log.debug("Headers del Gateway no presentes - Petición pública o directa al servicio");
     }
 
     filterChain.doFilter(request, response);

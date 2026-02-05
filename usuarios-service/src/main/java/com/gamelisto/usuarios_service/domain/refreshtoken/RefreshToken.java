@@ -1,11 +1,13 @@
 package com.gamelisto.usuarios_service.domain.refreshtoken;
 
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
+import lombok.Getter;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 
+@Getter
 public class RefreshToken {
 
   private final TokenHash tokenHash;
@@ -78,26 +80,6 @@ public class RefreshToken {
 
   public Duration getTtl() {
     return Duration.between(Instant.now(), expiresAt);
-  }
-
-  public TokenHash getTokenHash() {
-    return tokenHash;
-  }
-
-  public UsuarioId getUsuarioId() {
-    return usuarioId;
-  }
-
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public Instant getExpiresAt() {
-    return expiresAt;
-  }
-
-  public boolean isRevoked() {
-    return revoked;
   }
 
   @Override

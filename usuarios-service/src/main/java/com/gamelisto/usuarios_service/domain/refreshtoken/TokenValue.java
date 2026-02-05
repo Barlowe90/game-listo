@@ -19,7 +19,7 @@ public final class TokenValue {
     if (value == null || value.isBlank()) {
       throw new IllegalArgumentException("El refresh token no puede ser nulo o vacío");
     }
-    // Validar formato UUID
+
     try {
       UUID.fromString(value);
     } catch (IllegalArgumentException e) {
@@ -47,6 +47,6 @@ public final class TokenValue {
 
   @Override
   public String toString() {
-    return "TokenValue{value='[PROTECTED]'}"; // No exponer en logs por seguridad
+    return "TokenValue{value='[PROTECTED]'}";
   }
 }

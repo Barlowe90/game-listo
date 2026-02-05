@@ -7,10 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-/**
- * Implementación No-Op del publisher de eventos. Se usa cuando RabbitMQ no está disponible (por
- * ejemplo, en tests).
- */
+/** Implementación No-Op del publisher de eventos para tests. */
 @Component
 @Primary
 @ConditionalOnMissingBean(value = UsuariosPublisher.class)

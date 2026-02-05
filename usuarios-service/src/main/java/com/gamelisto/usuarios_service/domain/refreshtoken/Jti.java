@@ -18,7 +18,7 @@ public class Jti {
     if (value == null || value.isBlank()) {
       throw new IllegalArgumentException("El jti no puede ser nulo o vacío");
     }
-    // Validar formato UUID
+
     try {
       UUID.fromString(value);
     } catch (IllegalArgumentException e) {
@@ -46,6 +46,6 @@ public class Jti {
 
   @Override
   public String toString() {
-    return "Jti{value='" + value + "'}"; // No es secreto, puede mostrarse
+    return "Jti{value='" + value + "'}";
   }
 }

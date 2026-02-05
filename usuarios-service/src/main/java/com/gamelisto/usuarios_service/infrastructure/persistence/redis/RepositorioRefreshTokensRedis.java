@@ -14,10 +14,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Implementación Redis del repositorio de refresh tokens. Gestiona tokens activos y revocados con
- * TTL automático.
- */
+/** Tokens activos y revocados con TTL automático. */
 @Repository
 public class RepositorioRefreshTokensRedis implements RepositorioRefreshTokens {
 
@@ -93,7 +90,6 @@ public class RepositorioRefreshTokensRedis implements RepositorioRefreshTokens {
     return Boolean.TRUE.equals(redisTemplate.hasKey(key));
   }
 
-  /** DTO interno para serialización JSON en Redis. */
   private record RefreshTokenDto(
       String userId, Instant createdAt, Instant expiresAt, boolean revoked) {}
 }

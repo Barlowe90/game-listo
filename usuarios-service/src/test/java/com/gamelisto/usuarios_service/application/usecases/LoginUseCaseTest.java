@@ -3,6 +3,7 @@ package com.gamelisto.usuarios_service.application.usecases;
 import com.gamelisto.usuarios_service.application.dto.AuthResponseDTO;
 import com.gamelisto.usuarios_service.application.dto.LoginCommand;
 import com.gamelisto.usuarios_service.domain.exceptions.CredencialesInvalidasException;
+import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoActivoException;
 import com.gamelisto.usuarios_service.domain.refreshtoken.Jti;
 import com.gamelisto.usuarios_service.domain.refreshtoken.TokenHash;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioRefreshTokens;
@@ -217,8 +218,8 @@ class LoginUseCaseTest {
     when(passwordEncoder.matches(passwordPlain, passwordHash)).thenReturn(true);
 
     // Act & Assert
-    CredencialesInvalidasException exception =
-        assertThrows(CredencialesInvalidasException.class, () -> loginUseCase.execute(command));
+    UsuarioNoActivoException exception =
+        assertThrows(UsuarioNoActivoException.class, () -> loginUseCase.execute(command));
 
     assertTrue(exception.getMessage().contains("Usuario no activo"));
     assertTrue(exception.getMessage().contains("PENDIENTE_DE_VERIFICACION"));
@@ -255,8 +256,8 @@ class LoginUseCaseTest {
     when(passwordEncoder.matches(passwordPlain, passwordHash)).thenReturn(true);
 
     // Act & Assert
-    CredencialesInvalidasException exception =
-        assertThrows(CredencialesInvalidasException.class, () -> loginUseCase.execute(command));
+    UsuarioNoActivoException exception =
+        assertThrows(UsuarioNoActivoException.class, () -> loginUseCase.execute(command));
 
     assertTrue(exception.getMessage().contains("SUSPENDIDO"));
   }
@@ -292,8 +293,8 @@ class LoginUseCaseTest {
     when(passwordEncoder.matches(passwordPlain, passwordHash)).thenReturn(true);
 
     // Act & Assert
-    CredencialesInvalidasException exception =
-        assertThrows(CredencialesInvalidasException.class, () -> loginUseCase.execute(command));
+    UsuarioNoActivoException exception =
+        assertThrows(UsuarioNoActivoException.class, () -> loginUseCase.execute(command));
 
     assertTrue(exception.getMessage().contains("ELIMINADO"));
   }

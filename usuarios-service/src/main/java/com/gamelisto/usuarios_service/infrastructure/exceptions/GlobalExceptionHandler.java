@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.gamelisto.usuarios_service.domain.usuario.Email;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -19,27 +20,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
   private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
-  @ExceptionHandler(AlgoritmoNoEncontradoException.class)
-  public ResponseEntity<Map<String, Object>> handleAlgoritmoNoEncontradoException(
-      AlgoritmoNoEncontradoException ex) {
-    logger.warn("Error al seleccionar algoritmo de encriptacion: {}", ex.getMessage());
-    return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-  }
-
-  @ExceptionHandler(EventoPublicacionException.class)
-  public ResponseEntity<Map<String, Object>> handleUsuarioPubliserException(
-      EventoPublicacionException ex) {
-    logger.warn("Error al publicar evento: {}", ex.getMessage());
-    return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-  }
-
-  @ExceptionHandler(EventoListenerException.class)
-  public ResponseEntity<Map<String, Object>> handleUsuarioListenerException(
-      EventoListenerException ex) {
-    logger.warn("Error al escuchar evento: {}", ex.getMessage());
-    return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-  }
 
   // ============ Excepciones de Negocio - 404 Not Found ============
 
@@ -79,38 +59,40 @@ public class GlobalExceptionHandler {
     return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
   }
 
+  @ExceptionHandler(UsuarioNoActivoException.class)
+  public ResponseEntity<Map<String, Object>> handleUsuarioNoActivo(UsuarioNoActivoException ex) {
+    logger.warn("Usuario no activo: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+  }
+
   // ============ Excepciones de Autenticación - 401 Unauthorized ============
 
   @ExceptionHandler(RefreshTokenInvalidoException.class)
   public ResponseEntity<Map<String, Object>> handleRefreshTokenInvalido(
       RefreshTokenInvalidoException ex) {
-    logger.warn("❌ Refresh token inválido o revocado: {}", ex.getMessage());
+    logger.warn("Refresh token inválido o revocado: {}", ex.getMessage());
     return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
   }
 
   @ExceptionHandler(RefreshTokenExpiradoException.class)
   public ResponseEntity<Map<String, Object>> handleRefreshTokenExpirado(
       RefreshTokenExpiradoException ex) {
-    logger.warn("❌ Refresh token expirado: {}", ex.getMessage());
+    logger.warn("Refresh token expirado: {}", ex.getMessage());
     return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
   }
 
   @ExceptionHandler(CredencialesInvalidasException.class)
   public ResponseEntity<Map<String, Object>> handleCredencialesInvalidas(
       CredencialesInvalidasException ex) {
-    logger.warn("❌ Credenciales inválidas");
+    logger.warn("Credenciales inválidas");
     return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
   }
 
   // ============ Excepciones de Autorización - 403 Forbidden ============
 
-  /**
-   * Maneja AccessDeniedException lanzada por @PreAuthorize cuando el usuario no tiene permisos.
-   * Retorna HTTP 403 Forbidden.
-   */
   @ExceptionHandler(AccessDeniedException.class)
   public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
-    logger.warn("⛔ Acceso denegado: {}", ex.getMessage());
+    logger.warn("Acceso denegado: {}", ex.getMessage());
     return buildErrorResponse(
         "No tienes permisos suficientes para realizar esta operación", HttpStatus.FORBIDDEN);
   }
@@ -161,6 +143,33 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
     logger.error("Error inesperado: {}", ex.getMessage(), ex);
     return buildErrorResponse("Error interno del servidor", HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(AlgoritmoNoEncontradoException.class)
+  public ResponseEntity<Map<String, Object>> handleAlgoritmoNoEncontradoException(
+      AlgoritmoNoEncontradoException ex) {
+    logger.warn("Error al seleccionar algoritmo de encriptacion: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(EventoPublicacionException.class)
+  public ResponseEntity<Map<String, Object>> handleUsuarioPubliserException(
+      EventoPublicacionException ex) {
+    logger.warn("Error al publicar evento: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(EventoListenerException.class)
+  public ResponseEntity<Map<String, Object>> handleUsuarioListenerException(
+      EventoListenerException ex) {
+    logger.warn("Error al escuchar evento: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(EmailSendingException.class)
+  public ResponseEntity<Map<String, Object>> handleEmailSendingException(EmailSendingException ex) {
+    logger.warn("Error al enviar el email: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   // ============ Helper Methods ============

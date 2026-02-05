@@ -5,10 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
-/**
- * Configuración de Redis para gestión de tokens. Proporciona StringRedisTemplate para operaciones
- * con claves/valores string.
- */
 @Configuration
 public class RedisConfig {
 

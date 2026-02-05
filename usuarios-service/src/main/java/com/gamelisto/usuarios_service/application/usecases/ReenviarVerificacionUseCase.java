@@ -8,15 +8,11 @@ import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.Email;
 import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ReenviarVerificacionUseCase {
-
-  private static final Logger logger = LoggerFactory.getLogger(ReenviarVerificacionUseCase.class);
 
   private final RepositorioUsuarios repositorioUsuarios;
   private final IEmailService emailService;
@@ -29,7 +25,6 @@ public class ReenviarVerificacionUseCase {
 
   @Transactional
   public void execute(ReenviarVerificacionCommand command) {
-    logger.debug("🔄 Reenviando verificación para email: {}", command.email());
 
     Email email = Email.of(command.email());
 
@@ -39,19 +34,12 @@ public class ReenviarVerificacionUseCase {
             .orElseThrow(() -> new UsuarioNoEncontradoException(command.email()));
 
     if (usuario.getStatus() != EstadoUsuario.PENDIENTE_DE_VERIFICACION) {
-      logger.warn(
-          "⚠️ Intento de reenvío de verificación para usuario ya verificado: {}", command.email());
       throw new UsuarioYaVerificadoException(command.email());
     }
 
-    // Regenera token y actualiza expiración
     usuario.generarTokenVerificacion();
     repositorioUsuarios.save(usuario);
 
-    logger.info(
-        "✅ Nuevo token de verificación generado para usuario: {}", usuario.getUsername().value());
-
-    // Enviar email de verificación
     emailService.sendVerificationEmail(
         usuario.getEmail().value(),
         usuario.getUsername().value(),

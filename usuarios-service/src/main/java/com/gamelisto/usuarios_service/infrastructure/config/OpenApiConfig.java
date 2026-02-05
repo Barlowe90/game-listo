@@ -14,25 +14,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Configuración de OpenAPI/Swagger para documentación interactiva de la API.
  *
- * <p>URLs de acceso:
  *
  * <ul>
  *   <li>Swagger UI: http://localhost:8081/swagger-ui/index.html
  *   <li>OpenAPI JSON: http://localhost:8081/v3/api-docs
  *   <li>OpenAPI YAML: http://localhost:8081/v3/api-docs.yaml
  * </ul>
- *
- * <p><b>Autenticación:</b> Esta API utiliza JWT Bearer tokens. Para probar endpoints protegidos:
- *
- * <ol>
- *   <li>Hacer login en POST /v1/usuarios/auth/login
- *   <li>Copiar el accessToken de la respuesta
- *   <li>Hacer clic en "Authorize" en Swagger UI
- *   <li>Pegar el token en el campo "Value" (sin "Bearer ")
- *   <li>Los endpoints protegidos incluirán automáticamente el header: Authorization: Bearer {token}
- * </ol>
  */
 @Configuration
 public class OpenApiConfig {

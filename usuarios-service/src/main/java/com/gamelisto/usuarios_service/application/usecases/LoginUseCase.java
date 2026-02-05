@@ -5,8 +5,8 @@ import com.gamelisto.usuarios_service.application.dto.LoginCommand;
 import com.gamelisto.usuarios_service.application.dto.TokenDTO;
 import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
 import com.gamelisto.usuarios_service.domain.exceptions.CredencialesInvalidasException;
+import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoActivoException;
 import com.gamelisto.usuarios_service.domain.refreshtoken.Jti;
-import com.gamelisto.usuarios_service.domain.refreshtoken.RefreshToken;
 import com.gamelisto.usuarios_service.domain.refreshtoken.TokenHash;
 import com.gamelisto.usuarios_service.domain.refreshtoken.TokenValue;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioRefreshTokens;
@@ -16,18 +16,13 @@ import com.gamelisto.usuarios_service.domain.usuario.EstadoUsuario;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.infrastructure.auth.JwtProperties;
 import com.gamelisto.usuarios_service.infrastructure.auth.JwtUtils;
-import java.time.Duration;
 import java.time.Instant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class LoginUseCase {
-
-  private static final Logger logger = LoggerFactory.getLogger(LoginUseCase.class);
 
   private final RepositorioUsuarios repositorioUsuarios;
   private final RepositorioRefreshTokens repositorioRefreshTokens;
@@ -47,9 +42,7 @@ public class LoginUseCase {
 
   @Transactional
   public AuthResponseDTO execute(LoginCommand command) {
-    logger.debug("Procesando login para email: {}", command.email());
 
-    // 1. Buscar usuario por email
     Email email = Email.of(command.email());
     Usuario usuario =
         repositorioUsuarios
@@ -57,19 +50,12 @@ public class LoginUseCase {
             .orElseThrow(
                 () -> new CredencialesInvalidasException("Email o contraseña incorrectos"));
 
-    // 2. Validar contraseña
     if (!passwordEncoder.matches(command.password(), usuario.getPasswordHash().value())) {
-      logger.warn(" Intento de login con contraseña incorrecta para: {}", command.email());
       throw new CredencialesInvalidasException("Email o contraseña incorrectos");
     }
 
-    // 3. Verificar que el usuario esté ACTIVO
     if (usuario.getStatus() != EstadoUsuario.ACTIVO) {
-      logger.warn(
-          "Intento de login de usuario con estado: {} - email: {}",
-          usuario.getStatus(),
-          command.email());
-      throw new CredencialesInvalidasException(
+      throw new UsuarioNoActivoException(
           "Usuario no activo. Estado: " + usuario.getStatus().name());
     }
 

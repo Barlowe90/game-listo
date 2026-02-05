@@ -8,10 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Implementación Redis del repositorio de JTI revocados. Blacklist para invalidación inmediata de
- * access tokens.
- */
+/** Blacklist para invalidación inmediata de access tokens. */
 @Repository
 public class RepositorioJtiRevocadosRedis implements RepositorioJtiRevocados {
 
