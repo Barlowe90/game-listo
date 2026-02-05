@@ -253,7 +253,7 @@ class AuthorizationIntegrationTest {
   }
 
   @Nested
-  @DisplayName("GET /v1/usuarios/users/estado - Buscar por estado (Solo ADMIN)")
+  @DisplayName("GET /v1/usuarios/users?estado= - Buscar por estado (Solo ADMIN)")
   class BuscarPorEstadoTests {
 
     @Test
@@ -261,7 +261,7 @@ class AuthorizationIntegrationTest {
     void adminPuedeBuscarPorEstado() throws Exception {
       mockMvc
           .perform(
-              get("/v1/usuarios/users/estado")
+              get("/v1/usuarios/users")
                   .param("estado", "ACTIVO")
                   .header("X-User-Id", adminUser.getId().value())
                   .header("X-User-Username", adminUser.getUsername().value())
@@ -276,7 +276,7 @@ class AuthorizationIntegrationTest {
     void userNoPuedeBuscarPorEstado() throws Exception {
       mockMvc
           .perform(
-              get("/v1/usuarios/users/estado")
+              get("/v1/usuarios/users")
                   .param("estado", "ACTIVO")
                   .header("X-User-Id", regularUser.getId().value())
                   .header("X-User-Username", regularUser.getUsername().value())
@@ -641,7 +641,7 @@ class AuthorizationIntegrationTest {
   // ============================================================================
 
   @Nested
-  @DisplayName("GET /v1/usuarios/users/search - Buscar por username (Autenticado)")
+  @DisplayName("GET /v1/usuarios/users?username= - Buscar por username (Autenticado)")
   class BuscarPorUsernameTests {
 
     @Test
@@ -649,7 +649,7 @@ class AuthorizationIntegrationTest {
     void adminPuedeBuscarPorUsername() throws Exception {
       mockMvc
           .perform(
-              get("/v1/usuarios/users/search")
+              get("/v1/usuarios/users")
                   .param("username", "user")
                   .header("X-User-Id", adminUser.getId().value())
                   .header("X-User-Username", adminUser.getUsername().value())
@@ -664,7 +664,7 @@ class AuthorizationIntegrationTest {
     void userPuedeBuscarPorUsername() throws Exception {
       mockMvc
           .perform(
-              get("/v1/usuarios/users/search")
+              get("/v1/usuarios/users")
                   .param("username", "admin")
                   .header("X-User-Id", regularUser.getId().value())
                   .header("X-User-Username", regularUser.getUsername().value())
@@ -679,7 +679,7 @@ class AuthorizationIntegrationTest {
     void sinAutenticacionNoPuedeBuscarPorUsername() throws Exception {
       mockMvc
           .perform(
-              get("/v1/usuarios/users/search")
+              get("/v1/usuarios/users")
                   .param("username", "admin")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isForbidden());
