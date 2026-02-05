@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -340,97 +341,66 @@ public class UsuariosController {
   }
 
   @Operation(
-      summary = "Listar todos los usuarios",
+      summary = "Listar y buscar usuarios",
       description =
-          "Recupera la lista completa de usuarios registrados en el sistema. Requiere rol ADMIN.",
+          "Búsqueda por username: acceso para usuarios autenticados (búsqueda social). "
+              + "Filtro por estado: solo ADMIN (gestión administrativa). "
+              + "Sin parámetros lista todos los usuarios (solo ADMIN).",
       security = @SecurityRequirement(name = "bearerAuth"))
   @ApiResponses(
       value = {
-        @ApiResponse(responseCode = "200", description = "Lista de usuarios obtenida exitosamente"),
+        @ApiResponse(responseCode = "200", description = "Usuario(s) encontrado(s)"),
         @ApiResponse(
             responseCode = "401",
             description = "No autenticado - Token ausente o inválido"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado - Requiere rol ADMIN")
-      })
-  @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping(value = "/users", produces = "application/json")
-  public ResponseEntity<List<UsuarioResponse>> obtenerTodosLosUsuarios() {
-    logger.info("GET /v1/usuarios/users - Obteniendo lista de todos los usuarios");
-
-    List<UsuarioDTO> usuariosDTO = obtenerTodosLosUsuariosUseCase.execute();
-
-    List<UsuarioResponse> responses = usuariosDTO.stream().map(UsuarioResponse::from).toList();
-
-    logger.info("Lista de usuarios obtenida exitosamente - Total usuarios: {}", responses.size());
-
-    return ResponseEntity.ok(responses);
-  }
-
-  @Operation(
-      summary = "Buscar usuario por username",
-      description = "Busca un usuario específico por su nombre de usuario. Requiere autenticación.",
-      security = @SecurityRequirement(name = "bearerAuth"))
-  @ApiResponses(
-      value = {
         @ApiResponse(
-            responseCode = "200",
-            description = "Usuario encontrado",
-            content = @Content(schema = @Schema(implementation = UsuarioResponse.class))),
+            responseCode = "403",
+            description = "Acceso denegado - Operación requiere permisos especiales"),
         @ApiResponse(
-            responseCode = "401",
-            description = "No autenticado - Token ausente o inválido"),
-        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+            responseCode = "404",
+            description = "Usuario no encontrado (búsqueda por username)")
       })
   @PreAuthorize("isAuthenticated()")
-  @GetMapping(value = "/users/search", produces = "application/json")
-  public ResponseEntity<UsuarioResponse> buscarUsuarioPorUsername(
-      @Parameter(description = "Username del usuario", required = true) @RequestParam("username")
-          String username) {
-    logger.info(
-        "GET /v1/usuarios/users/search?username={} - Buscando usuario con username: {}",
-        username,
-        username);
+  @GetMapping(value = "/users", produces = "application/json")
+  public ResponseEntity<?> obtenerUsuarios(
+      @Parameter(description = "Username del usuario (búsqueda exacta)")
+          @RequestParam(required = false)
+          String username,
+      @Parameter(description = "Estado del usuario (solo ADMIN)") @RequestParam(required = false)
+          EstadoUsuario estado,
+      Authentication authentication) {
 
-    UsuarioDTO usuarioDTO = buscarUsuariosPorNombreUseCase.execute(username);
-    UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
+    logger.info("GET /v1/usuarios/users - username: {}, estado: {}", username, estado);
 
-    logger.info("Usuario encontrado - ID: {}, Username: {}", response.id(), response.username());
-    return ResponseEntity.ok(response);
-  }
+    // Búsqueda por username → Cualquier usuario autenticado (búsqueda social)
+    if (username != null && !username.isBlank()) {
+      UsuarioDTO usuarioDTO = buscarUsuariosPorNombreUseCase.execute(username);
+      UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
+      logger.info("Usuario encontrado - ID: {}, Username: {}", response.id(), response.username());
+      return ResponseEntity.ok(response);
+    }
 
-  @Operation(
-      summary = "Buscar usuarios por estado",
-      description =
-          "Filtra usuarios según su estado: PENDIENTE_DE_VERIFICACION, ACTIVO, SUSPENDIDO, ELIMINADO. "
-              + "Requiere rol ADMIN.",
-      security = @SecurityRequirement(name = "bearerAuth"))
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "200", description = "Lista de usuarios filtrada por estado"),
-        @ApiResponse(
-            responseCode = "401",
-            description = "No autenticado - Token ausente o inválido"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado - Requiere rol ADMIN")
-      })
-  @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping(value = "/users/estado", produces = "application/json")
-  public ResponseEntity<List<UsuarioResponse>> obtenerUsuariosPorEstado(
-      @Parameter(description = "Estado del usuario", required = true) @RequestParam("estado")
-          EstadoUsuario estadoUsuario) {
-    logger.info(
-        "GET /v1/usuarios/users/estado?estado={} - Obteniendo lista de usuarios por estado: {}",
-        estadoUsuario,
-        estadoUsuario);
+    // Filtro por estado o lista completa → Solo ADMIN
+    boolean isAdmin =
+        authentication.getAuthorities().stream()
+            .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
 
-    List<UsuarioDTO> usuariosDTO = buscarUsuariosPorEstadoUseCase.execute(estadoUsuario);
+    if (!isAdmin) {
+      logger.warn("Acceso denegado - Usuario sin rol ADMIN intentó listar usuarios");
+      return ResponseEntity.status(403).build();
+    }
 
+    if (estado != null) {
+      List<UsuarioDTO> usuariosDTO = buscarUsuariosPorEstadoUseCase.execute(estado);
+      List<UsuarioResponse> responses = usuariosDTO.stream().map(UsuarioResponse::from).toList();
+      logger.info(
+          "Usuarios por estado obtenidos - Estado: {}, Total: {}", estado, responses.size());
+      return ResponseEntity.ok(responses);
+    }
+
+    List<UsuarioDTO> usuariosDTO = obtenerTodosLosUsuariosUseCase.execute();
     List<UsuarioResponse> responses = usuariosDTO.stream().map(UsuarioResponse::from).toList();
-
-    logger.info(
-        "Lista de usuarios por estado obtenida exitosamente - Estado: {}, Total usuarios: {}",
-        estadoUsuario,
-        responses.size());
-
+    logger.info("Todos los usuarios obtenidos - Total: {}", responses.size());
     return ResponseEntity.ok(responses);
   }
 
