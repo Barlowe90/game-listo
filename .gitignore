@@ -32,4 +32,22 @@ replay_pid*
 ### VS Code ###
 .vscode
 
+### Docker ###
+.env
+.env.local
+.env.*.local
+docker-compose.override.yml
 
+### Secrets & Sensitive Files ###
+**/application-local.properties
+**/application-prod.properties
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+secrets/
+credentials/
+
+### Additional Logs ###
+logs/

@@ -5,15 +5,11 @@ import com.gamelisto.usuarios_service.domain.exceptions.UsuarioNoEncontradoExcep
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.Usuario;
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DesvincularDiscordUseCase {
-
-  private static final Logger logger = LoggerFactory.getLogger(DesvincularDiscordUseCase.class);
 
   private final RepositorioUsuarios repositorioUsuarios;
 
@@ -22,23 +18,19 @@ public class DesvincularDiscordUseCase {
   }
 
   @Transactional
-  public UsuarioDTO execute(String usuarioIdStr) {
-    logger.info("Desvinculando cuenta de Discord para usuario: {}", usuarioIdStr);
+  public UsuarioDTO execute(String usuarioId) {
 
-    UsuarioId usuarioId = UsuarioId.fromString(usuarioIdStr);
+    UsuarioId id = UsuarioId.fromString(usuarioId);
     Usuario usuario =
         repositorioUsuarios
-            .findById(usuarioId)
+            .findById(id)
             .orElseThrow(
                 () ->
-                    new UsuarioNoEncontradoException(
-                        "Usuario no encontrado con ID: " + usuarioIdStr));
+                    new UsuarioNoEncontradoException("Usuario no encontrado con ID: " + usuarioId));
 
     usuario.unlinkDiscord();
 
     Usuario usuarioActualizado = repositorioUsuarios.save(usuario);
-
-    logger.info("Cuenta de Discord desvinculada exitosamente para usuario: {}", usuarioIdStr);
 
     return UsuarioDTO.from(usuarioActualizado);
   }
