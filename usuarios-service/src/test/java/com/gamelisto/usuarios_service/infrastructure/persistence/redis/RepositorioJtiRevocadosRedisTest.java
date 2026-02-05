@@ -1,9 +1,11 @@
 package com.gamelisto.usuarios_service.infrastructure.persistence.redis;
 
 import com.gamelisto.usuarios_service.domain.refreshtoken.Jti;
+import com.gamelisto.usuarios_service.test.config.RedisTestContainerExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
 import org.springframework.context.annotation.Import;
@@ -18,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import(RepositorioJtiRevocadosRedis.class)
 @ActiveProfiles("test")
 @DisplayName("RepositorioJtiRevocadosRedis - Persistencia de JTIs revocados")
+@ExtendWith(RedisTestContainerExtension.class)
 class RepositorioJtiRevocadosRedisTest {
 
   @Autowired private RepositorioJtiRevocadosRedis repositorio;

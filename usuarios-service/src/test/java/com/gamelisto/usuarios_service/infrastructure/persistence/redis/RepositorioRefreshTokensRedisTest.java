@@ -4,9 +4,11 @@ import com.gamelisto.usuarios_service.domain.refreshtoken.RefreshToken;
 import com.gamelisto.usuarios_service.domain.refreshtoken.TokenHash;
 import com.gamelisto.usuarios_service.domain.refreshtoken.TokenValue;
 import com.gamelisto.usuarios_service.domain.usuario.UsuarioId;
+import com.gamelisto.usuarios_service.test.config.RedisTestContainerExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
 import org.springframework.context.annotation.Import;
@@ -24,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import(RepositorioRefreshTokensRedis.class)
 @ActiveProfiles("test")
 @DisplayName("RepositorioRefreshTokensRedis - Gestión de refresh tokens")
+@ExtendWith(RedisTestContainerExtension.class)
 class RepositorioRefreshTokensRedisTest {
 
   @Autowired private RepositorioRefreshTokensRedis repositorio;

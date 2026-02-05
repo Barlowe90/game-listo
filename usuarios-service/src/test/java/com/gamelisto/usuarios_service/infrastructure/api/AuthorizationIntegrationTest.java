@@ -9,6 +9,7 @@ import com.gamelisto.usuarios_service.config.TestMessagingConfig;
 import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios_service.domain.usuario.*;
 import com.gamelisto.usuarios_service.infrastructure.api.dto.*;
+import com.gamelisto.usuarios_service.test.config.RedisTestContainerExtension;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Import(TestMessagingConfig.class)
 @Transactional
 @DisplayName("Tests de Integración - Autorización por Roles")
+@ExtendWith(RedisTestContainerExtension.class)
 @SuppressWarnings("null")
 class AuthorizationIntegrationTest {
 
