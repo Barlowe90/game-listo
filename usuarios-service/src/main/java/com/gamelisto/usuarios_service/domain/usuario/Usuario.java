@@ -8,7 +8,7 @@ public class Usuario {
 
   private static final int PASSWORD_RESET_TOKEN_TTL_SECONDS = 60 * 60; // 1 hora
   private static final int EMAIL_VERIFICATION_TOKEN_TTL_SECONDS = 24 * 60 * 60; // 24 horas
-  // Getters
+
   private final UsuarioId id;
   private Username username;
   private Email email;

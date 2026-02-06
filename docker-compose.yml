@@ -54,6 +54,35 @@ services:
       - backend
 
   # ============================================
+  # CATALOGO SERVICE - Gestión de la biblioteca de videojuegos
+  # ============================================
+  catalogo-service:
+    build:
+      context: ./catalogo-service
+      dockerfile: Dockerfile
+    container_name: catalogo-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker # busca application-docker.properties
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+      SPRING_DATA_MONGODB_URI=mongodb://root:example@mongo:27017/eventos?authSource=admin
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    networks:
+      - backend
+
+  # ============================================
   # REDIS - Rate limiting y revocación de tokens
   # ============================================
   redis:
@@ -89,6 +118,28 @@ services:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+    # ============================================
+    # MONGODB - Base de datos no relacional
+    # ============================================
+  mongo:
+    image: mongo
+    container_name: mongo_games
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - ./data:/data/db
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${MONGO_USER} -d ${MONGO_PASSWORD}" ]
       interval: 10s
       timeout: 5s
       retries: 5

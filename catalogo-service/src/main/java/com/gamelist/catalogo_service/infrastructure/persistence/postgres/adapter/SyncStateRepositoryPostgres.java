@@ -32,11 +32,9 @@ public class SyncStateRepositoryPostgres implements ISyncStateRepository {
     Optional<SyncStateEntity> existingEntity = jpaRepository.findById(syncState.getKey().name());
 
     if (existingEntity.isPresent()) {
-      // Update existing
       entity = existingEntity.get();
       mapper.updateEntity(syncState, entity);
     } else {
-      // Create new
       entity = mapper.toEntity(syncState);
     }
 
