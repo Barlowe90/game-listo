@@ -20,12 +20,6 @@ public class SyncStateRepositoryPostgres implements ISyncStateRepository {
   private final SyncStateMapper mapper;
 
   @Override
-  @Transactional(readOnly = true)
-  public Optional<SyncState> findByKey(SyncKey key) {
-    return jpaRepository.findById(key.name()).map(mapper::toDomain);
-  }
-
-  @Override
   @Transactional
   public SyncState save(SyncState syncState) {
     SyncStateEntity entity;
@@ -40,6 +34,12 @@ public class SyncStateRepositoryPostgres implements ISyncStateRepository {
 
     SyncStateEntity saved = jpaRepository.save(entity);
     return mapper.toDomain(saved);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<SyncState> findByKey(SyncKey key) {
+    return jpaRepository.findById(key.name()).map(mapper::toDomain);
   }
 
   @Override

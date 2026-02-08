@@ -4,10 +4,6 @@ import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
 
 import java.util.Objects;
 
-/**
- * Value Object que representa la abreviación de una plataforma. Sincronizado desde IGDB. Ejemplo:
- * "PS5", "XSX", "Switch"
- */
 public final class PlatformAbbreviation {
   private static final int MAX_LENGTH = 20;
   private final String value;

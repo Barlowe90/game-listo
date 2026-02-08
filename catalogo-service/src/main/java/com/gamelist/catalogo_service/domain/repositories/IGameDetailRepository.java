@@ -6,10 +6,9 @@ import com.gamelist.catalogo_service.domain.gamedetail.GameDetail;
 import java.util.Optional;
 
 public interface IGameDetailRepository {
+  GameDetail save(GameDetail gameDetail);
 
   Optional<GameDetail> findByGameId(GameId gameId);
-
-  GameDetail save(GameDetail gameDetail);
 
   void deleteByGameId(GameId gameId);
 }

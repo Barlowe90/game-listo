@@ -4,10 +4,6 @@ import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
 
 import java.util.Objects;
 
-/**
- * Value Object que representa el nombre completo de una plataforma. Sincronizado desde IGDB.
- * Ejemplo: "PlayStation 5", "Xbox Series X/S", "Nintendo Switch"
- */
 public final class PlatformName {
   private static final int MAX_LENGTH = 100;
   private final String value;

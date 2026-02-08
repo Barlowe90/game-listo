@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.Instant;
 
-/** Entidad JPA para sync_state en PostgreSQL. */
 @Entity
 @Table(name = "sync_state")
 @Getter

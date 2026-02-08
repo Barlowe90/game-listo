@@ -12,6 +12,4 @@ public interface GameDetailMongoRepository extends MongoRepository<GameDetailDoc
   Optional<GameDetailDocument> findByGameId(Long gameId);
 
   void deleteByGameId(Long gameId);
-
-  boolean existsByGameId(Long gameId);
 }

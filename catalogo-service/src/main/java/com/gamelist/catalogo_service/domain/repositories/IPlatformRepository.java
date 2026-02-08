@@ -8,11 +8,13 @@ import java.util.Optional;
 
 public interface IPlatformRepository {
 
-  Optional<Platform> findById(PlatformId id);
-
   Platform save(Platform platform);
 
+  Optional<Platform> findById(PlatformId id);
+
   List<Platform> findAll();
+
+  List<Platform> saveAll(List<Platform> platforms);
 
   void deleteById(PlatformId id);
 }

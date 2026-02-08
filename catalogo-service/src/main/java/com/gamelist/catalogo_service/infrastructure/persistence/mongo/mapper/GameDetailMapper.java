@@ -10,7 +10,6 @@ import com.gamelist.catalogo_service.infrastructure.persistence.mongo.document.V
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class GameDetailMapper {
@@ -48,8 +47,6 @@ public class GameDetailMapper {
 
     return GameDetail.reconstitute(gameId, screenshots, videos);
   }
-
-  // ========== Mappers para embedded documents ==========
 
   private ScreenshotDocument toScreenshotDocument(Screenshot screenshot) {
     return new ScreenshotDocument(screenshot.url(), screenshot.width(), screenshot.height());

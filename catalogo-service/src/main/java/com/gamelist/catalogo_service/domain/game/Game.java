@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-/** Agregado raíz Game - Representa un videojuego del catálogo. Datos obtenidos de IGDB. */
 @Getter
 public class Game {
   private final GameId id;
@@ -20,7 +19,6 @@ public class Game {
   private final Instant createdAt;
   private Instant updatedAt;
 
-  // Constructor privado - solo accesible via factory methods
   private Game(
       GameId id,
       GameName name,
@@ -38,7 +36,6 @@ public class Game {
     this.updatedAt = updatedAt != null ? updatedAt : Instant.now();
   }
 
-  /** Factory method para crear un nuevo juego (desde IGDB). */
   public static Game create(GameId id, GameName name, Summary summary, CoverUrl coverUrl) {
     if (id == null) {
       throw new InvalidGameDataException("El ID del juego es obligatorio");
@@ -51,7 +48,6 @@ public class Game {
     return new Game(id, name, summary, coverUrl, new HashSet<>(), now, now);
   }
 
-  /** Factory method para reconstituir un juego desde la base de datos. */
   public static Game reconstitute(
       GameId id,
       GameName name,
@@ -63,9 +59,6 @@ public class Game {
     return new Game(id, name, summary, coverUrl, platformIds, createdAt, updatedAt);
   }
 
-  // ========== Métodos de negocio ==========
-
-  /** Actualiza los metadatos básicos del juego. */
   public void updateMetadata(GameName newName, Summary newSummary, CoverUrl newCoverUrl) {
     if (newName != null) {
       this.name = newName;
@@ -79,7 +72,6 @@ public class Game {
     this.updatedAt = Instant.now();
   }
 
-  /** Añade una plataforma al juego. */
   public void addPlatform(PlatformId platformId) {
     if (platformId == null) {
       throw new InvalidGameDataException("PlatformId no puede ser nulo");
@@ -88,29 +80,23 @@ public class Game {
     this.updatedAt = Instant.now();
   }
 
-  /** Establece las plataformas del juego (reemplaza las existentes). */
   public void setPlatforms(Set<PlatformId> newPlatformIds) {
     this.platformIds = newPlatformIds != null ? new HashSet<>(newPlatformIds) : new HashSet<>();
     this.updatedAt = Instant.now();
   }
 
-  /** Elimina una plataforma del juego. */
   public void removePlatform(PlatformId platformId) {
     this.platformIds.remove(platformId);
     this.updatedAt = Instant.now();
   }
 
-  /** Verifica si el juego tiene una portada asignada. */
   public boolean hasCover() {
     return coverUrl != null && !coverUrl.isEmpty();
   }
 
-  /** Verifica si el juego tiene un resumen. */
   public boolean hasSummary() {
     return summary != null && !summary.isEmpty();
   }
-
-  // ========== equals, hashCode, toString ==========
 
   @Override
   public boolean equals(Object o) {

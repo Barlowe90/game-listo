@@ -17,8 +17,25 @@ Además, el microservicio:
 
 - Ejecuta **ingesta automatizada** desde IGDB (Spring Scheduler).
 - Publica **eventos de integración** para:
-    - disparar **reindexación** en OpenSearch (en otro microservicio),
+    - disparar **reindexación** en OpenSearch (**search-service**),
     - e **invalidar cachés** (si aplica).
+
+### Integración con Otros Servicios
+
+**catalogo-service NO implementa búsqueda avanzada** - esta responsabilidad está delegada a **search-service** (
+OpenSearch):
+
+- **search-service**: Consume eventos de RabbitMQ (`CatalogGameUpserted`) e indexa en OpenSearch
+- **graphql-bff**: Llama a search-service para búsquedas y a catalogo-service para detalles completos
+- **biblioteca-service**: Escucha eventos para validar que gameId existe antes de añadir a biblioteca
+
+**Flujo de Búsqueda:**
+
+```
+Frontend → API Gateway → GraphQL BFF → search-service (OpenSearch) + catalogo-service (detalles)
+```
+
+**Ver documentación detallada:** `INTEGRACION-SERVICIOS.md`
 
 ---
 

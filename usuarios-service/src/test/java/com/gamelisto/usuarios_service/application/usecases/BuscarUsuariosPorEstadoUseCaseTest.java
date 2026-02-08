@@ -335,8 +335,8 @@ class BuscarUsuariosPorEstadoUseCaseTest {
     List<UsuarioDTO> resultado = useCase.execute(EstadoUsuario.ACTIVO);
 
     // Assert
-    assertThat(resultado).hasSize(2);
     assertThat(resultado)
+        .hasSize(2)
         .anyMatch(dto -> dto.username().equals("user1") && dto.role().equals("USER"))
         .anyMatch(dto -> dto.username().equals("admin1") && dto.role().equals("ADMIN"));
 

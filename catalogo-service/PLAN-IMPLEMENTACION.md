@@ -5,6 +5,17 @@
 
 ---
 
+## 📊 Estado de Implementación
+
+- ✅ **FASE 1: Capa de Dominio** - COMPLETADA
+- ✅ **FASE 2: Capa de Aplicación** - COMPLETADA (2026-02-06)
+- ⏳ **FASE 3: Capa de Infraestructura (Adapters)** - SIGUIENTE
+- ⏳ **FASE 4: Tests de Integración** - PENDIENTE
+
+**Ver detalles:** `FASE-2-COMPLETADA.md`
+
+---
+
 ## 📋 Resumen Ejecutivo
 
 ### Stack Tecnológico
@@ -21,6 +32,38 @@
 ### Puerto del Servicio
 
 - **8082** (configurado en `application.properties`)
+
+### Integración con Otros Servicios
+
+**catalogo-service** NO implementa búsqueda avanzada - esta responsabilidad está en **search-service**:
+
+#### 🔍 search-service (OpenSearch)
+
+- **Responsabilidad**: Búsqueda full-text, autocomplete, filtrado facetado
+- **Comunicación**: Escucha eventos de RabbitMQ (`GameCreated`, `GameUpdated`, `GameDeleted`)
+- **Indexación**: Event-driven (NO accede directamente a BD)
+- **Endpoints**: `/v1/search/games`, `/v1/search/autocomplete`
+
+#### 📊 graphql-bff (GraphQL)
+
+- **Responsabilidad**: Agregar datos de múltiples servicios (usuarios, catálogo, biblioteca)
+- **Comunicación**: Llama a APIs REST de catalogo-service
+- **Ejemplo Query**: `searchGames(query: "zelda")` → llama a search-service + catalogo-service
+- **DataLoader**: Evita N+1 queries al obtener detalles de juegos
+
+**Flujo de Búsqueda:**
+
+```
+Frontend → API Gateway → GraphQL BFF → search-service (índice OpenSearch)
+                                    ↓
+                              catalogo-service (detalles completos)
+```
+
+**Eventos Publicados por catalogo-service:**
+
+- `CatalogGameUpserted`: Cuando un juego se crea/actualiza → search-service indexa
+- `PlatformsSyncCompleted`: Cuando se sincronizan plataformas → search-service actualiza facets
+- `CatalogSyncBatchCompleted`: Progreso de sincronización masiva
 
 ### Modelo de Datos (MVP)
 

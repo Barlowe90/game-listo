@@ -10,6 +10,8 @@ import com.gamelist.catalogo_service.infrastructure.persistence.postgres.mapper.
 import com.gamelist.catalogo_service.infrastructure.persistence.postgres.repository.GameJpaRepository;
 import com.gamelist.catalogo_service.infrastructure.persistence.postgres.repository.PlatformJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,18 +26,6 @@ public class GameRepositoryPostgres implements IGameRepository {
   private final GameJpaRepository jpaRepository;
   private final PlatformJpaRepository platformJpaRepository;
   private final GameMapper mapper;
-
-  @Override
-  @Transactional(readOnly = true)
-  public Optional<Game> findById(GameId id) {
-    return jpaRepository.findById(id.value()).map(mapper::toDomain);
-  }
-
-  @Override
-  @Transactional(readOnly = true)
-  public Optional<Game> findByName(String name) {
-    return jpaRepository.findByName(name.trim()).map(mapper::toDomain);
-  }
 
   @Override
   @Transactional
@@ -59,6 +49,18 @@ public class GameRepositoryPostgres implements IGameRepository {
 
     GameEntity savedEntity = jpaRepository.save(entity);
     return mapper.toDomain(savedEntity);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<Game> findById(GameId id) {
+    return jpaRepository.findById(id.value()).map(mapper::toDomain);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<Game> findByName(String name) {
+    return jpaRepository.findByName(name.trim()).map(mapper::toDomain);
   }
 
   @Override

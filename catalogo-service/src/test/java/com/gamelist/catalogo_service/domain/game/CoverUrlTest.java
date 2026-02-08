@@ -88,7 +88,7 @@ class CoverUrlTest {
 
     // Assert
     assertThat(url1).isEqualTo(url2);
-    assertThat(url1.hashCode()).isEqualTo(url2.hashCode());
+    assertThat(url1.hashCode()).hasSameHashCodeAs(url2.hashCode());
   }
 
   @Test

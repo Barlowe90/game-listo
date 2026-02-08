@@ -19,11 +19,6 @@ public class GameDetailRepositoryMongo implements IGameDetailRepository {
   private final GameDetailMapper mapper;
 
   @Override
-  public Optional<GameDetail> findByGameId(GameId gameId) {
-    return mongoRepository.findByGameId(gameId.value()).map(mapper::toDomain);
-  }
-
-  @Override
   public GameDetail save(GameDetail gameDetail) {
     GameDetailDocument document = mapper.toDocument(gameDetail);
 
@@ -34,6 +29,11 @@ public class GameDetailRepositoryMongo implements IGameDetailRepository {
 
     GameDetailDocument saved = mongoRepository.save(document);
     return mapper.toDomain(saved);
+  }
+
+  @Override
+  public Optional<GameDetail> findByGameId(GameId gameId) {
+    return mongoRepository.findByGameId(gameId.value()).map(mapper::toDomain);
   }
 
   @Override

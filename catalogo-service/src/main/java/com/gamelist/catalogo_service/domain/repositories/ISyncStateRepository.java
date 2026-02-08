@@ -7,9 +7,9 @@ import java.util.Optional;
 
 public interface ISyncStateRepository {
 
-  Optional<SyncState> findByKey(SyncKey key);
-
   SyncState save(SyncState syncState);
+
+  Optional<SyncState> findByKey(SyncKey key);
 
   void deleteByKey(SyncKey key);
 }

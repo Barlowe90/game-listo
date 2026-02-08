@@ -190,6 +190,26 @@ public class UsuariosController {
 
 ## Microservice Context
 
+### Platform Architecture Overview
+
+GameListo sigue una **arquitectura de microservicios** con componentes especializados:
+
+- **API Gateway**: Punto de entrada único (Spring Cloud Gateway)
+- **GraphQL BFF**: Backend for Frontend que agrega datos de múltiples microservicios
+- **Core Services**: Microservicios de dominio (usuarios, catálogo, biblioteca, etc.)
+- **Search Service**: Microservicio especializado de búsqueda con OpenSearch
+- **Event Bus**: RabbitMQ para comunicación asíncrona entre servicios
+
+**Data Flow:**
+
+```
+Frontend → API Gateway → GraphQL BFF → Microservicios (REST)
+                                    ↓
+                               Search Service (OpenSearch)
+                                    ↑
+                            Event Bus (RabbitMQ)
+```
+
 ### api-gateway (Spring Cloud Gateway)
 
 **API Gateway** - Puerta de entrada única para todos los microservicios:
@@ -290,6 +310,177 @@ curl http://localhost:8090/v1/usuarios/auth/me -H "Authorization: Bearer <token>
 - REST for synchronous queries
 - RabbitMQ events for async updates (infrastructure in `/messaging` - not yet implemented)
 - GraphQL BFF for frontend data aggregation
+
+---
+
+### catalogo-service (⏳ In Development)
+
+**catalogo-service** manages the game catalog with IGDB API integration:
+
+**⚠️ IMPORTANT - IGDB Credentials:**
+
+- The developer already has IGDB credentials (Client ID and Access Token)
+- Credentials are managed manually in the `.env` file
+- NO need to implement OAuth2 flow or token generation
+- NO need to create scripts to obtain tokens
+- The developer will update the token when it expires
+
+**Responsibilities:**
+
+- ⏳ Game catalog (CRUD operations)
+- ⏳ Platform catalog (synchronized from IGDB)
+- ⏳ Automated IGDB data ingestion (Spring Scheduler)
+- ⏳ Rich game details (screenshots, videos) stored in MongoDB
+- ⏳ Game-Platform relationships (PostgreSQL)
+- ⏳ Publish events when new games are added/updated (RabbitMQ)
+
+**Data Sources:**
+
+- **IGDB API**: External source for game data
+- **PostgreSQL**: Structured data (games, platforms, relationships)
+- **MongoDB**: Rich content (screenshots, videos, extended descriptions)
+
+**Communication:**
+
+- REST API for CRUD operations (`/v1/catalogo/*`)
+- RabbitMQ events: `GameCreated`, `GameUpdated`, `PlatformSynchronized`
+- Consumed by: search-service (for indexing), biblioteca-service (for user libraries)
+
+**Current Status:** FASE 2 completed (domain + application layers), FASE 3 in progress (infrastructure adapters)
+
+---
+
+### search-service (⏳ Planned)
+
+**search-service** provides fast, full-text search and autocomplete for games using OpenSearch:
+
+**Responsibilities:**
+
+- 🔍 Full-text search across game catalog (name, summary, tags)
+- 🔍 Autocomplete/type-ahead suggestions for search box
+- 🔍 Faceted filtering (genre, platform, year, rating)
+- 🔍 Lightweight sorting (relevance, name, release date)
+- 🔍 Search group (find players looking for teammates)
+
+**Data Source:**
+
+- **Event-driven indexing**: Listens to RabbitMQ events from catalogo-service
+- **Events consumed**: `GameCreated`, `GameUpdated`, `GameDeleted`, `PlatformSynchronized`
+- **No direct DB access**: Search index is built from events only
+
+**Technology:**
+
+- **OpenSearch** as search engine
+- **Spring Data OpenSearch** for repository pattern
+- **Event listeners** via Spring AMQP (RabbitMQ)
+
+**API Endpoints (Planned):**
+
+```
+GET /v1/search/games?q={query}&platform={id}&genre={id}&page={n}
+GET /v1/search/autocomplete?q={query}&limit={n}
+GET /v1/search/groups?game={id}&platform={id}
+```
+
+**Communication:**
+
+- Consumes events from: catalogo-service, biblioteca-service (for group search)
+- Exposes REST API consumed by: GraphQL BFF
+- Cache layer: Redis for frequently accessed queries
+
+**Why OpenSearch?**
+
+- Optimized for search queries (faster than PostgreSQL LIKE queries)
+- Faceted filtering and aggregations
+- Autocomplete with ngram tokenizers
+- Horizontal scalability for large catalogs
+
+---
+
+### graphql-bff (⏳ Planned)
+
+**graphql-bff** (Backend for Frontend) aggregates data from multiple microservices into a single GraphQL API:
+
+**Responsibilities:**
+
+- 📊 Data aggregation from multiple services in a single query
+- 📊 Reduce round-trips between frontend and backend
+- 📊 Type-safe schema with GraphQL SDL
+- 📊 Resolver composition (fetch from REST APIs of microservices)
+- 📊 Client-specific data shaping (avoid over-fetching/under-fetching)
+
+**Technology:**
+
+- **Spring GraphQL** (Spring Boot integration)
+- **GraphQL Schema** with federation patterns
+- **REST clients** (WebClient) to call microservices
+- **DataLoader** for batching and caching
+
+**Example Queries:**
+
+```graphql
+# Single query to get user profile + game library + friend activity
+query UserDashboard($userId: ID!) {
+  user(id: $userId) {
+    username
+    avatar
+    library {
+      game {
+        name
+        cover
+        platforms
+      }
+      status
+      rating
+    }
+    friends {
+      username
+      currentlyPlaying {
+        name
+        cover
+      }
+    }
+  }
+}
+
+# Search games with autocomplete
+query SearchGames($query: String!, $platforms: [ID!]) {
+  searchGames(query: $query, platforms: $platforms) {
+    id
+    name
+    cover
+    summary
+    platforms {
+      name
+      abbreviation
+    }
+  }
+}
+```
+
+**Services Called:**
+
+- `usuarios-service`: User profile, friends
+- `catalogo-service`: Game details, platforms
+- `biblioteca-service`: User library, ratings
+- `search-service`: Game search, autocomplete
+- `social-service`: Friend graph, recommendations
+
+**Why GraphQL BFF?**
+
+- Frontend can request exactly what it needs in one query
+- Reduces chattiness (no multiple REST calls)
+- Type safety with TypeScript codegen
+- Better DX for frontend developers
+
+**Communication:**
+
+- Exposes GraphQL API at `/graphql` (behind API Gateway)
+- Calls microservices via REST (internal network)
+- Uses DataLoader for N+1 query prevention
+- Cache layer: Redis for resolver results
+
+---
 
 ## Development Workflow
 

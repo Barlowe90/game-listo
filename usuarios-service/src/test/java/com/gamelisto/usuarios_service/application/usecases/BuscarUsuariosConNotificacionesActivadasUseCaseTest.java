@@ -83,7 +83,7 @@ class BuscarUsuariosConNotificacionesActivadasUseCaseTest {
     // Assert
     assertThat(resultado)
         .hasSize(2)
-        .allMatch(dto -> dto.notificationsActive())
+        .allMatch(UsuarioDTO::notificationsActive)
         .allMatch(dto -> dto.status().equals("ACTIVO"));
 
     verify(repositorio, times(1)).findByStatusAndNotificationsActive(EstadoUsuario.ACTIVO, true);
@@ -124,7 +124,7 @@ class BuscarUsuariosConNotificacionesActivadasUseCaseTest {
     // Assert
     assertThat(resultado)
         .hasSize(1)
-        .allMatch(dto -> dto.notificationsActive())
+        .allMatch(UsuarioDTO::notificationsActive)
         .noneMatch(dto -> !dto.notificationsActive());
 
     verify(repositorio).findByStatusAndNotificationsActive(EstadoUsuario.ACTIVO, true);
@@ -301,7 +301,7 @@ class BuscarUsuariosConNotificacionesActivadasUseCaseTest {
         .hasSize(2)
         .anyMatch(dto -> dto.language().equals("ESP"))
         .anyMatch(dto -> dto.language().equals("ENG"))
-        .allMatch(dto -> dto.notificationsActive());
+        .allMatch(UsuarioDTO::notificationsActive);
 
     verify(repositorio).findByStatusAndNotificationsActive(EstadoUsuario.ACTIVO, true);
   }

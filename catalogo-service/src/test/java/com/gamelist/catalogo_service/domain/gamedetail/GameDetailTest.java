@@ -165,6 +165,6 @@ class GameDetailTest {
 
     // Assert
     assertThat(gd1).isEqualTo(gd2);
-    assertThat(gd1.hashCode()).isEqualTo(gd2.hashCode());
+    assertThat(gd1.hashCode()).hasSameHashCodeAs(gd2.hashCode());
   }
 }
