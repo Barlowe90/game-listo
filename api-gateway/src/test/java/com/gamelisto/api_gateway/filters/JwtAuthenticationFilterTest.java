@@ -3,7 +3,6 @@ package com.gamelisto.api_gateway.filters;
 import com.gamelisto.api_gateway.config.JwtProperties;
 import com.gamelisto.api_gateway.security.JwtValidator;
 import com.gamelisto.api_gateway.security.TokenRevocationService;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.BeforeEach;

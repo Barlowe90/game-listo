@@ -50,6 +50,12 @@ Además, se aplican políticas de CSP desde la capa de entrega del frontend, y s
 La mensajería en tiempo real (mensajes directos y chats de grupo) se realiza mediante un botón que llama a la
 aplicación de Discord, previamente añadiendo el usuario e id a la cuenta del mismo.
 
+## Principios
+
+KISS - Keep It Simple Stupid.
+
+Esto es un TFG, estoy yo solo haciéndolo, por lo que es MUY IMPORTANTE hacer una versión simple.
+
 ## Architecture Principles!
 
 ### Hexagonal Architecture (Ports & Adapters)
