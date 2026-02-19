@@ -1,7 +1,7 @@
-package com.gamelist.catalogo_service.domain.repositories;
+package com.gamelist.catalogo.domain.repositories;
 
-import com.gamelist.catalogo_service.domain.catalog.Platform;
-import com.gamelist.catalogo_service.domain.catalog.PlatformId;
+import com.gamelist.catalogo.domain.catalog.Platform;
+import com.gamelist.catalogo.domain.catalog.PlatformId;
 
 import java.util.List;
 import java.util.Optional;

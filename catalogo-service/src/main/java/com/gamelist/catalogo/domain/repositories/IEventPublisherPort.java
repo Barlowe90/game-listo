@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.application.ports;
+package com.gamelist.catalogo.domain.repositories;
 
 public interface IEventPublisherPort {
 

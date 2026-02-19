@@ -1,4 +1,4 @@
-package com.gamelist.catalogo_service.domain.events;
+package com.gamelist.catalogo.domain.events;
 
 import java.time.Instant;
 
@@ -10,7 +10,7 @@ import java.time.Instant;
  */
 public record PlatformsSyncCompleted(int totalPlatforms, Instant occurredAt) {
 
-    public static PlatformsSyncCompleted of(int totalPlatforms) {
-        return new PlatformsSyncCompleted(totalPlatforms, Instant.now());
-    }
+  public static PlatformsSyncCompleted of(int totalPlatforms) {
+    return new PlatformsSyncCompleted(totalPlatforms, Instant.now());
+  }
 }

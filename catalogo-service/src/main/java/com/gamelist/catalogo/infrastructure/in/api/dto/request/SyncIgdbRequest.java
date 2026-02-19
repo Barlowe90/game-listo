@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.infrastructure.api.dto.request;
+package com.gamelist.catalogo.infrastructure.in.api.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;

@@ -1,6 +1,6 @@
-package com.gamelist.catalogo_service.domain.gamedetail;
+package com.gamelist.catalogo.domain.gamedetail;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +38,7 @@ class VideoTest {
   void debeLanzarExcepcionSiURLNula() {
     // Act & Assert
     assertThatThrownBy(() -> Video.of(null, "abc123"))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("URL del video no puede estar vacía");
   }
 
@@ -46,7 +46,7 @@ class VideoTest {
   @DisplayName("Debe lanzar excepción si URL está vacía")
   void debeLanzarExcepcionSiURLVacia() {
     // Act & Assert
-    assertThatThrownBy(() -> Video.of("")).isInstanceOf(InvalidGameDataException.class);
+    assertThatThrownBy(() -> Video.of("")).isInstanceOf(DomainException.class);
   }
 
   @Test

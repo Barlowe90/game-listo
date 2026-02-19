@@ -1,6 +1,6 @@
-package com.gamelist.catalogo_service.domain.game;
+package com.gamelist.catalogo.domain.game;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 
 public final class GameId {
 
@@ -8,10 +8,10 @@ public final class GameId {
 
   private GameId(Long value) {
     if (value == null) {
-      throw new InvalidGameDataException("El ID del juego no puede ser nulo");
+      throw new DomainException("El ID del juego no puede ser nulo");
     }
     if (value <= 0) {
-      throw new InvalidGameDataException("El ID del juego debe ser un número positivo");
+      throw new DomainException("El ID del juego debe ser un número positivo");
     }
     this.value = value;
   }

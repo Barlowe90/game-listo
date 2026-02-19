@@ -1,7 +1,6 @@
-package com.gamelist.catalogo_service.domain.game;
+package com.gamelist.catalogo.domain.game;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
-
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import java.util.Objects;
 
 public final class GameName {
@@ -10,10 +9,10 @@ public final class GameName {
 
   private GameName(String value) {
     if (value == null || value.isBlank()) {
-      throw new InvalidGameDataException("El nombre del juego no puede estar vacío");
+      throw new DomainException("El nombre del juego no puede estar vacío");
     }
     if (value.length() > MAX_LENGTH) {
-      throw new InvalidGameDataException("El nombre excede los " + MAX_LENGTH + " caracteres");
+      throw new DomainException("El nombre excede los " + MAX_LENGTH + " caracteres");
     }
     this.value = value.trim();
   }

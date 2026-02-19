@@ -1,7 +1,4 @@
-package com.gamelist.catalogo_service.application.dto.queries;
+package com.gamelist.catalogo.application.dto.queries;
 
-/**
- * Query para obtener detalle de un juego
- */
-public record GetGameDetailQuery(Long gameId) {
-}
+/** Query para obtener detalle de un juego */
+public record GetGameDetailQuery(Long gameId) {}

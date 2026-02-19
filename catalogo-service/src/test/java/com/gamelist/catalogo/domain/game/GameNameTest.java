@@ -1,6 +1,6 @@
-package com.gamelist.catalogo_service.domain.game;
+package com.gamelist.catalogo.domain.game;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +34,7 @@ class GameNameTest {
   void debeLanzarExcepcionSiNombreNulo() {
     // Act & Assert
     assertThatThrownBy(() -> GameName.of(null))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("no puede estar vacío");
   }
 
@@ -43,7 +43,7 @@ class GameNameTest {
   void debeLanzarExcepcionSiNombreVacio() {
     // Act & Assert
     assertThatThrownBy(() -> GameName.of(""))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("no puede estar vacío");
   }
 
@@ -52,7 +52,7 @@ class GameNameTest {
   void debeLanzarExcepcionSiSoloEspacios() {
     // Act & Assert
     assertThatThrownBy(() -> GameName.of("   "))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("no puede estar vacío");
   }
 
@@ -64,7 +64,7 @@ class GameNameTest {
 
     // Act & Assert
     assertThatThrownBy(() -> GameName.of(nombreLargo))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("excede los 200 caracteres");
   }
 

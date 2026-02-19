@@ -1,14 +1,14 @@
-package com.gamelist.catalogo.infrastructure.persistence.postgres.adapter;
+package com.gamelist.catalogo.infrastructure.out.persistence.postgres.adapter;
 
 import com.gamelist.catalogo.domain.catalog.PlatformId;
 import com.gamelist.catalogo.domain.game.Game;
 import com.gamelist.catalogo.domain.game.GameId;
 import com.gamelist.catalogo.domain.repositories.IGameRepository;
-import com.gamelist.catalogo.infrastructure.persistence.postgres.entity.GameEntity;
-import com.gamelist.catalogo.infrastructure.persistence.postgres.entity.PlatformEntity;
-import com.gamelist.catalogo.infrastructure.persistence.postgres.mapper.GameMapper;
-import com.gamelist.catalogo.infrastructure.persistence.postgres.repository.GameJpaRepository;
-import com.gamelist.catalogo.infrastructure.persistence.postgres.repository.PlatformJpaRepository;
+import com.gamelist.catalogo.infrastructure.out.persistence.postgres.entity.GameEntity;
+import com.gamelist.catalogo.infrastructure.out.persistence.postgres.entity.PlatformEntity;
+import com.gamelist.catalogo.infrastructure.out.persistence.postgres.mapper.GameMapper;
+import com.gamelist.catalogo.infrastructure.out.persistence.postgres.repository.GameJpaRepository;
+import com.gamelist.catalogo.infrastructure.out.persistence.postgres.repository.PlatformJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;

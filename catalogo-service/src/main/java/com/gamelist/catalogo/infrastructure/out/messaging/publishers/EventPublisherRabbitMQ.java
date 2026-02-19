@@ -1,11 +1,11 @@
-package com.gamelist.catalogo.infrastructure.messaging.publishers;
+package com.gamelist.catalogo.infrastructure.out.messaging.publishers;
 
 import com.gamelist.catalogo.domain.repositories.IEventPublisherPort;
 import com.gamelist.catalogo.domain.events.CatalogGameUpserted;
 import com.gamelist.catalogo.domain.events.CatalogSyncBatchCompleted;
 import com.gamelist.catalogo.domain.events.CatalogSyncCompleted;
 import com.gamelist.catalogo.domain.events.PlatformsSyncCompleted;
-import com.gamelist.catalogo.infrastructure.messaging.config.MessagingConfig;
+import com.gamelist.catalogo.infrastructure.out.messaging.config.MessagingConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

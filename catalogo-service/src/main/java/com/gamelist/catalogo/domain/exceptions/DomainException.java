@@ -1,4 +1,4 @@
-package com.gamelisto.usuarios.domain.exceptions;
+package com.gamelist.catalogo.domain.exceptions;
 
 public class DomainException extends RuntimeException {
 

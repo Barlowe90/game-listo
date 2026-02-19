@@ -1,11 +1,11 @@
-package com.gamelist.catalogo.infrastructure.persistence.postgres.adapter;
+package com.gamelist.catalogo.infrastructure.out.persistence.postgres.adapter;
 
 import com.gamelist.catalogo.domain.repositories.ISyncStateRepository;
 import com.gamelist.catalogo.domain.syncstate.SyncKey;
 import com.gamelist.catalogo.domain.syncstate.SyncState;
-import com.gamelist.catalogo.infrastructure.persistence.postgres.entity.SyncStateEntity;
-import com.gamelist.catalogo.infrastructure.persistence.postgres.mapper.SyncStateMapper;
-import com.gamelist.catalogo.infrastructure.persistence.postgres.repository.SyncStateJpaRepository;
+import com.gamelist.catalogo.infrastructure.out.persistence.postgres.entity.SyncStateEntity;
+import com.gamelist.catalogo.infrastructure.out.persistence.postgres.mapper.SyncStateMapper;
+import com.gamelist.catalogo.infrastructure.out.persistence.postgres.repository.SyncStateJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;

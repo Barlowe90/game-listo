@@ -9,10 +9,10 @@
 
 - ✅ **FASE 1: Capa de Dominio** - COMPLETADA
 - ✅ **FASE 2: Capa de Aplicación** - COMPLETADA (2026-02-06)
-- ⏳ **FASE 3: Capa de Infraestructura (Adapters)** - SIGUIENTE
-- ⏳ **FASE 4: Tests de Integración** - PENDIENTE
+- ✅ **FASE 3: Capa de Infraestructura (Adapters)** - COMPLETADA (2026-02-19)
+- ⏳ **FASE 4: Tests de Integración** - SIGUIENTE
 
-**Ver detalles:** `FASE-2-COMPLETADA.md`
+**Ver detalles:** `FASE-3-COMPLETADA.md`
 
 ---
 
@@ -1648,66 +1648,68 @@ spring.rabbitmq.host=rabbitmq
 
 ### Domain Layer
 
-- [ ] Value Objects: `GameId`, `GameName`, `Summary`, `CoverUrl`
-- [ ] Enums: `PlatformType`, `SyncKey`
-- [ ] Entidades: `Game`, `Platform`
-- [ ] Agregado: `GameDetail` con VOs `Screenshot` y `Video`
-- [ ] Entidad: `SyncState`
-- [ ] Eventos: `CatalogGameUpserted`, `CatalogSyncBatchCompleted`, `CatalogSyncCompleted`
-- [ ] Repository Ports: `IGameRepository`, `IGameDetailRepository`, `ISyncStateRepository`
-- [ ] Excepciones: `GameNotFoundException`, `InvalidGameDataException`, `SyncStateNotFoundException`
+- [x] Value Objects: `GameId`, `GameName`, `Summary`, `CoverUrl`
+- [x] Enums: `PlatformType`, `SyncKey`
+- [x] Entidades: `Game`, `Platform`
+- [x] Agregado: `GameDetail` con VOs `Screenshot` y `Video`
+- [x] Entidad: `SyncState`
+- [x] Eventos: `CatalogGameUpserted`, `CatalogSyncBatchCompleted`, `CatalogSyncCompleted`
+- [x] Repository Ports: `IGameRepository`, `IGameDetailRepository`, `ISyncStateRepository`
+- [x] Excepciones: `GameNotFoundException`, `InvalidGameDataException`, `SyncStateNotFoundException`
 
 ### Application Layer
 
-- [ ] DTOs: `GameDTO`, `GameDetailDTO`, `IgdbGameDTO`, `SyncResultDTO`
-- [ ] Commands: `SyncIgdbCommand`
-- [ ] Queries: `GetGameDetailQuery`, `SearchGamesQuery`
-- [ ] Use Cases: `SyncIgdbUseCase`, `GetGameDetailUseCase`, `SearchGamesByNameUseCase`
-- [ ] Ports: `IIgdbClientPort`, `IEventPublisherPort`
+- [x] DTOs: `GameDTO`, `GameDetailDTO`, `IgdbGameDTO`, `SyncResultDTO`
+- [x] Commands: `SyncIgdbGamesCommand`, `SyncPlatformsCommand`
+- [x] Queries: `GetGameDetailQuery`, `SearchGamesQuery`
+- [x] Use Cases: `SyncIgdbGamesUseCase`, `SyncPlatformsFromIgdbUseCase`, `GetGameDetailUseCase`,
+  `SearchGamesByNameUseCase`
+- [x] Ports: `IIgdbClientPort`, `IEventPublisherPort`
 
 ### Infrastructure - Persistence
 
-- [ ] JPA Entities: `GameEntity`, `PlatformEntity`, `SyncStateEntity`
-- [ ] JPA Entity: Tabla puente `GamePlatformEntity` (M:N)
-- [ ] Mongo Document: `GameDetailDocument` con embedded docs (`ScreenshotDocument`, `VideoDocument`)
-- [ ] Mappers: `GameMapper`, `PlatformMapper`, `GameDetailMapper`
-- [ ] JPA Repositories: `GameJpaRepository`, `PlatformJpaRepository`, `SyncStateJpaRepository`
-- [ ] Mongo Repository: `GameDetailMongoRepository`
-- [ ] Implementaciones: `GameRepositoryPostgres`, `GameDetailRepositoryMongo`, `SyncStateRepositoryPostgres`
+- [x] JPA Entities: `GameEntity`, `PlatformEntity`, `SyncStateEntity`
+- [x] Relación M:N: tabla puente `game_platform` (via `@JoinTable` en `GameEntity`)
+- [x] Mongo Document: `GameDetailDocument` con embedded docs (`ScreenshotDocument`, `VideoDocument`)
+- [x] Mappers: `GameMapper`, `PlatformMapper`, `SyncStateMapper`, `GameDetailMapper`
+- [x] JPA Repositories: `GameJpaRepository`, `PlatformJpaRepository`, `SyncStateJpaRepository`
+- [x] Mongo Repository: `GameDetailMongoRepository`
+- [x] Implementaciones: `GameRepositoryPostgres`, `PlatformRepositoryPostgres`, `GameDetailRepositoryMongo`,
+  `SyncStateRepositoryPostgres`
 
 ### Infrastructure - IGDB Client
 
-- [ ] `IgdbProperties` con `@ConfigurationProperties`
-- [ ] `WebClientConfig` para bean de `WebClient`
-- [ ] `IgdbQueryBuilder` para generar queries DSL
-- [ ] `IgdbRateLimitHandler` con exponential backoff
-- [ ] `IgdbHttpAdapter` implementando `IIgdbClientPort`
-- [ ] `ScheduledSyncJob` con `@Scheduled`
+- [x] `IgdbProperties` con `@ConfigurationProperties`
+- [x] `WebClientConfig` para bean de `WebClient`
+- [x] `IgdbQueryBuilder` para generar queries DSL
+- [x] `IgdbRateLimitHandler` con exponential backoff
+- [x] `IgdbHttpAdapter` implementando `IIgdbClientPort`
+- [x] `ScheduledSyncJob` con `@Scheduled`
 
 ### Infrastructure - API & Events
 
-- [ ] DTOs Request: `SyncIgdbRequest`
-- [ ] DTOs Response: `GameDetailResponse`, `GameSearchResponse`, `SyncStatusResponse`
-- [ ] `CatalogoController` con 3 endpoints
-- [ ] `MessagingConfig` con exchanges/queues RabbitMQ
-- [ ] `EventPublisherRabbitMQ` implementando `IEventPublisherPort`
-- [ ] `SecurityConfig` para validar headers del Gateway
+- [x] DTOs Request: `SyncIgdbRequest`
+- [x] DTOs Response: `GameDetailResponse`, `GameResponse`, `PlatformResponse`, `SyncStatusResponse`
+- [x] `CatalogoController` con endpoints: health, sync/games, igdb/sync/platforms, games/{id}, platforms, platforms/{id}
+- [x] `MessagingConfig` con exchanges/queues RabbitMQ
+- [x] `EventPublisherRabbitMQ` implementando `IEventPublisherPort`
+- [x] `SecurityConfig` para configuración de Spring Security
 
 ### Tests
 
-- [ ] Tests de Value Objects (sin Spring)
+- [x] Tests de Value Objects (sin Spring) — 101 tests pasando
 - [ ] Tests de Use Cases (con Mockito)
 - [ ] Tests de repositorios (con Testcontainers)
-- [ ] Tests de API (MockMvc o TestRestTemplate)
+- [ ] Tests de API (MockMvc)
 - [ ] Test end-to-end completo
 - [ ] `TestcontainersConfiguration` con PostgreSQL + MongoDB + RabbitMQ
 
 ### Configuración
 
-- [ ] `application.properties` completo
-- [ ] `application-docker.properties`
-- [ ] `application-test.properties`
-- [ ] Variables de entorno documentadas
+- [x] `application.properties` completo (`spring.data.mongodb.uri` correcto)
+- [x] `application-docker.properties` (`spring.data.mongodb.uri` correcto)
+- [x] `application-test.properties`
+- [x] Variables de entorno documentadas
 
 ---
 

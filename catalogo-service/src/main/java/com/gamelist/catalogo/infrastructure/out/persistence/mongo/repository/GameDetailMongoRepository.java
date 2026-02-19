@@ -1,6 +1,6 @@
-package com.gamelist.catalogo.infrastructure.persistence.mongo.repository;
+package com.gamelist.catalogo.infrastructure.out.persistence.mongo.repository;
 
-import com.gamelist.catalogo.infrastructure.persistence.mongo.document.GameDetailDocument;
+import com.gamelist.catalogo.infrastructure.out.persistence.mongo.document.GameDetailDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

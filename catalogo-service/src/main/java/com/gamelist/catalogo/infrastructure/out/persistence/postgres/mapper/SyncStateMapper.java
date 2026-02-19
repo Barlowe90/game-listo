@@ -1,8 +1,8 @@
-package com.gamelist.catalogo.infrastructure.persistence.postgres.mapper;
+package com.gamelist.catalogo.infrastructure.out.persistence.postgres.mapper;
 
 import com.gamelist.catalogo.domain.syncstate.SyncKey;
 import com.gamelist.catalogo.domain.syncstate.SyncState;
-import com.gamelist.catalogo.infrastructure.persistence.postgres.entity.SyncStateEntity;
+import com.gamelist.catalogo.infrastructure.out.persistence.postgres.entity.SyncStateEntity;
 import org.springframework.stereotype.Component;
 
 @Component

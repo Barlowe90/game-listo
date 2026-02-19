@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.infrastructure.api.dto.response;
+package com.gamelist.catalogo.infrastructure.in.api.dto.response;
 
 import com.gamelist.catalogo.application.dto.results.SyncResultDTO;
 import io.swagger.v3.oas.annotations.media.Schema;

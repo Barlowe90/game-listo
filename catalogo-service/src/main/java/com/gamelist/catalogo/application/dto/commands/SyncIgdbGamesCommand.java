@@ -1,4 +1,4 @@
-package com.gamelist.catalogo_service.application.dto.commands;
+package com.gamelist.catalogo.application.dto.commands;
 
 public record SyncIgdbGamesCommand(Long fromId, Integer limit) {
   public SyncIgdbGamesCommand {

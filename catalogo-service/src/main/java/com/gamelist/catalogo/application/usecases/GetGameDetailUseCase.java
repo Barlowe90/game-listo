@@ -1,17 +1,17 @@
-package com.gamelist.catalogo_service.application.usecases;
+package com.gamelist.catalogo.application.usecases;
 
-import com.gamelist.catalogo_service.application.dto.queries.GetGameDetailQuery;
-import com.gamelist.catalogo_service.application.dto.results.GameDetailDTO;
-import com.gamelist.catalogo_service.application.dto.results.GameDTO;
-import com.gamelist.catalogo_service.application.dto.results.PlatformDTO;
-import com.gamelist.catalogo_service.domain.catalog.Platform;
-import com.gamelist.catalogo_service.domain.exceptions.GameNotFoundException;
-import com.gamelist.catalogo_service.domain.game.Game;
-import com.gamelist.catalogo_service.domain.game.GameId;
-import com.gamelist.catalogo_service.domain.gamedetail.GameDetail;
-import com.gamelist.catalogo_service.domain.repositories.IGameDetailRepository;
-import com.gamelist.catalogo_service.domain.repositories.IGameRepository;
-import com.gamelist.catalogo_service.domain.repositories.IPlatformRepository;
+import com.gamelist.catalogo.application.dto.queries.GetGameDetailQuery;
+import com.gamelist.catalogo.application.dto.results.GameDetailDTO;
+import com.gamelist.catalogo.application.dto.results.GameDTO;
+import com.gamelist.catalogo.application.dto.results.PlatformDTO;
+import com.gamelist.catalogo.application.exceptions.ApplicationException;
+import com.gamelist.catalogo.domain.catalog.Platform;
+import com.gamelist.catalogo.domain.game.Game;
+import com.gamelist.catalogo.domain.game.GameId;
+import com.gamelist.catalogo.domain.gamedetail.GameDetail;
+import com.gamelist.catalogo.domain.repositories.IGameDetailRepository;
+import com.gamelist.catalogo.domain.repositories.IGameRepository;
+import com.gamelist.catalogo.domain.repositories.IPlatformRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,7 +39,7 @@ public class GetGameDetailUseCase {
     gameRepository
         .findById(gameId)
         .orElseThrow(
-            () -> new GameNotFoundException("Juego no encontrado con ID: " + query.gameId()));
+            () -> new ApplicationException("Juego no encontrado con ID: " + query.gameId()));
 
     // 2. Obtener detalle multimedia (puede no existir)
     GameDetail gameDetail =
@@ -61,7 +61,7 @@ public class GetGameDetailUseCase {
         gameRepository
             .findById(gameId)
             .orElseThrow(
-                () -> new GameNotFoundException("Juego no encontrado con ID: " + query.gameId()));
+                () -> new ApplicationException("Juego no encontrado con ID: " + query.gameId()));
 
     // 2. Obtener plataformas
     Set<Platform> platforms =

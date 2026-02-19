@@ -1,8 +1,8 @@
-package com.gamelist.catalogo.infrastructure.persistence.postgres.mapper;
+package com.gamelist.catalogo.infrastructure.out.persistence.postgres.mapper;
 
 import com.gamelist.catalogo.domain.catalog.PlatformId;
 import com.gamelist.catalogo.domain.game.*;
-import com.gamelist.catalogo.infrastructure.persistence.postgres.entity.GameEntity;
+import com.gamelist.catalogo.infrastructure.out.persistence.postgres.entity.GameEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
@@ -27,8 +27,6 @@ public class GameMapper {
         game.getCoverUrl() != null && !game.getCoverUrl().isEmpty()
             ? game.getCoverUrl().value()
             : null);
-    entity.setCreatedAt(game.getCreatedAt());
-    entity.setUpdatedAt(game.getUpdatedAt());
 
     // Las plataformas se manejan a nivel de repositorio para evitar lazy loading issues
 
@@ -53,8 +51,7 @@ public class GameMapper {
             .map(platformEntity -> PlatformId.of(platformEntity.getId()))
             .collect(Collectors.toSet());
 
-    return Game.reconstitute(
-        id, name, summary, coverUrl, platformIds, entity.getCreatedAt(), entity.getUpdatedAt());
+    return Game.reconstitute(id, name, summary, coverUrl, platformIds);
   }
 
   public void updateEntity(Game game, GameEntity entity) {
@@ -67,6 +64,5 @@ public class GameMapper {
         game.getCoverUrl() != null && !game.getCoverUrl().isEmpty()
             ? game.getCoverUrl().value()
             : null);
-    entity.setUpdatedAt(game.getUpdatedAt());
   }
 }

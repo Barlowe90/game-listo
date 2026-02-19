@@ -1,6 +1,6 @@
-package com.gamelist.catalogo_service.domain.game;
+package com.gamelist.catalogo.domain.game;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -60,7 +60,7 @@ class SummaryTest {
 
     // Act & Assert
     assertThatThrownBy(() -> Summary.of(textoLargo))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("excede los 1000 caracteres");
   }
 

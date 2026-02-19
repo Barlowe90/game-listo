@@ -1,7 +1,7 @@
-package com.gamelist.catalogo_service.domain.gamedetail;
+package com.gamelist.catalogo.domain.gamedetail;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
-import com.gamelist.catalogo_service.domain.game.GameId;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
+import com.gamelist.catalogo.domain.game.GameId;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ public class GameDetail {
 
   public static GameDetail create(GameId gameId, List<Screenshot> screenshots, List<Video> videos) {
     if (gameId == null) {
-      throw new InvalidGameDataException("El GameId es obligatorio para GameDetail");
+      throw new DomainException("El GameId es obligatorio para GameDetail");
     }
     return new GameDetail(gameId, screenshots, videos);
   }

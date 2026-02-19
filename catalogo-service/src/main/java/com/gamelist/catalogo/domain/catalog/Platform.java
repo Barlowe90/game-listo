@@ -1,6 +1,6 @@
-package com.gamelist.catalogo_service.domain.catalog;
+package com.gamelist.catalogo.domain.catalog;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import lombok.Getter;
 
 import java.util.Objects;
@@ -20,10 +20,10 @@ public class Platform {
   public static Platform create(
       PlatformId id, PlatformName name, PlatformAbbreviation abbreviation) {
     if (id == null) {
-      throw new InvalidGameDataException("El ID de plataforma es obligatorio");
+      throw new DomainException("El ID de plataforma es obligatorio");
     }
     if (name == null) {
-      throw new InvalidGameDataException("El nombre de plataforma es obligatorio");
+      throw new DomainException("El nombre de plataforma es obligatorio");
     }
     return new Platform(id, name, abbreviation);
   }

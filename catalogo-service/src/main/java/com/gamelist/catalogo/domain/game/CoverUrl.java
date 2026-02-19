@@ -1,7 +1,6 @@
-package com.gamelist.catalogo_service.domain.game;
+package com.gamelist.catalogo.domain.game;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
-
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import java.util.Objects;
 
 public final class CoverUrl {
@@ -10,8 +9,7 @@ public final class CoverUrl {
 
   private CoverUrl(String value) {
     if (value != null && value.length() > MAX_LENGTH) {
-      throw new InvalidGameDataException(
-          "La URL de portada excede los " + MAX_LENGTH + " caracteres");
+      throw new DomainException("La URL de portada excede los " + MAX_LENGTH + " caracteres");
     }
     // Permitimos null para cover (algunos juegos pueden no tener portada)
     this.value = value != null ? value.trim() : null;

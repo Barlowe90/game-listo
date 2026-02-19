@@ -1,7 +1,7 @@
-package com.gamelist.catalogo_service.domain.gamedetail;
+package com.gamelist.catalogo.domain.gamedetail;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
-import com.gamelist.catalogo_service.domain.game.GameId;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
+import com.gamelist.catalogo.domain.game.GameId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -57,7 +57,7 @@ class GameDetailTest {
   void debeLanzarExcepcionSiGameIdNulo() {
     // Act & Assert
     assertThatThrownBy(() -> GameDetail.create(null, new ArrayList<>(), new ArrayList<>()))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("GameId es obligatorio");
   }
 

@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.application.ports;
+package com.gamelist.catalogo.domain.repositories;
 
 import com.gamelist.catalogo.application.dto.results.IgdbGameDTO;
 import com.gamelist.catalogo.application.dto.results.IgdbPlatformDTO;

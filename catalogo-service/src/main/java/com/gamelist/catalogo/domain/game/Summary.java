@@ -1,7 +1,6 @@
-package com.gamelist.catalogo_service.domain.game;
+package com.gamelist.catalogo.domain.game;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
-
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import java.util.Objects;
 
 public final class Summary {
@@ -10,7 +9,7 @@ public final class Summary {
 
   private Summary(String value) {
     if (value != null && value.length() > MAX_LENGTH) {
-      throw new InvalidGameDataException("El resumen excede los " + MAX_LENGTH + " caracteres");
+      throw new DomainException("El resumen excede los " + MAX_LENGTH + " caracteres");
     }
     // Permitimos null o blank para summary (campo opcional)
     this.value = value != null ? value.trim() : null;

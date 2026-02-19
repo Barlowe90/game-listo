@@ -1,11 +1,11 @@
-package com.gamelist.catalogo.infrastructure.igdb;
+package com.gamelist.catalogo.shared.igdb;
 
 import com.gamelist.catalogo.application.dto.results.IgdbGameDTO;
 import com.gamelist.catalogo.application.dto.results.IgdbPlatformDTO;
 import com.gamelist.catalogo.domain.repositories.IIgdbClientPort;
 import com.gamelist.catalogo.shared.config.IgdbProperties;
-import com.gamelist.catalogo.infrastructure.igdb.dto.IgdbGameResponseDto;
-import com.gamelist.catalogo.infrastructure.igdb.dto.IgdbPlatformResponseDto;
+import com.gamelist.catalogo.shared.igdb.dto.IgdbGameResponseDto;
+import com.gamelist.catalogo.shared.igdb.dto.IgdbPlatformResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;

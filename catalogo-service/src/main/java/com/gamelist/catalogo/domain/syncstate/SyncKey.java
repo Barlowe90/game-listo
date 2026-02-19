@@ -1,4 +1,4 @@
-package com.gamelist.catalogo_service.domain.syncstate;
+package com.gamelist.catalogo.domain.syncstate;
 
 public enum SyncKey {
   LAST_SYNCED_GAME_ID, // último día de juego sincronizado

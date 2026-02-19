@@ -1,6 +1,6 @@
-package com.gamelist.catalogo_service.domain.syncstate;
+package com.gamelist.catalogo.domain.syncstate;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import lombok.Getter;
 
 import java.time.Instant;
@@ -20,7 +20,7 @@ public class SyncState {
 
   public static SyncState create(SyncKey key, String value) {
     if (key == null) {
-      throw new InvalidGameDataException("SyncKey es obligatorio");
+      throw new DomainException("SyncKey es obligatorio");
     }
     return new SyncState(key, value, Instant.now());
   }
@@ -41,7 +41,7 @@ public class SyncState {
     try {
       return Long.parseLong(value);
     } catch (NumberFormatException e) {
-      throw new InvalidGameDataException("El valor no es un número válido: " + value);
+      throw new DomainException("El valor no es un número válido: " + value);
     }
   }
 
@@ -52,7 +52,7 @@ public class SyncState {
     try {
       return Instant.parse(value);
     } catch (Exception e) {
-      throw new InvalidGameDataException("El valor no es un timestamp válido: " + value);
+      throw new DomainException("El valor no es un timestamp válido: " + value);
     }
   }
 

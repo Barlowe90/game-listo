@@ -1,4 +1,4 @@
-package com.gamelist.catalogo_service.infrastructure.integration;
+package com.gamelist.catalogo.infrastructure.integration;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;

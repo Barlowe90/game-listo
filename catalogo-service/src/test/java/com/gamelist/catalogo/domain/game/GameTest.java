@@ -1,11 +1,10 @@
-package com.gamelist.catalogo_service.domain.game;
+package com.gamelist.catalogo.domain.game;
 
-import com.gamelist.catalogo_service.domain.catalog.PlatformId;
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
+import com.gamelist.catalogo.domain.catalog.PlatformId;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,8 +32,6 @@ class GameTest {
     assertThat(game.getSummary()).isEqualTo(summary);
     assertThat(game.getCoverUrl()).isEqualTo(coverUrl);
     assertThat(game.getPlatformIds()).isEmpty();
-    assertThat(game.getCreatedAt()).isNotNull();
-    assertThat(game.getUpdatedAt()).isNotNull();
   }
 
   @Test
@@ -62,7 +59,7 @@ class GameTest {
 
     // Act & Assert
     assertThatThrownBy(() -> Game.create(null, name, null, null))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("ID del juego es obligatorio");
   }
 
@@ -74,7 +71,7 @@ class GameTest {
 
     // Act & Assert
     assertThatThrownBy(() -> Game.create(id, null, null, null))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("nombre del juego es obligatorio");
   }
 
@@ -87,11 +84,9 @@ class GameTest {
     Summary summary = Summary.of("Un RPG de acción");
     CoverUrl coverUrl = CoverUrl.of("https://example.com/elden.jpg");
     Set<PlatformId> platforms = Set.of(PlatformId.of(48L), PlatformId.of(49L), PlatformId.of(6L));
-    Instant createdAt = Instant.parse("2023-01-01T00:00:00Z");
-    Instant updatedAt = Instant.parse("2023-06-01T00:00:00Z");
 
     // Act
-    Game game = Game.reconstitute(id, name, summary, coverUrl, platforms, createdAt, updatedAt);
+    Game game = Game.reconstitute(id, name, summary, coverUrl, platforms);
 
     // Assert
     assertThat(game.getId()).isEqualTo(id);
@@ -99,8 +94,6 @@ class GameTest {
     assertThat(game.getSummary()).isEqualTo(summary);
     assertThat(game.getCoverUrl()).isEqualTo(coverUrl);
     assertThat(game.getPlatformIds()).hasSize(3);
-    assertThat(game.getCreatedAt()).isEqualTo(createdAt);
-    assertThat(game.getUpdatedAt()).isEqualTo(updatedAt);
   }
 
   @Test
@@ -113,13 +106,6 @@ class GameTest {
             GameName.of("Old Name"),
             Summary.of("Old summary"),
             CoverUrl.of("https://old.com/cover.jpg"));
-    Instant initialUpdatedAt = game.getUpdatedAt();
-
-    // Esperar un poco para que el timestamp cambie
-    try {
-      Thread.sleep(10);
-    } catch (InterruptedException e) {
-    }
 
     // Act
     GameName newName = GameName.of("New Name");
@@ -131,7 +117,6 @@ class GameTest {
     assertThat(game.getName()).isEqualTo(newName);
     assertThat(game.getSummary()).isEqualTo(newSummary);
     assertThat(game.getCoverUrl()).isEqualTo(newCoverUrl);
-    assertThat(game.getUpdatedAt()).isAfter(initialUpdatedAt);
   }
 
   @Test
@@ -157,7 +142,7 @@ class GameTest {
 
     // Act & Assert
     assertThatThrownBy(() -> game.addPlatform(null))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("PlatformId no puede ser nulo");
   }
 

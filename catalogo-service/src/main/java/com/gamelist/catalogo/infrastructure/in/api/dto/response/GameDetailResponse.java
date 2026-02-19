@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.infrastructure.api.dto.response;
+package com.gamelist.catalogo.infrastructure.in.api.dto.response;
 
 import com.gamelist.catalogo.application.dto.results.GameDetailDTO;
 import com.gamelist.catalogo.application.usecases.GetGameDetailUseCase;

@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.infrastructure.scheduler;
+package com.gamelist.catalogo.shared.scheduler;
 
 import com.gamelist.catalogo.application.dto.commands.SyncIgdbGamesCommand;
 import com.gamelist.catalogo.application.dto.commands.SyncPlatformsCommand;

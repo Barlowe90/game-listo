@@ -1,6 +1,6 @@
-package com.gamelist.catalogo_service.domain.catalog;
+package com.gamelist.catalogo.domain.catalog;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -53,7 +53,7 @@ class PlatformTest {
 
     // Act & Assert
     assertThatThrownBy(() -> Platform.create(null, name, null))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("ID de plataforma es obligatorio");
   }
 
@@ -65,7 +65,7 @@ class PlatformTest {
 
     // Act & Assert
     assertThatThrownBy(() -> Platform.create(id, null, null))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("nombre de plataforma es obligatorio");
   }
 

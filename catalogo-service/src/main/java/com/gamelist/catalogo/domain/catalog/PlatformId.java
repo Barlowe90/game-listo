@@ -1,7 +1,6 @@
-package com.gamelist.catalogo_service.domain.catalog;
+package com.gamelist.catalogo.domain.catalog;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
-
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import java.util.Objects;
 
 public final class PlatformId {
@@ -9,10 +8,10 @@ public final class PlatformId {
 
   private PlatformId(Long value) {
     if (value == null) {
-      throw new InvalidGameDataException("El ID de plataforma no puede ser nulo");
+      throw new DomainException("El ID de plataforma no puede ser nulo");
     }
     if (value <= 0) {
-      throw new InvalidGameDataException("El ID de plataforma debe ser un número positivo");
+      throw new DomainException("El ID de plataforma debe ser un número positivo");
     }
     this.value = value;
   }

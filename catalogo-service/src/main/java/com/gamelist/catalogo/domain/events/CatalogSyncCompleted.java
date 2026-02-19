@@ -1,4 +1,4 @@
-package com.gamelist.catalogo_service.domain.events;
+package com.gamelist.catalogo.domain.events;
 
 import java.time.Instant;
 

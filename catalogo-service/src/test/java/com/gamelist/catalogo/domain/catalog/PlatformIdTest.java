@@ -1,6 +1,6 @@
-package com.gamelist.catalogo_service.domain.catalog;
+package com.gamelist.catalogo.domain.catalog;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +24,7 @@ class PlatformIdTest {
   void debeLanzarExcepcionSiIdNulo() {
     // Act & Assert
     assertThatThrownBy(() -> PlatformId.of(null))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("no puede ser nulo");
   }
 
@@ -33,7 +33,7 @@ class PlatformIdTest {
   void debeLanzarExcepcionSiIdCero() {
     // Act & Assert
     assertThatThrownBy(() -> PlatformId.of(0L))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("debe ser un número positivo");
   }
 
@@ -42,7 +42,7 @@ class PlatformIdTest {
   void debeLanzarExcepcionSiIdNegativo() {
     // Act & Assert
     assertThatThrownBy(() -> PlatformId.of(-100L))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("debe ser un número positivo");
   }
 

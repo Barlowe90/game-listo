@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.infrastructure.api.rest;
+package com.gamelist.catalogo.infrastructure.in.api.rest;
 
 import com.gamelist.catalogo.application.dto.commands.SyncIgdbGamesCommand;
 import com.gamelist.catalogo.application.dto.commands.SyncPlatformsCommand;
@@ -11,10 +11,11 @@ import com.gamelist.catalogo.application.usecases.SyncPlatformsFromIgdbUseCase;
 import com.gamelist.catalogo.domain.catalog.Platform;
 import com.gamelist.catalogo.domain.catalog.PlatformId;
 import com.gamelist.catalogo.domain.repositories.IPlatformRepository;
-import com.gamelist.catalogo.infrastructure.api.dto.request.SyncIgdbRequest;
-import com.gamelist.catalogo.infrastructure.api.dto.response.GameDetailResponse;
-import com.gamelist.catalogo.infrastructure.api.dto.response.PlatformResponse;
-import com.gamelist.catalogo.infrastructure.api.dto.response.SyncStatusResponse;
+import com.gamelist.catalogo.infrastructure.exceptions.InfrastructureException;
+import com.gamelist.catalogo.infrastructure.in.api.dto.request.SyncIgdbRequest;
+import com.gamelist.catalogo.infrastructure.in.api.dto.response.GameDetailResponse;
+import com.gamelist.catalogo.infrastructure.in.api.dto.response.PlatformResponse;
+import com.gamelist.catalogo.infrastructure.in.api.dto.response.SyncStatusResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -163,7 +164,8 @@ public class CatalogoContoller {
     Platform platform =
         platformRepository
             .findById(PlatformId.of(id))
-            .orElseThrow(() -> new GameNotFoundException("Plataforma no encontrada con ID: " + id));
+            .orElseThrow(
+                () -> new InfrastructureException("Plataforma no encontrada con ID: " + id));
 
     PlatformResponse response =
         PlatformResponse.from(

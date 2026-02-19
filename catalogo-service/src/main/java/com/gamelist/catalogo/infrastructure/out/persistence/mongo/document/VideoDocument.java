@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.infrastructure.persistence.mongo.document;
+package com.gamelist.catalogo.infrastructure.out.persistence.mongo.document;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

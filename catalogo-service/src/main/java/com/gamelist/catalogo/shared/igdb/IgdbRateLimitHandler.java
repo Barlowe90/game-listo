@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.infrastructure.igdb;
+package com.gamelist.catalogo.shared.igdb;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

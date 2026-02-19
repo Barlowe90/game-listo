@@ -1,7 +1,6 @@
-package com.gamelist.catalogo_service.domain.catalog;
+package com.gamelist.catalogo.domain.catalog;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
-
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import java.util.Objects;
 
 public final class PlatformName {
@@ -10,11 +9,10 @@ public final class PlatformName {
 
   private PlatformName(String value) {
     if (value == null || value.isBlank()) {
-      throw new InvalidGameDataException("El nombre de plataforma no puede estar vacío");
+      throw new DomainException("El nombre de plataforma no puede estar vacío");
     }
     if (value.length() > MAX_LENGTH) {
-      throw new InvalidGameDataException(
-          "El nombre de plataforma excede los " + MAX_LENGTH + " caracteres");
+      throw new DomainException("El nombre de plataforma excede los " + MAX_LENGTH + " caracteres");
     }
     this.value = value.trim();
   }

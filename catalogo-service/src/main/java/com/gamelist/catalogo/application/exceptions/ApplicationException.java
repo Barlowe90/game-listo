@@ -1,4 +1,4 @@
-package com.gamelisto.usuarios.application.exceptions;
+package com.gamelist.catalogo.application.exceptions;
 
 public class ApplicationException extends RuntimeException {
 

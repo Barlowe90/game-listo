@@ -1,6 +1,6 @@
-package com.gamelist.catalogo_service.domain.syncstate;
+package com.gamelist.catalogo.domain.syncstate;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +29,7 @@ class SyncStateTest {
   void debeLanzarExcepcionSiKeyNulo() {
     // Act & Assert
     assertThatThrownBy(() -> SyncState.create(null, "value"))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("SyncKey es obligatorio");
   }
 
@@ -75,7 +75,7 @@ class SyncStateTest {
 
     // Act & Assert
     assertThatThrownBy(() -> syncState.getValueAsLong())
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("no es un número válido");
   }
 
@@ -102,7 +102,7 @@ class SyncStateTest {
 
     // Act & Assert
     assertThatThrownBy(() -> syncState.getValueAsInstant())
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("no es un timestamp válido");
   }
 

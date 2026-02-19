@@ -1,7 +1,7 @@
-package com.gamelist.catalogo_service.domain.repositories;
+package com.gamelist.catalogo.domain.repositories;
 
-import com.gamelist.catalogo_service.domain.syncstate.SyncKey;
-import com.gamelist.catalogo_service.domain.syncstate.SyncState;
+import com.gamelist.catalogo.domain.syncstate.SyncKey;
+import com.gamelist.catalogo.domain.syncstate.SyncState;
 
 import java.util.Optional;
 

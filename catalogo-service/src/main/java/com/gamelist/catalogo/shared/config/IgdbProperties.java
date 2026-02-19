@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.infrastructure.config;
+package com.gamelist.catalogo.shared.config;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

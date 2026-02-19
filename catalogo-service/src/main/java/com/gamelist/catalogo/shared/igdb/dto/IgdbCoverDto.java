@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.infrastructure.igdb.dto;
+package com.gamelist.catalogo.shared.igdb.dto;
 
 public record IgdbCoverDto(String url, Integer width, Integer height) {
 

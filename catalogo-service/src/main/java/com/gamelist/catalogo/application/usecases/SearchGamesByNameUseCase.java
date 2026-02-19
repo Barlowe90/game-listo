@@ -1,17 +1,15 @@
-package com.gamelist.catalogo_service.application.usecases;
+package com.gamelist.catalogo.application.usecases;
 
-import com.gamelist.catalogo_service.application.dto.queries.SearchGamesQuery;
-import com.gamelist.catalogo_service.application.dto.results.GameDTO;
-import com.gamelist.catalogo_service.application.dto.results.PlatformDTO;
-import com.gamelist.catalogo_service.domain.catalog.Platform;
-import com.gamelist.catalogo_service.domain.game.Game;
-import com.gamelist.catalogo_service.domain.repositories.IGameRepository;
-import com.gamelist.catalogo_service.domain.repositories.IPlatformRepository;
+import com.gamelist.catalogo.application.dto.queries.SearchGamesQuery;
+import com.gamelist.catalogo.application.dto.results.GameDTO;
+import com.gamelist.catalogo.application.dto.results.PlatformDTO;
+import com.gamelist.catalogo.domain.catalog.Platform;
+import com.gamelist.catalogo.domain.game.Game;
+import com.gamelist.catalogo.domain.repositories.IGameRepository;
+import com.gamelist.catalogo.domain.repositories.IPlatformRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

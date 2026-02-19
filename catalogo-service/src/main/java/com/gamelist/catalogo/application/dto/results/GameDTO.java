@@ -1,4 +1,4 @@
-package com.gamelist.catalogo_service.application.dto.results;
+package com.gamelist.catalogo.application.dto.results;
 
 import java.util.Set;
 

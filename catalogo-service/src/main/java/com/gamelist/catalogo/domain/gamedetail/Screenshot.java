@@ -1,18 +1,18 @@
-package com.gamelist.catalogo_service.domain.gamedetail;
+package com.gamelist.catalogo.domain.gamedetail;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 
 public record Screenshot(String url, Integer width, Integer height) {
 
   public Screenshot {
     if (url == null || url.isBlank()) {
-      throw new InvalidGameDataException("La URL del screenshot no puede estar vacía");
+      throw new DomainException("La URL del screenshot no puede estar vacía");
     }
     if (width != null && width <= 0) {
-      throw new InvalidGameDataException("El ancho del screenshot debe ser positivo");
+      throw new DomainException("El ancho del screenshot debe ser positivo");
     }
     if (height != null && height <= 0) {
-      throw new InvalidGameDataException("La altura del screenshot debe ser positiva");
+      throw new DomainException("La altura del screenshot debe ser positiva");
     }
   }
 

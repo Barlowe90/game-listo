@@ -1,6 +1,6 @@
-package com.gamelist.catalogo_service.domain.catalog;
+package com.gamelist.catalogo.domain.catalog;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +34,7 @@ class PlatformNameTest {
   void debeLanzarExcepcionSiNombreNulo() {
     // Act & Assert
     assertThatThrownBy(() -> PlatformName.of(null))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("no puede estar vacío");
   }
 
@@ -42,7 +42,7 @@ class PlatformNameTest {
   @DisplayName("Debe lanzar excepción si el nombre está vacío")
   void debeLanzarExcepcionSiNombreVacio() {
     // Act & Assert
-    assertThatThrownBy(() -> PlatformName.of("")).isInstanceOf(InvalidGameDataException.class);
+    assertThatThrownBy(() -> PlatformName.of("")).isInstanceOf(DomainException.class);
   }
 
   @Test
@@ -53,7 +53,7 @@ class PlatformNameTest {
 
     // Act & Assert
     assertThatThrownBy(() -> PlatformName.of(nombreLargo))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("excede los 100 caracteres");
   }
 

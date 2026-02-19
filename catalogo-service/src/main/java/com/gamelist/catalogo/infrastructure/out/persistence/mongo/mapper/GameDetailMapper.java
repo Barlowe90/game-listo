@@ -1,12 +1,12 @@
-package com.gamelist.catalogo.infrastructure.persistence.mongo.mapper;
+package com.gamelist.catalogo.infrastructure.out.persistence.mongo.mapper;
 
 import com.gamelist.catalogo.domain.game.GameId;
 import com.gamelist.catalogo.domain.gamedetail.GameDetail;
 import com.gamelist.catalogo.domain.gamedetail.Screenshot;
 import com.gamelist.catalogo.domain.gamedetail.Video;
-import com.gamelist.catalogo.infrastructure.persistence.mongo.document.GameDetailDocument;
-import com.gamelist.catalogo.infrastructure.persistence.mongo.document.ScreenshotDocument;
-import com.gamelist.catalogo.infrastructure.persistence.mongo.document.VideoDocument;
+import com.gamelist.catalogo.infrastructure.out.persistence.mongo.document.GameDetailDocument;
+import com.gamelist.catalogo.infrastructure.out.persistence.mongo.document.ScreenshotDocument;
+import com.gamelist.catalogo.infrastructure.out.persistence.mongo.document.VideoDocument;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

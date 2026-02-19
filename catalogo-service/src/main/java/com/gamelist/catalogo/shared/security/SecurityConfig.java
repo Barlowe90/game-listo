@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.infrastructure.security;
+package com.gamelist.catalogo.shared.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

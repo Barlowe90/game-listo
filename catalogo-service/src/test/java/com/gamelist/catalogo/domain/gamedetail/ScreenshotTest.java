@@ -1,6 +1,6 @@
-package com.gamelist.catalogo_service.domain.gamedetail;
+package com.gamelist.catalogo.domain.gamedetail;
 
-import com.gamelist.catalogo_service.domain.exceptions.InvalidGameDataException;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +40,7 @@ class ScreenshotTest {
   void debeLanzarExcepcionSiURLNula() {
     // Act & Assert
     assertThatThrownBy(() -> Screenshot.of(null, 1920, 1080))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("URL del screenshot no puede estar vacía");
   }
 
@@ -48,8 +48,7 @@ class ScreenshotTest {
   @DisplayName("Debe lanzar excepción si URL está vacía")
   void debeLanzarExcepcionSiURLVacia() {
     // Act & Assert
-    assertThatThrownBy(() -> Screenshot.of("", 1920, 1080))
-        .isInstanceOf(InvalidGameDataException.class);
+    assertThatThrownBy(() -> Screenshot.of("", 1920, 1080)).isInstanceOf(DomainException.class);
   }
 
   @Test
@@ -57,11 +56,11 @@ class ScreenshotTest {
   void debeLanzarExcepcionSiWidthInvalido() {
     // Act & Assert
     assertThatThrownBy(() -> Screenshot.of("https://example.com/img.jpg", 0, 1080))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("ancho del screenshot debe ser positivo");
 
     assertThatThrownBy(() -> Screenshot.of("https://example.com/img.jpg", -100, 1080))
-        .isInstanceOf(InvalidGameDataException.class);
+        .isInstanceOf(DomainException.class);
   }
 
   @Test
@@ -69,7 +68,7 @@ class ScreenshotTest {
   void debeLanzarExcepcionSiHeightInvalido() {
     // Act & Assert
     assertThatThrownBy(() -> Screenshot.of("https://example.com/img.jpg", 1920, 0))
-        .isInstanceOf(InvalidGameDataException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("altura del screenshot debe ser positiva");
   }
 
