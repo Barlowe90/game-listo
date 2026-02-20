@@ -33,5 +33,8 @@ public class IgdbProperties {
   private int timeout = 30000; // 30 segundos
 
   /** Tamaño máximo de batch para sincronización */
-  private int batchSize = 500;
+  private int batchSize = 100;
+
+  /** Tamaño máximo en bytes que WebClient debe almacenar en memoria al leer la respuesta */
+  private int maxResponseBufferSize = 16 * 1024 * 1024; // 16 MB por defecto
 }

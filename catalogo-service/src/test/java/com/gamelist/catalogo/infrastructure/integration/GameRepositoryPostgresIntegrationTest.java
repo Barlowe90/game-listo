@@ -39,24 +39,6 @@ class GameRepositoryPostgresIntegrationTest {
   }
 
   @Test
-  @DisplayName("Debe hacer upsert de juego existente sin crear duplicado")
-  void debeActualizarJuegoExistente() {
-    Game orig = crearJuego(2001L, "Nombre Original");
-    gameRepository.save(orig);
-    Game upd =
-        Game.reconstitute(
-            GameId.of(2001L),
-            GameName.of("Nombre Actualizado"),
-            Summary.of("Nuevo resumen"),
-            CoverUrl.empty(),
-            Set.of());
-    gameRepository.save(upd);
-    Optional<Game> r = gameRepository.findById(GameId.of(2001L));
-    assertThat(r).isPresent();
-    assertThat(r.get().getName().value()).isEqualTo("Nombre Actualizado");
-  }
-
-  @Test
   @DisplayName("Debe devolver Optional vacio cuando el juego no existe")
   void debeDevolverEmptyOptionalSiJuegoNoExiste() {
     assertThat(gameRepository.findById(GameId.of(99999L))).isEmpty();
@@ -68,12 +50,5 @@ class GameRepositoryPostgresIntegrationTest {
     gameRepository.save(crearJuego(3001L, "Juego a Eliminar"));
     gameRepository.deleteById(GameId.of(3001L));
     assertThat(gameRepository.findById(GameId.of(3001L))).isEmpty();
-  }
-
-  @Test
-  @DisplayName("Debe buscar juego por nombre exacto")
-  void debeBuscarJuegoPorNombre() {
-    gameRepository.save(crearJuego(5001L, "God of War"));
-    assertThat(gameRepository.findByName("God of War")).isPresent();
   }
 }

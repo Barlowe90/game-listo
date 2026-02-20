@@ -3,6 +3,7 @@ package com.gamelist.catalogo.domain.repositories;
 import com.gamelist.catalogo.domain.game.Game;
 import com.gamelist.catalogo.domain.game.GameId;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface IGameRepository {
@@ -11,7 +12,7 @@ public interface IGameRepository {
 
   Optional<Game> findById(GameId id);
 
-  Optional<Game> findByName(String name);
+  List<Game> findAll();
 
-  void deleteById(GameId id);
+  long findMaxId();
 }

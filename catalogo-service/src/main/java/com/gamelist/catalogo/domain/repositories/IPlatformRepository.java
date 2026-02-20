@@ -15,6 +15,4 @@ public interface IPlatformRepository {
   List<Platform> findAll();
 
   List<Platform> saveAll(List<Platform> platforms);
-
-  void deleteById(PlatformId id);
 }

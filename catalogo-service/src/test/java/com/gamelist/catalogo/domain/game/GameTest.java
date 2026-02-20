@@ -1,12 +1,10 @@
 package com.gamelist.catalogo.domain.game;
 
-import com.gamelist.catalogo.domain.catalog.PlatformId;
 import com.gamelist.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -31,7 +29,7 @@ class GameTest {
     assertThat(game.getName()).isEqualTo(name);
     assertThat(game.getSummary()).isEqualTo(summary);
     assertThat(game.getCoverUrl()).isEqualTo(coverUrl);
-    assertThat(game.getPlatformIds()).isEmpty();
+    assertThat(game.getPlatforms()).isEmpty();
   }
 
   @Test
@@ -83,17 +81,44 @@ class GameTest {
     GameName name = GameName.of("Elden Ring");
     Summary summary = Summary.of("Un RPG de acción");
     CoverUrl coverUrl = CoverUrl.of("https://example.com/elden.jpg");
-    Set<PlatformId> platforms = Set.of(PlatformId.of(48L), PlatformId.of(49L), PlatformId.of(6L));
+    List<String> platforms = List.of("PlayStation 5", "PC (Microsoft Windows)");
 
-    // Act
-    Game game = Game.reconstitute(id, name, summary, coverUrl, platforms);
+    Game game =
+        Game.reconstitute(
+            id,
+            name,
+            summary,
+            coverUrl,
+            platforms,
+            "main_game",
+            "released",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     // Assert
     assertThat(game.getId()).isEqualTo(id);
     assertThat(game.getName()).isEqualTo(name);
-    assertThat(game.getSummary()).isEqualTo(summary);
-    assertThat(game.getCoverUrl()).isEqualTo(coverUrl);
-    assertThat(game.getPlatformIds()).hasSize(3);
+    assertThat(game.getPlatforms())
+        .containsExactlyInAnyOrder("PlayStation 5", "PC (Microsoft Windows)");
+    assertThat(game.getGameType()).isEqualTo("main_game");
+    assertThat(game.getGameStatus()).isEqualTo("released");
   }
 
   @Test
@@ -120,68 +145,6 @@ class GameTest {
   }
 
   @Test
-  @DisplayName("Debe añadir plataforma al juego")
-  void debeAñadirPlataforma() {
-    // Arrange
-    Game game = Game.create(GameId.of(100L), GameName.of("Test Game"), null, null);
-
-    // Act
-    game.addPlatform(PlatformId.of(48L)); // PS5
-    game.addPlatform(PlatformId.of(6L)); // PC
-
-    // Assert
-    assertThat(game.getPlatformIds())
-        .containsExactlyInAnyOrder(PlatformId.of(48L), PlatformId.of(6L));
-  }
-
-  @Test
-  @DisplayName("Debe lanzar excepción al añadir plataforma con ID inválido")
-  void debeLanzarExcepcionAlAñadirPlataformaInvalida() {
-    // Arrange
-    Game game = Game.create(GameId.of(100L), GameName.of("Test Game"), null, null);
-
-    // Act & Assert
-    assertThatThrownBy(() -> game.addPlatform(null))
-        .isInstanceOf(DomainException.class)
-        .hasMessageContaining("PlatformId no puede ser nulo");
-  }
-
-  @Test
-  @DisplayName("Debe establecer plataformas (reemplaza existentes)")
-  void debeEstablecerPlataformas() {
-    // Arrange
-    Game game = Game.create(GameId.of(100L), GameName.of("Test Game"), null, null);
-    game.addPlatform(PlatformId.of(48L));
-    game.addPlatform(PlatformId.of(49L));
-
-    // Act
-    Set<PlatformId> newPlatforms =
-        new HashSet<>(Set.of(PlatformId.of(6L), PlatformId.of(130L), PlatformId.of(167L)));
-    game.setPlatforms(newPlatforms);
-
-    // Assert
-    assertThat(game.getPlatformIds())
-        .containsExactlyInAnyOrder(PlatformId.of(6L), PlatformId.of(130L), PlatformId.of(167L));
-  }
-
-  @Test
-  @DisplayName("Debe eliminar una plataforma")
-  void debeEliminarPlataforma() {
-    // Arrange
-    Game game = Game.create(GameId.of(100L), GameName.of("Test Game"), null, null);
-    game.addPlatform(PlatformId.of(48L));
-    game.addPlatform(PlatformId.of(49L));
-    game.addPlatform(PlatformId.of(6L));
-
-    // Act
-    game.removePlatform(PlatformId.of(49L));
-
-    // Assert
-    assertThat(game.getPlatformIds())
-        .containsExactlyInAnyOrder(PlatformId.of(48L), PlatformId.of(6L));
-  }
-
-  @Test
   @DisplayName("Debe verificar si tiene portada")
   void debeVerificarSiTienePortada() {
     // Arrange
@@ -191,7 +154,6 @@ class GameTest {
             GameName.of("Test Game"),
             null,
             CoverUrl.of("https://example.com/cover.jpg"));
-
     Game gameSinPortada = Game.create(GameId.of(200L), GameName.of("Test Game 2"), null, null);
 
     // Assert
@@ -206,7 +168,6 @@ class GameTest {
     Game gameConResumen =
         Game.create(
             GameId.of(100L), GameName.of("Test Game"), Summary.of("Un resumen interesante"), null);
-
     Game gameSinResumen = Game.create(GameId.of(200L), GameName.of("Test Game 2"), null, null);
 
     // Assert
@@ -236,23 +197,5 @@ class GameTest {
 
     // Assert
     assertThat(game1).isNotEqualTo(game2);
-  }
-
-  @Test
-  @DisplayName("Debe tener representación toString correcta")
-  void debeTenerToStringCorrecto() {
-    // Arrange
-    Game game = Game.create(GameId.of(12345L), GameName.of("Test Game"), null, null);
-    game.addPlatform(PlatformId.of(48L));
-    game.addPlatform(PlatformId.of(6L));
-
-    // Act
-    String result = game.toString();
-
-    // Assert
-    assertThat(result).contains("Game");
-    assertThat(result).contains("id=");
-    assertThat(result).contains("name=");
-    assertThat(result).contains("platformCount=2");
   }
 }

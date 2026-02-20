@@ -1,55 +1,45 @@
 package com.gamelist.catalogo.infrastructure.api;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gamelist.catalogo.AbstractIntegrationTest;
 import com.gamelist.catalogo.application.dto.results.*;
-import com.gamelist.catalogo.application.exceptions.ApplicationException;
 import com.gamelist.catalogo.application.usecases.*;
+import com.gamelist.catalogo.domain.exceptions.EntityNotFoundException;
+import com.gamelist.catalogo.domain.game.*;
+import com.gamelist.catalogo.domain.repositories.IGameRepository;
 import com.gamelist.catalogo.domain.repositories.IPlatformRepository;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
 @DisplayName("CatalogoController - Tests REST")
-class CatalogoControllerTest {
+class CatalogoControllerTest extends AbstractIntegrationTest {
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
   @MockitoBean private SyncIgdbGamesUseCase syncGamesUseCase;
   @MockitoBean private SyncPlatformsFromIgdbUseCase syncPlatformsUseCase;
   @MockitoBean private GetGameDetailUseCase getGameDetailUseCase;
   @MockitoBean private IPlatformRepository platformRepository;
-
-  // ─── Health ───────────────────────────────────────────────────────────────
-  @Test
-  @DisplayName("GET /v1/catalogo/health debe retornar 200 con mensaje de estado")
-  void debeRetornarHealthCheck() throws Exception {
-    mockMvc
-        .perform(get("/v1/catalogo/health"))
-        .andExpect(status().isOk())
-        .andExpect(content().string("Catalogo Service is running!"));
-  }
+  @MockitoBean private IGameRepository gameRepository;
 
   // ─── Sync Games ───────────────────────────────────────────────────────────
   @Test
   @DisplayName("POST /v1/catalogo/sync/games sin body debe retornar 200 con resultado de sync")
   void debeSincronizarJuegosSinBody() throws Exception {
-    when(syncGamesUseCase.execute(any())).thenReturn(new SyncResultDTO(150, 999L));
+    when(syncGamesUseCase.execute(anyInt())).thenReturn(new SyncResultDTO(150, 999L));
     mockMvc
         .perform(post("/v1/catalogo/sync/games").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -59,12 +49,12 @@ class CatalogoControllerTest {
   }
 
   @Test
-  @DisplayName("POST /v1/catalogo/sync/games con body debe pasar fromId y limit al use case")
+  @DisplayName("POST /v1/catalogo/sync/games con body debe pasar limit al use case")
   void debeSincronizarJuegosConBody() throws Exception {
-    when(syncGamesUseCase.execute(any())).thenReturn(new SyncResultDTO(10, 1010L));
+    when(syncGamesUseCase.execute(anyInt())).thenReturn(new SyncResultDTO(10, 1010L));
     String requestBody =
         """
-        {"fromId": 1000, "limit": 10}
+        {"limit": 10}
         """;
     mockMvc
         .perform(
@@ -78,42 +68,63 @@ class CatalogoControllerTest {
 
   // ─── Sync Platforms ───────────────────────────────────────────────────────
   @Test
-  @DisplayName("POST /v1/catalogo/igdb/sync/platforms debe retornar 200 con resultado")
+  @DisplayName("POST /v1/catalogo/sync/platforms debe retornar 200 con resultado")
   void debeSincronizarPlataformas() throws Exception {
     when(syncPlatformsUseCase.execute(any())).thenReturn(new SyncResultDTO(42, null));
     mockMvc
-        .perform(post("/v1/catalogo/igdb/sync/platforms"))
+        .perform(post("/v1/catalogo/sync/platforms"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.totalSynced").value(42))
         .andExpect(jsonPath("$.message").value("Sincronización de plataformas completada"));
   }
 
-  // ─── Game Detail ──────────────────────────────────────────────────────────
+  // ─── Game by ID ───────────────────────────────────────────────────────────
   @Test
   @DisplayName("GET /v1/catalogo/games/{id} debe retornar 200 cuando el juego existe")
   void debeRetornarDetalleDeJuego() throws Exception {
-    GameDTO gameDto = new GameDTO(1L, "Zelda", "Un juego", "https://img/z.jpg", Set.of());
-    GameDetailDTO detailDto = new GameDetailDTO(1L, List.of(), List.of());
-    GetGameDetailUseCase.GameWithDetailDTO resultado =
-        new GetGameDetailUseCase.GameWithDetailDTO(gameDto, detailDto);
-    when(getGameDetailUseCase.executeComplete(any())).thenReturn(resultado);
+    Game game =
+        Game.reconstitute(
+            GameId.of(1L),
+            GameName.of("Zelda"),
+            Summary.of("Un juego"),
+            CoverUrl.of("https://img/z.jpg"),
+            List.of("PC"),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    when(gameRepository.findById(any())).thenReturn(Optional.of(game));
+
     mockMvc
         .perform(get("/v1/catalogo/games/1"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.game.name").value("Zelda"))
-        .andExpect(jsonPath("$.screenshots").isArray())
-        .andExpect(jsonPath("$.videos").isArray());
+        .andExpect(jsonPath("$.name").value("Zelda"))
+        .andExpect(jsonPath("$.platforms").isArray());
   }
 
   @Test
   @DisplayName("GET /v1/catalogo/games/{id} debe retornar 404 cuando el juego no existe")
   void debeRetornar404SiJuegoNoExiste() throws Exception {
-    when(getGameDetailUseCase.executeComplete(any()))
-        .thenThrow(new ApplicationException("Juego no encontrado con ID: 999"));
-    mockMvc
-        .perform(get("/v1/catalogo/games/999"))
-        .andExpect(status().isUnprocessableEntity())
-        .andExpect(jsonPath("$.error").value("Juego no encontrado con ID: 999"));
+    when(gameRepository.findById(any()))
+        .thenThrow(new EntityNotFoundException("Juego no encontrado con ID: 999"));
+    mockMvc.perform(get("/v1/catalogo/games/999")).andExpect(status().isNotFound());
   }
 
   // ─── Platforms ────────────────────────────────────────────────────────────
@@ -138,9 +149,7 @@ class CatalogoControllerTest {
   @DisplayName("GET /v1/catalogo/platforms/{id} debe retornar 404 cuando la plataforma no existe")
   void debeRetornar404SiPlataformaNoExiste() throws Exception {
     when(platformRepository.findById(any())).thenReturn(Optional.empty());
-    mockMvc
-        .perform(get("/v1/catalogo/platforms/99999"))
-        .andExpect(status().isUnprocessableEntity());
+    mockMvc.perform(get("/v1/catalogo/platforms/99999")).andExpect(status().isNotFound());
   }
 
   @Test

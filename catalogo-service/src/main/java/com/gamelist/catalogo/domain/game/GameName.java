@@ -4,17 +4,17 @@ import com.gamelist.catalogo.domain.exceptions.DomainException;
 import java.util.Objects;
 
 public final class GameName {
-  private static final int MAX_LENGTH = 200;
   private final String value;
 
   private GameName(String value) {
     if (value == null || value.isBlank()) {
       throw new DomainException("El nombre del juego no puede estar vacío");
     }
-    if (value.length() > MAX_LENGTH) {
-      throw new DomainException("El nombre excede los " + MAX_LENGTH + " caracteres");
+    String trimmed = value.trim();
+    if (trimmed.length() > 200) {
+      throw new DomainException("El nombre del juego excede los 200 caracteres permitidos");
     }
-    this.value = value.trim();
+    this.value = trimmed;
   }
 
   public static GameName of(String value) {

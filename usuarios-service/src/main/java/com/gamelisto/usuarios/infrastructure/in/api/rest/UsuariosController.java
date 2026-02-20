@@ -61,25 +61,6 @@ public class UsuariosController {
   private final EliminarUsuarioUseCase eliminarUsuarioUseCase;
   private final BuscarUsuariosPorNombreUseCase buscarUsuariosPorNombreUseCase;
 
-  // TODO Ya hay una librería que lo hace - ACTUATOR
-  @Operation(
-      summary = "Health check",
-      description = "Verifica que el microservicio de usuarios esté funcionando correctamente",
-      security = @SecurityRequirement(name = "bearerAuth"))
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "200", description = "Servicio funcionando correctamente"),
-        @ApiResponse(
-            responseCode = "401",
-            description = "No autenticado - Token ausente o inválido"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado - Requiere rol ADMIN")
-      })
-  @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping(value = "/health")
-  public void health() {
-    logger.info("Microservicio usuarios funcionando correctamente.");
-  }
-
   @Operation(
       summary = "Cambiar contraseña (usuario autenticado)",
       description =

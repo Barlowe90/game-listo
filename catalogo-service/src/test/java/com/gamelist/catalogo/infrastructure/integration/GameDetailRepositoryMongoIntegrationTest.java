@@ -2,8 +2,6 @@ package com.gamelist.catalogo.infrastructure.integration;
 
 import com.gamelist.catalogo.domain.game.GameId;
 import com.gamelist.catalogo.domain.gamedetail.GameDetail;
-import com.gamelist.catalogo.domain.gamedetail.Screenshot;
-import com.gamelist.catalogo.domain.gamedetail.Video;
 import com.gamelist.catalogo.domain.repositories.IGameDetailRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,11 +27,16 @@ class GameDetailRepositoryMongoIntegrationTest {
     GameDetail d =
         GameDetail.create(
             gameId,
-            List.of(Screenshot.of("https://img/ss.jpg", 1920, 1080)),
-            List.of(Video.of("https://yt/abc", "abc")));
+            List.of("Alt Name 1"),
+            "https://cover.jpg",
+            List.of("https://img/ss.jpg"),
+            List.of("https://yt/abc"));
+
     gameDetailRepository.save(d);
     Optional<GameDetail> r = gameDetailRepository.findByGameId(gameId);
     assertThat(r).isPresent();
+    assertThat(r.get().getAlternativeNames()).hasSize(1);
+    assertThat(r.get().getCoverUrl()).isEqualTo("https://cover.jpg");
     assertThat(r.get().getScreenshots()).hasSize(1);
     assertThat(r.get().getVideos()).hasSize(1);
   }

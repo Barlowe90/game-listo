@@ -4,10 +4,5 @@ import com.gamelist.catalogo.infrastructure.out.persistence.postgres.entity.Plat
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Set;
-
 @Repository
-public interface PlatformJpaRepository extends JpaRepository<PlatformEntity, Long> {
-
-  Set<PlatformEntity> findByIdIn(Set<Long> ids);
-}
+public interface PlatformJpaRepository extends JpaRepository<PlatformEntity, Long> {}

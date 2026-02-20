@@ -10,6 +10,4 @@ import java.util.Optional;
 public interface GameDetailMongoRepository extends MongoRepository<GameDetailDocument, String> {
 
   Optional<GameDetailDocument> findByGameId(Long gameId);
-
-  void deleteByGameId(Long gameId);
 }

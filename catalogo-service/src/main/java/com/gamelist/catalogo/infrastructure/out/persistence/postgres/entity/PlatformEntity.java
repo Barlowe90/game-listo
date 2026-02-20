@@ -6,9 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Entity
 @Table(name = "platforms")
 @Getter
@@ -19,16 +16,13 @@ public class PlatformEntity {
 
   @Id
   @Column(name = "id", nullable = false, updatable = false)
-  private Long id; // ID de IGDB
+  private Long id;
 
-  @Column(name = "name", nullable = false, length = 100)
+  @Column(name = "name", nullable = false)
   private String name;
 
-  @Column(name = "abbreviation", length = 20)
+  @Column(name = "abbreviation")
   private String abbreviation;
-
-  @ManyToMany(mappedBy = "platforms", fetch = FetchType.LAZY)
-  private Set<GameEntity> games = new HashSet<>();
 
   @Override
   public boolean equals(Object o) {

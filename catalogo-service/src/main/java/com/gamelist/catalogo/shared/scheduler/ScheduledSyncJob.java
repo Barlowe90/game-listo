@@ -1,10 +1,11 @@
 package com.gamelist.catalogo.shared.scheduler;
 
-import com.gamelist.catalogo.application.dto.commands.SyncIgdbGamesCommand;
 import com.gamelist.catalogo.application.dto.commands.SyncPlatformsCommand;
 import com.gamelist.catalogo.application.dto.results.SyncResultDTO;
 import com.gamelist.catalogo.application.usecases.SyncIgdbGamesUseCase;
 import com.gamelist.catalogo.application.usecases.SyncPlatformsFromIgdbUseCase;
+import com.gamelist.catalogo.shared.config.IgdbProperties;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,15 +18,14 @@ public class ScheduledSyncJob {
 
   private final SyncIgdbGamesUseCase syncGamesUseCase;
   private final SyncPlatformsFromIgdbUseCase syncPlatformsUseCase;
+  private final IgdbProperties igdbProperties;
 
-  @Scheduled(cron = "0 0 */6 * * *") // Cada 6 horas (a las 00:00, 06:00, 12:00, 18:00)
+  @Scheduled(cron = "0 0 */12 * * *") // Cada 12 horas (a las 00:00, 12:00, 00:00)
   public void syncGamesIncremental() {
     log.info("===== Iniciando sincronización automática de juegos =====");
 
     try {
-      // fromId = null para que use el checkpoint guardado
-      SyncIgdbGamesCommand command = new SyncIgdbGamesCommand(null, 500);
-      SyncResultDTO result = syncGamesUseCase.execute(command);
+      SyncResultDTO result = syncGamesUseCase.execute(igdbProperties.getBatchSize());
 
       log.info(
           "===== Sincronización automática completada: {} juegos, último ID: {} =====",
@@ -38,7 +38,7 @@ public class ScheduledSyncJob {
     }
   }
 
-  @Scheduled(cron = "0 0 3 * * *") // Diariamente a las 03:00 de la madrugada
+  @Scheduled(cron = "0 0 0 * * 0") // Los domingos a las 00:00
   public void syncPlatformsDaily() {
     log.info("===== Iniciando sincronización diaria de plataformas =====");
 

@@ -1,28 +1,21 @@
 package com.gamelist.catalogo.infrastructure.in.api.rest;
 
-import com.gamelist.catalogo.application.dto.commands.SyncIgdbGamesCommand;
-import com.gamelist.catalogo.application.dto.commands.SyncPlatformsCommand;
 import com.gamelist.catalogo.application.dto.queries.GetGameDetailQuery;
 import com.gamelist.catalogo.application.dto.results.PlatformDTO;
-import com.gamelist.catalogo.application.dto.results.SyncResultDTO;
 import com.gamelist.catalogo.application.usecases.GetGameDetailUseCase;
-import com.gamelist.catalogo.application.usecases.SyncIgdbGamesUseCase;
-import com.gamelist.catalogo.application.usecases.SyncPlatformsFromIgdbUseCase;
-import com.gamelist.catalogo.domain.catalog.Platform;
-import com.gamelist.catalogo.domain.catalog.PlatformId;
+import com.gamelist.catalogo.domain.exceptions.EntityNotFoundException;
+import com.gamelist.catalogo.domain.game.GameId;
+import com.gamelist.catalogo.domain.repositories.IGameRepository;
 import com.gamelist.catalogo.domain.repositories.IPlatformRepository;
-import com.gamelist.catalogo.infrastructure.exceptions.InfrastructureException;
-import com.gamelist.catalogo.infrastructure.in.api.dto.request.SyncIgdbRequest;
-import com.gamelist.catalogo.infrastructure.in.api.dto.response.GameDetailResponse;
-import com.gamelist.catalogo.infrastructure.in.api.dto.response.PlatformResponse;
-import com.gamelist.catalogo.infrastructure.in.api.dto.response.SyncStatusResponse;
+import com.gamelist.catalogo.infrastructure.out.api.dto.response.GameDetailResponse;
+import com.gamelist.catalogo.infrastructure.out.api.dto.response.GameResponse;
+import com.gamelist.catalogo.infrastructure.out.api.dto.response.PlatformResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -32,103 +25,89 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/v1/catalogo")
-@Tag(name = "Catálogo de Videojuegos", description = "Ingesta y gestión de videojuegos desde IGDB")
+@Tag(name = "Catálogo de Videojuegos", description = "Gestión de videojuegos")
 @RequiredArgsConstructor
 @Slf4j
 public class CatalogoContoller {
 
-  private final SyncIgdbGamesUseCase syncGamesUseCase;
-  private final SyncPlatformsFromIgdbUseCase syncPlatformsUseCase;
   private final GetGameDetailUseCase getGameDetailUseCase;
   private final IPlatformRepository platformRepository;
+  private final IGameRepository gameRepository;
 
-  @GetMapping("/health")
-  @Operation(summary = "Health check", description = "Verifica que el servicio está activo")
-  public ResponseEntity<String> health() {
-    return ResponseEntity.ok("Catalogo Service is running!");
-  }
-
-  @PostMapping("/sync/games")
+  @GetMapping("/games")
   @Operation(
-      summary = "Sincronizar juegos desde IGDB",
-      description = "Ejecuta sincronización manual de juegos desde IGDB API")
+      summary = "Listar todos los juegos",
+      description = "Retorna lista paginada de juegos (solo datos básicos, sin multimedia)")
   @ApiResponse(
       responseCode = "200",
-      description = "Sincronización completada",
-      content = @Content(schema = @Schema(implementation = SyncStatusResponse.class)))
-  public ResponseEntity<SyncStatusResponse> syncGames(
-      @Valid @RequestBody(required = false) SyncIgdbRequest request) {
-    log.info("Iniciando sincronización manual de juegos desde IGDB");
+      description = "Lista de juegos",
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = GameResponse.class))))
+  public ResponseEntity<List<GameResponse>> getAllGames(
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+    log.info("Obteniendo listado de juegos (page: {}, size: {})", page, size);
 
-    // Usar valores por defecto si no se envía request body
-    Long fromId = request != null ? request.fromId() : null;
-    Integer limit = request != null && request.limit() != null ? request.limit() : 500;
+    // Obtener todos los juegos (en producción usar Pageable)
+    List<com.gamelist.catalogo.domain.game.Game> games = gameRepository.findAll();
 
-    SyncIgdbGamesCommand command = new SyncIgdbGamesCommand(fromId, limit);
-    SyncResultDTO result = syncGamesUseCase.execute(command);
+    // Paginación manual simple (para TFG)
+    int start = page * size;
+    int end = Math.min(start + size, games.size());
 
-    SyncStatusResponse response =
-        SyncStatusResponse.from(result, "Sincronización de juegos completada");
+    if (start >= games.size()) {
+      return ResponseEntity.ok(List.of());
+    }
 
-    log.info(
-        "Sincronización completada: {} juegos, último ID: {}",
-        result.totalSynced(),
-        result.lastId());
+    List<GameResponse> response =
+        games.subList(start, end).stream().map(this::convertToGameResponse).toList();
 
-    return ResponseEntity.ok(response);
-  }
-
-  @PostMapping("/igdb/sync/platforms")
-  @Operation(
-      summary = "Sincronizar plataformas desde IGDB",
-      description = "Ejecuta sincronización manual de plataformas desde IGDB API")
-  @ApiResponse(
-      responseCode = "200",
-      description = "Sincronización completada",
-      content = @Content(schema = @Schema(implementation = SyncStatusResponse.class)))
-  public ResponseEntity<SyncStatusResponse> syncPlatforms() {
-    log.info("Iniciando sincronización manual de plataformas desde IGDB");
-
-    SyncPlatformsCommand command = new SyncPlatformsCommand();
-    SyncResultDTO result = syncPlatformsUseCase.execute(command);
-
-    SyncStatusResponse response =
-        SyncStatusResponse.from(result, "Sincronización de plataformas completada");
-
-    log.info("Sincronización de plataformas completada: {} plataformas", result.totalSynced());
-
+    log.info("Retornando {} juegos (total: {})", response.size(), games.size());
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/games/{id}")
   @Operation(
-      summary = "Obtener detalle completo de un juego",
-      description =
-          "Retorna información básica del juego junto con multimedia (screenshots y videos)")
+      summary = "Obtener un juego por ID",
+      description = "Retorna información del juego desde PostgreSQL")
   @ApiResponse(
       responseCode = "200",
       description = "Juego encontrado",
-      content = @Content(schema = @Schema(implementation = GameDetailResponse.class)))
+      content = @Content(schema = @Schema(implementation = GameResponse.class)))
   @ApiResponse(responseCode = "404", description = "Juego no encontrado")
-  public ResponseEntity<GameDetailResponse> getGameDetail(@PathVariable Long id) {
-    log.info("Obteniendo detalle del juego ID: {}", id);
+  public ResponseEntity<GameResponse> getGameById(@PathVariable Long id) {
+    log.info("Obteniendo juego ID: {} desde PostgreSQL", id);
 
-    GetGameDetailQuery query = new GetGameDetailQuery(id);
-    GetGameDetailUseCase.GameWithDetailDTO result = getGameDetailUseCase.executeComplete(query);
+    com.gamelist.catalogo.domain.game.Game game =
+        gameRepository
+            .findById(GameId.of(id))
+            .orElseThrow(() -> new EntityNotFoundException("Juego no encontrado con ID: " + id));
 
-    GameDetailResponse response = GameDetailResponse.from(result);
-
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(convertToGameResponse(game));
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // PLATAFORMAS
-  // ─────────────────────────────────────────────────────────────────────────────
+  @GetMapping("/games/{id}/detail")
+  @Operation(
+      summary = "Obtener game detail de MongoDB",
+      description = "Retorna información multimedia del juego desde MongoDB")
+  @ApiResponse(
+      responseCode = "200",
+      description = "Game Detail encontrado",
+      content = @Content(schema = @Schema(implementation = GameDetailResponse.class)))
+  @ApiResponse(responseCode = "404", description = "Juego no encontrado")
+  public ResponseEntity<GameDetailResponse> getGameDetailOnly(@PathVariable Long id) {
+    log.info("Obteniendo Game Detail (MongoDB) del juego ID: {}", id);
+
+    GetGameDetailQuery query = new GetGameDetailQuery(id);
+    com.gamelist.catalogo.application.dto.results.GameDetailDTO detailDTO =
+        getGameDetailUseCase.execute(query);
+
+    return ResponseEntity.ok(GameDetailResponse.from(detailDTO));
+  }
 
   @GetMapping("/platforms")
   @Operation(
       summary = "Listar todas las plataformas",
-      description = "Retorna el catálogo completo de plataformas sincronizadas desde IGDB")
+      description = "Retorna el catálogo completo de plataformas")
   @ApiResponse(
       responseCode = "200",
       description = "Lista de plataformas",
@@ -149,31 +128,33 @@ public class CatalogoContoller {
     return ResponseEntity.ok(platforms);
   }
 
-  @GetMapping("/platforms/{id}")
-  @Operation(
-      summary = "Obtener una plataforma por ID",
-      description = "Retorna los datos de una plataforma específica por su ID de IGDB")
-  @ApiResponse(
-      responseCode = "200",
-      description = "Plataforma encontrada",
-      content = @Content(schema = @Schema(implementation = PlatformResponse.class)))
-  @ApiResponse(responseCode = "404", description = "Plataforma no encontrada")
-  public ResponseEntity<PlatformResponse> getPlatformById(@PathVariable Long id) {
-    log.info("Obteniendo plataforma ID: {}", id);
-
-    Platform platform =
-        platformRepository
-            .findById(PlatformId.of(id))
-            .orElseThrow(
-                () -> new InfrastructureException("Plataforma no encontrada con ID: " + id));
-
-    PlatformResponse response =
-        PlatformResponse.from(
-            new PlatformDTO(
-                platform.getId().value(),
-                platform.getName().value(),
-                platform.getAbbreviation().value()));
-
-    return ResponseEntity.ok(response);
+  private GameResponse convertToGameResponse(com.gamelist.catalogo.domain.game.Game game) {
+    return new GameResponse(
+        game.getId().value(),
+        game.getName().value(),
+        game.getSummary().value(),
+        game.getCoverUrl().value(),
+        game.getPlatforms(),
+        game.getGameType(),
+        game.getGameStatus(),
+        game.getParentGameId(),
+        game.getGenres(),
+        game.getGameModes(),
+        game.getPlayerPerspectives(),
+        game.getKeywords(),
+        game.getInvolvedCompanies(),
+        game.getAlternativeNames(),
+        game.getFranchises(),
+        game.getThemes(),
+        game.getExternalGames(),
+        game.getMultiplayerModeIds(),
+        game.getDlcs(),
+        game.getExpandedGames(),
+        game.getExpansionIds(),
+        game.getRemakeIds(),
+        game.getRemasterIds(),
+        game.getSimilarGames(),
+        game.getScreenshots(),
+        game.getVideos());
   }
 }

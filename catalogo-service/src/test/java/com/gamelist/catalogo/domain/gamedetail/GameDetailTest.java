@@ -1,14 +1,15 @@
 package com.gamelist.catalogo.domain.gamedetail;
 
-import com.gamelist.catalogo.domain.exceptions.DomainException;
 import com.gamelist.catalogo.domain.game.GameId;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** Tests para el agregado GameDetail. */
 class GameDetailTest {
@@ -18,17 +19,20 @@ class GameDetailTest {
   void debeCrearGameDetailConContenido() {
     // Arrange
     GameId gameId = GameId.of(100L);
-    List<Screenshot> screenshots =
-        List.of(
-            Screenshot.of("https://example.com/screenshot1.jpg", 1920, 1080),
-            Screenshot.of("https://example.com/screenshot2.jpg", 1920, 1080));
-    List<Video> videos = List.of(Video.of("https://youtube.com/watch?v=abc123", "abc123"));
+    List<String> alternativeNames = List.of("Alt Name 1", "Alt Name 2");
+    String coverUrl = "https://example.com/cover.jpg";
+    List<String> screenshots =
+        List.of("https://example.com/screenshot1.jpg", "https://example.com/screenshot2.jpg");
+    List<String> videos = List.of("https://youtube.com/watch?v=abc123");
 
     // Act
-    GameDetail gameDetail = GameDetail.create(gameId, screenshots, videos);
+    GameDetail gameDetail =
+        GameDetail.create(gameId, alternativeNames, coverUrl, screenshots, videos);
 
     // Assert
     assertThat(gameDetail.getGameId()).isEqualTo(gameId);
+    assertThat(gameDetail.getAlternativeNames()).hasSize(2);
+    assertThat(gameDetail.getCoverUrl()).isEqualTo(coverUrl);
     assertThat(gameDetail.getScreenshots()).hasSize(2);
     assertThat(gameDetail.getVideos()).hasSize(1);
     assertThat(gameDetail.hasContent()).isTrue();
@@ -56,7 +60,8 @@ class GameDetailTest {
   @DisplayName("Debe lanzar excepción si GameId es nulo")
   void debeLanzarExcepcionSiGameIdNulo() {
     // Act & Assert
-    assertThatThrownBy(() -> GameDetail.create(null, new ArrayList<>(), new ArrayList<>()))
+    assertThatThrownBy(
+            () -> GameDetail.create(null, List.of(), null, new ArrayList<>(), new ArrayList<>()))
         .isInstanceOf(DomainException.class)
         .hasMessageContaining("GameId es obligatorio");
   }
@@ -66,7 +71,7 @@ class GameDetailTest {
   void debeAñadirScreenshot() {
     // Arrange
     GameDetail gameDetail = GameDetail.empty(GameId.of(100L));
-    Screenshot screenshot = Screenshot.of("https://example.com/new.jpg");
+    String screenshot = "https://example.com/new.jpg";
 
     // Act
     gameDetail.addScreenshot(screenshot);
@@ -81,7 +86,7 @@ class GameDetailTest {
   void debeAñadirVideo() {
     // Arrange
     GameDetail gameDetail = GameDetail.empty(GameId.of(100L));
-    Video video = Video.of("https://youtube.com/watch?v=xyz");
+    String video = "https://youtube.com/watch?v=xyz";
 
     // Act
     gameDetail.addVideo(video);
@@ -97,16 +102,15 @@ class GameDetailTest {
     // Arrange
     GameDetail gameDetail =
         GameDetail.create(
-            GameId.of(100L), List.of(Screenshot.of("https://old.com/1.jpg")), new ArrayList<>());
-    List<Screenshot> newScreenshots =
-        List.of(Screenshot.of("https://new.com/1.jpg"), Screenshot.of("https://new.com/2.jpg"));
+            GameId.of(100L), List.of(), null, List.of("https://old.com/1.jpg"), new ArrayList<>());
+    List<String> newScreenshots = List.of("https://new.com/1.jpg", "https://new.com/2.jpg");
 
     // Act
     gameDetail.setScreenshots(newScreenshots);
 
     // Assert
     assertThat(gameDetail.getScreenshots()).hasSize(2);
-    assertThat(gameDetail.getScreenshots().get(0).url()).contains("new.com");
+    assertThat(gameDetail.getScreenshots().get(0)).contains("new.com");
   }
 
   @Test
@@ -115,9 +119,8 @@ class GameDetailTest {
     // Arrange
     GameDetail gameDetail =
         GameDetail.create(
-            GameId.of(100L), new ArrayList<>(), List.of(Video.of("https://old.com/video")));
-    List<Video> newVideos =
-        List.of(Video.of("https://new.com/video1"), Video.of("https://new.com/video2"));
+            GameId.of(100L), List.of(), null, new ArrayList<>(), List.of("https://old.com/video"));
+    List<String> newVideos = List.of("https://new.com/video1", "https://new.com/video2");
 
     // Act
     gameDetail.setVideos(newVideos);
@@ -133,12 +136,13 @@ class GameDetailTest {
     GameDetail gameDetail =
         GameDetail.create(
             GameId.of(100L),
-            List.of(Screenshot.of("https://example.com/1.jpg")),
+            List.of(),
+            null,
+            List.of("https://example.com/1.jpg"),
             new ArrayList<>());
 
     // Act & Assert
-    assertThatThrownBy(
-            () -> gameDetail.getScreenshots().add(Screenshot.of("https://example.com/2.jpg")))
+    assertThatThrownBy(() -> gameDetail.getScreenshots().add("https://example.com/2.jpg"))
         .isInstanceOf(UnsupportedOperationException.class);
   }
 
@@ -148,10 +152,14 @@ class GameDetailTest {
     // Arrange
     GameDetail gameDetail =
         GameDetail.create(
-            GameId.of(100L), new ArrayList<>(), List.of(Video.of("https://example.com/video")));
+            GameId.of(100L),
+            List.of(),
+            null,
+            new ArrayList<>(),
+            List.of("https://example.com/video"));
 
     // Act & Assert
-    assertThatThrownBy(() -> gameDetail.getVideos().add(Video.of("https://example.com/video2")))
+    assertThatThrownBy(() -> gameDetail.getVideos().add("https://example.com/video2"))
         .isInstanceOf(UnsupportedOperationException.class);
   }
 
@@ -161,7 +169,7 @@ class GameDetailTest {
     // Arrange
     GameId gameId = GameId.of(100L);
     GameDetail gd1 = GameDetail.empty(gameId);
-    GameDetail gd2 = GameDetail.create(gameId, List.of(Screenshot.of("url")), new ArrayList<>());
+    GameDetail gd2 = GameDetail.create(gameId, List.of(), null, List.of("url"), new ArrayList<>());
 
     // Assert
     assertThat(gd1).isEqualTo(gd2);

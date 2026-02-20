@@ -12,63 +12,86 @@ import java.util.Objects;
 @Getter
 public class GameDetail {
   private final GameId gameId;
-  private final List<Screenshot> screenshots;
-  private final List<Video> videos;
+  private final List<String> alternativeNames;
+  private final String coverUrl;
+  private final List<String> screenshots;
+  private final List<String> videos;
 
-  private GameDetail(GameId gameId, List<Screenshot> screenshots, List<Video> videos) {
+  private GameDetail(
+      GameId gameId,
+      List<String> alternativeNames,
+      String coverUrl,
+      List<String> screenshots,
+      List<String> videos) {
     this.gameId = Objects.requireNonNull(gameId, "GameId no puede ser nulo");
+    this.alternativeNames =
+        alternativeNames != null ? new ArrayList<>(alternativeNames) : new ArrayList<>();
+    this.coverUrl = coverUrl;
     this.screenshots = screenshots != null ? new ArrayList<>(screenshots) : new ArrayList<>();
     this.videos = videos != null ? new ArrayList<>(videos) : new ArrayList<>();
   }
 
-  public static GameDetail create(GameId gameId, List<Screenshot> screenshots, List<Video> videos) {
+  public static GameDetail create(
+      GameId gameId,
+      List<String> alternativeNames,
+      String coverUrl,
+      List<String> screenshots,
+      List<String> videos) {
     if (gameId == null) {
       throw new DomainException("El GameId es obligatorio para GameDetail");
     }
-    return new GameDetail(gameId, screenshots, videos);
+    return new GameDetail(gameId, alternativeNames, coverUrl, screenshots, videos);
   }
 
   public static GameDetail empty(GameId gameId) {
-    return new GameDetail(gameId, new ArrayList<>(), new ArrayList<>());
+    return new GameDetail(gameId, new ArrayList<>(), null, new ArrayList<>(), new ArrayList<>());
   }
 
   public static GameDetail reconstitute(
-      GameId gameId, List<Screenshot> screenshots, List<Video> videos) {
-    return new GameDetail(gameId, screenshots, videos);
+      GameId gameId,
+      List<String> alternativeNames,
+      String coverUrl,
+      List<String> screenshots,
+      List<String> videos) {
+    return new GameDetail(gameId, alternativeNames, coverUrl, screenshots, videos);
   }
 
-  public void addScreenshot(Screenshot screenshot) {
+  public void addScreenshot(String screenshot) {
     if (screenshot != null) {
       this.screenshots.add(screenshot);
     }
   }
 
-  public void addVideo(Video video) {
+  public void addVideo(String video) {
     if (video != null) {
       this.videos.add(video);
     }
   }
 
-  public void setScreenshots(List<Screenshot> newScreenshots) {
+  public void setScreenshots(List<String> newScreenshots) {
     this.screenshots.clear();
     if (newScreenshots != null) {
       this.screenshots.addAll(newScreenshots);
     }
   }
 
-  public void setVideos(List<Video> newVideos) {
+  public void setVideos(List<String> newVideos) {
     this.videos.clear();
     if (newVideos != null) {
       this.videos.addAll(newVideos);
     }
   }
 
-  public List<Screenshot> getScreenshots() {
+  public List<String> getScreenshots() {
     return Collections.unmodifiableList(screenshots);
   }
 
-  public List<Video> getVideos() {
+  public List<String> getVideos() {
     return Collections.unmodifiableList(videos);
+  }
+
+  public List<String> getAlternativeNames() {
+    return Collections.unmodifiableList(alternativeNames);
   }
 
   public boolean hasContent() {

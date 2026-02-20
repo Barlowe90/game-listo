@@ -1,18 +1,11 @@
 package com.gamelist.catalogo.domain.catalog;
 
-import com.gamelist.catalogo.domain.exceptions.DomainException;
-
 import java.util.Objects;
 
 public final class PlatformAbbreviation {
-  private static final int MAX_LENGTH = 20;
   private final String value;
 
   private PlatformAbbreviation(String value) {
-    // Puede ser null en IGDB (algunas plataformas no tienen abreviación)
-    if (value != null && value.length() > MAX_LENGTH) {
-      throw new DomainException("La abreviación excede los " + MAX_LENGTH + " caracteres");
-    }
     this.value = value != null ? value.trim() : null;
   }
 

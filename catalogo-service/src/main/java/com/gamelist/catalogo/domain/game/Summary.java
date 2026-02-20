@@ -4,15 +4,18 @@ import com.gamelist.catalogo.domain.exceptions.DomainException;
 import java.util.Objects;
 
 public final class Summary {
-  private static final int MAX_LENGTH = 1000;
   private final String value;
 
   private Summary(String value) {
-    if (value != null && value.length() > MAX_LENGTH) {
-      throw new DomainException("El resumen excede los " + MAX_LENGTH + " caracteres");
+    if (value != null) {
+      String trimmed = value.trim();
+      if (trimmed.length() > 1000) {
+        throw new DomainException("El resumen del juego excede los 1000 caracteres permitidos");
+      }
+      this.value = trimmed;
+    } else {
+      this.value = null;
     }
-    // Permitimos null o blank para summary (campo opcional)
-    this.value = value != null ? value.trim() : null;
   }
 
   public static Summary of(String value) {

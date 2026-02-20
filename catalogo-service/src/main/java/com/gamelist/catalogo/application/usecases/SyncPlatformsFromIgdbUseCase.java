@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/** Se trae de IGDB la info de plataformas */
 @Service
 @RequiredArgsConstructor
 @Slf4j

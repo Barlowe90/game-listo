@@ -5,20 +5,52 @@ Este documento sirve como **contexto de proyecto** con la arquitectura, el domin
 
 ---
 
+## ⚠️ Contexto: Proyecto TFG
+
+**Este es un Trabajo de Fin de Grado (TFG) que NO saldrá a producción.**
+
+### Principios de desarrollo:
+
+#### 🎯 KISS (Keep It Simple, Stupid)
+
+- ✅ **Funcionalidad básica que funcione**
+- ✅ **Código legible y fácil de explicar en la defensa**
+- ✅ **Arquitectura correcta pero sin sobre-ingeniería**
+- ❌ **NO optimizaciones prematuras**
+- ❌ **NO features complejas innecesarias**
+
+#### 🧪 Testing Mínimo Viable
+
+- Solo tests de casos principales (happy path + error crítico)
+- NO tests exhaustivos de edge cases
+- Testing manual con Postman/curl es válido
+
+#### 📦 Simplicidad en Modelos
+
+- **NO crear Value Objects complejos** si no aportan valor real al TFG
+- Ejemplo: `List<String> screenshotUrls` en lugar de `List<Screenshot>` con validaciones
+
+#### 📐 Arquitectura Pragmática
+
+- **SÍ Hexagonal + DDD** (conceptos a demostrar)
+- **SÍ PostgreSQL + MongoDB** (persistencia políglota)
+- **NO abstracciones innecesarias** si algo se usa en un solo lugar
+
+---
+
 ## 1) Objetivo del microservicio
 
 El microservicio **Catálogo** es el *source of truth* de los **metadatos de videojuegos** dentro del sistema.  
 Obtiene datos de **IGDB** y los persiste en dos almacenamientos:
 
 1. **BBDD relacional**: metadato troncal y catálogos.
-2. **Almacenamiento documental (NoSQL)**: contenido enriquecido/voluminoso (capturas y vídeos).
+2. **Almacenamiento documental (NoSQL)**: contenido minimizado (nombre, cover, capturas y vídeos).
 
 Además, el microservicio:
 
 - Ejecuta **ingesta automatizada** desde IGDB (Spring Scheduler).
 - Publica **eventos de integración** para:
     - disparar **reindexación** en OpenSearch (**search-service**),
-    - e **invalidar cachés** (si aplica).
 
 ### Integración con Otros Servicios
 
@@ -35,14 +67,10 @@ OpenSearch):
 Frontend → API Gateway → GraphQL BFF → search-service (OpenSearch) + catalogo-service (detalles)
 ```
 
-**Ver documentación detallada:** `INTEGRACION-SERVICIOS.md`
-
----
-
 ## 2) Stack y estilo de implementación
 
 - **Java 21**
-- **Spring Boot 4.0.2**
+- **Spring Boot 3.5.8**
 - **Arquitectura**: Hexagonal (Ports & Adapters) + **DDD**
 - **API**: Controlador **REST**
 - **Scheduler**: Spring Scheduler para sincronización IGDB
@@ -58,18 +86,7 @@ Frontend → API Gateway → GraphQL BFF → search-service (OpenSearch) + catal
 ### Agregado central (relacional)
 
 - **Game** *(Aggregate Root)*  
-  Metadatos principales del videojuego (campos mínimos actuales; se ampliarán):
-    - `id` (IGDB id → PK interna)
-    - `name`
-    - `summary`
-    - `cover` (obtener la url para mostrar la imagen directamente de IGDB y no almacenar imágenes en nuestro servidor)
-
-Relaciones/catálogos en relacional:
-
-- **Platform** (catálogo)
-- **Language** (catálogo)
-- **MultiplayerMode** (catálogo)
-- **GameTimeToBeat** (métricas de duración, 1:1 con Game)
+  los actuales en Game.java
 
 ### Contenido enriquecido (documental)
 
@@ -77,6 +94,8 @@ Relaciones/catálogos en relacional:
     - `gameId` (igual a `Game.id`)
     - `screenshots[]` (subdocumentos)
     - `videos[]` (subdocumentos)
+    - cover
+    - alternative name
 
 > Regla: `Game` es el “núcleo” (relacional) y `GameDetail` es “enriquecido/voluminoso” (documental).
 
@@ -87,25 +106,7 @@ Relaciones/catálogos en relacional:
 ### Relacional (PostgreSQL)
 
 - **game**
-    - `id` (PK, coincide con IGDB `id`)
-    - `name`
-    - `summary`
-    - `cover` (coverUrl)
-    - referencias a catálogos / join tables según cardinalidad
-
-- **platform** (catálogo)
-- **language** (catálogo)
-- **multiplayer_mode** (catálogo)
-
-- **game_time_to_beat**
-    - `game_id` (FK a `game.id`)
-    - métricas: (por ejemplo) `main` (tiempo mínimo para pasarse el juego)
-
-> Nota: si `Game` tiene múltiples plataformas/idiomas/modos, modelar con tablas puente si es la mejor opción, sino
-> dejar a elección del programador senior que lo haga:
-> - `game_platform(game_id, platform_id)`
-> - `game_language(game_id, language_id)`
-> - `game_multiplayer_mode(game_id, multiplayer_mode_id)`
+  los que hay en Game.java
 
 ### Documental (MongoDB)
 
@@ -114,6 +115,8 @@ Relaciones/catálogos en relacional:
     - `gameId` (único, indexado)
     - `screenshots`: [{ `url`]
     - `videos`: [{ `url` ]
+    - cover
+    - alternative name
 
 ---
 
@@ -123,12 +126,8 @@ Relaciones/catálogos en relacional:
 
 ### Sincronización IGDB
 
-- `POST /v1/catalogo/igdb/sync`
-    - Objetivo: disparar sincronización “por tramos” o "ids" (batch/paginado) dejar a elección del programador senior la
-      mejor manera
-    - Puede aceptar query params (si se decide):
-        - `fromId` (checkpoint) o `offset`
-        - `limit` (máx 500)
+- `POST /v1/catalogo/sync/games`
+    - Objetivo: disparar sincronización por ids
     - Debe ser **idempotente** (upsert por `Game.id`)
 
 ### Consulta de detalle

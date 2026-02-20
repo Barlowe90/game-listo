@@ -75,10 +75,4 @@ public class PlatformRepositoryPostgres implements IPlatformRepository {
     List<PlatformEntity> savedEntities = jpaRepository.saveAll(entities);
     return savedEntities.stream().map(mapper::toDomain).toList();
   }
-
-  @Override
-  @Transactional
-  public void deleteById(PlatformId id) {
-    jpaRepository.deleteById(id.value());
-  }
 }

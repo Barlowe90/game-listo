@@ -9,6 +9,4 @@ public interface IGameDetailRepository {
   GameDetail save(GameDetail gameDetail);
 
   Optional<GameDetail> findByGameId(GameId gameId);
-
-  void deleteByGameId(GameId gameId);
 }

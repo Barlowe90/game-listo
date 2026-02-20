@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.gamelist.catalogo.application.exceptions.ApplicationException;
 import com.gamelist.catalogo.domain.exceptions.DomainException;
+import com.gamelist.catalogo.domain.exceptions.EntityNotFoundException;
 import com.gamelist.catalogo.infrastructure.exceptions.InfrastructureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,15 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleDomainException(DomainException ex) {
     logger.warn("Error de dominio: {}", ex.getMessage());
     return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+  }
+
+  // ============ Entidad no encontrada - 404 Not Found ============
+
+  @ExceptionHandler(EntityNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handleEntityNotFoundException(
+      EntityNotFoundException ex) {
+    logger.warn("Entidad no encontrada: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
   }
 
   // ============ Capa de Aplicación - 422 Unprocessable Entity ============

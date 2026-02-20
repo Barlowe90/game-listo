@@ -35,9 +35,4 @@ public class GameDetailRepositoryMongo implements IGameDetailRepository {
   public Optional<GameDetail> findByGameId(GameId gameId) {
     return mongoRepository.findByGameId(gameId.value()).map(mapper::toDomain);
   }
-
-  @Override
-  public void deleteByGameId(GameId gameId) {
-    mongoRepository.deleteByGameId(gameId.value());
-  }
 }

@@ -52,7 +52,40 @@ aplicación de Discord, previamente añadiendo el usuario e id a la cuenta del m
 
 ## Principios
 
-KISS - Keep It Simple Stupid.
+### KISS - Keep It Simple, Stupid
+
+**Este es un Trabajo de Fin de Grado (TFG) que NO saldrá a producción.**
+
+Por tanto, la prioridad es:
+
+- ✅ **Funcionalidad básica que demuestre los conceptos**
+- ✅ **Código simple, legible y fácil de explicar**
+- ✅ **Arquitectura correcta pero sin sobre-ingeniería**
+- ❌ **NO optimizaciones prematuras**
+- ❌ **NO features complejas "por si acaso"**
+- ❌ **NO testing exhaustivo (solo casos críticos)**
+
+**Directrices KISS para este proyecto:**
+
+1. **Usar tipos primitivos cuando sea suficiente**: Si un String funciona, no crear un Value Object complejo
+2. **Testing mínimo viable**: Cubrir casos principales, no edge cases exhaustivos
+3. **Sin abstracciones prematuras**: Si algo se usa en un solo lugar, mantenerlo simple
+4. **Preferir claridad sobre elegancia**: Código verbose pero claro > código "clever"
+5. **MongoDB/PostgreSQL según necesidad real**: No forzar poliglot persistence donde no aporta valor
+
+**Ejemplo práctico:**
+
+```java
+// ❌ Sobre-ingeniería para TFG:
+public final class ScreenshotUrl {
+  private final String value;
+  private ScreenshotUrl(String value) { /* validaciones complejas */ }
+  public static ScreenshotUrl of(String value) { /* ... */ }
+}
+
+// ✅ KISS para TFG:
+private List<String> screenshotUrls;  // Simple, funcional, suficiente
+```
 
 Esto es un TFG, estoy yo solo haciéndolo, por lo que es MUY IMPORTANTE hacer una versión simple.
 

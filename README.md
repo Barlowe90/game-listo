@@ -3,6 +3,31 @@
 > *Gestión de videojuegos, listas personalizadas, publicaciones y amigos.  
 Arquitectura basada en microservicios con DDD + Hexagonal Architecture.*
 
+---
+
+## ⚠️ Contexto del Proyecto
+
+**Este es un Trabajo de Fin de Grado (TFG) - NO es un proyecto para producción.**
+
+### 🎯 Filosofía de Desarrollo
+
+Este proyecto sigue el principio **KISS (Keep It Simple, Stupid)**:
+
+- ✅ **Funcionalidad básica y demostrativa** de conceptos arquitectónicos
+- ✅ **Código legible y explicable** para la defensa del TFG
+- ✅ **Testing mínimo viable** (casos principales, no exhaustivo)
+- ❌ **NO sobre-ingeniería** ni optimizaciones prematuras
+- ❌ **NO producción** - el enfoque es académico/demostrativo
+
+**Decisiones pragmáticas:**
+
+- Arquitectura hexagonal + DDD correcta pero simplificada
+- Persistencia políglota cuando aporta valor didáctico
+- Value Objects solo donde mejoran la comprensión del dominio
+- Strings/primitivos directos cuando sean suficientes
+
+---
+
 ## 🧩 Descripción general
 
 **GameListo** es una plataforma web moderna donde los jugadores pueden **gestionar su biblioteca de videojuegos**, crear

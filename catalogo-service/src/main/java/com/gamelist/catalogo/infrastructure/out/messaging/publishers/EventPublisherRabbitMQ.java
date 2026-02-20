@@ -9,9 +9,14 @@ import com.gamelist.catalogo.infrastructure.out.messaging.config.MessagingConfig
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(
+    name = "messaging.rabbitmq.enabled",
+    havingValue = "true",
+    matchIfMissing = true)
 @RequiredArgsConstructor
 @Slf4j
 public class EventPublisherRabbitMQ implements IEventPublisherPort {

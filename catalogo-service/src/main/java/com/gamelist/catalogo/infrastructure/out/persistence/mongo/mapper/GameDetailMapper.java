@@ -2,13 +2,10 @@ package com.gamelist.catalogo.infrastructure.out.persistence.mongo.mapper;
 
 import com.gamelist.catalogo.domain.game.GameId;
 import com.gamelist.catalogo.domain.gamedetail.GameDetail;
-import com.gamelist.catalogo.domain.gamedetail.Screenshot;
-import com.gamelist.catalogo.domain.gamedetail.Video;
 import com.gamelist.catalogo.infrastructure.out.persistence.mongo.document.GameDetailDocument;
-import com.gamelist.catalogo.infrastructure.out.persistence.mongo.document.ScreenshotDocument;
-import com.gamelist.catalogo.infrastructure.out.persistence.mongo.document.VideoDocument;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -21,14 +18,19 @@ public class GameDetailMapper {
 
     GameDetailDocument document = new GameDetailDocument();
     document.setGameId(gameDetail.getGameId().value());
-
-    List<ScreenshotDocument> screenshotDocs =
-        gameDetail.getScreenshots().stream().map(this::toScreenshotDocument).toList();
-    document.setScreenshots(screenshotDocs);
-
-    List<VideoDocument> videoDocs =
-        gameDetail.getVideos().stream().map(this::toVideoDocument).toList();
-    document.setVideos(videoDocs);
+    document.setAlternativeNames(
+        gameDetail.getAlternativeNames() != null
+            ? new ArrayList<>(gameDetail.getAlternativeNames())
+            : new ArrayList<>());
+    document.setCoverUrl(gameDetail.getCoverUrl());
+    document.setScreenshots(
+        gameDetail.getScreenshots() != null
+            ? new ArrayList<>(gameDetail.getScreenshots())
+            : new ArrayList<>());
+    document.setVideos(
+        gameDetail.getVideos() != null
+            ? new ArrayList<>(gameDetail.getVideos())
+            : new ArrayList<>());
 
     return document;
   }
@@ -40,27 +42,14 @@ public class GameDetailMapper {
 
     GameId gameId = GameId.of(document.getGameId());
 
-    List<Screenshot> screenshots =
-        document.getScreenshots().stream().map(this::toScreenshot).toList();
+    List<String> screenshots =
+        document.getScreenshots() != null
+            ? new ArrayList<>(document.getScreenshots())
+            : new ArrayList<>();
+    List<String> videos =
+        document.getVideos() != null ? new ArrayList<>(document.getVideos()) : new ArrayList<>();
 
-    List<Video> videos = document.getVideos().stream().map(this::toVideo).toList();
-
-    return GameDetail.reconstitute(gameId, screenshots, videos);
-  }
-
-  private ScreenshotDocument toScreenshotDocument(Screenshot screenshot) {
-    return new ScreenshotDocument(screenshot.url(), screenshot.width(), screenshot.height());
-  }
-
-  private Screenshot toScreenshot(ScreenshotDocument doc) {
-    return Screenshot.of(doc.getUrl(), doc.getWidth(), doc.getHeight());
-  }
-
-  private VideoDocument toVideoDocument(Video video) {
-    return new VideoDocument(video.url(), video.videoId());
-  }
-
-  private Video toVideo(VideoDocument doc) {
-    return Video.of(doc.getUrl(), doc.getVideoId());
+    return GameDetail.reconstitute(
+        gameId, document.getAlternativeNames(), document.getCoverUrl(), screenshots, videos);
   }
 }
