@@ -3,6 +3,31 @@
 > *Gestión de videojuegos, listas personalizadas, publicaciones y amigos.  
 Arquitectura basada en microservicios con DDD + Hexagonal Architecture.*
 
+---
+
+## ⚠️ Contexto del Proyecto
+
+**Este es un Trabajo de Fin de Grado (TFG) - NO es un proyecto para producción.**
+
+### 🎯 Filosofía de Desarrollo
+
+Este proyecto sigue el principio **KISS (Keep It Simple, Stupid)**:
+
+- ✅ **Funcionalidad básica y demostrativa** de conceptos arquitectónicos
+- ✅ **Código legible y explicable** para la defensa del TFG
+- ✅ **Testing mínimo viable** (casos principales, no exhaustivo)
+- ❌ **NO sobre-ingeniería** ni optimizaciones prematuras
+- ❌ **NO producción** - el enfoque es académico/demostrativo
+
+**Decisiones pragmáticas:**
+
+- Arquitectura hexagonal + DDD correcta pero simplificada
+- Persistencia políglota
+- Value Objects solo donde mejoran la comprensión del dominio
+- Strings/primitivos directos cuando sean suficientes
+
+---
+
 ## 🧩 Descripción general
 
 **GameListo** es una plataforma web moderna donde los jugadores pueden **gestionar su biblioteca de videojuegos**, crear
@@ -22,7 +47,6 @@ profesionales de arquitectura de software, despliegue cloud y diseño UI/UX.
 ### 🔍 Catálogo
 
 - Juegos obtenidos y enriquecidos desde la API de IGDB
-- Filtros avanzados por género, plataforma, etiquetas, estilo de juego
 
 ### 👥 Social
 
@@ -50,30 +74,42 @@ GameListo está construido con **microservicios desacoplados** basados en:
 
 ### 🧱 Microservicios
 
-| Microservicio              | Tecnología                         | Puerto | Descripción                                            |
-|----------------------------|------------------------------------|--------|--------------------------------------------------------|
-| **api-gateway**            | Spring Cloud Gateway + Redis       | 8090   | Puerta de entrada, validación JWT, rate limiting, CORS |
-| **usuarios-service**       | Spring Boot + PostgreSQL + Redis   | 8081   | Registro, login, perfil, JWT, integrado con Gateway    |
-| **catalogo-service**       | Spring Boot + PostgreSQL + MongoDB | 8082   | Juegos, búsqueda y sincronización con IGDB             |
-| **biblioteca-service**     | Spring Boot + PostgreSQL           | 8083   | Estados, listas, reseñas                               |
-| **publicaciones-service**  | Spring Boot + MongoDB              | 8084   | Posts, screenshots, vídeos                             |
-| **notificaciones-service** | Spring Boot + MongoDB              | 8085   | Notificaciones del sistema                             |
-| **social-service**         | Spring Boot + Neo4j                | 8086   | Amigos, relaciones y recomendaciones                   |
-| **search-service**         | Spring Boot + OpenSearch           | 8087   | Buscador y autosuggest                                 |
-| **graphql-bff**            | Spring GraphQL                     | 8088   | Backend for Frontend, agregación de datos              |
+| Microservicio      | Tecnología                         | Puerto | Descripción                                                           |
+|--------------------|------------------------------------|--------|-----------------------------------------------------------------------|
+| **gateway**        | Spring Cloud Gateway + Redis       | 8090   | Puerta de entrada, validación JWT, rate limiting, CORS                |
+| **usuarios**       | Spring Boot + PostgreSQL + Redis   | 8081   | Registro, login, perfil, JWT, integrado con Gateway                   |
+| **catalogo**       | Spring Boot + PostgreSQL + MongoDB | 8082   | Juegos, plataformas, sincronización con IGDB                          |
+| **biblioteca**     | Spring Boot + PostgreSQL           | 8083   | Estados de juego, listas personalizadas, reseñas                      |
+| **publicaciones**  | Spring Boot + MongoDB              | 8084   | Posts, screenshots, vídeos                                            |
+| **notificaciones** | Spring Boot + MongoDB              | 8085   | Notificaciones del sistema                                            |
+| **social**         | Spring Boot + Neo4j                | 8086   | Grafo social, amistades, relaciones y recomendaciones                 |
+| **search**         | Spring Boot + OpenSearch           | 8087   | Búsqueda full-text, autocomplete, filtrado facetado                   |
+| **graphqlBFF**     | Spring GraphQL                     | 8088   | Backend for Frontend, agregación de datos de múltiples microservicios |
 
 ### División de Responsabilidades
 
-| Componente           | Responsabilidad                             |
-|----------------------|---------------------------------------------|
-| **API Gateway**      | Validar JWT (firma, expiración, revocación) |
-|                      | Rate limiting (100 req/min por IP)          |
-|                      | Agregar headers X-User-*                    |
-|                      | Enrutar a microservicios                    |
-| **usuarios-service** | Generar JWT + Refresh Token                 |
-|                      | CRUD de usuarios                            |
-|                      | Confiar en headers del Gateway              |
-|                      | Gestionar refresh tokens en BD              |
+| Componente     | Responsabilidad                                                   |
+|----------------|-------------------------------------------------------------------|
+| **Gateway**    | Validar JWT (firma, expiración, revocación)                       |
+|                | Rate limiting (100 req/min por IP)                                |
+|                | Agregar headers X-User-*                                          |
+|                | Enrutar a microservicios                                          |
+| **usuarios**   | Generar JWT + Refresh Token                                       |
+|                | CRUD de usuarios                                                  |
+|                | Confiar en headers del Gateway                                    |
+|                | Gestionar refresh tokens en BD                                    |
+| **catalogo**   | Gestionar catálogo de juegos y plataformas                        |
+|                | Sincronizar datos desde IGDB (Scheduler)                          |
+|                | Publicar eventos de dominio (GameCreated, GameUpdated)            |
+|                | Almacenar datos estructurados (PostgreSQL) y multimedia (MongoDB) |
+| **search**     | Indexar juegos en OpenSearch (escucha eventos)                    |
+|                | Búsqueda full-text, autocomplete                                  |
+|                | Filtrado facetado (plataforma, género, año)                       |
+|                | NO accede directamente a BD (event-driven)                        |
+| **graphqlBFF** | Agregar datos de múltiples servicios en una query                 |
+|                | Resolver queries GraphQL llamando APIs REST internas              |
+|                | Reducir round-trips del frontend                                  |
+|                | DataLoader para evitar N+1 queries                                |
 
 ### 🔌 Comunicación
 

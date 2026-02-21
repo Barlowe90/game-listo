@@ -40,7 +40,7 @@ toda la información del usuario.
 - **Gestión de perfil**: Username único, avatar, idioma preferido, preferencias de notificación, datos de Discord
 - **Seguridad de cuenta**: Cambio de contraseña (con validación), restablecimiento mediante token temporal
 - **Ciclo de vida**: Estados `PENDIENTE_DE_VERIFICACION` → `ACTIVO` / `SUSPENDIDO` / `ELIMINADO`
-- **Roles de usuario**: `USER`, `ADMIN`, `MODERATOR`
+- **Roles de usuario**: `USER`, `ADMIN`
 
 > **Separación de responsabilidades**: Este servicio **genera** tokens JWT, pero **NO los valida** en peticiones
 > entrantes. La validación es responsabilidad del API Gateway. El Gateway envía headers de confianza (`X-User-Id`,
@@ -50,7 +50,7 @@ toda la información del usuario.
 
 - **Java 21** con características modernas (records, pattern matching, virtual threads ready)
 - **Spring Boot 3.5.8** (Spring Framework 6.2.1)
-- **Base de datos**: PostgreSQL 17 (producción) / H2 in-memory (desarrollo y tests)
+- **Base de datos**: PostgreSQL 17 (producción)
 - **Spring Data JPA** con Hibernate 6.6
 - **Spring Security** con BCrypt (strength: 10)
 - **Maven** para gestión de dependencias
@@ -269,15 +269,13 @@ Puertos (interfaces) en `application/ports`:
 
 #### Campos principales
 
-| Campo          | Tipo               | Restricciones      | Descripción                         |
-|----------------|--------------------|--------------------|-------------------------------------|
-| `id`           | `UsuarioId` (UUID) | NOT NULL, PK       | Identificador único inmutable       |
-| `username`     | `Username`         | UNIQUE, 3-30 chars | Nombre de usuario alfanumérico      |
-| `email`        | `Email`            | UNIQUE, max 255    | Email normalizado a minúsculas      |
-| `passwordHash` | `PasswordHash`     | NOT NULL           | Hash BCrypt (strength: 10)          |
-| `avatar`       | `Avatar`           | nullable           | URL del avatar del usuario          |
-| `createdAt`    | `Instant`          | NOT NULL           | Timestamp de creación (UTC)         |
-| `updatedAt`    | `Instant`          | NOT NULL           | Timestamp última modificación (UTC) |
+| Campo          | Tipo               | Restricciones      | Descripción                    |
+|----------------|--------------------|--------------------|--------------------------------|
+| `id`           | `UsuarioId` (UUID) | NOT NULL, PK       | Identificador único inmutable  |
+| `username`     | `Username`         | UNIQUE, 3-30 chars | Nombre de usuario alfanumérico |
+| `email`        | `Email`            | UNIQUE, max 255    | Email normalizado a minúsculas |
+| `passwordHash` | `PasswordHash`     | NOT NULL           | Hash BCrypt (strength: 10)     |
+| `avatar`       | `Avatar`           | nullable           | URL del avatar del usuario     |
 
 #### Configuración de usuario
 
@@ -294,7 +292,6 @@ Puertos (interfaces) en `application/ports`:
 |-------------------|-------------------|-------------------------------------------------------|
 | `discordUserId`   | `DiscordUserId`   | ID de Discord proporcionado por el usuario (nullable) |
 | `discordUsername` | `DiscordUsername` | Username de Discord (nullable)                        |
-| `discordLinkedAt` | `Instant`         | Fecha en que se agregaron los datos (nullable)        |
 
 #### Sistema de tokens de verificación
 
