@@ -10,8 +10,6 @@ import java.util.ArrayList;
 public class GameMapper {
 
   public GameEntity toEntity(Game game) {
-    if (game == null) return null;
-
     GameEntity entity = new GameEntity();
     entity.setId(game.getId().value());
     entity.setName(game.getName().value());
@@ -59,8 +57,6 @@ public class GameMapper {
   }
 
   public Game toDomain(GameEntity entity) {
-    if (entity == null) return null;
-
     return Game.reconstitute(
         GameId.of(entity.getId()),
         GameName.of(entity.getName()),
@@ -88,49 +84,5 @@ public class GameMapper {
         entity.getThemes(),
         entity.getScreenshots(),
         entity.getVideos());
-  }
-
-  public void updateEntity(Game game, GameEntity entity) {
-    entity.setName(game.getName().value());
-    entity.setSummary(
-        game.getSummary() != null && !game.getSummary().isEmpty()
-            ? game.getSummary().value()
-            : null);
-    entity.setCoverUrl(
-        game.getCoverUrl() != null && !game.getCoverUrl().isEmpty()
-            ? game.getCoverUrl().value()
-            : null);
-    entity.setPlatforms(game.getPlatforms() != null ? game.getPlatforms() : new ArrayList<>());
-    entity.setGameType(game.getGameType());
-    entity.setGameStatus(game.getGameStatus());
-    entity.setAlternativeNames(
-        game.getAlternativeNames() != null ? game.getAlternativeNames() : new ArrayList<>());
-    entity.setDlcIds(game.getDlcs() != null ? game.getDlcs() : new ArrayList<>());
-    entity.setExpandedGames(
-        game.getExpandedGames() != null ? game.getExpandedGames() : new ArrayList<>());
-    entity.setExpansionIds(
-        game.getExpansionIds() != null ? game.getExpansionIds() : new ArrayList<>());
-    entity.setExternalGames(
-        game.getExternalGames() != null ? game.getExternalGames() : new ArrayList<>());
-    entity.setFranchises(game.getFranchises() != null ? game.getFranchises() : new ArrayList<>());
-    entity.setGameModes(game.getGameModes() != null ? game.getGameModes() : new ArrayList<>());
-    entity.setGenres(game.getGenres() != null ? game.getGenres() : new ArrayList<>());
-    entity.setInvolvedCompanies(
-        game.getInvolvedCompanies() != null ? game.getInvolvedCompanies() : new ArrayList<>());
-    entity.setKeywords(game.getKeywords() != null ? game.getKeywords() : new ArrayList<>());
-    entity.setMultiplayerModeIds(
-        game.getMultiplayerModeIds() != null ? game.getMultiplayerModeIds() : new ArrayList<>());
-    entity.setParentGameId(game.getParentGameId());
-    entity.setPlayerPerspectives(
-        game.getPlayerPerspectives() != null ? game.getPlayerPerspectives() : new ArrayList<>());
-    entity.setRemakeIds(game.getRemakeIds() != null ? game.getRemakeIds() : new ArrayList<>());
-    entity.setRemasterIds(
-        game.getRemasterIds() != null ? game.getRemasterIds() : new ArrayList<>());
-    entity.setSimilarGames(
-        game.getSimilarGames() != null ? game.getSimilarGames() : new ArrayList<>());
-    entity.setThemes(game.getThemes() != null ? game.getThemes() : new ArrayList<>());
-    entity.setScreenshots(
-        game.getScreenshots() != null ? game.getScreenshots() : new ArrayList<>());
-    entity.setVideos(game.getVideos() != null ? game.getVideos() : new ArrayList<>());
   }
 }

@@ -18,7 +18,8 @@ public class WebClientConfig {
   /**
    * WebClient configurado para llamadas a IGDB API.
    *
-   * <p>Headers por defecto: - Content-Type: application/json - Client-ID: ID de aplicación de IGDB
+   * <p>Headers por defecto: - Content-Type: text/plain (IGDB command) - Client-ID: ID de aplicación
+   * de IGDB - Accept: application/json
    *
    * @return WebClient configurado para IGDB
    */
@@ -36,7 +37,8 @@ public class WebClientConfig {
     return WebClient.builder()
         .baseUrl(igdbProperties.getBaseUrl())
         .exchangeStrategies(strategies)
-        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE)
+        .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
         .defaultHeader("Client-ID", igdbProperties.getClientId())
         .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + igdbProperties.getAccessToken())
         .build();

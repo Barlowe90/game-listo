@@ -86,7 +86,7 @@ public class RepositorioRefreshTokensRedis implements RepositorioRefreshTokens {
   @Override
   public boolean estaRevocado(TokenHash tokenHash) {
     String key = REVOKED_PREFIX + tokenHash.value();
-    return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+    return redisTemplate.hasKey(key);
   }
 
   private record RefreshTokenDto(

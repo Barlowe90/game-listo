@@ -17,9 +17,9 @@ import java.util.List;
 @AllArgsConstructor
 public class GameDetailDocument {
 
-  @Id private String id; // MongoDB ObjectId
+  @Id private String id; // ID MongoDB
 
-  private Long gameId; // ID del juego (referencia a PostgreSQL)
+  private Long gameId; // ID referencia PostgreSQL
 
   private List<String> alternativeNames = new ArrayList<>();
 

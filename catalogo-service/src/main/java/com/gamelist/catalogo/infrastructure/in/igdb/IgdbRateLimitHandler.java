@@ -1,10 +1,12 @@
 package com.gamelist.catalogo.infrastructure.in.igdb;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manejador de rate limiting para la API de IGDB.
@@ -13,8 +15,9 @@ import java.util.function.Supplier;
  * handler implementa exponential backoff para reintentar las peticiones.
  */
 @Component
-@Slf4j
 public class IgdbRateLimitHandler {
+
+  private static final Logger logger = LoggerFactory.getLogger(IgdbRateLimitHandler.class);
 
   private static final int MAX_RETRIES = 3;
   private static final long INITIAL_BACKOFF_MS = 1000L; // 1 segundo
@@ -40,7 +43,7 @@ public class IgdbRateLimitHandler {
           attempt++;
 
           if (attempt >= MAX_RETRIES) {
-            log.error(
+            logger.error(
                 "Máximo de reintentos alcanzado para IGDB API después de {} intentos", MAX_RETRIES);
             throw new RuntimeException("Máximo de reintentos alcanzado para IGDB API", e);
           }
@@ -48,7 +51,7 @@ public class IgdbRateLimitHandler {
           // Calcular backoff exponencial: 1s, 2s, 4s
           long backoffMs = INITIAL_BACKOFF_MS * (long) Math.pow(2, attempt - 1);
 
-          log.warn(
+          logger.warn(
               "Rate limit alcanzado (HTTP 429). Reintentando en {}ms (intento {}/{})",
               backoffMs,
               attempt,
@@ -63,7 +66,7 @@ public class IgdbRateLimitHandler {
 
         } else {
           // Si no es rate limit, propagar la excepción
-          log.error("Error en petición IGDB: HTTP {}", e.getStatusCode().value(), e);
+          logger.error("Error en petición IGDB: HTTP {}", e.getStatusCode().value(), e);
           throw e;
         }
       }

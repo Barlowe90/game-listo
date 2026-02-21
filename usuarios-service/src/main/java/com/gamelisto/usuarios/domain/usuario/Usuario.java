@@ -13,7 +13,7 @@ public class Usuario {
   // reducir usuario a una clase básica
   // como una herencia: un padre usuario y los hijos usuarioDiscord
   private final UsuarioId id;
-  private Username username;
+  private final Username username;
   private Email email;
   private PasswordHash passwordHash;
   private Avatar avatar;

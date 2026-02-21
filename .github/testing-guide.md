@@ -29,7 +29,7 @@ capas, manteniendo la independencia del dominio y probando cada componente segú
 **Objetivo**: Probar adaptadores reales (DB, REST, etc.)
 
 - Con `@SpringBootTest`
-- Base de datos embebida (H2)
+- Base de datos real usada según el microservicio
 - Verificar mappers y repositorios
 - Tests de controladores con MockMvc
 
@@ -789,12 +789,13 @@ class UsuariosControllerTest {
 ## Estructura de Tests (AAA Pattern)
 
 ```java
+
 @Test
 void nombreDelTest() {
     // Arrange (Given) - Preparar datos y mocks
-    
+
     // Act (When) - Ejecutar acción
-    
+
     // Assert (Then) - Verificar resultado
 }
 ```

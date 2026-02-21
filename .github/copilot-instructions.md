@@ -276,14 +276,14 @@ Frontend → API Gateway → GraphQL BFF → Microservicios (REST)
 
 ```properties
 # Public routes (no JWT required)
-/v1/usuarios/auth/login
-/v1/usuarios/auth/refresh
-/v1/usuarios/registro
-/v1/usuarios/verificar-email
-/actuator/health
+/v1/usuarios/auth/login=
+/v1/usuarios/auth/refresh=
+/v1/usuarios/registro=
+/v1/usuarios/verificar-email=
+/actuator/health=
 # Protected routes (JWT required)
-/v1/usuarios/** → usuarios-service:8081
-/v1/catalogo/** → catalogo-service:8082 (planned)
+/v1/usuarios/**=→ usuarios-service:8081
+/v1/catalogo/**=→ catalogo-service:8082 (planned)
 ```
 
 **Critical Notes:**

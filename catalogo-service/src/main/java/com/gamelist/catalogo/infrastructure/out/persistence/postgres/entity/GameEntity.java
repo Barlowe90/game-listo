@@ -19,30 +19,13 @@ public class GameEntity {
   @Column(name = "id", nullable = false, updatable = false)
   private Long id;
 
-  @Column(name = "name", nullable = false)
-  private String name;
-
-  @Column(name = "summary", columnDefinition = "TEXT")
-  private String summary;
-
-  @Column(name = "cover_url")
-  private String coverUrl;
-
-  @ElementCollection
-  @CollectionTable(name = "game_platforms", joinColumns = @JoinColumn(name = "game_id"))
-  @Column(name = "platform_name")
-  private List<String> platforms = new ArrayList<>();
-
-  @Column(name = "game_type")
-  private String gameType;
-
-  @Column(name = "game_status")
-  private String gameStatus;
-
   @ElementCollection
   @CollectionTable(name = "game_alternative_names", joinColumns = @JoinColumn(name = "game_id"))
   @Column(name = "alternative_name")
   private List<String> alternativeNames = new ArrayList<>();
+
+  @Column(name = "cover_url")
+  private String coverUrl;
 
   @ElementCollection
   @CollectionTable(name = "game_dlcs", joinColumns = @JoinColumn(name = "game_id"))
@@ -74,6 +57,12 @@ public class GameEntity {
   @Column(name = "mode_name")
   private List<String> gameModes = new ArrayList<>();
 
+  @Column(name = "game_status")
+  private String gameStatus;
+
+  @Column(name = "game_type")
+  private String gameType;
+
   @ElementCollection
   @CollectionTable(name = "game_genres", joinColumns = @JoinColumn(name = "game_id"))
   @Column(name = "genre_name")
@@ -94,8 +83,16 @@ public class GameEntity {
   @Column(name = "multiplayer_mode_id")
   private List<Long> multiplayerModeIds = new ArrayList<>();
 
+  @Column(name = "name", nullable = false)
+  private String name;
+
   @Column(name = "parent_game_id")
   private Long parentGameId;
+
+  @ElementCollection
+  @CollectionTable(name = "game_platforms", joinColumns = @JoinColumn(name = "game_id"))
+  @Column(name = "platform_name")
+  private List<String> platforms = new ArrayList<>();
 
   @ElementCollection
   @CollectionTable(name = "game_perspectives", joinColumns = @JoinColumn(name = "game_id"))
@@ -113,19 +110,22 @@ public class GameEntity {
   private List<Long> remasterIds = new ArrayList<>();
 
   @ElementCollection
+  @CollectionTable(name = "game_screenshots", joinColumns = @JoinColumn(name = "game_id"))
+  @Column(name = "screenshots")
+  private List<String> screenshots = new ArrayList<>();
+
+  @ElementCollection
   @CollectionTable(name = "game_similar_games", joinColumns = @JoinColumn(name = "game_id"))
   @Column(name = "similar_game_id")
   private List<Long> similarGames = new ArrayList<>();
+
+  @Column(name = "summary", columnDefinition = "TEXT")
+  private String summary;
 
   @ElementCollection
   @CollectionTable(name = "game_themes", joinColumns = @JoinColumn(name = "game_id"))
   @Column(name = "theme_name")
   private List<String> themes = new ArrayList<>();
-
-  @ElementCollection
-  @CollectionTable(name = "game_screenshots", joinColumns = @JoinColumn(name = "game_id"))
-  @Column(name = "screenshots")
-  private List<String> screenshots = new ArrayList<>();
 
   @ElementCollection
   @CollectionTable(name = "game_videos", joinColumns = @JoinColumn(name = "game_id"))

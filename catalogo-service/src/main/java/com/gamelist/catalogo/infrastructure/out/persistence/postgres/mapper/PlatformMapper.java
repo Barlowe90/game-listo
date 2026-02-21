@@ -1,6 +1,6 @@
 package com.gamelist.catalogo.infrastructure.out.persistence.postgres.mapper;
 
-import com.gamelist.catalogo.domain.catalog.*;
+import com.gamelist.catalogo.domain.platform.*;
 import com.gamelist.catalogo.infrastructure.out.persistence.postgres.entity.PlatformEntity;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +20,10 @@ public class PlatformMapper {
             ? platform.getAbbreviation().value()
             : null);
 
+    entity.setAlternativeName(platform.getAlternativeName());
+    entity.setLogoURL(platform.getLogoURL());
+    entity.setTipo(platform.getTipo());
+
     return entity;
   }
 
@@ -35,7 +39,8 @@ public class PlatformMapper {
             ? PlatformAbbreviation.of(entity.getAbbreviation())
             : PlatformAbbreviation.empty();
 
-    return Platform.reconstitute(id, name, abbreviation);
+    return Platform.reconstitute(
+        id, name, abbreviation, entity.getAlternativeName(), entity.getLogoURL(), entity.getTipo());
   }
 
   public void updateEntity(Platform platform, PlatformEntity entity) {
@@ -44,5 +49,9 @@ public class PlatformMapper {
         platform.getAbbreviation() != null && !platform.getAbbreviation().isEmpty()
             ? platform.getAbbreviation().value()
             : null);
+
+    entity.setAlternativeName(platform.getAlternativeName());
+    entity.setLogoURL(platform.getLogoURL());
+    entity.setTipo(platform.getTipo());
   }
 }

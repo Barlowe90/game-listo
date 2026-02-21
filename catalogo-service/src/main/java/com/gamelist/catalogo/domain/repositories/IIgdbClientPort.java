@@ -1,7 +1,7 @@
 package com.gamelist.catalogo.domain.repositories;
 
-import com.gamelist.catalogo.application.dto.results.IgdbGameDTO;
-import com.gamelist.catalogo.application.dto.results.IgdbPlatformDTO;
+import com.gamelist.catalogo.application.dto.in.IgdbGameDTO;
+import com.gamelist.catalogo.application.dto.in.IgdbPlatformDTO;
 
 import java.util.List;
 
@@ -17,9 +17,9 @@ public interface IIgdbClientPort {
   List<IgdbGameDTO> fetchGamesBatch(Long afterId, int limit);
 
   /**
-   * Obtiene todas las plataformas desde IGDB
+   * Obtiene plataformas desde IGDB en batches
    *
-   * @return Lista de plataformas disponibles en IGDB
+   * @return Lista de plataformas obtenidas de IGDB
    */
   List<IgdbPlatformDTO> fetchPlatforms();
 }

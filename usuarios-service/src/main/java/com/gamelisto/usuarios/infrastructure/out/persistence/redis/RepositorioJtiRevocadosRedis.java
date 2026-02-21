@@ -28,6 +28,6 @@ public class RepositorioJtiRevocadosRedis implements RepositorioJtiRevocados {
   @Override
   public boolean estaRevocado(Jti jti) {
     String key = REVOKED_PREFIX + jti.value();
-    return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+    return redisTemplate.hasKey(key);
   }
 }

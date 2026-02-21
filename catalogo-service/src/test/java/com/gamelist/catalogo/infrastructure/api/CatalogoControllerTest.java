@@ -8,14 +8,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamelist.catalogo.AbstractIntegrationTest;
-import com.gamelist.catalogo.application.dto.results.*;
+import com.gamelist.catalogo.application.dto.out.GameDTO;
+import com.gamelist.catalogo.application.dto.out.PlatformDTO;
+import com.gamelist.catalogo.application.dto.out.SyncResultDTO;
 import com.gamelist.catalogo.application.usecases.*;
 import com.gamelist.catalogo.domain.exceptions.EntityNotFoundException;
-import com.gamelist.catalogo.domain.game.*;
-import com.gamelist.catalogo.domain.repositories.IGameRepository;
-import com.gamelist.catalogo.domain.repositories.IPlatformRepository;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +27,12 @@ import org.springframework.test.web.servlet.MockMvc;
 class CatalogoControllerTest extends AbstractIntegrationTest {
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
-  @MockitoBean private SyncIgdbGamesUseCase syncGamesUseCase;
-  @MockitoBean private SyncPlatformsFromIgdbUseCase syncPlatformsUseCase;
-  @MockitoBean private GetGameDetailUseCase getGameDetailUseCase;
-  @MockitoBean private IPlatformRepository platformRepository;
-  @MockitoBean private IGameRepository gameRepository;
+  @MockitoBean private SyncGamesFromIGDBUseCase syncGamesUseCase;
+  @MockitoBean private SyncPlatformsFromIGDBUseCase syncPlatformsUseCase;
+  @MockitoBean private BuscarGameDetailPorIdUseCase getGameDetailUseCase;
+  @MockitoBean private BuscarGamePorIdUseCase getGameByIdUseCase;
+  @MockitoBean private ObtenerTodasLasPlatformasUseCase obtenerTodasLasPlatformasUseCase;
+  @MockitoBean private ObtenerTodosLosJuegosUseCase obtenerTodosLosJuegosUseCase;
 
   // ─── Sync Games ───────────────────────────────────────────────────────────
   @Test
@@ -70,7 +69,7 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("POST /v1/catalogo/sync/platforms debe retornar 200 con resultado")
   void debeSincronizarPlataformas() throws Exception {
-    when(syncPlatformsUseCase.execute(any())).thenReturn(new SyncResultDTO(42, null));
+    when(syncPlatformsUseCase.execute()).thenReturn(new SyncResultDTO(42, null));
     mockMvc
         .perform(post("/v1/catalogo/sync/platforms"))
         .andExpect(status().isOk())
@@ -82,12 +81,12 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("GET /v1/catalogo/games/{id} debe retornar 200 cuando el juego existe")
   void debeRetornarDetalleDeJuego() throws Exception {
-    Game game =
-        Game.reconstitute(
-            GameId.of(1L),
-            GameName.of("Zelda"),
-            Summary.of("Un juego"),
-            CoverUrl.of("https://img/z.jpg"),
+    GameDTO gameDTO =
+        new GameDTO(
+            1L,
+            "Zelda",
+            "Un juego",
+            "https://img/z.jpg",
             List.of("PC"),
             null,
             null,
@@ -110,7 +109,7 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
             null,
             null,
             null);
-    when(gameRepository.findById(any())).thenReturn(Optional.of(game));
+    when(getGameByIdUseCase.execute(any())).thenReturn(gameDTO);
 
     mockMvc
         .perform(get("/v1/catalogo/games/1"))
@@ -122,7 +121,7 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("GET /v1/catalogo/games/{id} debe retornar 404 cuando el juego no existe")
   void debeRetornar404SiJuegoNoExiste() throws Exception {
-    when(gameRepository.findById(any()))
+    when(getGameByIdUseCase.execute(any()))
         .thenThrow(new EntityNotFoundException("Juego no encontrado con ID: 999"));
     mockMvc.perform(get("/v1/catalogo/games/999")).andExpect(status().isNotFound());
   }
@@ -131,40 +130,14 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("GET /v1/catalogo/platforms debe retornar 200 con lista de plataformas")
   void debeListarPlataformas() throws Exception {
-    var ps4 =
-        com.gamelist.catalogo.domain.catalog.Platform.create(
-            com.gamelist.catalogo.domain.catalog.PlatformId.of(48L),
-            com.gamelist.catalogo.domain.catalog.PlatformName.of("PlayStation 4"),
-            com.gamelist.catalogo.domain.catalog.PlatformAbbreviation.of("PS4"));
-    when(platformRepository.findAll()).thenReturn(List.of(ps4));
+    PlatformDTO ps4DTO = new PlatformDTO(48L, "PlayStation 4", "PS4");
+    when(obtenerTodasLasPlatformasUseCase.execute()).thenReturn(List.of(ps4DTO));
+
     mockMvc
         .perform(get("/v1/catalogo/platforms"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[0].id").value(48))
         .andExpect(jsonPath("$[0].name").value("PlayStation 4"))
         .andExpect(jsonPath("$[0].abbreviation").value("PS4"));
-  }
-
-  @Test
-  @DisplayName("GET /v1/catalogo/platforms/{id} debe retornar 404 cuando la plataforma no existe")
-  void debeRetornar404SiPlataformaNoExiste() throws Exception {
-    when(platformRepository.findById(any())).thenReturn(Optional.empty());
-    mockMvc.perform(get("/v1/catalogo/platforms/99999")).andExpect(status().isNotFound());
-  }
-
-  @Test
-  @DisplayName("GET /v1/catalogo/platforms/{id} debe retornar 200 cuando la plataforma existe")
-  void debeRetornarPlataformaPorId() throws Exception {
-    var ps5 =
-        com.gamelist.catalogo.domain.catalog.Platform.create(
-            com.gamelist.catalogo.domain.catalog.PlatformId.of(167L),
-            com.gamelist.catalogo.domain.catalog.PlatformName.of("PlayStation 5"),
-            com.gamelist.catalogo.domain.catalog.PlatformAbbreviation.of("PS5"));
-    when(platformRepository.findById(any())).thenReturn(Optional.of(ps5));
-    mockMvc
-        .perform(get("/v1/catalogo/platforms/167"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(167))
-        .andExpect(jsonPath("$.abbreviation").value("PS5"));
   }
 }

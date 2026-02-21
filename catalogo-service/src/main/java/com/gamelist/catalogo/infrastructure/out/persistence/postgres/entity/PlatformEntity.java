@@ -24,11 +24,19 @@ public class PlatformEntity {
   @Column(name = "abbreviation")
   private String abbreviation;
 
+  @Column(name = "alternativeName")
+  private String alternativeName;
+
+  @Column(name = "logoURL")
+  private String logoURL;
+
+  @Column(name = "tipo")
+  private String tipo;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof PlatformEntity)) return false;
-    PlatformEntity that = (PlatformEntity) o;
+    if (!(o instanceof PlatformEntity that)) return false;
     return id != null && id.equals(that.id);
   }
 

@@ -1,7 +1,7 @@
 package com.gamelist.catalogo.infrastructure.integration;
 
 import com.gamelist.catalogo.domain.game.*;
-import com.gamelist.catalogo.domain.repositories.IGameRepository;
+import com.gamelist.catalogo.domain.repositories.RepositorioGame;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
-import java.util.Set;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 @DisplayName("GameRepositoryPostgres - Tests de Integracion")
 class GameRepositoryPostgresIntegrationTest {
-  @Autowired private IGameRepository gameRepository;
+  @Autowired private RepositorioGame gameRepository;
 
   private Game crearJuego(long id, String nombre) {
     return Game.create(
@@ -42,13 +42,5 @@ class GameRepositoryPostgresIntegrationTest {
   @DisplayName("Debe devolver Optional vacio cuando el juego no existe")
   void debeDevolverEmptyOptionalSiJuegoNoExiste() {
     assertThat(gameRepository.findById(GameId.of(99999L))).isEmpty();
-  }
-
-  @Test
-  @DisplayName("Debe eliminar un juego por ID")
-  void debeEliminarJuego() {
-    gameRepository.save(crearJuego(3001L, "Juego a Eliminar"));
-    gameRepository.deleteById(GameId.of(3001L));
-    assertThat(gameRepository.findById(GameId.of(3001L))).isEmpty();
   }
 }
