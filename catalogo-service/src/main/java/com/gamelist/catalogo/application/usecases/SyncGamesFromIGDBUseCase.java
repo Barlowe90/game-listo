@@ -2,9 +2,11 @@ package com.gamelist.catalogo.application.usecases;
 
 import com.gamelist.catalogo.application.dto.in.IgdbGameDTO;
 import com.gamelist.catalogo.application.dto.out.SyncResultDTO;
+import com.gamelist.catalogo.domain.events.GameCreado;
 import com.gamelist.catalogo.domain.game.Game;
 import com.gamelist.catalogo.domain.gamedetail.GameDetail;
 import com.gamelist.catalogo.domain.repositories.IGameDetailRepository;
+import com.gamelist.catalogo.domain.repositories.IGamePublisher;
 import com.gamelist.catalogo.domain.repositories.RepositorioGame;
 import com.gamelist.catalogo.domain.repositories.IIgdbClientPort;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +23,13 @@ import org.slf4j.LoggerFactory;
 @RequiredArgsConstructor
 public class SyncGamesFromIGDBUseCase {
 
+  private static final String ROUTING_KEY_SUFFIX = "game.creado";
   private static final Logger logger = LoggerFactory.getLogger(SyncGamesFromIGDBUseCase.class);
 
   private final IIgdbClientPort igdbClient;
   private final RepositorioGame gameRepository;
   private final IGameDetailRepository gameDetailRepository;
+  private final IGamePublisher eventosPublisher;
 
   @Transactional
   public SyncResultDTO execute(int limit) {
@@ -49,6 +53,9 @@ public class SyncGamesFromIGDBUseCase {
       try {
         Game game = dto.toDomain();
         gameRepository.save(game); // postgreSQL
+
+        enviarColaGameCreado(game);
+
         GameDetail gameDetail =
             GameDetail.create(
                 game.getId(),
@@ -72,5 +79,12 @@ public class SyncGamesFromIGDBUseCase {
     Long maxId = igdbGames.stream().map(IgdbGameDTO::id).max(Long::compareTo).orElse(afterId);
     logger.info("Sincronización completada: {} juegos, último ID: {}", igdbGames.size(), maxId);
     return new SyncResultDTO(igdbGames.size(), maxId);
+  }
+
+  private void enviarColaGameCreado(Game game) {
+    GameCreado evento =
+        GameCreado.of(
+            game.getId().toString(), game.getName().toString(), game.getCoverUrl().toString());
+    eventosPublisher.publish(ROUTING_KEY_SUFFIX, evento);
   }
 }

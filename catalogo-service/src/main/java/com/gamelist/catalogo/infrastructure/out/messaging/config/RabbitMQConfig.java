@@ -33,6 +33,7 @@ public class RabbitMQConfig {
   public static final String DLQ_NAME = "catalogos.dlq";
   public static final String DLQ_EXCHANGE_NAME = "catalogos.dlq.exchange";
   public static final String ROUTING_KEY_PREFIX = "bus.catalogos"; // la cola que envio mensajes
+  // TODO comprobar si escucho algo
   public static final String BINDING_KEY = "bus.*.#"; // la cosa donde escucho
   private static final int MESSAGE_TTL_MS = 30000; // 30 segundos
 

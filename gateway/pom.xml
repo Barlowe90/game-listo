@@ -11,9 +11,9 @@
     </parent>
 
     <groupId>com.gamelisto</groupId>
-    <artifactId>api-gateway</artifactId>
+    <artifactId>gateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>api-gateway</name>
+    <name>gateway</name>
     <description>Proyecto API Gateway</description>
     <url/>
 

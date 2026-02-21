@@ -2,11 +2,11 @@ services:
   # ============================================
   # API GATEWAY - Puerta de entrada única
   # ============================================
-  api-gateway:
+  gateway:
     build:
-      context: ./api-gateway
+      context: ./gateway
       dockerfile: Dockerfile
-    container_name: api-gateway
+    container_name: gateway
     ports:
       - "8090:8090"
     environment:

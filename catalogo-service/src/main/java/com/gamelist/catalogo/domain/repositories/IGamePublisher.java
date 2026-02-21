@@ -1,6 +1,6 @@
 package com.gamelist.catalogo.domain.repositories;
 
-public interface IEventPublisherPort {
+public interface IGamePublisher {
 
   void publish(String routingKeySuffix, Object event);
 }

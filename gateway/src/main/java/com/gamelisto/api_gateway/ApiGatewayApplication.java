@@ -12,6 +12,6 @@ public class ApiGatewayApplication {
 
   public static void main(String[] args) {
     SpringApplication.run(ApiGatewayApplication.class, args);
-    logger.info("🟢 Microservicio api-gateway arrancado.");
+    logger.info("🟢 Microservicio gateway arrancado.");
   }
 }

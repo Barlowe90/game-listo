@@ -3,6 +3,7 @@ package com.gamelist.catalogo.infrastructure.in.api.rest;
 import com.gamelist.catalogo.application.dto.out.SyncResultDTO;
 import com.gamelist.catalogo.application.usecases.SyncGamesFromIGDBUseCase;
 import com.gamelist.catalogo.application.usecases.SyncPlatformsFromIGDBUseCase;
+import com.gamelist.catalogo.infrastructure.in.api.dto.SyncGamesRequest;
 import com.gamelist.catalogo.infrastructure.out.dto.SyncStatusResponse;
 import com.gamelist.catalogo.shared.config.IgdbProperties;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,9 +26,13 @@ public class IGDBController {
   @Operation(
       summary = "Sincronizar juegos desde IGDB",
       description = "Ejecuta sincronización manual de juegos desde IGDB API")
-  public ResponseEntity<SyncStatusResponse> syncGames() {
+  public ResponseEntity<SyncStatusResponse> syncGames(
+      @RequestBody(required = false) SyncGamesRequest request) {
 
-    int limit = igdbProperties.getBatchSize();
+    int limit =
+        (request != null && request.limit() != null)
+            ? request.limit()
+            : igdbProperties.getBatchSize();
     SyncResultDTO result = syncGamesUseCase.execute(limit);
 
     SyncStatusResponse response =

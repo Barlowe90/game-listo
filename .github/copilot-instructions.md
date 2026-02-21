@@ -78,9 +78,11 @@ Por tanto, la prioridad es:
 ```java
 // ❌ Sobre-ingeniería para TFG:
 public final class ScreenshotUrl {
-  private final String value;
-  private ScreenshotUrl(String value) { /* validaciones complejas */ }
-  public static ScreenshotUrl of(String value) { /* ... */ }
+    private final String value;
+
+    private ScreenshotUrl(String value) { /* validaciones complejas */ }
+
+    public static ScreenshotUrl of(String value) { /* ... */ }
 }
 
 // ✅ KISS para TFG:
@@ -249,7 +251,7 @@ Frontend → API Gateway → GraphQL BFF → Microservicios (REST)
                             Event Bus (RabbitMQ)
 ```
 
-### api-gateway (Spring Cloud Gateway)
+### gateway (Spring Cloud Gateway)
 
 **API Gateway** - Puerta de entrada única para todos los microservicios:
 
@@ -298,7 +300,7 @@ Frontend → API Gateway → GraphQL BFF → Microservicios (REST)
 
 ```powershell
 # Run test script
-.\api-gateway\test-gateway.ps1
+.\gateway\test-gateway.ps1
 
 # Manual tests
 curl http://localhost:8090/actuator/health
@@ -308,9 +310,9 @@ curl http://localhost:8090/v1/usuarios/auth/me -H "Authorization: Bearer <token>
 
 **Documentation:**
 
-- Main README: `api-gateway/README-gateway.md`
-- Architecture: `api-gateway/ARQUITECTURA.md`
-- Next steps: `api-gateway/GUIA-CONTINUACION.md`
+- Main README: `gateway/README-gateway.md`
+- Architecture: `gateway/ARQUITECTURA.md`
+- Next steps: `gateway/GUIA-CONTINUACION.md`
 
 ---
 
