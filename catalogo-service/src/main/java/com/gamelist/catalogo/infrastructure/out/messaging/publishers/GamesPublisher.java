@@ -26,12 +26,20 @@ public class GamesPublisher implements IGamePublisher {
     try {
       String routingKey = RabbitMQConfig.ROUTING_KEY_PREFIX + "." + routingKeySuffix;
 
+      String eventType = (event != null) ? event.getClass().getSimpleName() : "null";
+
+      // Log del payload para que se vea en los logs qué se está publicando
+      logger.info(
+          "Publicando evento '{}' con routing key '{}' - payload: {}",
+          eventType,
+          routingKey,
+          event);
+
       rabbitTemplate.convertAndSend(
           RabbitMQConfig.EXCHANGE_NAME,
           routingKey,
           event,
           message -> {
-            String eventType = event.getClass().getSimpleName();
             message.getMessageProperties().setHeader("eventType", eventType);
             message.getMessageProperties().setHeader("service", "catalogo-service");
             message
@@ -40,8 +48,7 @@ public class GamesPublisher implements IGamePublisher {
             return message;
           });
 
-      logger.info(
-          "Evento publicado: {} a routing key: {}", event.getClass().getSimpleName(), routingKey);
+      logger.info("Evento publicado: {} a routing key: {}", eventType, routingKey);
 
     } catch (Exception e) {
       throw new InfrastructureException("Error al publicar evento en RabbitMQ", e);
