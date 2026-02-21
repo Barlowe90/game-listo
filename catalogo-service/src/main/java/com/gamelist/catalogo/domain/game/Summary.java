@@ -1,6 +1,5 @@
 package com.gamelist.catalogo.domain.game;
 
-import com.gamelist.catalogo.domain.exceptions.DomainException;
 import java.util.Objects;
 
 public final class Summary {
@@ -8,11 +7,7 @@ public final class Summary {
 
   private Summary(String value) {
     if (value != null) {
-      String trimmed = value.trim();
-      if (trimmed.length() > 1000) {
-        throw new DomainException("El resumen del juego excede los 1000 caracteres permitidos");
-      }
-      this.value = trimmed;
+      this.value = value.trim();
     } else {
       this.value = null;
     }

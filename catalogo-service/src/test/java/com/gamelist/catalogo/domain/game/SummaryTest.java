@@ -53,15 +53,16 @@ class SummaryTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si excede 1000 caracteres")
-  void debeLanzarExcepcionSiExcede1000Caracteres() {
+  @DisplayName("Debe aceptar textos muy largos sin lanzar excepción")
+  void debeAceptarTextosMuyLargos() {
     // Arrange
-    String textoLargo = "A".repeat(1001);
+    String textoLargo = "A".repeat(5000);
 
-    // Act & Assert
-    assertThatThrownBy(() -> Summary.of(textoLargo))
-        .isInstanceOf(DomainException.class)
-        .hasMessageContaining("excede los 1000 caracteres");
+    // Act
+    Summary summary = Summary.of(textoLargo);
+
+    // Assert
+    assertThat(summary.value()).hasSize(5000);
   }
 
   @Test
