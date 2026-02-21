@@ -22,7 +22,7 @@ Este proyecto sigue el principio **KISS (Keep It Simple, Stupid)**:
 **Decisiones pragmáticas:**
 
 - Arquitectura hexagonal + DDD correcta pero simplificada
-- Persistencia políglota cuando aporta valor didáctico
+- Persistencia políglota
 - Value Objects solo donde mejoran la comprensión del dominio
 - Strings/primitivos directos cuando sean suficientes
 
@@ -47,7 +47,6 @@ profesionales de arquitectura de software, despliegue cloud y diseño UI/UX.
 ### 🔍 Catálogo
 
 - Juegos obtenidos y enriquecidos desde la API de IGDB
-- Filtros avanzados por género, plataforma, etiquetas, estilo de juego
 
 ### 👥 Social
 
