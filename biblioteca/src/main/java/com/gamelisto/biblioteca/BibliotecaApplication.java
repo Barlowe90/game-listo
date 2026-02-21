@@ -12,6 +12,6 @@ public class BibliotecaApplication {
 
   public static void main(String[] args) {
     SpringApplication.run(BibliotecaApplication.class, args);
-    logger.info("🟢 Microservicio biblioteca arrancado.");
+    logger.info("🟢 Microservicio listas arrancado.");
   }
 }

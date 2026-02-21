@@ -1,9 +1,9 @@
-package com.gamelisto.biblioteca.domain;
+package com.gamelisto.biblioteca.domain.game;
 
 import java.util.Objects;
 import java.util.UUID;
 
-import com.gamelisto.biblioteca.exceptions.DomainException;
+import com.gamelisto.biblioteca.domain.exceptions.DomainException;
 import lombok.Getter;
 import lombok.ToString;
 

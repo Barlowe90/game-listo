@@ -1,6 +1,6 @@
-package com.gamelisto.biblioteca.domain;
+package com.gamelisto.biblioteca.domain.listas;
 
-import com.gamelisto.biblioteca.exceptions.DomainException;
+import com.gamelisto.biblioteca.domain.exceptions.DomainException;
 
 import java.util.Objects;
 import java.util.regex.Pattern;

@@ -1,4 +1,4 @@
-package com.gamelisto.biblioteca.domain;
+package com.gamelisto.biblioteca.domain.listas;
 
 import lombok.Getter;
 import lombok.ToString;

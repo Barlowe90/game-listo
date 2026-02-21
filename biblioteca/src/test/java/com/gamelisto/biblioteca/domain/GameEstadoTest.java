@@ -2,7 +2,9 @@ package com.gamelisto.biblioteca.domain;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.gamelisto.biblioteca.exceptions.DomainException;
+import com.gamelisto.biblioteca.domain.exceptions.DomainException;
+import com.gamelisto.biblioteca.domain.game.Estado;
+import com.gamelisto.biblioteca.domain.game.GameEstado;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

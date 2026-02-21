@@ -1,4 +1,4 @@
-package com.gamelisto.biblioteca.exceptions;
+package com.gamelisto.biblioteca.domain.exceptions;
 
 public class DomainException extends RuntimeException {
 
