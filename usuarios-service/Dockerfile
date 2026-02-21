@@ -6,8 +6,8 @@ COPY pom.xml .
 RUN mvn -e -B dependency:resolve
 
 COPY src ./src
-# Skip tests during image build (correct property is -DskipTests)
-RUN mvn -B package -DskipTests
+# Skip tests during image build (use maven.test.skip to skip compilation of test sources)
+RUN mvn -B package -Dmaven.test.skip=true
 
 FROM eclipse-temurin:21-jre-jammy
 

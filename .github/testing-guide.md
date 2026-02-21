@@ -2,7 +2,8 @@
 
 ## Estrategia de Testing
 
-Esta guía describe los patrones de testing para la arquitectura DDD + Hexagonal del proyecto. Los tests se organizan por capas, manteniendo la independencia del dominio y probando cada componente según su responsabilidad.
+Esta guía describe los patrones de testing para la arquitectura DDD + Hexagonal del proyecto. Los tests se organizan por
+capas, manteniendo la independencia del dominio y probando cada componente según su responsabilidad.
 
 ## Tipos de Tests
 
@@ -28,7 +29,7 @@ Esta guía describe los patrones de testing para la arquitectura DDD + Hexagonal
 **Objetivo**: Probar adaptadores reales (DB, REST, etc.)
 
 - Con `@SpringBootTest`
-- Base de datos embebida (H2)
+- Base de datos real usada según el microservicio
 - Verificar mappers y repositorios
 - Tests de controladores con MockMvc
 
@@ -43,43 +44,44 @@ Esta guía describe los patrones de testing para la arquitectura DDD + Hexagonal
 **Patrón**: Validar construcción, validaciones y comportamiento.
 
 ```java
-package com.gamelisto.usuarios_service.domain.usuario;
+package com.gamelisto.usuarios.domain.usuario;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class EmailTest {
-    
+
     @Test
     @DisplayName("Debe crear email válido y normalizarlo a minúsculas")
     void debeCrearEmailValidoYNormalizarlo() {
         // Arrange & Act
         Email email = Email.of("Usuario@Example.COM");
-        
+
         // Assert
         assertEquals("usuario@example.com", email.value());
     }
-    
+
     @Test
     @DisplayName("Debe lanzar excepción si el email es nulo")
     void debeLanzarExcepcionSiEmailEsNulo() {
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> Email.of(null)
+                IllegalArgumentException.class,
+                () -> Email.of(null)
         );
-        
+
         assertTrue(exception.getMessage().contains("no puede ser nulo"));
     }
-    
+
     @Test
     @DisplayName("Debe lanzar excepción si el email es vacío")
     void debeLanzarExcepcionSiEmailEsVacio() {
         assertThrows(IllegalArgumentException.class, () -> Email.of(""));
         assertThrows(IllegalArgumentException.class, () -> Email.of("   "));
     }
-    
+
     @Test
     @DisplayName("Debe lanzar excepción si el formato es inválido")
     void debeLanzarExcepcionSiFormatoEsInvalido() {
@@ -87,7 +89,7 @@ class EmailTest {
         assertThrows(IllegalArgumentException.class, () -> Email.of("@ejemplo.com"));
         assertThrows(IllegalArgumentException.class, () -> Email.of("usuario@"));
     }
-    
+
     @Test
     @DisplayName("Debe rechazar email que exceda 255 caracteres")
     void debeRechazarEmailDemasiadoLargo() {
@@ -112,14 +114,15 @@ class EmailTest {
 **Ubicación**: `src/test/java/com/gamelisto/usuarios_service/domain/usuario/`
 
 ```java
-package com.gamelisto.usuarios_service.domain.usuario;
+package com.gamelisto.usuarios.domain.usuario;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class UsuarioTest {
-    
+
     @Test
     @DisplayName("Debe crear nuevo usuario con estado PENDIENTE_DE_VERIFICACION")
     void debeCrearNuevoUsuario() {
@@ -127,10 +130,10 @@ class UsuarioTest {
         Username username = Username.of("jugador123");
         Email email = Email.of("jugador@test.com");
         PasswordHash passwordHash = PasswordHash.of("$2a$10$hashed");
-        
+
         // Act
         Usuario usuario = Usuario.create(username, email, passwordHash);
-        
+
         // Assert
         assertNotNull(usuario.getId());
         assertEquals("jugador123", usuario.getUsername().value());
@@ -141,47 +144,47 @@ class UsuarioTest {
         assertTrue(usuario.isNotificationsActive());
         assertNotNull(usuario.getCreatedAt());
     }
-    
+
     @Test
     @DisplayName("Debe cambiar username y actualizar timestamp")
     void debeCambiarUsername() {
         // Arrange
         Usuario usuario = crearUsuarioDefault();
         Username nuevoUsername = Username.of("nuevoNombre");
-        
+
         // Act
         usuario.changeUsername(nuevoUsername);
-        
+
         // Assert
         assertEquals("nuevoNombre", usuario.getUsername().value());
         assertTrue(usuario.getUpdatedAt().isAfter(usuario.getCreatedAt()));
     }
-    
+
     @Test
     @DisplayName("Debe lanzar excepción al cambiar username a nulo")
     void debeLanzarExcepcionAlCambiarUsernameANulo() {
         // Arrange
         Usuario usuario = crearUsuarioDefault();
-        
+
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, 
-            () -> usuario.changeUsername(null));
+        assertThrows(IllegalArgumentException.class,
+                () -> usuario.changeUsername(null));
     }
-    
+
     @Test
     @DisplayName("Debe cambiar email correctamente")
     void debeCambiarEmail() {
         // Arrange
         Usuario usuario = crearUsuarioDefault();
         Email nuevoEmail = Email.of("nuevo@test.com");
-        
+
         // Act
         usuario.changeEmail(nuevoEmail);
-        
+
         // Assert
         assertEquals("nuevo@test.com", usuario.getEmail().value());
     }
-    
+
     @Test
     @DisplayName("Debe vincular cuenta de Discord")
     void debeVincularCuentaDeDiscord() {
@@ -189,10 +192,10 @@ class UsuarioTest {
         Usuario usuario = crearUsuarioDefault();
         DiscordUserId discordId = DiscordUserId.of("123456789");
         DiscordUsername discordUsername = DiscordUsername.of("player#1234");
-        
+
         // Act
         usuario.linkDiscord(discordId, discordUsername);
-        
+
         // Assert
         assertEquals("123456789", usuario.getDiscordUserId().value());
         assertEquals("player#1234", usuario.getDiscordUsername().value());
@@ -200,60 +203,60 @@ class UsuarioTest {
         assertTrue(usuario.isDiscordConsent());
         assertTrue(usuario.hasDiscordLinked());
     }
-    
+
     @Test
     @DisplayName("Debe generar token de verificación al crear usuario")
     void debeGenerarTokenVerificacionAlCrear() {
         // Arrange & Act
         Usuario usuario = Usuario.create(
-            Username.of("test"),
-            Email.of("test@test.com"),
-            PasswordHash.of("$2a$10$hash")
+                Username.of("test"),
+                Email.of("test@test.com"),
+                PasswordHash.of("$2a$10$hash")
         );
-        
+
         // Assert
         assertNotNull(usuario.getTokenVerificacion());
         assertFalse(usuario.getTokenVerificacion().isEmpty());
         assertNotNull(usuario.getTokenVerificacionExpiracion());
         assertEquals(EstadoUsuario.PENDIENTE_DE_VERIFICACION, usuario.getStatus());
     }
-    
+
     @Test
     @DisplayName("Debe verificar email con token válido")
     void debeVerificarEmailConTokenValido() {
         // Arrange
         Usuario usuario = crearUsuarioDefault();
         TokenVerificacion token = usuario.getTokenVerificacion();
-        
+
         // Act
         usuario.verificarEmail(token);
-        
+
         // Assert
         assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
         assertTrue(usuario.getTokenVerificacion().isEmpty());
         assertNull(usuario.getTokenVerificacionExpiracion());
     }
-    
+
     @Test
     @DisplayName("Debe activar usuario tras verificar email")
     void debeActivarUsuarioVerificado() {
         // Arrange
         Usuario usuario = crearUsuarioDefault();
         TokenVerificacion token = usuario.getTokenVerificacion();
-        
+
         // Act
         usuario.verificarEmail(token);
-        
+
         // Assert
         assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
     }
-    
+
     // Helper method
     private Usuario crearUsuarioDefault() {
         return Usuario.create(
-            Username.of("test"),
-            Email.of("test@test.com"),
-            PasswordHash.of("$2a$10$hash")
+                Username.of("test"),
+                Email.of("test@test.com"),
+                PasswordHash.of("$2a$10$hash")
         );
     }
 }
@@ -268,13 +271,12 @@ class UsuarioTest {
 **Patrón**: Usar mocks de Mockito para repositorios.
 
 ```java
-package com.gamelisto.usuarios_service.application.usecases;
+package com.gamelisto.usuarios.application.usecases;
 
-import com.gamelisto.usuarios_service.application.dto.CrearUsuarioCommand;
-import com.gamelisto.usuarios_service.application.dto.UsuarioDTO;
-import com.gamelisto.usuarios_service.domain.repositories.RepositorioUsuarios;
-import com.gamelisto.usuarios_service.domain.usuario.*;
-import com.gamelisto.usuarios_service.infrastructure.exceptions.*;
+import com.gamelisto.usuarios.application.dto.CrearUsuarioCommand;
+import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
+import com.gamelisto.usuarios.domain.usuario.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -290,95 +292,95 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CrearUsuarioUseCaseTest {
-    
+
     @Mock
     private RepositorioUsuarios repositorioUsuarios;
-    
+
     @Mock
     private PasswordEncoder passwordEncoder;
-    
+
     @InjectMocks
     private CrearUsuarioUseCase crearUsuarioUseCase;
-    
+
     @BeforeEach
     void setUp() {
         // Setup común si es necesario
     }
-    
+
     @Test
     @DisplayName("Debe crear usuario exitosamente")
     void debeCrearUsuarioExitosamente() {
         // Arrange
         CrearUsuarioCommand command = new CrearUsuarioCommand(
-            "nuevoUsuario",
-            "nuevo@test.com",
-            "password123"
+                "nuevoUsuario",
+                "nuevo@test.com",
+                "password123"
         );
-        
+
         when(repositorioUsuarios.existsByUsername(any(Username.class)))
-            .thenReturn(false);
+                .thenReturn(false);
         when(repositorioUsuarios.existsByEmail(any(Email.class)))
-            .thenReturn(false);
+                .thenReturn(false);
         when(passwordEncoder.encode("password123"))
-            .thenReturn("$2a$10$hashedPassword");
+                .thenReturn("$2a$10$hashedPassword");
         when(repositorioUsuarios.save(any(Usuario.class)))
-            .thenAnswer(invocation -> invocation.getArgument(0));
-        
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
         // Act
         UsuarioDTO resultado = crearUsuarioUseCase.execute(command);
-        
+
         // Assert
         assertNotNull(resultado);
         assertEquals("nuevoUsuario", resultado.username());
         assertEquals("nuevo@test.com", resultado.email());
         assertEquals("PENDIENTE_DE_VERIFICACION", resultado.status());
-        
+
         verify(repositorioUsuarios).existsByUsername(any(Username.class));
         verify(repositorioUsuarios).existsByEmail(any(Email.class));
         verify(passwordEncoder).encode("password123");
         verify(repositorioUsuarios).save(any(Usuario.class));
     }
-    
+
     @Test
     @DisplayName("Debe lanzar excepción si username ya existe")
     void debeLanzarExcepcionSiUsernameYaExiste() {
         // Arrange
         CrearUsuarioCommand command = new CrearUsuarioCommand(
-            "usuarioExistente",
-            "nuevo@test.com",
-            "password123"
+                "usuarioExistente",
+                "nuevo@test.com",
+                "password123"
         );
-        
+
         when(repositorioUsuarios.existsByUsername(any(Username.class)))
-            .thenReturn(true);
-        
+                .thenReturn(true);
+
         // Act & Assert
-        assertThrows(UsernameYaExisteException.class, 
-            () -> crearUsuarioUseCase.execute(command));
-        
+        assertThrows(UsernameYaExisteException.class,
+                () -> crearUsuarioUseCase.execute(command));
+
         verify(repositorioUsuarios).existsByUsername(any(Username.class));
         verify(repositorioUsuarios, never()).save(any(Usuario.class));
     }
-    
+
     @Test
     @DisplayName("Debe lanzar excepción si email ya está registrado")
     void debeLanzarExcepcionSiEmailYaRegistrado() {
         // Arrange
         CrearUsuarioCommand command = new CrearUsuarioCommand(
-            "nuevoUsuario",
-            "existente@test.com",
-            "password123"
+                "nuevoUsuario",
+                "existente@test.com",
+                "password123"
         );
-        
+
         when(repositorioUsuarios.existsByUsername(any(Username.class)))
-            .thenReturn(false);
+                .thenReturn(false);
         when(repositorioUsuarios.existsByEmail(any(Email.class)))
-            .thenReturn(true);
-        
+                .thenReturn(true);
+
         // Act & Assert
-        assertThrows(EmailYaRegistradoException.class, 
-            () -> crearUsuarioUseCase.execute(command));
-        
+        assertThrows(EmailYaRegistradoException.class,
+                () -> crearUsuarioUseCase.execute(command));
+
         verify(repositorioUsuarios, never()).save(any(Usuario.class));
     }
 }
@@ -405,10 +407,10 @@ class CrearUsuarioUseCaseTest {
 **Ubicación**: `src/test/java/com/gamelisto/usuarios_service/infrastructure/persistence/postgres/mapper/`
 
 ```java
-package com.gamelisto.usuarios_service.infrastructure.persistence.postgres.mapper;
+package com.gamelisto.usuarios.infrastructure.persistence.postgres.mapper;
 
-import com.gamelisto.usuarios_service.domain.usuario.*;
-import com.gamelisto.usuarios_service.infrastructure.persistence.postgres.entity.UsuarioEntity;
+import com.gamelisto.usuarios.domain.usuario.*;
+import entity.postgres.com.gamelisto.usuarios.infrastructure.out.persistence.UsuarioEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 
@@ -417,22 +419,22 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UsuarioMapperTest {
-    
+
     private final UsuarioMapper mapper = new UsuarioMapper();
-    
+
     @Test
     @DisplayName("Debe convertir Usuario de dominio a UsuarioEntity")
     void debeConvertirDominioAEntity() {
         // Arrange
         Usuario usuario = Usuario.create(
-            Username.of("testuser"),
-            Email.of("test@test.com"),
-            PasswordHash.of("$2a$10$hash")
+                Username.of("testuser"),
+                Email.of("test@test.com"),
+                PasswordHash.of("$2a$10$hash")
         );
-        
+
         // Act
         UsuarioEntity entity = mapper.toEntity(usuario);
-        
+
         // Assert
         assertNotNull(entity);
         assertEquals(usuario.getId().value(), entity.getId());
@@ -441,7 +443,7 @@ class UsuarioMapperTest {
         assertEquals(EstadoUsuario.PENDIENTE_DE_VERIFICACION, entity.getStatus());
         assertEquals(Rol.USER, entity.getRole());
     }
-    
+
     @Test
     @DisplayName("Debe convertir UsuarioEntity a Usuario de dominio")
     void debeConvertirEntityADominio() {
@@ -458,10 +460,10 @@ class UsuarioMapperTest {
         entity.setNotificationsActive(true);
         entity.setStatus(EstadoUsuario.ACTIVO);
         entity.setDiscordConsent(false);
-        
+
         // Act
         Usuario usuario = mapper.toDomain(entity);
-        
+
         // Assert
         assertNotNull(usuario);
         assertEquals(entity.getId(), usuario.getId().value());
@@ -469,7 +471,7 @@ class UsuarioMapperTest {
         assertEquals("test@test.com", usuario.getEmail().value());
         assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
     }
-    
+
     @Test
     @DisplayName("Debe manejar correctamente valores opcionales (Avatar, Discord)")
     void debeManejareValoresOpcionales() {
@@ -489,10 +491,10 @@ class UsuarioMapperTest {
         entity.setNotificationsActive(true);
         entity.setStatus(EstadoUsuario.ACTIVO);
         entity.setDiscordConsent(false);
-        
+
         // Act
         Usuario usuario = mapper.toDomain(entity);
-        
+
         // Assert
         assertTrue(usuario.getAvatar().isEmpty());
         assertTrue(usuario.getDiscordUserId().isEmpty());
@@ -506,9 +508,9 @@ class UsuarioMapperTest {
 **Ubicación**: `src/test/java/com/gamelisto/usuarios_service/infrastructure/persistence/postgres/repository/`
 
 ```java
-package com.gamelisto.usuarios_service.infrastructure.persistence.postgres.repository;
+package com.gamelisto.usuarios.infrastructure.persistence.postgres.repository;
 
-import com.gamelisto.usuarios_service.domain.usuario.*;
+import com.gamelisto.usuarios.domain.usuario.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -522,97 +524,97 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 class RepositorioUsuariosPostgreTest {
-    
+
     @Autowired
     private RepositorioUsuariosPostgre repositorio;
-    
+
     @Test
     @DisplayName("Debe guardar y recuperar usuario por ID")
     void debeGuardarYRecuperarPorId() {
         // Arrange
         Usuario usuario = crearUsuarioDefault("user1", "user1@test.com");
-        
+
         // Act
         Usuario guardado = repositorio.save(usuario);
         Optional<Usuario> recuperado = repositorio.findById(guardado.getId());
-        
+
         // Assert
         assertTrue(recuperado.isPresent());
         assertEquals(guardado.getId().value(), recuperado.get().getId().value());
         assertEquals("user1", recuperado.get().getUsername().value());
     }
-    
+
     @Test
     @DisplayName("Debe encontrar usuario por email")
     void debeEncontrarPorEmail() {
         // Arrange
         Usuario usuario = crearUsuarioDefault("user2", "user2@test.com");
         repositorio.save(usuario);
-        
+
         // Act
         Optional<Usuario> encontrado = repositorio.findByEmail(
-            Email.of("user2@test.com")
+                Email.of("user2@test.com")
         );
-        
+
         // Assert
         assertTrue(encontrado.isPresent());
         assertEquals("user2", encontrado.get().getUsername().value());
     }
-    
+
     @Test
     @DisplayName("Debe encontrar usuario por username")
     void debeEncontrarPorUsername() {
         // Arrange
         Usuario usuario = crearUsuarioDefault("user3", "user3@test.com");
         repositorio.save(usuario);
-        
+
         // Act
         Optional<Usuario> encontrado = repositorio.findByUsername(
-            Username.of("user3")
+                Username.of("user3")
         );
-        
+
         // Assert
         assertTrue(encontrado.isPresent());
         assertEquals("user3@test.com", encontrado.get().getEmail().value());
     }
-    
+
     @Test
     @DisplayName("Debe verificar si username existe")
     void debeVerificarSiUsernameExiste() {
         // Arrange
         Usuario usuario = crearUsuarioDefault("existente", "existe@test.com");
         repositorio.save(usuario);
-        
+
         // Act
         boolean existe = repositorio.existsByUsername(Username.of("existente"));
         boolean noExiste = repositorio.existsByUsername(Username.of("noexiste"));
-        
+
         // Assert
         assertTrue(existe);
         assertFalse(noExiste);
     }
-    
+
     @Test
     @DisplayName("Debe verificar si email existe")
     void debeVerificarSiEmailExiste() {
         // Arrange
         Usuario usuario = crearUsuarioDefault("user4", "existe@test.com");
         repositorio.save(usuario);
-        
+
         // Act
         boolean existe = repositorio.existsByEmail(Email.of("existe@test.com"));
         boolean noExiste = repositorio.existsByEmail(Email.of("noexiste@test.com"));
-        
+
         // Assert
         assertTrue(existe);
         assertFalse(noExiste);
     }
-    
+
     private Usuario crearUsuarioDefault(String username, String email) {
         return Usuario.create(
-            Username.of(username),
-            Email.of(email),
-            PasswordHash.of("$2a$10$hash")
+                Username.of(username),
+                Email.of(email),
+                PasswordHash.of("$2a$10$hash")
         );
     }
 }
@@ -623,10 +625,10 @@ class RepositorioUsuariosPostgreTest {
 **Ubicación**: `src/test/java/com/gamelisto/usuarios_service/infrastructure/api/rest/`
 
 ```java
-package com.gamelisto.usuarios_service.infrastructure.api.rest;
+package com.gamelisto.usuarios.infrastructure.api.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gamelisto.usuarios_service.infrastructure.api.dto.CrearUsuarioRequest;
+import dto.com.gamelisto.usuarios.infrastructure.in.api.CrearUsuarioRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -644,113 +646,113 @@ import static org.hamcrest.Matchers.*;
 @AutoConfigureMockMvc
 @Transactional
 class UsuariosControllerTest {
-    
+
     @Autowired
     private MockMvc mockMvc;
-    
+
     @Autowired
     private ObjectMapper objectMapper;
-    
+
     @Test
     @DisplayName("GET /v1/usuarios/health debe retornar 200")
     void healthEndpointDebeRetornar200() throws Exception {
         mockMvc.perform(get("/v1/usuarios/health"))
-            .andExpect(status().isOk());
+                .andExpect(status().isOk());
     }
-    
+
     @Test
     @DisplayName("POST /v1/usuarios/auth/register debe crear usuario")
     void debeCrearUsuario() throws Exception {
         // Arrange
         CrearUsuarioRequest request = new CrearUsuarioRequest(
-            "nuevoUsuario",
-            "nuevo@test.com",
-            "password123"
+                "nuevoUsuario",
+                "nuevo@test.com",
+                "password123"
         );
-        
+
         // Act & Assert
         mockMvc.perform(post("/v1/usuarios/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isCreated())
-            .andExpect(header().exists("Location"))
-            .andExpect(jsonPath("$.username", is("nuevoUsuario")))
-            .andExpect(jsonPath("$.email", is("nuevo@test.com")))
-            .andExpect(jsonPath("$.status", is("PENDIENTE_DE_VERIFICACION")))
-            .andExpect(jsonPath("$.id").exists());
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(jsonPath("$.username", is("nuevoUsuario")))
+                .andExpect(jsonPath("$.email", is("nuevo@test.com")))
+                .andExpect(jsonPath("$.status", is("PENDIENTE_DE_VERIFICACION")))
+                .andExpect(jsonPath("$.id").exists());
     }
-    
+
     @Test
     @DisplayName("POST /v1/usuarios/auth/register debe fallar con username duplicado")
     void debeFallarConUsernameDuplicado() throws Exception {
         // Arrange - Crear primer usuario
         CrearUsuarioRequest request1 = new CrearUsuarioRequest(
-            "duplicado",
-            "user1@test.com",
-            "password123"
+                "duplicado",
+                "user1@test.com",
+                "password123"
         );
         mockMvc.perform(post("/v1/usuarios/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request1)))
-            .andExpect(status().isCreated());
-        
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request1)))
+                .andExpect(status().isCreated());
+
         // Act - Intentar crear con mismo username
         CrearUsuarioRequest request2 = new CrearUsuarioRequest(
-            "duplicado",
-            "user2@test.com",
-            "password123"
+                "duplicado",
+                "user2@test.com",
+                "password123"
         );
-        
+
         // Assert
         mockMvc.perform(post("/v1/usuarios/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request2)))
-            .andExpect(status().isConflict());
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request2)))
+                .andExpect(status().isConflict());
     }
-    
+
     @Test
     @DisplayName("POST /v1/usuarios/auth/register debe validar formato de email")
     void debeValidarFormatoDeEmail() throws Exception {
         // Arrange
         CrearUsuarioRequest request = new CrearUsuarioRequest(
-            "usuario",
-            "email-invalido",
-            "password123"
+                "usuario",
+                "email-invalido",
+                "password123"
         );
-        
+
         // Act & Assert
         mockMvc.perform(post("/v1/usuarios/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isBadRequest());
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
     }
-    
+
     @Test
     @DisplayName("GET /v1/usuarios/user/{id} debe retornar usuario existente")
     void debeRetornarUsuarioExistente() throws Exception {
         // Arrange - Crear usuario primero
         CrearUsuarioRequest request = new CrearUsuarioRequest(
-            "testuser",
-            "test@test.com",
-            "password123"
+                "testuser",
+                "test@test.com",
+                "password123"
         );
-        
+
         String response = mockMvc.perform(post("/v1/usuarios/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isCreated())
-            .andReturn()
-            .getResponse()
-            .getContentAsString();
-        
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
         String userId = objectMapper.readTree(response).get("id").asText();
-        
+
         // Act & Assert
         mockMvc.perform(get("/v1/usuarios/user/" + userId))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id", is(userId)))
-            .andExpect(jsonPath("$.username", is("testuser")))
-            .andExpect(jsonPath("$.email", is("test@test.com")));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(userId)))
+                .andExpect(jsonPath("$.username", is("testuser")))
+                .andExpect(jsonPath("$.email", is("test@test.com")));
     }
 }
 ```
@@ -787,12 +789,13 @@ class UsuariosControllerTest {
 ## Estructura de Tests (AAA Pattern)
 
 ```java
+
 @Test
 void nombreDelTest() {
     // Arrange (Given) - Preparar datos y mocks
-    
+
     // Act (When) - Ejecutar acción
-    
+
     // Assert (Then) - Verificar resultado
 }
 ```
