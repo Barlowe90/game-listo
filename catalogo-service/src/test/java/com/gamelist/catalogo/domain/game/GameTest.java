@@ -8,7 +8,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
-/** Tests para la entidad Game (Aggregate Root). Pruebas de dominio puro - sin Spring. */
+/** Tests para la entidad Game (Aggregate Root). Pruebas de domain puro - sin Spring. */
 class GameTest {
 
   @Test

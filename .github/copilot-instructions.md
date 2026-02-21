@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-GameListo is a microservices-based social gaming platform built with Spring Boot 3.5.8 and Java 21, using *
+GameListo is a microservices-based social gaming platform built with Spring Boot 4.0.3 and Java 21, using *
 *Domain-Driven Design (DDD)** and **Hexagonal Architecture**. Users manage game libraries, create custom lists, share
 experiences, and connect with other players. Data is sourced from IGDB API.
 
@@ -447,7 +447,7 @@ GET /v1/search/groups?game={id}&platform={id}
 - 📊 Data aggregation from multiple services in a single query
 - 📊 Reduce round-trips between frontend and backend
 - 📊 Type-safe schema with GraphQL SDL
-- 📊 Resolver composition (fetch from REST APIs of microservices)
+- 📊 Resolver composition (fetch from REST APIs of microservicios)
 - 📊 Client-specific data shaping (avoid over-fetching/under-fetching)
 
 **Technology:**

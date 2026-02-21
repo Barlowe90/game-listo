@@ -14,7 +14,7 @@ class UsuarioMapperTest {
   private final UsuarioMapper mapper = new UsuarioMapper();
 
   @Test
-  @DisplayName("Debe convertir Usuario de dominio a UsuarioEntity")
+  @DisplayName("Debe convertir Usuario de domain a UsuarioEntity")
   void debeConvertirDominioAEntity() {
     // Arrange
     Usuario usuario =
@@ -37,7 +37,7 @@ class UsuarioMapperTest {
   }
 
   @Test
-  @DisplayName("Debe convertir UsuarioEntity a Usuario de dominio")
+  @DisplayName("Debe convertir UsuarioEntity a Usuario de domain")
   void debeConvertirEntityADominio() {
     // Arrange
     UsuarioEntity entity = new UsuarioEntity();

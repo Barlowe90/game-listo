@@ -158,7 +158,7 @@ class CambiarRolUsuarioUseCaseTest {
     when(repositorio.findById(usuarioId)).thenReturn(Optional.of(usuarioEliminado));
 
     // Act & Assert
-    // El dominio no impide cambiar el rol de un usuario eliminado,
+    // El domain no impide cambiar el rol de un usuario eliminado,
     // pero el sistema podría validar esto a nivel de aplicación
     // Por ahora, simplemente verificamos que el cambio se realiza
     when(repositorio.save(any(Usuario.class))).thenAnswer(invocation -> invocation.getArgument(0));

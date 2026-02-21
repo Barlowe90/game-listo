@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;
 
-/** Tests para el Value Object GameName. Pruebas de dominio puro - sin Spring. */
+/** Tests para el Value Object GameName. Pruebas de domain puro - sin Spring. */
 class GameNameTest {
 
   @Test

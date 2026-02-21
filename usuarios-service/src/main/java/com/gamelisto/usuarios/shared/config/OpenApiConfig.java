@@ -53,7 +53,7 @@ public class OpenApiConfig {
                                                                 **Arquitectura:**
                                                                 - Hexagonal Architecture (Ports & Adapters)
                                                                 - Domain-Driven Design (DDD)
-                                                                - Spring Boot 3.5.8 + Java 21
+                                                                - Spring Boot 4.0.3 + Java 21
                                                                 - PostgreSQL (producción) / H2 (desarrollo)
 
                                                                 **Seguridad:**

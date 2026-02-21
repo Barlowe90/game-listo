@@ -49,7 +49,7 @@ toda la información del usuario.
 ### Stack tecnológico
 
 - **Java 21** con características modernas (records, pattern matching, virtual threads ready)
-- **Spring Boot 3.5.8** (Spring Framework 6.2.1)
+- **Spring Boot 4.0.3** (Spring Framework 6.2.1)
 - **Base de datos**: PostgreSQL 17 (producción)
 - **Spring Data JPA** con Hibernate 6.6
 - **Spring Security** con BCrypt (strength: 10)
@@ -567,7 +567,7 @@ Todos los VOs implementan validación en construcción y son inmutables:
 # Todos los tests
 ./mvnw test
 
-# Solo tests de dominio
+# Solo tests de domain
 ./mvnw test -Dtest="**/domain/**/*Test"
 
 # Solo tests de integración
@@ -846,7 +846,7 @@ Este es un proyecto de TFG (Trabajo Fin de Grado). Para contribuir envíame un c
 
 ### Tecnologías utilizadas
 
-- [Spring Boot 3.5.8](https://spring.io/projects/spring-boot)
+- [Spring Boot 4.0.3](https://spring.io/projects/spring-boot)
 - [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
 - [PostgreSQL 17](https://www.postgresql.org/docs/17/)
 - [H2 Database](https://www.h2database.com/)

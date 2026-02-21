@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(DomainException.class)
   public ResponseEntity<Map<String, Object>> handleDomainException(DomainException ex) {
-    logger.warn("Error de dominio: {}", ex.getMessage());
+    logger.warn("Error de domain: {}", ex.getMessage());
     return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
   }
 

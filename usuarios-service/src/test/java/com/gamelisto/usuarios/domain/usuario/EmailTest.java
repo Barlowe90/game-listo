@@ -87,7 +87,7 @@ class EmailTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el formato es inválido - sin dominio")
+  @DisplayName("Debe lanzar excepción si el formato es inválido - sin domain")
   void debeLanzarExcepcionSiFormatoEsInvalidoSinDominio() {
     // Act & Assert
     assertThrows(IllegalArgumentException.class, () -> Email.of("usuario@"));
@@ -97,7 +97,7 @@ class EmailTest {
   @DisplayName("Debe lanzar excepción si el formato es inválido - sin extensión")
   void debeLanzarExcepcionSiFormatoEsInvalidoSinExtension() {
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> Email.of("usuario@dominio"));
+    assertThrows(IllegalArgumentException.class, () -> Email.of("usuario@domain"));
   }
 
   @Test

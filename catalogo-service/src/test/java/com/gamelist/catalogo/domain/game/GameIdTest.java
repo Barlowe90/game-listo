@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;
 
-/** Tests para el Value Object GameId. Pruebas de dominio puro - sin Spring. */
+/** Tests para el Value Object GameId. Pruebas de domain puro - sin Spring. */
 class GameIdTest {
 
   @Test

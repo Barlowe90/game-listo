@@ -4,7 +4,7 @@ import com.gamelist.catalogo.domain.game.Game;
 
 import java.util.List;
 
-/** DTO de aplicación con campos alineados al dominio `Game`. */
+/** DTO de aplicación con campos alineados al domain `Game`. */
 public record GameDTO(
     Long id,
     String name,
