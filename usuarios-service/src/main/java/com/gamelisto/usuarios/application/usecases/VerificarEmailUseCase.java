@@ -2,8 +2,8 @@ package com.gamelisto.usuarios.application.usecases;
 
 import com.gamelisto.usuarios.application.dto.VerificarEmailCommand;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
-import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.events.EmailVerificado;
+import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.TokenVerificacion;
 import com.gamelisto.usuarios.domain.usuario.Usuario;

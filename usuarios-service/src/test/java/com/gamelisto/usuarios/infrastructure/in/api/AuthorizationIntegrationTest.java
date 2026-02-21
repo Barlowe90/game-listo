@@ -77,7 +77,7 @@ class AuthorizationIntegrationTest {
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
-                        TokenVerificacion.generate(),
+            TokenVerificacion.generate(),
             now.plusSeconds(24 * 60 * 60),
             TokenVerificacion.empty(),
             null);
