@@ -161,12 +161,10 @@ class LogoutUseCaseTest {
     when(repositorioRefreshTokens.buscarActivo(any(TokenHash.class))).thenReturn(Optional.empty());
 
     // Act & Assert - Primera llamada lanza excepción
-    assertThatThrownBy(() -> useCase.execute(command))
-        .isInstanceOf(ApplicationException.class);
+    assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(ApplicationException.class);
 
     // Segunda llamada también lanza excepción (token ya revocado)
-    assertThatThrownBy(() -> useCase.execute(command))
-        .isInstanceOf(ApplicationException.class);
+    assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(ApplicationException.class);
   }
 
   @Test

@@ -8,7 +8,6 @@ import com.gamelisto.usuarios.application.dto.CambiarCorreoCommand;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
-import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -100,8 +99,7 @@ class CambiarCorreoUseCaseTest {
 
     // Act & Assert
     ApplicationException exception =
-        assertThrows(
-            ApplicationException.class, () -> cambiarCorreoUseCase.execute(command));
+        assertThrows(ApplicationException.class, () -> cambiarCorreoUseCase.execute(command));
 
     assertTrue(exception.getMessage().contains(usuarioIdInexistente));
     verify(repositorioUsuarios, never()).save(any(Usuario.class));
@@ -155,13 +153,13 @@ class CambiarCorreoUseCaseTest {
         Email.of(email),
         PasswordHash.of("$2a$10$hashedPassword"),
         Avatar.empty(),
-                Rol.USER,
+        Rol.USER,
         Idioma.ESP,
         true,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
         DiscordUsername.empty(),
-                TokenVerificacion.empty(),
+        TokenVerificacion.empty(),
         null,
         TokenVerificacion.empty(),
         null);

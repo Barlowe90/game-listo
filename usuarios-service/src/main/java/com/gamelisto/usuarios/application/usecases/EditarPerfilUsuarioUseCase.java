@@ -2,10 +2,10 @@ package com.gamelisto.usuarios.application.usecases;
 
 import com.gamelisto.usuarios.application.dto.EditarPerfilUsuarioCommand;
 import com.gamelisto.usuarios.application.dto.UsuarioDTO;
-import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
+import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.events.UsuarioActiviaNotificaciones;
 import com.gamelisto.usuarios.domain.events.UsuarioDesactivaNotificaciones;
-import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.Avatar;
 import com.gamelisto.usuarios.domain.usuario.Idioma;

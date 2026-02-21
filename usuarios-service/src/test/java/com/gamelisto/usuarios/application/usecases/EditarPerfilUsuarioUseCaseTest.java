@@ -6,11 +6,10 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.EditarPerfilUsuarioCommand;
 import com.gamelisto.usuarios.application.dto.UsuarioDTO;
-import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
-import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -92,8 +91,7 @@ class EditarPerfilUsuarioUseCaseTest {
 
     // Act & Assert
     ApplicationException exception =
-        assertThrows(
-            ApplicationException.class, () -> editarPerfilUsuarioUseCase.execute(command));
+        assertThrows(ApplicationException.class, () -> editarPerfilUsuarioUseCase.execute(command));
 
     assertNotNull(exception);
     verify(repositorioUsuarios).findById(any(UsuarioId.class));
@@ -161,13 +159,13 @@ class EditarPerfilUsuarioUseCaseTest {
         Email.of("test@test.com"),
         PasswordHash.of("$2a$10$hash"),
         Avatar.empty(),
-                Rol.USER,
+        Rol.USER,
         Idioma.ESP,
         true,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
         DiscordUsername.empty(),
-                TokenVerificacion.empty(),
+        TokenVerificacion.empty(),
         null,
         TokenVerificacion.empty(),
         null);

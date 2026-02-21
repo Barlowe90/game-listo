@@ -5,9 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
-import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
+import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import java.util.Optional;
@@ -69,8 +69,7 @@ class EliminarUsuarioUseCaseTest {
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.empty());
 
     // Act & Assert
-    assertThrows(
-        ApplicationException.class, () -> eliminarUsuarioUseCase.execute(usuarioId));
+    assertThrows(ApplicationException.class, () -> eliminarUsuarioUseCase.execute(usuarioId));
 
     verify(repositorioUsuarios).findById(any(UsuarioId.class));
     verify(repositorioUsuarios, never()).save(any(Usuario.class));
