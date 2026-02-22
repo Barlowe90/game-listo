@@ -19,13 +19,13 @@ public class GameRefEntity {
   @Column(name = "id", nullable = false, updatable = false)
   private UUID id;
 
-  @Column(name = "game_ref_id", nullable = false, unique = true, length = 100)
-  private String gameRefId;
+  @Column(name = "game_ref_id", nullable = false, unique = true)
+  private UUID gameRefId;
 
-  @Column(name = "nombre", nullable = false, unique = true, length = 100)
+  @Column(name = "nombre", nullable = false, length = 100)
   private String nombre;
 
-  @Column(name = "cover", nullable = false, unique = true, length = 500)
+  @Column(name = "cover", length = 500)
   private String cover;
 
   public GameRefEntity() {

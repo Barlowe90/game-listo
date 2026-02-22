@@ -25,6 +25,9 @@ public class UsuarioRefEntity {
   @Column(name = "avatar", length = 500)
   private String avatar;
 
+  @Column(name = "rol")
+  private String rol;
+
   public UsuarioRefEntity() {
     // constructor vacio requerido por jpa para instanciacion via reflection
   }

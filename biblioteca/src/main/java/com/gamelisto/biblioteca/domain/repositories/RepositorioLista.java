@@ -13,5 +13,5 @@ public interface RepositorioLista {
 
   List<ListaGame> findAll();
 
-  void delete(ListaGameId id);
+  void delete(ListaGame listaGame);
 }

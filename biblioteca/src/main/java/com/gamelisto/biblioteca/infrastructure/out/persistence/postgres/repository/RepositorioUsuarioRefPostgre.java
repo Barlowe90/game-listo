@@ -2,6 +2,7 @@ package com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.reposit
 
 import com.gamelisto.biblioteca.domain.repositories.RepositorioUsuariosRef;
 import com.gamelisto.biblioteca.domain.usuario.UsuarioRef;
+import com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.entity.UsuarioRefEntity;
 import com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.mapper.UsuarioRefMapper;
 import org.springframework.stereotype.Repository;
 
@@ -21,19 +22,24 @@ public class RepositorioUsuarioRefPostgre implements RepositorioUsuariosRef {
 
   @Override
   public UsuarioRef save(UsuarioRef usuario) {
-    return null;
+    UsuarioRefEntity entity = mapper.toEntity(usuario);
+    UsuarioRefEntity savedEntity = jpaRepository.save(entity);
+    return mapper.toDomain(savedEntity);
   }
 
   @Override
   public Optional<UsuarioRef> finById(String id) {
-    return Optional.empty();
+    return jpaRepository.finById(id).map(mapper::toDomain);
   }
 
   @Override
   public Optional<UsuarioRef> finByUsername(String username) {
-    return Optional.empty();
+    return jpaRepository.finByUsername(username).map(mapper::toDomain);
   }
 
   @Override
-  public void delete(UsuarioRef id) {}
+  public void delete(UsuarioRef id) {
+    UsuarioRefEntity entity = mapper.toEntity(id);
+    jpaRepository.delete(entity);
+  }
 }

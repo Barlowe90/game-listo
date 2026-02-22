@@ -3,6 +3,7 @@ package com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.reposit
 import com.gamelisto.biblioteca.domain.listas.ListaGame;
 import com.gamelisto.biblioteca.domain.listas.ListaGameId;
 import com.gamelisto.biblioteca.domain.repositories.RepositorioLista;
+import com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.entity.ListaGameEntity;
 import com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.mapper.ListaGameMapper;
 import org.springframework.stereotype.Repository;
 
@@ -22,19 +23,24 @@ public class RepositorioListaGamePostgre implements RepositorioLista {
 
   @Override
   public ListaGame save(ListaGame listaGame) {
-    return null;
+    ListaGameEntity entity = mapper.toEntity(listaGame);
+    ListaGameEntity savedEntity = jpaRepository.save(entity);
+    return mapper.toDomain(savedEntity);
   }
 
   @Override
   public Optional<ListaGame> findById(ListaGameId id) {
-    return Optional.empty();
+    return jpaRepository.findById(id.value()).map(mapper::toDomain);
   }
 
   @Override
   public List<ListaGame> findAll() {
-    return List.of();
+    return jpaRepository.findAll().stream().map(mapper::toDomain).toList();
   }
 
   @Override
-  public void delete(ListaGameId id) {}
+  public void delete(ListaGame listaGame) {
+    ListaGameEntity entity = mapper.toEntity(listaGame);
+    jpaRepository.delete(entity);
+  }
 }

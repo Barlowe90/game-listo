@@ -1,11 +1,13 @@
 package com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.repository;
 
-import com.gamelisto.biblioteca.domain.game.GameRef;
+import com.gamelisto.biblioteca.domain.gameRef.GameRef;
 import com.gamelisto.biblioteca.domain.repositories.RepositorioGameRef;
+import com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.entity.GameRefEntity;
 import com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.mapper.GameRefMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public class RepositorioGameRefPostgre implements RepositorioGameRef {
@@ -20,11 +22,13 @@ public class RepositorioGameRefPostgre implements RepositorioGameRef {
 
   @Override
   public GameRef save(GameRef gameRef) {
-    return null;
+    GameRefEntity entity = mapper.toEntity(gameRef);
+    GameRefEntity savedEntity = jpaRepository.save(entity);
+    return mapper.toDomain(savedEntity);
   }
 
   @Override
-  public Optional<GameRef> findById(String id) {
-    return Optional.empty();
+  public Optional<GameRef> findById(UUID id) {
+    return jpaRepository.findById(id).map(mapper::toDomain);
   }
 }

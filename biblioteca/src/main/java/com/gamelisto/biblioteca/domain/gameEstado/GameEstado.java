@@ -1,4 +1,4 @@
-package com.gamelisto.biblioteca.domain.game;
+package com.gamelisto.biblioteca.domain.gameEstado;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -11,26 +11,26 @@ import lombok.ToString;
 @ToString
 public class GameEstado {
   private final UUID id;
-  private final String usuarioRefId;
+  private final UUID usuarioRefId;
+  private final UUID gameRefId;
   private final Estado estado;
   private final double rating;
 
-  public GameEstado(String usuarioRefId, Estado estado, double rating) {
-    validateUsuarioRefId(usuarioRefId);
+  public GameEstado(UUID usuarioRefId, UUID gameRefId, Estado estado, double rating) {
     validateRating(rating);
     this.id = UUID.randomUUID();
     this.usuarioRefId = usuarioRefId;
-    this.estado = Objects.requireNonNull(estado, "estado no puede ser null");
+    this.gameRefId = gameRefId;
+    this.estado = estado;
     this.rating = rating;
   }
 
-  // Constructor privado usado para reconstitución desde persistencia
-  private GameEstado(UUID id, String usuarioRefId, Estado estado, double rating) {
-    this.id = Objects.requireNonNull(id, "id no puede ser null");
-    validateUsuarioRefId(usuarioRefId);
+  private GameEstado(UUID id, UUID usuarioRefId, UUID gameRefId, Estado estado, double rating) {
+    this.id = id;
     validateRating(rating);
     this.usuarioRefId = usuarioRefId;
-    this.estado = Objects.requireNonNull(estado, "estado no puede ser null");
+    this.gameRefId = gameRefId;
+    this.estado = estado;
     this.rating = rating;
   }
 
@@ -44,19 +44,13 @@ public class GameEstado {
     }
   }
 
-  private static void validateUsuarioRefId(String usuarioRefId) {
-    if (usuarioRefId == null || usuarioRefId.trim().isEmpty()) {
-      throw new DomainException("usuarioRefId no puede ser null o vacío");
-    }
-  }
-
-  public static GameEstado create(String usuarioRefId, Estado estado, double rating) {
-    return new GameEstado(usuarioRefId, estado, rating);
+  public static GameEstado create(UUID usuarioRefId, UUID gameRefId, Estado estado, double rating) {
+    return new GameEstado(usuarioRefId, gameRefId, estado, rating);
   }
 
   public static GameEstado reconstitute(
-      UUID id, String usuarioRefId, Estado estado, double rating) {
-    return new GameEstado(id, usuarioRefId, estado, rating);
+      UUID id, UUID usuarioRefId, UUID gameRefId, Estado estado, double rating) {
+    return new GameEstado(id, usuarioRefId, gameRefId, estado, rating);
   }
 
   @Override
@@ -67,11 +61,12 @@ public class GameEstado {
     return Double.compare(that.rating, rating) == 0
         && Objects.equals(id, that.id)
         && Objects.equals(usuarioRefId, that.usuarioRefId)
+        && Objects.equals(gameRefId, that.gameRefId)
         && Objects.equals(estado, that.estado);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, usuarioRefId, estado, rating);
+    return Objects.hash(id, usuarioRefId, gameRefId, estado, rating);
   }
 }

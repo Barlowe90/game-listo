@@ -1,6 +1,6 @@
 package com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.entity;
 
-import com.gamelisto.biblioteca.domain.game.Estado;
+import com.gamelisto.biblioteca.domain.gameEstado.Estado;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,8 +17,11 @@ public class GameEstadoEntity {
   @Column(name = "id", nullable = false, updatable = false)
   private UUID id;
 
-  @Column(name = "usuario_ref_id", nullable = false, unique = true, length = 255)
-  private String usuarioRefId;
+  @Column(name = "usuario_ref_id", nullable = false)
+  private UUID usuarioRefId;
+
+  @Column(name = "game_ref_id", nullable = false)
+  private UUID gameRefId;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "estado", nullable = false)

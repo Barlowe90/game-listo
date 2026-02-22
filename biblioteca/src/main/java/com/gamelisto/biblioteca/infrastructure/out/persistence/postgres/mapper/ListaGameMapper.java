@@ -15,7 +15,6 @@ public class ListaGameMapper {
     entity.setUsuarioRefId(listaGame.getUsuarioRefId());
     entity.setNombreLista(listaGame.getNombreLista().value());
     entity.setTipo(listaGame.getTipo());
-    entity.setVisibilidad(listaGame.getVisibilidad());
     return entity;
   }
 
@@ -24,7 +23,6 @@ public class ListaGameMapper {
         ListaGameId.of(entity.getId()),
         entity.getUsuarioRefId(),
         NombreListaGame.of(entity.getNombreLista()),
-        entity.getTipo(),
-        entity.getVisibilidad());
+        entity.getTipo());
   }
 }

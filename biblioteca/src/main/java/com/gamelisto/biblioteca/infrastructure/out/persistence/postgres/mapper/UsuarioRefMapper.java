@@ -12,10 +12,12 @@ public class UsuarioRefMapper {
     entity.setId(usuarioRef.getId());
     entity.setUsername(usuarioRef.getUsername());
     entity.setAvatar(usuarioRef.getAvatar());
+    entity.setRol(usuarioRef.getRol());
     return entity;
   }
 
   public UsuarioRef toDomain(UsuarioRefEntity entity) {
-    return UsuarioRef.reconstitute(entity.getId(), entity.getUsername(), entity.getAvatar());
+    return UsuarioRef.reconstitute(
+        entity.getId(), entity.getUsername(), entity.getAvatar(), entity.getRol());
   }
 }
