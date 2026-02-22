@@ -6,7 +6,7 @@ import java.util.Optional;
 public interface RepositorioUsuariosRef {
   UsuarioRef save(UsuarioRef usuario);
 
-  Optional<UsuarioRef> finById(UsuarioRef id);
+  Optional<UsuarioRef> finById(String id);
 
   Optional<UsuarioRef> finByUsername(String username);
 
