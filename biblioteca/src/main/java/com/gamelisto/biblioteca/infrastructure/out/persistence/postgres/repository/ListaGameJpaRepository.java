@@ -2,11 +2,6 @@ package com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.reposit
 
 import com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.entity.ListaGameEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.Optional;
 import java.util.UUID;
 
-public interface ListaGameJpaRepository extends JpaRepository<ListaGameEntity, UUID> {
-  Optional<ListaGameEntity> findByListaGameId(UUID listaGameId);
-
-  Optional<ListaGameEntity> findAll(UUID listaGameId);
-}
+public interface ListaGameJpaRepository extends JpaRepository<ListaGameEntity, UUID> {}

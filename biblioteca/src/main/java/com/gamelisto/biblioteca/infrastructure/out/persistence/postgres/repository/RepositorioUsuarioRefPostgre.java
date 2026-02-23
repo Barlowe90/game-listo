@@ -7,6 +7,7 @@ import com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.mapper.U
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public class RepositorioUsuarioRefPostgre implements RepositorioUsuariosRef {
@@ -28,18 +29,18 @@ public class RepositorioUsuarioRefPostgre implements RepositorioUsuariosRef {
   }
 
   @Override
-  public Optional<UsuarioRef> finById(String id) {
-    return jpaRepository.finById(id).map(mapper::toDomain);
+  public Optional<UsuarioRef> findById(UUID id) {
+    return jpaRepository.findById(id).map(mapper::toDomain);
   }
 
   @Override
-  public Optional<UsuarioRef> finByUsername(String username) {
-    return jpaRepository.finByUsername(username).map(mapper::toDomain);
+  public Optional<UsuarioRef> findByUsername(String username) {
+    return jpaRepository.findByUsername(username).map(mapper::toDomain);
   }
 
   @Override
-  public void delete(UsuarioRef id) {
-    UsuarioRefEntity entity = mapper.toEntity(id);
+  public void delete(UsuarioRef usuario) {
+    UsuarioRefEntity entity = mapper.toEntity(usuario);
     jpaRepository.delete(entity);
   }
 }
