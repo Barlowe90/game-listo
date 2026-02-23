@@ -160,7 +160,7 @@ Stack utilizado:
 ```bash
 # 1. Clonar el repositorio
 git clone https://github.com/tu-usuario/game-listo.git
-cd game-listo
+cd gameEstado-listo
 
 # 2. (Opcional) Configurar variables de entorno
 cp .env.example .env

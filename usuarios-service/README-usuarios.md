@@ -613,7 +613,7 @@ cd usuarios-service
 
 ```bash
 # 1. Levantar PostgreSQL con Docker Compose
-cd game-listo
+cd gameEstado-listo
 docker compose up -d postgres
 
 # 2. Verificar que PostgreSQL está corriendo
@@ -639,7 +639,7 @@ spring.jpa.hibernate.ddl-auto=update
 
 ```bash
 # Desde la raíz del proyecto
-cd game-listo
+cd gameEstado-listo
 
 # Construir y levantar todos los servicios
 docker compose up --build

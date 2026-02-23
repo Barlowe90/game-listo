@@ -64,7 +64,7 @@ public class CatalogoContoller {
 
   @GetMapping("/games/{id}/detail")
   @Operation(
-      summary = "Obtener game detail de MongoDB",
+      summary = "Obtener gameEstado detail de MongoDB",
       description = "Retorna información multimedia del juego desde MongoDB")
   public ResponseEntity<GameDetailResponse> getGameDetailOnly(@PathVariable Long id) {
     logger.info("Obteniendo Game Detail (MongoDB) del juego ID: {}", id);

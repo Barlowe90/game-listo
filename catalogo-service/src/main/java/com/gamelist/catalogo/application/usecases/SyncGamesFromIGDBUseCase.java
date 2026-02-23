@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 @RequiredArgsConstructor
 public class SyncGamesFromIGDBUseCase {
 
-  private static final String ROUTING_KEY_SUFFIX = "game.creado";
+  private static final String ROUTING_KEY_SUFFIX = "gameEstado.creado";
   private static final Logger logger = LoggerFactory.getLogger(SyncGamesFromIGDBUseCase.class);
 
   private final IIgdbClientPort igdbClient;

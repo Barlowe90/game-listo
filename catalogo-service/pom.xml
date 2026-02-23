@@ -38,7 +38,7 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.42</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
 
         <!-- serialización JSON con Jackson -->
@@ -109,9 +109,22 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Starter test (incluye JUnit, Mockito, Spring Test) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Agrego explícitamente módulos de testing que contienen AutoConfigureMockMvc y utilidades de test de Spring Boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test-autoconfigure</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -180,14 +193,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
             </plugin>
 
             <!-- JaCoCo Plugin for Code Coverage -->
@@ -277,6 +282,18 @@
                         <include>**/*IT.java</include>
                     </includes>
                     <argLine>@{argLine} -XX:+EnableDynamicAgentLoading</argLine>
+                </configuration>
+            </plugin>
+
+            <!-- Configure the Maven Compiler Plugin to avoid using module-path (Java 9+ issues with test deps) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.1</version>
+                <configuration>
+                    <release>21</release>
+                    <!-- Disable module-path to ensure test-scoped jars are visible on the classpath -->
+                    <useModulePath>false</useModulePath>
                 </configuration>
             </plugin>
 

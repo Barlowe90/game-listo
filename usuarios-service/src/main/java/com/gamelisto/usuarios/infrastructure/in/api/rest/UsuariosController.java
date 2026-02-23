@@ -62,6 +62,16 @@ public class UsuariosController {
   private final BuscarUsuariosPorNombreUseCase buscarUsuariosPorNombreUseCase;
 
   @Operation(
+      summary = "Health check del servicio",
+      description = "Verifica el estado del microservicio. Solo accesible por ADMIN.")
+  @ApiResponse(responseCode = "200", description = "Servicio operativo")
+  @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping("/health")
+  public ResponseEntity<String> health() {
+    return ResponseEntity.ok("UP");
+  }
+
+  @Operation(
       summary = "Cambiar contraseña (usuario autenticado)",
       description =
           "Permite al usuario cambiar su contraseña proporcionando la actual y la nueva. "
