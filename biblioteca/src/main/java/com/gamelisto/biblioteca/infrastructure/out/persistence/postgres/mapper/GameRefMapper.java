@@ -10,7 +10,7 @@ public class GameRefMapper {
   public GameRefEntity toEntity(GameRef gameRef) {
     GameRefEntity entity = new GameRefEntity();
     entity.setId(gameRef.getId());
-    entity.setGameRefId(gameRef.getGameRefId());
+    entity.setCatalogGameId(gameRef.getCatalogGameId());
     entity.setNombre(gameRef.getNombre());
     entity.setCover(gameRef.getCover());
     return entity;
@@ -18,6 +18,6 @@ public class GameRefMapper {
 
   public GameRef toDomain(GameRefEntity entity) {
     return GameRef.reconstitute(
-        entity.getId(), entity.getGameRefId(), entity.getNombre(), entity.getCover());
+        entity.getId(), entity.getCatalogGameId(), entity.getNombre(), entity.getCover());
   }
 }

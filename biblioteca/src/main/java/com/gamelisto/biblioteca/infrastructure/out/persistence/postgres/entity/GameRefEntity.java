@@ -19,8 +19,8 @@ public class GameRefEntity {
   @Column(name = "id", nullable = false, updatable = false)
   private UUID id;
 
-  @Column(name = "game_ref_id", nullable = false, unique = true)
-  private Long gameRefId;
+  @Column(name = "catalog_game_id", nullable = false, unique = true)
+  private Long catalogGameId;
 
   @Column(name = "nombre", nullable = false, length = 100)
   private String nombre;

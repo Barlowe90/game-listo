@@ -33,7 +33,7 @@ public class RepositorioGameRefPostgre implements RepositorioGameRef {
   }
 
   @Override
-  public Optional<GameRef> findByGameRefId(Long gameRefId) {
-    return jpaRepository.findByGameRefId(gameRefId).map(mapper::toDomain);
+  public Optional<GameRef> findByCatalogGameId(Long catalogGameId) {
+    return jpaRepository.findByCatalogGameId(catalogGameId).map(mapper::toDomain);
   }
 }

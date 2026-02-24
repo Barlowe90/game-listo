@@ -2,7 +2,6 @@ package com.gamelisto.biblioteca.domain.listas;
 
 import com.gamelisto.biblioteca.domain.exceptions.DomainException;
 import com.gamelisto.biblioteca.domain.gameestado.GameEstado;
-import com.gamelisto.biblioteca.domain.gameref.GameRef;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -19,7 +18,6 @@ public class ListaGame {
   private NombreListaGame nombreLista;
   private Tipo tipo;
   private List<GameEstado> listaGameEstados;
-  private List<GameRef> listaGameRefs;
 
   private ListaGame(Builder builder) {
     this.id = builder.id;
@@ -27,7 +25,6 @@ public class ListaGame {
     this.nombreLista = builder.nombreLista;
     this.tipo = builder.tipo;
     this.listaGameEstados = new ArrayList<>();
-    this.listaGameRefs = new ArrayList<>();
   }
 
   public static Builder builder() {
@@ -100,15 +97,7 @@ public class ListaGame {
     this.listaGameEstados.add(gameEstado);
   }
 
-  public void addGameRef(GameRef gameRef) {
-    this.listaGameRefs.add(gameRef);
-  }
-
-  public List<GameEstado> getListaGameEstados() {
-    return Collections.unmodifiableList(listaGameEstados);
-  }
-
-  public List<GameRef> getListaGameRefs() {
-    return Collections.unmodifiableList(listaGameRefs);
+  public void removeGameEstado(GameEstado gameRefId) {
+    this.listaGameEstados.remove(gameRefId);
   }
 }

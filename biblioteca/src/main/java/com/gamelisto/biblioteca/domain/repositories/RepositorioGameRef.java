@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface RepositorioGameRef {
   GameRef save(GameRef gameRef);
 
-  Optional<GameRef> findById(UUID gameRefId);
+  Optional<GameRef> findById(UUID id);
 
-  Optional<GameRef> findByGameRefId(Long gameRefId);
+  Optional<GameRef> findByCatalogGameId(Long catalogGameId);
 }

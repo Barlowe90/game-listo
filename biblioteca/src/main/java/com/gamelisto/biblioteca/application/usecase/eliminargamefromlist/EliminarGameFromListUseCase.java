@@ -1,4 +1,4 @@
-package com.gamelisto.biblioteca.application.usecase.addgametolist;
+package com.gamelisto.biblioteca.application.usecase.eliminargamefromlist;
 
 import com.gamelisto.biblioteca.application.exceptions.ApplicationException;
 import com.gamelisto.biblioteca.application.usecase.ListaGameResult;
@@ -12,12 +12,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class AddGameToListUseCase implements AddGameToListHandler {
+public class EliminarGameFromListUseCase implements EliminarGameFromListHandler {
 
   private final RepositorioLista repositorioLista;
   private final RepositorioGameRef repositorioGameRef;
 
-  public AddGameToListUseCase(
+  public EliminarGameFromListUseCase(
       RepositorioLista repositorioLista, RepositorioGameRef repositorioGameRef) {
     this.repositorioLista = repositorioLista;
     this.repositorioGameRef = repositorioGameRef;
@@ -29,8 +29,6 @@ public class AddGameToListUseCase implements AddGameToListHandler {
 
     ListaGame listaGame = obtenerListaPorIdOrThrow(result);
     GameRef gameRef = obtenerGameRefOrThrow(result);
-
-    listaGame.addGameEstado(gameRef);
 
     ListaGame listaGuardada = repositorioLista.save(listaGame);
 

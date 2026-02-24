@@ -69,11 +69,11 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.OK).body(ListaGameResponse.from(result));
   }
 
-  @PostMapping("/lists/{listaId}/games/{gameId}}")
-  public ResponseEntity<ListaGameResponse> addGameToList(
+  @DeleteMapping("/lists/{listaId}/games/{gameId}")
+  public ResponseEntity<ListaGameResponse> eliminarGameFromList(
       @PathVariable String listaId, @PathVariable String gameId) {
 
-    logger.info("Añadir juego con id {} a la lista con id {}", gameId, listaId);
+    logger.info("Eliminar juego con id {} de la lista con id {}", gameId, listaId);
 
     ListaGameResult result = buscarLista.execute(listaId);
 

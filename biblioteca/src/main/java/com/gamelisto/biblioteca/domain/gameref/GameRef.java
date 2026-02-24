@@ -9,29 +9,29 @@ import java.util.UUID;
 @ToString
 public class GameRef {
   private final UUID id;
-  private final Long gameRefId;
+  private final Long catalogGameId;
   private final String nombre;
   private final String cover;
 
-  private GameRef(Long gameRefId, String nombre, String cover) {
+  private GameRef(Long catalogGameId, String nombre, String cover) {
     this.id = UUID.randomUUID();
-    this.gameRefId = gameRefId;
+    this.catalogGameId = catalogGameId;
     this.nombre = nombre;
     this.cover = cover;
   }
 
-  private GameRef(UUID id, Long gameRefId, String nombre, String cover) {
+  private GameRef(UUID id, Long catalogGameId, String nombre, String cover) {
     this.id = id;
-    this.gameRefId = gameRefId;
+    this.catalogGameId = catalogGameId;
     this.nombre = nombre;
     this.cover = cover;
   }
 
-  public static GameRef create(Long gameRefId, String nombre, String cover) {
-    return new GameRef(gameRefId, nombre, cover);
+  public static GameRef create(Long catalogGameId, String nombre, String cover) {
+    return new GameRef(catalogGameId, nombre, cover);
   }
 
-  public static GameRef reconstitute(UUID id, Long gameRefId, String nombre, String cover) {
-    return new GameRef(id, gameRefId, nombre, cover);
+  public static GameRef reconstitute(UUID id, Long catalogGameId, String nombre, String cover) {
+    return new GameRef(id, catalogGameId, nombre, cover);
   }
 }

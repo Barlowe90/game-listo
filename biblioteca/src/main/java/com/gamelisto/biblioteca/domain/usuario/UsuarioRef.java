@@ -1,7 +1,9 @@
 package com.gamelisto.biblioteca.domain.usuario;
 
+import com.gamelisto.biblioteca.domain.exceptions.DomainException;
 import com.gamelisto.biblioteca.domain.gameestado.GameEstado;
 import com.gamelisto.biblioteca.domain.listas.ListaGame;
+import com.gamelisto.biblioteca.domain.listas.Tipo;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -17,16 +19,16 @@ public class UsuarioRef {
   private final String username;
   private final String rol;
   private final String avatar;
-  private final List<ListaGame> listasDeJuegos;
-  private final List<GameEstado> listaGameEstados;
+  private final List<ListaGame> listas;
+  private final List<GameEstado> juegos;
 
   private UsuarioRef(String username, String avatar, String rol) {
     this.id = UUID.randomUUID();
     this.username = username;
     this.avatar = avatar;
     this.rol = rol;
-    this.listasDeJuegos = new ArrayList<>();
-    this.listaGameEstados = new ArrayList<>();
+    this.listas = new ArrayList<>();
+    this.juegos = new ArrayList<>();
   }
 
   // Reconstitución con id
@@ -35,8 +37,8 @@ public class UsuarioRef {
     this.username = username;
     this.avatar = avatar;
     this.rol = rol;
-    this.listasDeJuegos = new ArrayList<>();
-    this.listaGameEstados = new ArrayList<>();
+    this.listas = new ArrayList<>();
+    this.juegos = new ArrayList<>();
   }
 
   public static UsuarioRef create(String username, String avatar, String rol) {
@@ -47,19 +49,22 @@ public class UsuarioRef {
     return new UsuarioRef(id, username, avatar, rol);
   }
 
-  public void addNewList(ListaGame listaNueva) {
-    listasDeJuegos.add(listaNueva);
+  public void addNuevaLista(ListaGame listaNueva) {
+    listas.add(listaNueva);
   }
 
-  public void addNewGameEstado(GameEstado gameEstado) {
-    listaGameEstados.add(gameEstado);
+  public void eliminarLista(ListaGame lista) {
+    if (lista.getTipo().equals(Tipo.OFICIAL)) {
+      throw new DomainException("No se puede eliminar una lista predefinida");
+    }
+    listas.remove(lista);
   }
 
-  public List<ListaGame> getListasDeJuegos() {
-    return Collections.unmodifiableList(listasDeJuegos);
+  public void addNuevoJuego(GameEstado gameEstado) {
+    juegos.add(gameEstado);
   }
 
-  public List<GameEstado> getListaGameEstados() {
-    return Collections.unmodifiableList(listaGameEstados);
+  public void eliminarJuego(GameEstado gameEstado) {
+    juegos.remove(gameEstado);
   }
 }
