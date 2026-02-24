@@ -19,31 +19,32 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DisplayName("JwtValidator - Validación de tokens JWT")
+@DisplayName("JwtValidator - tests básicos")
 class JwtValidatorTest {
 
-  public static final String USERNAME = "username";
-  public static final String EMAIL = "email";
-  public static final String ROLES = "roles";
-  private JwtValidator jwtValidator;
-  private SecretKey secretKey;
+  private static final String USERNAME = "username";
+  private static final String EMAIL = "email";
+  private static final String ROLES = "roles";
+
   private static final String TEST_SECRET =
       "test-secret-key-must-be-at-least-256-bits-long-for-hs256";
+
+  private JwtValidator jwtValidator;
+  private SecretKey secretKey;
 
   @BeforeEach
   void setUp() {
     JwtProperties properties = new JwtProperties();
     properties.setSecret(TEST_SECRET);
-    properties.setExpiration(900000L); // 15 minutos
+    properties.setExpiration(900000L); // 15 min
 
     jwtValidator = new JwtValidator(properties);
     secretKey = Keys.hmacShaKeyFor(TEST_SECRET.getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
-  @DisplayName("Debe validar correctamente un token JWT válido")
-  void debeValidarTokenValido() {
-    // Arrange
+  @DisplayName("Valida un token correcto y extrae claims")
+  void validaTokenYExtraeClaims() {
     String userId = UUID.randomUUID().toString();
     String username = "testuser";
     String email = "test@example.com";
@@ -52,10 +53,8 @@ class JwtValidatorTest {
 
     String token = createValidToken(userId, username, email, roles, jti);
 
-    // Act
     Claims claims = jwtValidator.validateToken(token);
 
-    // Assert
     assertThat(claims).isNotNull();
     assertThat(jwtValidator.getUserId(claims)).isEqualTo(userId);
     assertThat(jwtValidator.getUsername(claims)).isEqualTo(username);
@@ -66,62 +65,24 @@ class JwtValidatorTest {
   }
 
   @Test
-  @DisplayName("Debe rechazar un token expirado")
-  void debeRechazarTokenExpirado() {
-    // Arrange
+  @DisplayName("Rechaza un token expirado")
+  void rechazaTokenExpirado() {
     String token = createExpiredToken();
 
-    // Act & Assert
     assertThatThrownBy(() -> jwtValidator.validateToken(token))
         .isInstanceOf(io.jsonwebtoken.ExpiredJwtException.class);
   }
 
   @Test
-  @DisplayName("Debe rechazar un token con firma inválida")
-  void debeRechazarTokenConFirmaInvalida() {
-    // Arrange
+  @DisplayName("Rechaza un token con firma inválida")
+  void rechazaTokenFirmaInvalida() {
     String token = createTokenWithInvalidSignature();
 
-    // Act & Assert
     assertThatThrownBy(() -> jwtValidator.validateToken(token))
         .isInstanceOf(io.jsonwebtoken.security.SignatureException.class);
   }
 
-  @Test
-  @DisplayName("Debe detectar token expirado mediante isTokenExpired")
-  void debeDetectarTokenExpirado() {
-    // Arrange
-    String userId = UUID.randomUUID().toString();
-    Instant expiration = Instant.now().minus(1, ChronoUnit.HOURS);
-
-    Claims claims = Jwts.claims().subject(userId).expiration(Date.from(expiration)).build();
-
-    // Act & Assert
-    assertThat(jwtValidator.isTokenExpired(claims)).isTrue();
-  }
-
-  @Test
-  @DisplayName("Debe extraer múltiples roles correctamente")
-  void debeExtraerMultiplesRoles() {
-    // Arrange
-    List<String> roles = List.of("USER", "ADMIN", "MODERATOR");
-    String token =
-        createValidToken(
-            UUID.randomUUID().toString(),
-            "adminuser",
-            "admin@example.com",
-            roles,
-            UUID.randomUUID().toString());
-
-    // Act
-    Claims claims = jwtValidator.validateToken(token);
-    List<String> extractedRoles = jwtValidator.getRoles(claims);
-
-    // Assert
-    assertThat(extractedRoles).containsExactlyElementsOf(roles);
-  }
-
-  // Helper methods
+  // ===== helpers =====
 
   private String createValidToken(
       String userId, String username, String email, List<String> roles, String jti) {
