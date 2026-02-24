@@ -1,5 +1,5 @@
-package com.gamelisto.biblioteca.application.usecase.crearlistagame;
+package com.gamelisto.biblioteca.application.usecase.editarlistagame;
 
-public interface CrearListaGameHandler {
-  CrearListaGameResult execute(CrearListaGameCommand command);
+public interface EditarListaGameHandler {
+  EditarListaGameResult execute(EditarListaGameCommand command);
 }

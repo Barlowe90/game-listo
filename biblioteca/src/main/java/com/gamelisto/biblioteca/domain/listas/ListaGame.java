@@ -1,5 +1,6 @@
 package com.gamelisto.biblioteca.domain.listas;
 
+import com.gamelisto.biblioteca.domain.exceptions.DomainException;
 import com.gamelisto.biblioteca.domain.gameEstado.GameEstado;
 import com.gamelisto.biblioteca.domain.gameRef.GameRef;
 import lombok.Getter;
@@ -15,10 +16,10 @@ import java.util.UUID;
 public class ListaGame {
   private final ListaGameId id;
   private final UUID usuarioRefId;
-  private final NombreListaGame nombreLista;
-  private final Tipo tipo;
-  private final List<GameEstado> listaGameEstados;
-  private final List<GameRef> listaGameRefs;
+  private NombreListaGame nombreLista;
+  private Tipo tipo;
+  private List<GameEstado> listaGameEstados;
+  private List<GameRef> listaGameRefs;
 
   private ListaGame(Builder builder) {
     this.id = builder.id;
@@ -85,12 +86,22 @@ public class ListaGame {
         .build();
   }
 
+  public void cambiarNombre(NombreListaGame nuevoNombreLista) {
+    if (nuevoNombreLista == null) {
+      throw new DomainException("El nuevo nombre no puede ser nulo.");
+    }
+
+    if (!this.nombreLista.equals(nuevoNombreLista)) {
+      this.nombreLista = nuevoNombreLista;
+    }
+  }
+
   public void addGameEstado(GameEstado gameEstado) {
-    listaGameEstados.add(gameEstado);
+    this.listaGameEstados.add(gameEstado);
   }
 
   public void addGameRef(GameRef gameRef) {
-    listaGameRefs.add(gameRef);
+    this.listaGameRefs.add(gameRef);
   }
 
   public List<GameEstado> getListaGameEstados() {
