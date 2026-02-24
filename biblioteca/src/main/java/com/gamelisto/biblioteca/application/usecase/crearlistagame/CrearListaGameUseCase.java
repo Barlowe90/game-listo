@@ -1,5 +1,6 @@
 package com.gamelisto.biblioteca.application.usecase.crearlistagame;
 
+import com.gamelisto.biblioteca.application.usecase.ListaGameResult;
 import com.gamelisto.biblioteca.domain.listas.ListaGame;
 import com.gamelisto.biblioteca.domain.listas.NombreListaGame;
 import com.gamelisto.biblioteca.domain.listas.Tipo;
@@ -19,7 +20,7 @@ public class CrearListaGameUseCase implements CrearListaGameHandler {
   }
 
   @Transactional
-  public CrearListaGameResult execute(CrearListaGameCommand command) {
+  public ListaGameResult execute(CrearListaGameCommand command) {
     UUID usuarioRefId = UUID.fromString(command.usuarioRefId());
     NombreListaGame nombreListaGame = NombreListaGame.of(command.nombre());
     Tipo tipo = Tipo.valueOf(command.tipo());
@@ -27,6 +28,6 @@ public class CrearListaGameUseCase implements CrearListaGameHandler {
     ListaGame listaGame = ListaGame.create(usuarioRefId, nombreListaGame, tipo);
     ListaGame listaGuardada = repositorioLista.save(listaGame);
 
-    return CrearListaGameResult.from(listaGuardada);
+    return ListaGameResult.from(listaGuardada);
   }
 }

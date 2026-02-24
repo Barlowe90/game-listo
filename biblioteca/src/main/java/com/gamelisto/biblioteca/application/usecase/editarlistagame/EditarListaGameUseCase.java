@@ -1,6 +1,7 @@
 package com.gamelisto.biblioteca.application.usecase.editarlistagame;
 
 import com.gamelisto.biblioteca.application.exceptions.ApplicationException;
+import com.gamelisto.biblioteca.application.usecase.ListaGameResult;
 import com.gamelisto.biblioteca.domain.listas.ListaGame;
 import com.gamelisto.biblioteca.domain.listas.ListaGameId;
 import com.gamelisto.biblioteca.domain.listas.NombreListaGame;
@@ -21,12 +22,12 @@ public class EditarListaGameUseCase implements EditarListaGameHandler {
   }
 
   @Transactional
-  public EditarListaGameResult execute(EditarListaGameCommand command) {
+  public ListaGameResult execute(EditarListaGameCommand command) {
     EntradaEditarListaGame result = mapearCommandAEntrada(command);
     ListaGame listaGame = obtenerListaPorIdOrThrow(result);
     comprobarSiEsListaPredefinidaOrThrow(listaGame);
     ListaGame listaGuardada = actualizarNombreYGuardar(listaGame, result);
-    return EditarListaGameResult.from(listaGuardada);
+    return ListaGameResult.from(listaGuardada);
   }
 
   private static void comprobarSiEsListaPredefinidaOrThrow(ListaGame listaGame) {

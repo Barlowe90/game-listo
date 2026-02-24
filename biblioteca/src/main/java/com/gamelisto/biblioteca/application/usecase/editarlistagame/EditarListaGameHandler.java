@@ -1,5 +1,7 @@
 package com.gamelisto.biblioteca.application.usecase.editarlistagame;
 
+import com.gamelisto.biblioteca.application.usecase.ListaGameResult;
+
 public interface EditarListaGameHandler {
-  EditarListaGameResult execute(EditarListaGameCommand command);
+  ListaGameResult execute(EditarListaGameCommand command);
 }
