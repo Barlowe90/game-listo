@@ -4,7 +4,7 @@ import com.gamelisto.biblioteca.application.usecase.editarlistagame.EditarListaG
 
 public record EditarListaGameRequest(String idLista, String nombre) {
 
-  public EditarListaGameCommand toCommand() {
-    return new EditarListaGameCommand(idLista, nombre);
+  public EditarListaGameCommand toCommand(String idLista) {
+    return new EditarListaGameCommand(this.idLista, nombre);
   }
 }
