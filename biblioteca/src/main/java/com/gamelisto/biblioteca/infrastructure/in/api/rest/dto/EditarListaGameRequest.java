@@ -1,10 +1,10 @@
 package com.gamelisto.biblioteca.infrastructure.in.api.rest.dto;
 
-import com.gamelisto.biblioteca.application.usecase.crearlistagame.CrearListaGameCommand;
+import com.gamelisto.biblioteca.application.usecase.editarlistagame.EditarListaGameCommand;
 
-public record CrearListaGameRequest(String usuarioRefId, String nombre, String tipo) {
+public record EditarListaGameRequest(String nombre) {
 
-  public CrearListaGameCommand toCommand() {
-    return new CrearListaGameCommand(usuarioRefId, nombre, tipo);
+  public EditarListaGameCommand toCommand() {
+    return new CreaEditarListaGameCommand(nombre);
   }
 }
