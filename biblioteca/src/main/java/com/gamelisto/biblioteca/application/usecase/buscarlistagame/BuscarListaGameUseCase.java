@@ -19,24 +19,24 @@ public class BuscarListaGameUseCase implements BuscarListaGameHandler {
   }
 
   @Transactional
-  public ListaGameResult execute(String idLista) {
-    EntradaBuscarListaGame result = mapearCommandAEntrada(idLista);
+  public ListaGameResult execute(String listaId) {
+    EntradaBuscarListaGame result = mapearCommandAEntrada(listaId);
     ListaGame listaGame = obtenerListaPorIdOrThrow(result);
     return ListaGameResult.from(listaGame);
   }
 
   private ListaGame obtenerListaPorIdOrThrow(EntradaBuscarListaGame result) {
     return repositorioLista
-        .findById(result.idLista())
+        .findById(result.listaId())
         .orElseThrow(
-            () -> new ApplicationException("No se encuentra la lista " + result.idLista()));
+            () -> new ApplicationException("No se encuentra la lista " + result.listaId()));
   }
 
-  private static EntradaBuscarListaGame mapearCommandAEntrada(String idLista) {
-    UUID uuidLista = UUID.fromString(idLista);
+  private static EntradaBuscarListaGame mapearCommandAEntrada(String listaId) {
+    UUID uuidLista = UUID.fromString(listaId);
     ListaGameId id = ListaGameId.of(uuidLista);
     return new EntradaBuscarListaGame(id);
   }
 
-  private record EntradaBuscarListaGame(ListaGameId idLista) {}
+  private record EntradaBuscarListaGame(ListaGameId listaId) {}
 }

@@ -1,8 +1,8 @@
 package com.gamelisto.biblioteca.domain.listas;
 
 import com.gamelisto.biblioteca.domain.exceptions.DomainException;
-import com.gamelisto.biblioteca.domain.gameEstado.GameEstado;
-import com.gamelisto.biblioteca.domain.gameRef.GameRef;
+import com.gamelisto.biblioteca.domain.gameestado.GameEstado;
+import com.gamelisto.biblioteca.domain.gameref.GameRef;
 import lombok.Getter;
 import lombok.ToString;
 

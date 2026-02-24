@@ -38,33 +38,44 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.CREATED).body(ListaGameResponse.from(result));
   }
 
-  @PatchMapping("/lists/{idLista}")
+  @PatchMapping("/lists/{listaId}")
   public ResponseEntity<ListaGameResponse> modificarLista(
-      @PathVariable String idLista, @Valid @RequestBody EditarListaGameRequest request) {
+      @PathVariable String listaId, @Valid @RequestBody EditarListaGameRequest request) {
 
     logger.info("Cambiar nombre lista");
 
-    ListaGameResult result = editarLista.execute(request.toCommand(idLista));
+    ListaGameResult result = editarLista.execute(request.toCommand(listaId));
 
     return ResponseEntity.status(HttpStatus.OK).body(ListaGameResponse.from(result));
   }
 
-  @DeleteMapping("/lists/{idLista}")
-  public ResponseEntity<Void> eliminarLista(@PathVariable String idLista) {
+  @DeleteMapping("/lists/{listaId}")
+  public ResponseEntity<Void> eliminarLista(@PathVariable String listaId) {
 
-    logger.info("Eliminar lista con id {} ", idLista);
+    logger.info("Eliminar lista con id {} ", listaId);
 
-    eliminarLista.execute(idLista);
+    eliminarLista.execute(listaId);
 
     return ResponseEntity.noContent().build();
   }
 
-  @GetMapping("/lists/{idLista}")
-  public ResponseEntity<ListaGameResponse> buscarLista(@PathVariable String idLista) {
+  @GetMapping("/lists/{listaId}")
+  public ResponseEntity<ListaGameResponse> buscarLista(@PathVariable String listaId) {
 
-    logger.info("Buscar lista con id {} ", idLista);
+    logger.info("Buscar lista con id {} ", listaId);
 
-    ListaGameResult result = buscarLista.execute(idLista);
+    ListaGameResult result = buscarLista.execute(listaId);
+
+    return ResponseEntity.status(HttpStatus.OK).body(ListaGameResponse.from(result));
+  }
+
+  @PostMapping("/lists/{listaId}/games/{gameId}}")
+  public ResponseEntity<ListaGameResponse> addGameToList(
+      @PathVariable String listaId, @PathVariable String gameId) {
+
+    logger.info("Añadir juego con id {} a la lista con id {}", gameId, listaId);
+
+    ListaGameResult result = buscarLista.execute(listaId);
 
     return ResponseEntity.status(HttpStatus.OK).body(ListaGameResponse.from(result));
   }

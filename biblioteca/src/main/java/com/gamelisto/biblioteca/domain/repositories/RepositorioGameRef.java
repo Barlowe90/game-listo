@@ -1,6 +1,6 @@
 package com.gamelisto.biblioteca.domain.repositories;
 
-import com.gamelisto.biblioteca.domain.gameRef.GameRef;
+import com.gamelisto.biblioteca.domain.gameref.GameRef;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -8,5 +8,7 @@ import java.util.UUID;
 public interface RepositorioGameRef {
   GameRef save(GameRef gameRef);
 
-  Optional<GameRef> findById(UUID id);
+  Optional<GameRef> findById(UUID gameRefId);
+
+  Optional<GameRef> findByGameRefId(Long gameRefId);
 }

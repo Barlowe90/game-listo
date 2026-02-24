@@ -1,6 +1,6 @@
 package com.gamelisto.biblioteca.domain.usuario;
 
-import com.gamelisto.biblioteca.domain.gameEstado.GameEstado;
+import com.gamelisto.biblioteca.domain.gameestado.GameEstado;
 import com.gamelisto.biblioteca.domain.listas.ListaGame;
 import lombok.Getter;
 import lombok.ToString;

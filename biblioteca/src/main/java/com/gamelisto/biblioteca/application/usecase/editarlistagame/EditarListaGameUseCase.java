@@ -43,18 +43,18 @@ public class EditarListaGameUseCase implements EditarListaGameHandler {
 
   private ListaGame obtenerListaPorIdOrThrow(EntradaEditarListaGame result) {
     return repositorioLista
-        .findById(result.idLista())
+        .findById(result.listaId())
         .orElseThrow(
-            () -> new ApplicationException("No se encuentra la lista " + result.idLista()));
+            () -> new ApplicationException("No se encuentra la lista " + result.listaId()));
   }
 
   private static EntradaEditarListaGame mapearCommandAEntrada(EditarListaGameCommand command) {
     NombreListaGame nuevoNombreListaGame = NombreListaGame.of(command.nombre());
-    UUID uuidLista = UUID.fromString(command.idLista());
-    ListaGameId idLista = ListaGameId.of(uuidLista);
-    return new EntradaEditarListaGame(nuevoNombreListaGame, idLista);
+    UUID uuidLista = UUID.fromString(command.listaId());
+    ListaGameId listaId = ListaGameId.of(uuidLista);
+    return new EntradaEditarListaGame(nuevoNombreListaGame, listaId);
   }
 
   private record EntradaEditarListaGame(
-      NombreListaGame nuevoNombreListaGame, ListaGameId idLista) {}
+      NombreListaGame nuevoNombreListaGame, ListaGameId listaId) {}
 }

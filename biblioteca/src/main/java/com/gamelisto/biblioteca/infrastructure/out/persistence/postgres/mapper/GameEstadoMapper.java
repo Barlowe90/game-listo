@@ -1,6 +1,6 @@
 package com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.mapper;
 
-import com.gamelisto.biblioteca.domain.gameEstado.GameEstado;
+import com.gamelisto.biblioteca.domain.gameestado.GameEstado;
 import com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.entity.GameEstadoEntity;
 import org.springframework.stereotype.Component;
 

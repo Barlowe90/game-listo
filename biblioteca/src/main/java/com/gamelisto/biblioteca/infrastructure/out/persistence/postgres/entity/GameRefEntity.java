@@ -20,7 +20,7 @@ public class GameRefEntity {
   private UUID id;
 
   @Column(name = "game_ref_id", nullable = false, unique = true)
-  private UUID gameRefId;
+  private Long gameRefId;
 
   @Column(name = "nombre", nullable = false, length = 100)
   private String nombre;

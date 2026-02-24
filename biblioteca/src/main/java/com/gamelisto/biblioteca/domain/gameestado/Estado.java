@@ -1,4 +1,4 @@
-package com.gamelisto.biblioteca.domain.gameEstado;
+package com.gamelisto.biblioteca.domain.gameestado;
 
 public enum Estado {
   DESEADO,

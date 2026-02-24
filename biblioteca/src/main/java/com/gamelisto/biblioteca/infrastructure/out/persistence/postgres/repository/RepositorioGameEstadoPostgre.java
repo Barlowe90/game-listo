@@ -1,7 +1,7 @@
 package com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.repository;
 
-import com.gamelisto.biblioteca.domain.gameEstado.Estado;
-import com.gamelisto.biblioteca.domain.gameEstado.GameEstado;
+import com.gamelisto.biblioteca.domain.gameestado.Estado;
+import com.gamelisto.biblioteca.domain.gameestado.GameEstado;
 import com.gamelisto.biblioteca.domain.repositories.RepositorioGameEstado;
 import com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.entity.GameEstadoEntity;
 import com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.mapper.GameEstadoMapper;

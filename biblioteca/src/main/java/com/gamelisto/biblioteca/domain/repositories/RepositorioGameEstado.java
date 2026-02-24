@@ -1,7 +1,7 @@
 package com.gamelisto.biblioteca.domain.repositories;
 
-import com.gamelisto.biblioteca.domain.gameEstado.Estado;
-import com.gamelisto.biblioteca.domain.gameEstado.GameEstado;
+import com.gamelisto.biblioteca.domain.gameestado.Estado;
+import com.gamelisto.biblioteca.domain.gameestado.GameEstado;
 import java.util.Optional;
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package com.gamelisto.biblioteca.domain.gameEstado;
+package com.gamelisto.biblioteca.domain.gameestado;
 
 import java.util.Objects;
 import java.util.UUID;

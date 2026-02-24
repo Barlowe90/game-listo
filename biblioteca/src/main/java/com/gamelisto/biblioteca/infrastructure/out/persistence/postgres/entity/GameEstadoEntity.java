@@ -1,6 +1,6 @@
 package com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.entity;
 
-import com.gamelisto.biblioteca.domain.gameEstado.Estado;
+import com.gamelisto.biblioteca.domain.gameestado.Estado;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

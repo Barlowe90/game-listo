@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface GameRefJpaRepository extends JpaRepository<GameRefEntity, UUID> {
   Optional<GameRefEntity> findById(UUID id);
+
+  Optional<GameRefEntity> findByGameRefId(String name);
 }

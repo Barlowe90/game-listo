@@ -3,8 +3,8 @@ package com.gamelisto.biblioteca.domain;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.gamelisto.biblioteca.domain.exceptions.DomainException;
-import com.gamelisto.biblioteca.domain.gameEstado.Estado;
-import com.gamelisto.biblioteca.domain.gameEstado.GameEstado;
+import com.gamelisto.biblioteca.domain.gameestado.Estado;
+import com.gamelisto.biblioteca.domain.gameestado.GameEstado;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
