@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,7 +15,7 @@ public class ListaGame {
   private final ListaGameId id;
   private final UUID usuarioRefId;
   private NombreListaGame nombreLista;
-  private Tipo tipo;
+  private final Tipo tipo;
   private List<GameEstado> listaGameEstados;
 
   private ListaGame(Builder builder) {
@@ -97,7 +96,7 @@ public class ListaGame {
     this.listaGameEstados.add(gameEstado);
   }
 
-  public void removeGameEstado(GameEstado gameRefId) {
-    this.listaGameEstados.remove(gameRefId);
+  public void eliminarGameEstado(GameEstado gameEstado) {
+    this.listaGameEstados.remove(gameEstado);
   }
 }

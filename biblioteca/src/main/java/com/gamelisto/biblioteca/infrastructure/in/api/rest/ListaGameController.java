@@ -38,13 +38,15 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.CREATED).body(ListaGameResponse.from(result));
   }
 
-  @PatchMapping("/lists/{listaId}")
+  @PatchMapping("/user/{userId}/lists/{listaId}")
   public ResponseEntity<ListaGameResponse> modificarLista(
-      @PathVariable String listaId, @Valid @RequestBody EditarListaGameRequest request) {
+      @PathVariable String listaId,
+      @PathVariable String userId,
+      @Valid @RequestBody EditarListaGameRequest request) {
 
     logger.info("Cambiar nombre lista");
 
-    ListaGameResult result = editarLista.execute(request.toCommand(listaId));
+    ListaGameResult result = editarLista.execute(request.toCommand(userId, listaId));
 
     return ResponseEntity.status(HttpStatus.OK).body(ListaGameResponse.from(result));
   }

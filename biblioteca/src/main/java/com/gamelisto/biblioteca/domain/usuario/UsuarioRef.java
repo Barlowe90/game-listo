@@ -1,14 +1,11 @@
 package com.gamelisto.biblioteca.domain.usuario;
 
-import com.gamelisto.biblioteca.domain.exceptions.DomainException;
 import com.gamelisto.biblioteca.domain.gameestado.GameEstado;
 import com.gamelisto.biblioteca.domain.listas.ListaGame;
-import com.gamelisto.biblioteca.domain.listas.Tipo;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,18 +50,7 @@ public class UsuarioRef {
     listas.add(listaNueva);
   }
 
-  public void eliminarLista(ListaGame lista) {
-    if (lista.getTipo().equals(Tipo.OFICIAL)) {
-      throw new DomainException("No se puede eliminar una lista predefinida");
-    }
-    listas.remove(lista);
-  }
-
-  public void addNuevoJuego(GameEstado gameEstado) {
+  public void addGameEstado(GameEstado gameEstado) {
     juegos.add(gameEstado);
-  }
-
-  public void eliminarJuego(GameEstado gameEstado) {
-    juegos.remove(gameEstado);
   }
 }

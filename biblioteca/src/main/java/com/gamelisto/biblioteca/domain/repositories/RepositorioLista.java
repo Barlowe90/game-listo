@@ -5,6 +5,7 @@ import com.gamelisto.biblioteca.domain.listas.ListaGameId;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface RepositorioLista {
   ListaGame save(ListaGame listaGame);
@@ -14,4 +15,6 @@ public interface RepositorioLista {
   List<ListaGame> findAll();
 
   void delete(ListaGame listaGame);
+
+  List<ListaGame> findByUsuarioRefId(UUID usuarioRefId);
 }

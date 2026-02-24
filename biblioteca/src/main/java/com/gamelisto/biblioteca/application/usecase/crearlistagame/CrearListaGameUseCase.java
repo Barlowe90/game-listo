@@ -6,8 +6,6 @@ import com.gamelisto.biblioteca.domain.listas.ListaGame;
 import com.gamelisto.biblioteca.domain.listas.NombreListaGame;
 import com.gamelisto.biblioteca.domain.listas.Tipo;
 import com.gamelisto.biblioteca.domain.repositories.RepositorioLista;
-import com.gamelisto.biblioteca.domain.repositories.RepositorioUsuariosRef;
-import com.gamelisto.biblioteca.domain.usuario.UsuarioRef;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,33 +16,29 @@ import java.util.UUID;
 public class CrearListaGameUseCase implements CrearListaGameHandler {
 
   private final RepositorioLista repositorioLista;
-  private final RepositorioUsuariosRef repositorioUsuariosRef;
 
-  public CrearListaGameUseCase(
-      RepositorioLista repositorioLista, RepositorioUsuariosRef repositorioUsuariosRef) {
+  public CrearListaGameUseCase(RepositorioLista repositorioLista) {
     this.repositorioLista = repositorioLista;
-    this.repositorioUsuariosRef = repositorioUsuariosRef;
   }
 
   @Transactional
   public ListaGameResult execute(CrearListaGameCommand command) {
     MapearCommandToListaGame result = mapperCommandToLista(command);
 
+    comprobarPersonalizadaOrThrow(result);
+
     ListaGame listaGame =
         ListaGame.create(result.usuarioRefId(), result.nombreListaGame(), result.tipo());
-    ListaGame listaGuardada = repositorioLista.save(listaGame);
 
-    UsuarioRef usuarioRef = buscarUsuarioOrThrow(command);
-    usuarioRef.addNuevaLista(listaGuardada);
+    ListaGame listaGuardada = repositorioLista.save(listaGame);
 
     return ListaGameResult.from(listaGuardada);
   }
 
-  private @NonNull UsuarioRef buscarUsuarioOrThrow(CrearListaGameCommand command) {
-    UUID uuidUsuarioRef = UUID.fromString(command.usuarioRefId());
-    return repositorioUsuariosRef
-        .findById(uuidUsuarioRef)
-        .orElseThrow(() -> new ApplicationException("Usuario no encontrado"));
+  private static void comprobarPersonalizadaOrThrow(MapearCommandToListaGame result) {
+    if (!result.tipo.equals(Tipo.PERSONALIZADA)) {
+      throw new ApplicationException("Solo se puede crear listas personalizadas");
+    }
   }
 
   private static @NonNull MapearCommandToListaGame mapperCommandToLista(

@@ -1,13 +1,12 @@
 package com.gamelisto.biblioteca.infrastructure.out.persistence.postgres.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.ArrayList;
 
 @Getter
 @Setter
@@ -27,6 +26,20 @@ public class UsuarioRefEntity {
 
   @Column(name = "rol")
   private String rol;
+
+  @OneToMany(
+      mappedBy = "usuarioRef",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      fetch = FetchType.LAZY)
+  private List<ListaGameEntity> listas = new ArrayList<>();
+
+  @OneToMany(
+      mappedBy = "usuarioRef",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      fetch = FetchType.LAZY)
+  private List<GameEstadoEntity> juegos = new ArrayList<>();
 
   public UsuarioRefEntity() {
     // constructor vacio requerido por jpa para instanciacion via reflection

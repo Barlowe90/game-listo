@@ -5,7 +5,6 @@ import com.gamelisto.biblioteca.application.usecase.ListaGameResult;
 import com.gamelisto.biblioteca.domain.listas.ListaGame;
 import com.gamelisto.biblioteca.domain.listas.ListaGameId;
 import com.gamelisto.biblioteca.domain.listas.NombreListaGame;
-import com.gamelisto.biblioteca.domain.listas.Tipo;
 import com.gamelisto.biblioteca.domain.repositories.RepositorioLista;
 import java.util.UUID;
 
@@ -25,15 +24,10 @@ public class EditarListaGameUseCase implements EditarListaGameHandler {
   public ListaGameResult execute(EditarListaGameCommand command) {
     EntradaEditarListaGame result = mapearCommandAEntrada(command);
     ListaGame listaGame = obtenerListaPorIdOrThrow(result);
-    comprobarSiEsListaPredefinidaOrThrow(listaGame);
-    ListaGame listaGuardada = actualizarNombreYGuardar(listaGame, result);
-    return ListaGameResult.from(listaGuardada);
-  }
 
-  private static void comprobarSiEsListaPredefinidaOrThrow(ListaGame listaGame) {
-    if (listaGame.getTipo().equals(Tipo.OFICIAL)) {
-      throw new ApplicationException("No se puede editar el nombre de una lista predeterminada");
-    }
+    ListaGame listaGuardada = actualizarNombreYGuardar(listaGame, result);
+
+    return ListaGameResult.from(listaGuardada);
   }
 
   private ListaGame actualizarNombreYGuardar(ListaGame listaGame, EntradaEditarListaGame result) {
@@ -49,12 +43,13 @@ public class EditarListaGameUseCase implements EditarListaGameHandler {
   }
 
   private static EntradaEditarListaGame mapearCommandAEntrada(EditarListaGameCommand command) {
+    UUID usuarioId = UUID.fromString(command.userId());
     NombreListaGame nuevoNombreListaGame = NombreListaGame.of(command.nombre());
     UUID uuidLista = UUID.fromString(command.listaId());
     ListaGameId listaId = ListaGameId.of(uuidLista);
-    return new EntradaEditarListaGame(nuevoNombreListaGame, listaId);
+    return new EntradaEditarListaGame(usuarioId, nuevoNombreListaGame, listaId);
   }
 
   private record EntradaEditarListaGame(
-      NombreListaGame nuevoNombreListaGame, ListaGameId listaId) {}
+      UUID usuarioId, NombreListaGame nuevoNombreListaGame, ListaGameId listaId) {}
 }

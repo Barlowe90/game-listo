@@ -2,10 +2,10 @@ package com.gamelisto.biblioteca.application.usecase.addgametolist;
 
 import com.gamelisto.biblioteca.application.exceptions.ApplicationException;
 import com.gamelisto.biblioteca.application.usecase.ListaGameResult;
-import com.gamelisto.biblioteca.domain.gameref.GameRef;
+import com.gamelisto.biblioteca.domain.gameestado.GameEstado;
 import com.gamelisto.biblioteca.domain.listas.ListaGame;
 import com.gamelisto.biblioteca.domain.listas.ListaGameId;
-import com.gamelisto.biblioteca.domain.repositories.RepositorioGameRef;
+import com.gamelisto.biblioteca.domain.repositories.RepositorioGameEstado;
 import com.gamelisto.biblioteca.domain.repositories.RepositorioLista;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -15,12 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class AddGameToListUseCase implements AddGameToListHandler {
 
   private final RepositorioLista repositorioLista;
-  private final RepositorioGameRef repositorioGameRef;
+  private final RepositorioGameEstado repositorioGameEstado;
 
   public AddGameToListUseCase(
-      RepositorioLista repositorioLista, RepositorioGameRef repositorioGameRef) {
+      RepositorioLista repositorioLista, RepositorioGameEstado repositorioGameEstado) {
     this.repositorioLista = repositorioLista;
-    this.repositorioGameRef = repositorioGameRef;
+    this.repositorioGameEstado = repositorioGameEstado;
   }
 
   @Transactional
@@ -28,20 +28,22 @@ public class AddGameToListUseCase implements AddGameToListHandler {
     EntradaBuscarListaGame result = mapearCommandAEntrada(listaId, gameId);
 
     ListaGame listaGame = obtenerListaPorIdOrThrow(result);
-    GameRef gameRef = obtenerGameRefOrThrow(result);
+    GameEstado gameEstado = obtenerGameEstadoOrThrow(result);
 
-    listaGame.addGameEstado(gameRef);
+    listaGame.addGameEstado(gameEstado);
 
     ListaGame listaGuardada = repositorioLista.save(listaGame);
 
     return ListaGameResult.from(listaGuardada);
   }
 
-  private GameRef obtenerGameRefOrThrow(EntradaBuscarListaGame result) {
-    return repositorioGameRef
-        .findByCatalogGameId(result.catalogGameId())
+  private GameEstado obtenerGameEstadoOrThrow(EntradaBuscarListaGame result) {
+    return repositorioGameEstado
+        .findById(result.gameEstadoUuid())
         .orElseThrow(
-            () -> new ApplicationException("No se encuentra el gameRef " + result.catalogGameId()));
+            () ->
+                new ApplicationException(
+                    "No se encuentra el game estado " + result.gameEstadoUuid()));
   }
 
   private ListaGame obtenerListaPorIdOrThrow(EntradaBuscarListaGame result) {
@@ -53,11 +55,11 @@ public class AddGameToListUseCase implements AddGameToListHandler {
 
   private static EntradaBuscarListaGame mapearCommandAEntrada(String listaId, String gameId) {
     UUID uuidLista = UUID.fromString(listaId);
-    Long catalogGameId = Long.parseLong(gameId);
+    UUID gameEstadoUuid = UUID.fromString(gameId);
     ListaGameId id = ListaGameId.of(uuidLista);
 
-    return new EntradaBuscarListaGame(id, catalogGameId);
+    return new EntradaBuscarListaGame(id, gameEstadoUuid);
   }
 
-  private record EntradaBuscarListaGame(ListaGameId listaId, Long catalogGameId) {}
+  private record EntradaBuscarListaGame(ListaGameId listaId, UUID gameEstadoUuid) {}
 }

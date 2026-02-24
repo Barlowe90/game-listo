@@ -17,11 +17,17 @@ public class GameEstadoEntity {
   @Column(name = "id", nullable = false, updatable = false)
   private UUID id;
 
-  @Column(name = "usuario_ref_id", nullable = false)
-  private UUID usuarioRefId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "usuario_ref_id", nullable = false)
+  private UsuarioRefEntity usuarioRef;
 
-  @Column(name = "game_ref_id", nullable = false)
-  private UUID gameRefId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "game_ref_id", nullable = false)
+  private GameRefEntity gameRef;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "lista_id", nullable = true)
+  private ListaGameEntity lista;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "estado", nullable = false)

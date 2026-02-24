@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public class RepositorioListaGamePostgre implements RepositorioLista {
@@ -42,5 +43,10 @@ public class RepositorioListaGamePostgre implements RepositorioLista {
   public void delete(ListaGame listaGame) {
     ListaGameEntity entity = mapper.toEntity(listaGame);
     jpaRepository.delete(entity);
+  }
+
+  @Override
+  public List<ListaGame> findByUsuarioRefId(UUID usuarioRefId) {
+    return jpaRepository.findByUsuarioRef_Id(usuarioRefId).stream().map(mapper::toDomain).toList();
   }
 }
