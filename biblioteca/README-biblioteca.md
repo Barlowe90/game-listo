@@ -22,18 +22,17 @@ usuario.
 
 El servicio `biblioteca` permite a los usuarios organizar su colección de videojuegos mediante listas personalizadas y
 mantener el estado de cada juego (por ejemplo: deseado, jugándolo, completado). Para mantener bajo acoplamiento con el
-servicio
-`catalogo-service`, el microservicio almacena referencias ligeras a usuarios y juegos (`UsuarioRef`, `GameRef`) en lugar
-de dependencias directas.
+servicio `catalogo-service`, el microservicio almacena referencias ligeras a usuarios y juegos (`UsuarioRef`, `GameRef`)
+en lugar de dependencias directas.
 
 Es el aggregate root para la información de listas y estados de videojuegos a nivel de usuario en el dominio de
 GameListo.
 
 ## Responsabilidades del microservicio
 
-- Gestión completa de ListasGames (crear, renombrar, eliminar, visibilidad, tipo)
+- Gestión completa de ListasGames (crear, renombrar, eliminar, tipo)
 - Añadir / quitar `GameRef` a listas
-- Registrar y actualizar `GameEstado` por juego y usuario (estado, fecha, puntuación)
+- Registrar y actualizar `GameEstado` por juego y usuario (estado, puntuación)
 - Permitir puntuaciones con escala 0–10 en pasos de 0.25
 - Exponer API REST para operaciones CRUD y consultas de biblioteca
 - Proveer endpoints simples de consulta (listas públicas/privadas, biblioteca por usuario)
@@ -57,42 +56,69 @@ Regla de dependencias: `infrastructure` → `application` → `domain` (el domin
 
 ## Modelo de datos
 
-Resumen de las principales entidades (conceptual):
+### Convenciones de IDs (IMPORTANTE para el agente)
+
+- `userId` (API / path `/user/{userId}`) = `UsuarioRef.id` (UUID) **mismo ID que en `usuarios-service`**.
+- `gameId` (API / path `/games/{gameId}`) = `GameRef.id` (Long) **mismo ID que en `catalogo-service`**.
+- `listId` (API / path `/lists/{listId}`) = `ListaGame.id` (UUID) **interno del microservicio biblioteca**.
+
+### Entidades principales (conceptual)
 
 - UsuarioRef
-    - `usuarioId` (UUID)
+    - `id` (UUID — mismo identificador que en `usuarios-service`)
     - `username` (String)
     - `avatar` (String, opcional)
+    - Relaciones:
+        - 1 UsuarioRef → N ListaGame
+        - 1 UsuarioRef → N GameEstado (uno por cada juego que el usuario haya tocado)
 
-- ListaGame (Aggregate)
+- ListaGame (Aggregate Root)
     - `id` (UUID)
-    - `usuario` (UsuarioRef)
+    - `usuarioRefId` (UUID)
     - `nombre` (String)
-    - `tipo` (ENUM: PERSONAL, SISTEMA)
-    - `visibilidad` (ENUM: PUBLICA, PRIVADA)
-    - `games` (colección de `GameRef`)
-    - `createdAt`, `updatedAt`
+    - `tipo` (ENUM: PERSONALIZADA, OFICIAL)
+    - Relaciones:
+        - N ListaGame (PERSONALIZADA) ↔ N GameRef mediante ListaGameItem
+        - Para listas OFICIALES: sus juegos **no** se almacenan en ListaGameItem, se obtienen desde `GameEstado` por
+          `estado`.
 
 - GameRef
-    - `gameId` (UUID — identificador en `catalogo-service`)
+    - `id` (Long — mismo identificador que en `catalogo-service`)
     - `name` (String)
     - `coverUrl` (String)
 
-- GameEstado (Entidad ligada a Lista o Usuario)
+- GameEstado (Estado/puntuación por usuario y juego)
     - `id` (UUID)
-    - `usuarioId` (UUID)
-    - `gameRef` (GameRef)
+    - `usuarioRefId` (UUID)
+    - `gameRefId` (Long)
     - `estado` (ENUM: DESEADO, PENDIENTE, JUGANDO, PLATINANDO, COMPLETADO, ABANDONADO)
-    - `puntuacion` (Decimal, 0.00–10.00, increments 0.25)
-    - `updatedAt` (Instant)
+    - `puntuacion` (Decimal, 0.00–5.00, increments 0.25)
+    - Nota: `GameEstado` **NO** referencia una lista. Es la “fuente de verdad” del estado del juego para el usuario.
+
+- ListaGameItem (relación “juego en lista” para listas PERSONALIZADAS)
+    - `listaId` (UUID)
+    - `gameRefId` (Long)
+    - PK compuesta: (`listaId`, `gameRefId`)
+    - Uso: solo para listas de tipo PERSONALIZADA.
 
 ### Reglas de negocio relevantes
 
-- Un `Usuario` puede tener múltiples `ListasGames`.
-- Un `GameRef` puede pertenecer a varias listas del mismo usuario.
-- La puntuación acepta valores en pasos de 0.25; la API valida.
-- `GameEstado` mantiene el histórico mínimo necesario (último estado y puntuación). Historial completo no es
-  requisito para el TFG (KISS).
+- Al crearse un UsuarioRef (evento desde `usuarios-service`) se deben inicializar las listas OFICIALES del usuario:
+    - nombres: DESEADO, PENDIENTE, JUGANDO, PLATINANDO, COMPLETADO, ABANDONADO
+    - `tipo = OFICIAL`
+- `GameEstado` es único por usuario y juego:
+    - Restricción recomendada: UNIQUE (`usuario_ref_id`, `game_ref_id`)
+- `ListaGameItem` permite que un juego pertenezca a múltiples listas PERSONALIZADAS del mismo usuario:
+    - Restricción: UNIQUE (`lista_id`, `game_ref_id`)
+- Un `GameRef` puede aparecer simultáneamente:
+    - en la lista OFICIAL derivada de su `GameEstado.estado` (p.ej. COMPLETADO)
+    - y en una o más listas PERSONALIZADAS (vía ListaGameItem)
+- Al eliminar una lista PERSONALIZADA:
+    - se eliminan sus `ListaGameItem`
+    - **no** se elimina `GameEstado` del juego (sigue existiendo y por tanto sigue apareciendo en la lista OFICIAL
+      correspondiente)
+- La puntuación acepta valores en pasos de 0.25 de 0 a 5; la API valida.
+- `GameEstado` no mantiene histórico, solo el último estado y puntuación.
 
 ## API / Endpoints
 
@@ -100,7 +126,7 @@ Base path: `/v1/biblioteca`
 
 ### Health
 
-- No añadirlo, usar el de Actuator
+- Usar el de Actuator
 
 ### Listas
 
@@ -108,34 +134,36 @@ Base path: `/v1/biblioteca`
     - Body: `CrearListaRequest` (usuarioId, nombre, tipo, visibilidad)
     - Response: `ListaResponse` (201)
 
-- PATCH `/lists/{listId}` → Renombrar/editar metadata
-    - Body: `EditarListaRequest`
+- PATCH `/user/{userId}/lists/{listId}` → Renombrar/editar metadata
+    - Body: `EditarListaRequest` (nombreNuevo)
     - Response: `ListaResponse` (200)
 
-- DELETE `/lists/{listId}` → Eliminar lista (soft delete si aplica)
+- DELETE `/user/{userId}/lists/{listaId}` → Eliminar lista
     - Response: 204 No Content
 
-- GET `/lists/{usuarioId}` → Listar listas de un usuario
-    - Query: `publicOnly` (opcional)
+- GET `/user/{userId}/lists/{listaId}` → Listar listas de un usuario
+    - Response: `ListaResponse` (200)
+
+- GET `/user/{userId}/lists/` → Listar todas las listas de un usuario
+    - Response: `ListaResponse` (200)
 
 ### Gestión de juegos en listas
 
-- POST `/lists/{listId}/games/{gameId}` → Añadir `GameRef` a lista
-    - Body: `AddGameRequest` (gameId, name, coverUrl)
-    - Response: 200 OK
+- POST `/user/{userId}/lists/{listaId}/games/{gameId}` → Añadir `GameRef` a lista
+    - Response: 200 OK No Content
 
-- DELETE `/lists/{listId}/games/{gameId}` → Quitar `GameRef` de lista
-    - Response: 200 OK
+- DELETE `/user/{userId}/lists/{listaId}/games/{gameId}` → Quitar `GameRef` de lista
+    - Response: 200 OK No Content
 
 ### Estado y puntuación de juegos
 
-- POST `/users/{usuarioId}/games/{gameId}/state` → Crear/actualizar `GameEstado`
-    - Body: `UpdateStateRequest` (estado, puntuacion?)
+- POST `/user/{userId}/games/{gameId}/state` → Crear/actualizar `GameEstado`
+    - Body: `UpdateStateRequest` (estado)
     - Response: `GameEstadoResponse` (200)
 
-- POST `/users/{usuarioId}/games/{gameId}/rate` → Puntuar juego
+- POST `/user/{userId}/games/{gameId}/rate` → Puntuar `GameEstado`
     - Body: `RateRequest` (puntuacion decimal)
-    - Response: 200 OK
+    - Response: `GameEstadoResponse` (200)
 
 ## Seguridad
 

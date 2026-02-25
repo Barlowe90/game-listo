@@ -1,6 +1,6 @@
 package com.gamelisto.biblioteca.application.usecase;
 
-import com.gamelisto.biblioteca.domain.listas.ListaGame;
+import com.gamelisto.biblioteca.domain.ListaGame;
 
 /** crear solo lo que el caso de uso necesita exponer */
 public record ListaGameResult(String id, String usuarioRefId, String nombre, String tipo) {
