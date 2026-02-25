@@ -1,4 +1,4 @@
-package com.gamelisto.usuarios.infrastructure.in.api.rest;
+package com.gamelisto.usuarios.infrastructure.in.api;
 
 import com.gamelisto.usuarios.application.dto.*;
 import com.gamelisto.usuarios.application.usecases.*;
