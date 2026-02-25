@@ -1,4 +1,4 @@
-package com.gamelisto.api_gateway;
+package com.gamelisto.gateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

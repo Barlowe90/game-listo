@@ -1,4 +1,4 @@
-package com.gamelisto.api_gateway.config;
+package com.gamelisto.gateway.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

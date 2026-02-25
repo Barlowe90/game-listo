@@ -54,11 +54,6 @@ profesionales de arquitectura de software, despliegue cloud y diseño UI/UX.
 - Publicaciones
 - Grupos de juego y solicitudes
 
-### 🔔 Notificaciones
-
-- Nuevos amigos
-- Invitación a grupos de juego
-
 ## 🏗️ Arquitectura
 
 GameListo está construido con **microservicios desacoplados** basados en:
@@ -74,17 +69,16 @@ GameListo está construido con **microservicios desacoplados** basados en:
 
 ### 🧱 Microservicios
 
-| Microservicio      | Tecnología                         | Puerto | Descripción                                                           |
-|--------------------|------------------------------------|--------|-----------------------------------------------------------------------|
-| **gateway**        | Spring Cloud Gateway + Redis       | 8090   | Puerta de entrada, validación JWT, rate limiting, CORS                |
-| **usuarios**       | Spring Boot + PostgreSQL + Redis   | 8081   | Registro, login, perfil, JWT, integrado con Gateway                   |
-| **catalogo**       | Spring Boot + PostgreSQL + MongoDB | 8082   | Juegos, plataformas, sincronización con IGDB                          |
-| **biblioteca**     | Spring Boot + PostgreSQL           | 8083   | Estados de juego, listas personalizadas, reseñas                      |
-| **publicaciones**  | Spring Boot + MongoDB              | 8084   | Posts, screenshots, vídeos                                            |
-| **notificaciones** | Spring Boot + MongoDB              | 8085   | Notificaciones del sistema                                            |
-| **social**         | Spring Boot + Neo4j                | 8086   | Grafo social, amistades, relaciones y recomendaciones                 |
-| **search**         | Spring Boot + OpenSearch           | 8087   | Búsqueda full-text, autocomplete, filtrado facetado                   |
-| **graphqlBFF**     | Spring GraphQL                     | 8088   | Backend for Frontend, agregación de datos de múltiples microservicios |
+| Microservicio     | Tecnología                         | Puerto | Descripción                                                           |
+|-------------------|------------------------------------|--------|-----------------------------------------------------------------------|
+| **gateway**       | Spring Cloud Gateway + Redis       | 8090   | Puerta de entrada, validación JWT, rate limiting, CORS                |
+| **usuarios**      | Spring Boot + PostgreSQL + Redis   | 8081   | Registro, login, perfil, JWT, integrado con Gateway                   |
+| **catalogo**      | Spring Boot + PostgreSQL + MongoDB | 8082   | Juegos, plataformas, sincronización con IGDB                          |
+| **biblioteca**    | Spring Boot + PostgreSQL           | 8083   | Estados de juego, listas personalizadas, reseñas                      |
+| **publicaciones** | Spring Boot + MongoDB              | 8084   | Posts, screenshots, vídeos                                            |
+| **social**        | Spring Boot + Neo4j                | 8085   | Grafo social, amistades, relaciones y recomendaciones                 |
+| **search**        | Spring Boot + OpenSearch           | 8086   | Búsqueda full-text, autocomplete, filtrado facetado                   |
+| **graphqlBFF**    | Spring GraphQL                     | 8087   | Backend for Frontend, agregación de datos de múltiples microservicios |
 
 ### División de Responsabilidades
 

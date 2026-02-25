@@ -1,4 +1,4 @@
-package com.gamelisto.api_gateway.security;
+package com.gamelisto.gateway.security;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

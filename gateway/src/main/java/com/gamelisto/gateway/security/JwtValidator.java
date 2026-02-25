@@ -1,6 +1,6 @@
-package com.gamelisto.api_gateway.security;
+package com.gamelisto.gateway.security;
 
-import com.gamelisto.api_gateway.config.JwtProperties;
+import com.gamelisto.gateway.config.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

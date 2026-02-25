@@ -1,7 +1,7 @@
-package com.gamelisto.api_gateway.filters;
+package com.gamelisto.gateway.filters;
 
-import com.gamelisto.api_gateway.security.JwtValidator;
-import com.gamelisto.api_gateway.security.TokenRevocationService;
+import com.gamelisto.gateway.security.JwtValidator;
+import com.gamelisto.gateway.security.TokenRevocationService;
 import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

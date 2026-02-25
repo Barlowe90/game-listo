@@ -1,4 +1,4 @@
-package com.gamelisto.api_gateway.security;
+package com.gamelisto.gateway.security;
 
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;

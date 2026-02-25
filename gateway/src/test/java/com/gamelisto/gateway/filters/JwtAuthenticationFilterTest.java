@@ -1,8 +1,8 @@
-package com.gamelisto.api_gateway.filters;
+package com.gamelisto.gateway.filters;
 
-import com.gamelisto.api_gateway.config.JwtProperties;
-import com.gamelisto.api_gateway.security.JwtValidator;
-import com.gamelisto.api_gateway.security.TokenRevocationService;
+import com.gamelisto.gateway.config.JwtProperties;
+import com.gamelisto.gateway.security.JwtValidator;
+import com.gamelisto.gateway.security.TokenRevocationService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.BeforeEach;

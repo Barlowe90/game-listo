@@ -1,4 +1,4 @@
-package com.gamelisto.api_gateway.filters;
+package com.gamelisto.gateway.filters;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

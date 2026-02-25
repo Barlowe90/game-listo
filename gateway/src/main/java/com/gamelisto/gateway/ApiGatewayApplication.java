@@ -1,4 +1,4 @@
-package com.gamelisto.api_gateway;
+package com.gamelisto.gateway;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
