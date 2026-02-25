@@ -3,15 +3,16 @@ package com.gamelisto.usuarios.domain.usuario;
 import java.time.Instant;
 import lombok.Getter;
 
-// sacar lógica de verificar a cada CdU
+/**
+ * TODO reducir usuario a una clase básica, como una herencia: un padre usuario y los hijos *
+ * usuarioDiscord. Sacar lógica de verificar a cada CdU
+ */
 @Getter
 public class Usuario {
 
   private static final int PASSWORD_RESET_TOKEN_TTL_SECONDS = 60 * 60; // 1 hora
   private static final int EMAIL_VERIFICATION_TOKEN_TTL_SECONDS = 24 * 60 * 60; // 24 horas
 
-  // reducir usuario a una clase básica
-  // como una herencia: un padre usuario y los hijos usuarioDiscord
   private final UsuarioId id;
   private final Username username;
   private Email email;
@@ -19,7 +20,6 @@ public class Usuario {
   private Avatar avatar;
   private Rol role;
   private Idioma language;
-  private boolean notificationsActive;
   private EstadoUsuario status;
   private DiscordUserId discordUserId;
   private DiscordUsername discordUsername;
@@ -37,7 +37,6 @@ public class Usuario {
     this.avatar = builder.avatar != null ? builder.avatar : Avatar.empty();
     this.role = builder.role != null ? builder.role : Rol.USER;
     this.language = builder.language != null ? builder.language : Idioma.ESP;
-    this.notificationsActive = builder.notificationsActive;
     this.status = builder.status != null ? builder.status : EstadoUsuario.ACTIVO;
     this.discordUserId =
         builder.discordUserId != null ? builder.discordUserId : DiscordUserId.empty();
@@ -65,7 +64,6 @@ public class Usuario {
     private Avatar avatar;
     private Rol role;
     private Idioma language;
-    private boolean notificationsActive = true;
     private EstadoUsuario status;
     private DiscordUserId discordUserId;
     private DiscordUsername discordUsername;
@@ -108,11 +106,6 @@ public class Usuario {
 
     public Builder language(Idioma language) {
       this.language = language;
-      return this;
-    }
-
-    public Builder notificationsActive(boolean notificationsActive) {
-      this.notificationsActive = notificationsActive;
       return this;
     }
 
@@ -167,7 +160,6 @@ public class Usuario {
             .role(Rol.USER)
             .language(Idioma.ESP)
             .status(EstadoUsuario.PENDIENTE_DE_VERIFICACION)
-            .notificationsActive(true)
             .build();
     usuario.generarTokenVerificacion();
     return usuario;
@@ -183,7 +175,6 @@ public class Usuario {
       Avatar avatar,
       Rol role,
       Idioma language,
-      boolean notificationsActive,
       EstadoUsuario status,
       DiscordUserId discordUserId,
       DiscordUsername discordUsername,
@@ -199,7 +190,6 @@ public class Usuario {
         .avatar(avatar)
         .role(role)
         .language(language)
-        .notificationsActive(notificationsActive)
         .status(status)
         .discordUserId(discordUserId)
         .discordUsername(discordUsername)
@@ -243,14 +233,6 @@ public class Usuario {
 
   public void changeLanguage(Idioma newLanguage) {
     this.language = newLanguage != null ? newLanguage : Idioma.ESP;
-  }
-
-  public void enableNotifications() {
-    this.notificationsActive = true;
-  }
-
-  public void disableNotifications() {
-    this.notificationsActive = false;
   }
 
   public void suspend() {

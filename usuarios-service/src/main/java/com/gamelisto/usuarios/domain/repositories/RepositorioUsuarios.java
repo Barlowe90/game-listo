@@ -22,19 +22,13 @@ public interface RepositorioUsuarios {
 
   Optional<Usuario> findByDiscordUserId(DiscordUserId discordUserId);
 
-  Optional<Usuario> findByTokenVerificacion(TokenVerificacion token);
-
   List<Usuario> findByStatus(EstadoUsuario status);
 
-  List<Usuario> findByStatusAndNotificationsActive(
-      EstadoUsuario status, boolean notificationsActive);
+  Optional<Usuario> findByTokenVerificacion(TokenVerificacion token);
 
   boolean existsByUsername(Username username);
 
   boolean existsByEmail(Email email);
-
-  // List<Usuario> searchByUsernameFragment(String fragment); // Para
-  // autocompletar en búsqueda de usuarios
 
   List<Usuario> findAll();
 

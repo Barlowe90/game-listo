@@ -39,9 +39,6 @@ public class UsuarioEntity {
   @Column(name = "language", nullable = false, length = 3)
   private Idioma language;
 
-  @Column(name = "is_notifications_active", nullable = false)
-  private boolean notificationsActive;
-
   @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false, length = 30)
   private EstadoUsuario status;

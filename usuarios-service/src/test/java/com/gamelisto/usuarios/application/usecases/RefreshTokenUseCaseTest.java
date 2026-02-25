@@ -57,7 +57,6 @@ class RefreshTokenUseCaseTest {
             Avatar.empty(),
             Rol.USER,
             Idioma.ESP,
-            true,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),

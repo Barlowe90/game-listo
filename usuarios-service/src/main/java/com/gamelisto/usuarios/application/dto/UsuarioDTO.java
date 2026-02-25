@@ -9,7 +9,6 @@ public record UsuarioDTO(
     String avatar,
     String role,
     String language,
-    boolean notificationsActive,
     String status,
     String discordUserId,
     String discordUsername) {
@@ -21,7 +20,6 @@ public record UsuarioDTO(
         usuario.getAvatar().url(),
         usuario.getRole().name(),
         usuario.getLanguage().name(),
-        usuario.isNotificationsActive(),
         usuario.getStatus().name(),
         usuario.getDiscordUserId().value(),
         usuario.getDiscordUsername().value());

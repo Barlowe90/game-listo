@@ -57,14 +57,6 @@ public class RepositorioUsuariosPostgre implements RepositorioUsuarios {
   }
 
   @Override
-  public List<Usuario> findByStatusAndNotificationsActive(
-      EstadoUsuario status, boolean notificationsActive) {
-    return jpaRepository.findByStatusAndNotificationsActive(status, notificationsActive).stream()
-        .map(mapper::toDomain)
-        .toList();
-  }
-
-  @Override
   public Optional<Usuario> findByTokenVerificacion(TokenVerificacion token) {
     if (token == null || token.isEmpty()) {
       return Optional.empty();

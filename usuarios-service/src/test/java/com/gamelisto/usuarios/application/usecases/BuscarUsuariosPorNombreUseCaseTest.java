@@ -43,7 +43,6 @@ class BuscarUsuariosPorNombreUseCaseTest {
             Avatar.of("https://example.com/avatar.jpg"),
             Rol.USER,
             Idioma.ESP,
-            true,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
@@ -104,7 +103,6 @@ class BuscarUsuariosPorNombreUseCaseTest {
             Avatar.of("https://cdn.example.com/users/john.png"),
             Rol.ADMIN,
             Idioma.ENG,
-            false,
             EstadoUsuario.ACTIVO,
             DiscordUserId.of("discord123"),
             DiscordUsername.of("johndiscord"),
@@ -125,7 +123,6 @@ class BuscarUsuariosPorNombreUseCaseTest {
     assertThat(resultado.avatar()).isEqualTo("https://cdn.example.com/users/john.png");
     assertThat(resultado.role()).isEqualTo("ADMIN");
     assertThat(resultado.language()).isEqualTo("ENG");
-    assertThat(resultado.notificationsActive()).isFalse();
     assertThat(resultado.status()).isEqualTo("ACTIVO");
     assertThat(resultado.discordUserId()).isEqualTo("discord123");
     assertThat(resultado.discordUsername()).isEqualTo("johndiscord");
@@ -150,7 +147,6 @@ class BuscarUsuariosPorNombreUseCaseTest {
             Avatar.of("https://example.com/avatar.jpg"),
             Rol.USER,
             Idioma.ESP,
-            true,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
@@ -200,7 +196,6 @@ class BuscarUsuariosPorNombreUseCaseTest {
             Avatar.of("https://example.com/avatar.jpg"),
             Rol.USER,
             Idioma.ESP,
-            true,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),

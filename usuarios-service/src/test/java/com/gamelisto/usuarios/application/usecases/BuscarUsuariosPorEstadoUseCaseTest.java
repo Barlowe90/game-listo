@@ -40,7 +40,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Avatar.of("https://example.com/avatar1.jpg"),
             Rol.USER,
             Idioma.ESP,
-            true,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
@@ -58,7 +57,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Avatar.of("https://example.com/avatar2.jpg"),
             Rol.USER,
             Idioma.ENG,
-            false,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
@@ -92,7 +90,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Avatar.of("https://example.com/avatar.jpg"),
             Rol.USER,
             Idioma.ESP,
-            true,
             EstadoUsuario.SUSPENDIDO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
@@ -133,7 +130,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Avatar.of("https://example.com/avatar.jpg"),
             Rol.USER,
             Idioma.ESP,
-            true,
             EstadoUsuario.PENDIENTE_DE_VERIFICACION,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
@@ -189,7 +185,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Avatar.of("https://example.com/avatar1.jpg"),
             Rol.USER,
             Idioma.ESP,
-            true,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
@@ -227,7 +222,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Avatar.of("https://cdn.example.com/users/test.png"),
             Rol.ADMIN,
             Idioma.ENG,
-            false,
             EstadoUsuario.ACTIVO,
             DiscordUserId.of("discord456"),
             DiscordUsername.of("testdiscord"),
@@ -252,7 +246,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
     assertThat(dto.avatar()).isEqualTo("https://cdn.example.com/users/test.png");
     assertThat(dto.role()).isEqualTo("ADMIN");
     assertThat(dto.language()).isEqualTo("ENG");
-    assertThat(dto.notificationsActive()).isFalse();
     assertThat(dto.status()).isEqualTo("ACTIVO");
     assertThat(dto.discordUserId()).isEqualTo("discord456");
     assertThat(dto.discordUsername()).isEqualTo("testdiscord");
@@ -273,7 +266,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Avatar.of("https://example.com/avatar1.jpg"),
             Rol.USER,
             Idioma.ESP,
-            true,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
@@ -291,7 +283,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Avatar.of("https://example.com/avatar2.jpg"),
             Rol.ADMIN,
             Idioma.ENG,
-            false,
             EstadoUsuario.ACTIVO,
             DiscordUserId.of("discord789"),
             DiscordUsername.of("adminDiscord"),

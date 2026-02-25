@@ -71,7 +71,6 @@ class AuthorizationIntegrationTest {
             Avatar.empty(),
             Rol.ADMIN, // Rol de administrador
             Idioma.ESP,
-            true,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
@@ -282,39 +281,6 @@ class AuthorizationIntegrationTest {
   }
 
   @Nested
-  @DisplayName(
-      "GET /v1/usuarios/users/notifications-enabled - Usuarios con notificaciones (Solo ADMIN)")
-  class BuscarConNotificacionesTests {
-
-    @Test
-    @DisplayName("ADMIN puede buscar usuarios con notificaciones activadas")
-    void adminPuedeBuscarConNotificaciones() throws Exception {
-      mockMvc
-          .perform(
-              get("/v1/usuarios/users/notifications-enabled")
-                  .header("X-User-Id", adminUser.getId().value())
-                  .header("X-User-Username", adminUser.getUsername().value())
-                  .header("X-User-Roles", "ADMIN")
-                  .contentType(MediaType.APPLICATION_JSON))
-          .andExpect(status().isOk())
-          .andExpect(jsonPath("$").isArray());
-    }
-
-    @Test
-    @DisplayName("USER no puede buscar usuarios con notificaciones (403 Forbidden)")
-    void userNoPuedeBuscarConNotificaciones() throws Exception {
-      mockMvc
-          .perform(
-              get("/v1/usuarios/users/notifications-enabled")
-                  .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
-                  .header("X-User-Roles", "USER")
-                  .contentType(MediaType.APPLICATION_JSON))
-          .andExpect(status().isForbidden());
-    }
-  }
-
-  @Nested
   @DisplayName("GET /v1/usuarios/health - Health check (Solo ADMIN)")
   class HealthCheckTests {
 
@@ -357,7 +323,7 @@ class AuthorizationIntegrationTest {
     @DisplayName("ADMIN puede editar cualquier perfil")
     void adminPuedeEditarCualquierPerfil() throws Exception {
       EditarPerfilUsuarioRequest request =
-          new EditarPerfilUsuarioRequest("https://i.imgur.com/admin-edit.png", "ENG", true);
+          new EditarPerfilUsuarioRequest("https://i.imgur.com/admin-edit.png", "ENG");
 
       mockMvc
           .perform(
@@ -375,7 +341,7 @@ class AuthorizationIntegrationTest {
     @DisplayName("USER puede editar su propio perfil")
     void userPuedeEditarSuPropioPerfil() throws Exception {
       EditarPerfilUsuarioRequest request =
-          new EditarPerfilUsuarioRequest("https://i.imgur.com/my-avatar.png", "ESP", false);
+          new EditarPerfilUsuarioRequest("https://i.imgur.com/my-avatar.png", "ESP");
 
       mockMvc
           .perform(
@@ -393,7 +359,7 @@ class AuthorizationIntegrationTest {
     @DisplayName("USER no puede editar perfil de otro usuario (403 Forbidden)")
     void userNoPuedeEditarPerfilAjeno() throws Exception {
       EditarPerfilUsuarioRequest request =
-          new EditarPerfilUsuarioRequest("https://i.imgur.com/hacked.png", "ENG", true);
+          new EditarPerfilUsuarioRequest("https://i.imgur.com/hacked.png", "ENG");
 
       mockMvc
           .perform(

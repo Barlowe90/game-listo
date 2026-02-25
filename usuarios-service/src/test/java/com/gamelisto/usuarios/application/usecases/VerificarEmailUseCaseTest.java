@@ -77,7 +77,6 @@ class VerificarEmailUseCaseTest {
         Avatar.empty(),
         Rol.USER,
         Idioma.ESP,
-        true,
         EstadoUsuario.PENDIENTE_DE_VERIFICACION,
         DiscordUserId.empty(),
         DiscordUsername.empty(),

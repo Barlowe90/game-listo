@@ -17,9 +17,6 @@ public interface UsuarioJpaRepository extends JpaRepository<UsuarioEntity, UUID>
 
   List<UsuarioEntity> findByStatus(EstadoUsuario status);
 
-  List<UsuarioEntity> findByStatusAndNotificationsActive(
-      EstadoUsuario status, boolean notificationsActive);
-
   boolean existsByUsername(String username);
 
   boolean existsByEmail(String email);

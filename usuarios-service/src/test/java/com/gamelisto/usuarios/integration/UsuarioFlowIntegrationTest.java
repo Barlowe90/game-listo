@@ -75,12 +75,11 @@ class UsuarioFlowIntegrationTest {
     // 3. Editar perfil
     EditarPerfilUsuarioCommand editarCommand =
         new EditarPerfilUsuarioCommand(
-            usuarioVerificado.id(), "https://i.imgur.com/avatar.png", "ENG", true);
+            usuarioVerificado.id(), "https://i.imgur.com/avatar.png", "ENG");
     UsuarioDTO usuarioEditado = editarPerfilUsuarioUseCase.execute(editarCommand);
 
     assertThat(usuarioEditado.avatar()).isEqualTo("https://i.imgur.com/avatar.png");
     assertThat(usuarioEditado.language()).isEqualTo("ENG");
-    assertThat(usuarioEditado.notificationsActive()).isTrue();
   }
 
   @Test

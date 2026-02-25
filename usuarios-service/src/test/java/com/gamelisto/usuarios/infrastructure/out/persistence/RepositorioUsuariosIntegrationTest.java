@@ -176,35 +176,6 @@ class RepositorioUsuariosIntegrationTest {
   }
 
   @Test
-  @DisplayName("Debe buscar usuarios por estado y notificaciones activas")
-  void debeBuscarPorEstadoYNotificaciones() {
-    // Arrange
-    Usuario usuario1 =
-        Usuario.create(
-            Username.of("user1"), Email.of("user1@example.com"), PasswordHash.of("$2a$10$hash"));
-    usuario1.verificarEmail(usuario1.getTokenVerificacion());
-    usuario1.enableNotifications(); // Activar notificaciones
-    repositorioUsuarios.save(usuario1);
-
-    Usuario usuario2 =
-        Usuario.create(
-            Username.of("user2"), Email.of("user2@example.com"), PasswordHash.of("$2a$10$hash"));
-    usuario2.verificarEmail(usuario2.getTokenVerificacion());
-    usuario2.disableNotifications(); // Desactivar notificaciones
-    repositorioUsuarios.save(usuario2);
-
-    // Act
-    List<Usuario> conNotificaciones =
-        repositorioUsuarios.findByStatusAndNotificationsActive(EstadoUsuario.ACTIVO, true);
-    List<Usuario> sinNotificaciones =
-        repositorioUsuarios.findByStatusAndNotificationsActive(EstadoUsuario.ACTIVO, false);
-
-    // Assert
-    assertThat(conNotificaciones).anyMatch(u -> u.getUsername().value().equals("user1"));
-    assertThat(sinNotificaciones).anyMatch(u -> u.getUsername().value().equals("user2"));
-  }
-
-  @Test
   @DisplayName("Debe vincular Discord y buscar por Discord User ID")
   void debeVincularDiscordYBuscar() {
     // Arrange

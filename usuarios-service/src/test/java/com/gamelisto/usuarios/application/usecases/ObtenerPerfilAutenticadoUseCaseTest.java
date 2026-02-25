@@ -42,7 +42,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Avatar.of("https://example.com/avatar.jpg"),
             Rol.USER,
             Idioma.ESP,
-            true,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
@@ -67,7 +66,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
               assertThat(dto.avatar()).isEqualTo("https://example.com/avatar.jpg");
               assertThat(dto.role()).isEqualTo("USER");
               assertThat(dto.language()).isEqualTo("ESP");
-              assertThat(dto.notificationsActive()).isTrue();
               assertThat(dto.status()).isEqualTo("ACTIVO");
             });
 
@@ -90,7 +88,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Avatar.of("https://cdn.example.com/users/john.png"),
             Rol.ADMIN,
             Idioma.ENG,
-            false,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
@@ -111,7 +108,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
     assertThat(resultado.avatar()).isEqualTo("https://cdn.example.com/users/john.png");
     assertThat(resultado.role()).isEqualTo("ADMIN");
     assertThat(resultado.language()).isEqualTo("ENG");
-    assertThat(resultado.notificationsActive()).isFalse();
     assertThat(resultado.status()).isEqualTo("ACTIVO");
 
     verify(repositorio).findById(usuarioId);
@@ -150,7 +146,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Avatar.empty(),
             Rol.USER,
             Idioma.ESP,
-            true,
             EstadoUsuario.ELIMINADO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
@@ -187,7 +182,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Avatar.of("https://cdn.example.com/avatars/gamer.jpg"),
             Rol.USER,
             Idioma.ESP,
-            true,
             EstadoUsuario.ACTIVO,
             DiscordUserId.of("987654321"),
             DiscordUsername.of("GamerPro#1234"),
@@ -229,7 +223,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Avatar.empty(),
             Rol.USER,
             Idioma.ESP,
-            true,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
@@ -280,7 +273,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Avatar.empty(),
             Rol.ADMIN,
             Idioma.ESP,
-            true,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
@@ -315,7 +307,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Avatar.empty(),
             Rol.USER,
             Idioma.ESP,
-            true,
             EstadoUsuario.SUSPENDIDO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),

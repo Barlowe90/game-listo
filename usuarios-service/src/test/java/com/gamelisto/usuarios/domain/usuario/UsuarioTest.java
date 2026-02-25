@@ -30,7 +30,6 @@ class UsuarioTest {
     assertEquals(EstadoUsuario.PENDIENTE_DE_VERIFICACION, usuario.getStatus());
     assertEquals(Rol.USER, usuario.getRole());
     assertEquals(Idioma.ESP, usuario.getLanguage());
-    assertTrue(usuario.isNotificationsActive());
     assertTrue(usuario.getAvatar().isEmpty());
     assertTrue(usuario.getDiscordUserId().isEmpty());
     assertTrue(usuario.getDiscordUsername().isEmpty());
@@ -47,7 +46,6 @@ class UsuarioTest {
     Avatar avatar = Avatar.of("https://example.com/avatar.jpg");
     Rol role = Rol.ADMIN;
     Idioma language = Idioma.ENG;
-    boolean notificationsActive = false;
     EstadoUsuario status = EstadoUsuario.ACTIVO;
     DiscordUserId discordUserId = DiscordUserId.of("123456");
     DiscordUsername discordUsername = DiscordUsername.of("player#1234");
@@ -62,7 +60,6 @@ class UsuarioTest {
             avatar,
             role,
             language,
-            notificationsActive,
             status,
             discordUserId,
             discordUsername,
@@ -78,7 +75,6 @@ class UsuarioTest {
     assertEquals("https://example.com/avatar.jpg", usuario.getAvatar().url());
     assertEquals(Rol.ADMIN, usuario.getRole());
     assertEquals(Idioma.ENG, usuario.getLanguage());
-    assertFalse(usuario.isNotificationsActive());
     assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
     assertEquals("123456", usuario.getDiscordUserId().value());
     assertEquals("player#1234", usuario.getDiscordUsername().value());
@@ -147,16 +143,6 @@ class UsuarioTest {
 
     // Assert
     assertEquals("nuevo@test.com", usuario.getEmail().value());
-  }
-
-  @Test
-  @DisplayName("Debe lanzar excepción al cambiar email a nulo")
-  void debeLanzarExcepcionAlCambiarEmailANulo() {
-    // Arrange
-    Usuario usuario = crearUsuarioDefault();
-
-    // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> usuario.changeEmail(null));
   }
 
   // ========== CAMBIO DE PASSWORD ==========
@@ -243,37 +229,6 @@ class UsuarioTest {
 
     // Assert
     assertEquals(Idioma.ESP, usuario.getLanguage());
-  }
-
-  // ========== NOTIFICACIONES ==========
-
-  @Test
-  @DisplayName("Debe habilitar notificaciones")
-  void debeHabilitarNotificaciones() {
-    // Arrange
-    Usuario usuario = crearUsuarioDefault();
-    usuario.disableNotifications();
-    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
-
-    // Act
-    usuario.enableNotifications();
-
-    // Assert
-    assertTrue(usuario.isNotificationsActive());
-  }
-
-  @Test
-  @DisplayName("Debe deshabilitar notificaciones")
-  void debeDeshabilitarNotificaciones() {
-    // Arrange
-    Usuario usuario = crearUsuarioDefault();
-    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
-
-    // Act
-    usuario.disableNotifications();
-
-    // Assert
-    assertFalse(usuario.isNotificationsActive());
   }
 
   // ========== GESTIÓN DE ESTADO ==========

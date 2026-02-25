@@ -99,7 +99,6 @@ class ObtenerTodosLosUsuariosUseCaseTest {
     assertEquals("ACTIVO", dto.status());
     assertEquals("USER", dto.role());
     assertEquals("ESP", dto.language());
-    assertTrue(dto.notificationsActive());
   }
 
   @Test
@@ -126,7 +125,6 @@ class ObtenerTodosLosUsuariosUseCaseTest {
         Avatar.empty(),
         Rol.USER,
         Idioma.ESP,
-        true,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
         DiscordUsername.empty(),
@@ -145,7 +143,6 @@ class ObtenerTodosLosUsuariosUseCaseTest {
         Avatar.of("https://example.com/avatar.jpg"),
         Rol.USER,
         Idioma.ESP,
-        true,
         EstadoUsuario.ACTIVO,
         DiscordUserId.of("123456789"),
         DiscordUsername.of("discorduser#1234"),

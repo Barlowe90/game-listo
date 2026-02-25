@@ -56,8 +56,6 @@ public class UsuariosController {
   private final VincularDiscordUseCase vincularDiscordUseCase;
   private final DesvincularDiscordUseCase desvincularDiscordUseCase;
   private final BuscarUsuariosPorEstadoUseCase buscarUsuariosPorEstadoUseCase;
-  private final BuscarUsuariosConNotificacionesActivadasUseCase
-      buscarUsuariosConNotificacionesActivadasUseCase;
   private final EliminarUsuarioUseCase eliminarUsuarioUseCase;
   private final BuscarUsuariosPorNombreUseCase buscarUsuariosPorNombreUseCase;
 
@@ -395,38 +393,6 @@ public class UsuariosController {
     List<UsuarioDTO> usuariosDTO = obtenerTodosLosUsuariosUseCase.execute();
     List<UsuarioResponse> responses = usuariosDTO.stream().map(UsuarioResponse::from).toList();
     logger.info("Todos los usuarios obtenidos - Total: {}", responses.size());
-    return ResponseEntity.ok(responses);
-  }
-
-  @Operation(
-      summary = "Listar usuarios con notificaciones activadas",
-      description =
-          "Recupera usuarios activos que tienen las notificaciones habilitadas. Requiere rol ADMIN.",
-      security = @SecurityRequirement(name = "bearerAuth"))
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Lista de usuarios con notificaciones activadas"),
-        @ApiResponse(
-            responseCode = "401",
-            description = "No autenticado - Token ausente o inválido"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado - Requiere rol ADMIN")
-      })
-  @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping(value = "/users/notifications-enabled", produces = "application/json")
-  public ResponseEntity<List<UsuarioResponse>> obtenerUsuariosConNotificacionesActivadas() {
-    logger.info(
-        "GET /v1/usuarios/users/notifications-enabled - Obteniendo lista de usuarios activos con notificaciones activadas");
-
-    List<UsuarioDTO> usuariosDTO = buscarUsuariosConNotificacionesActivadasUseCase.execute();
-
-    List<UsuarioResponse> responses = usuariosDTO.stream().map(UsuarioResponse::from).toList();
-
-    logger.info(
-        "Lista de usuarios con notificaciones activadas obtenida exitosamente - Total: {}",
-        responses.size());
-
     return ResponseEntity.ok(responses);
   }
 

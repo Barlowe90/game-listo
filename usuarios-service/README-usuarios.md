@@ -175,29 +175,7 @@ El microservicio implementa **DDD (Domain-Driven Design)** con **Arquitectura He
 
 ### Estructura de capas
 
-```text
-/domain          → Lógica de negocio pura (sin dependencias externas)
-  /usuario       → Entidades, Value Objects, validaciones
-  /refreshtoken  → Aggregate RefreshToken y VOs
-  /repositories  → Interfaces (ports) de repositorios
-  /exceptions    → Excepciones de dominio
-  /events        → Eventos de dominio
-
-/application     → Casos de uso y orquestación
-  /usecases      → Lógica de aplicación (Login, Refresh, Logout, etc.)
-  /dto           → DTOs para comunicación entre capas (AuthResponseDTO, TokenDTO)
-  /ports         → Interfaces de servicios externos (IEmailService, etc.)
-
-/infrastructure  → Adaptadores de infraestructura
-  /api           → REST controllers y DTOs (AuthController, UsuariosController)
-  /auth          → Utilidades JWT (JwtUtils, JwtProperties)
-  /persistence   → JPA entities, repositories, mappers (RefreshTokenEntity)
-  /security      → Configuración de Spring Security
-  /email         → Implementación de envío de emails
-  /messaging     → RabbitMQ publishers/listeners (futuro)
-  /config        → Configuración de beans
-  /exceptions    → Manejadores globales de excepciones
-```
+TODO todavía por
 
 ### Regla de dependencias
 

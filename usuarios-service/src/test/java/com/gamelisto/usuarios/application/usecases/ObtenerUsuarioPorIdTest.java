@@ -40,7 +40,6 @@ class ObtenerUsuarioPorIdTest {
             Avatar.empty(),
             Rol.USER,
             Idioma.ESP,
-            true,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             DiscordUsername.empty(),
@@ -111,7 +110,6 @@ class ObtenerUsuarioPorIdTest {
             Avatar.of("https://example.com/avatar.jpg"),
             Rol.ADMIN,
             Idioma.ENG,
-            true,
             EstadoUsuario.SUSPENDIDO,
             DiscordUserId.of("123456"),
             DiscordUsername.of("player#1234"),
@@ -132,7 +130,6 @@ class ObtenerUsuarioPorIdTest {
     assertEquals("https://example.com/avatar.jpg", resultado.avatar());
     assertEquals("ADMIN", resultado.role());
     assertEquals("ENG", resultado.language());
-    assertTrue(resultado.notificationsActive());
     assertEquals("SUSPENDIDO", resultado.status());
     assertEquals("123456", resultado.discordUserId());
     assertEquals("player#1234", resultado.discordUsername());
@@ -185,7 +182,6 @@ class ObtenerUsuarioPorIdTest {
         Avatar.empty(),
         Rol.USER,
         Idioma.ESP,
-        true,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
         DiscordUsername.empty(),

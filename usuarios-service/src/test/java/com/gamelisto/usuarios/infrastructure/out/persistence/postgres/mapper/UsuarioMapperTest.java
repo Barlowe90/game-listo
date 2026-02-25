@@ -33,7 +33,6 @@ class UsuarioMapperTest {
     assertEquals(EstadoUsuario.PENDIENTE_DE_VERIFICACION, entity.getStatus());
     assertEquals(Rol.USER, entity.getRole());
     assertEquals(Idioma.ESP, entity.getLanguage());
-    assertTrue(entity.isNotificationsActive());
   }
 
   @Test
@@ -48,7 +47,6 @@ class UsuarioMapperTest {
     entity.setAvatar(null);
     entity.setRole(Rol.USER);
     entity.setLanguage(Idioma.ESP);
-    entity.setNotificationsActive(true);
     entity.setStatus(EstadoUsuario.ACTIVO);
     entity.setDiscordUserId(null);
     entity.setDiscordUsername(null);
@@ -69,7 +67,6 @@ class UsuarioMapperTest {
     assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
     assertEquals(Rol.USER, usuario.getRole());
     assertEquals(Idioma.ESP, usuario.getLanguage());
-    assertTrue(usuario.isNotificationsActive());
   }
 
   @Test
@@ -86,7 +83,6 @@ class UsuarioMapperTest {
     entity.setDiscordUsername(null);
     entity.setRole(Rol.USER);
     entity.setLanguage(Idioma.ESP);
-    entity.setNotificationsActive(true);
     entity.setStatus(EstadoUsuario.ACTIVO);
     entity.setTokenVerificacion(null);
     entity.setTokenVerificacionExpiracion(null);
@@ -116,7 +112,6 @@ class UsuarioMapperTest {
     entity.setDiscordUsername("player#1234");
     entity.setRole(Rol.USER);
     entity.setLanguage(Idioma.ENG);
-    entity.setNotificationsActive(false);
     entity.setStatus(EstadoUsuario.ACTIVO);
     entity.setTokenVerificacion(null);
     entity.setTokenVerificacionExpiracion(null);
@@ -134,7 +129,6 @@ class UsuarioMapperTest {
     assertFalse(usuario.getDiscordUsername().isEmpty());
     assertEquals("player#1234", usuario.getDiscordUsername().value());
     assertEquals(Idioma.ENG, usuario.getLanguage());
-    assertFalse(usuario.isNotificationsActive());
   }
 
   @Test
@@ -151,7 +145,6 @@ class UsuarioMapperTest {
     entity.setPasswordHash("$2a$10$hash");
     entity.setRole(Rol.USER);
     entity.setLanguage(Idioma.ESP);
-    entity.setNotificationsActive(true);
     entity.setStatus(EstadoUsuario.PENDIENTE_DE_VERIFICACION);
     entity.setTokenVerificacion(tokenValue);
     entity.setTokenVerificacionExpiracion(expiracion);
@@ -182,7 +175,6 @@ class UsuarioMapperTest {
     entity.setPasswordHash("$2a$10$hash");
     entity.setRole(Rol.USER);
     entity.setLanguage(Idioma.ESP);
-    entity.setNotificationsActive(true);
     entity.setStatus(EstadoUsuario.ACTIVO);
     entity.setTokenVerificacion(null);
     entity.setTokenVerificacionExpiracion(null);

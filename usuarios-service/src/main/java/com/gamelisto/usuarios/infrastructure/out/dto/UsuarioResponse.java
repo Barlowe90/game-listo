@@ -9,7 +9,6 @@ public record UsuarioResponse(
     String avatar,
     String role,
     String language,
-    boolean notificationsActive,
     String status,
     String discordUserId,
     String discordUsername) {
@@ -21,7 +20,6 @@ public record UsuarioResponse(
         dto.avatar(),
         dto.role(),
         dto.language(),
-        dto.notificationsActive(),
         dto.status(),
         dto.discordUserId(),
         dto.discordUsername());
