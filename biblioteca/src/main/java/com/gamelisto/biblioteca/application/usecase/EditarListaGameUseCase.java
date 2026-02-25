@@ -33,13 +33,15 @@ public class EditarListaGameUseCase implements EditarListaGameHandler {
       throw new ApplicationException("Solo se pueden editar listas personalizadas");
     }
 
-    ListaGame listaGuardada = actualizarNombreYGuardar(listaGame, result);
+    NombreListaGame nuevoNombre = NombreListaGame.of(result.nuevoNombreRaw);
+
+    ListaGame listaGuardada = actualizarNombreYGuardar(listaGame, nuevoNombre);
 
     return ListaGameResult.from(listaGuardada);
   }
 
-  private ListaGame actualizarNombreYGuardar(ListaGame listaGame, EntradaEditarListaGame result) {
-    listaGame.cambiarNombre(result.nuevoNombreListaGame());
+  private ListaGame actualizarNombreYGuardar(ListaGame listaGame, NombreListaGame nuevoNombre) {
+    listaGame.cambiarNombre(nuevoNombre);
     return listaGameRepositorio.save(listaGame);
   }
 
@@ -52,12 +54,11 @@ public class EditarListaGameUseCase implements EditarListaGameHandler {
 
   private static EntradaEditarListaGame mapearCommandAEntrada(EditarListaGameCommand command) {
     UUID usuarioId = UUID.fromString(command.userId());
-    NombreListaGame nuevoNombreListaGame = NombreListaGame.of(command.nombre());
     UUID uuidLista = UUID.fromString(command.listaId());
     ListaGameId listaId = ListaGameId.of(uuidLista);
-    return new EntradaEditarListaGame(usuarioId, nuevoNombreListaGame, listaId);
+    return new EntradaEditarListaGame(usuarioId, command.nombre(), listaId);
   }
 
   private record EntradaEditarListaGame(
-      UUID usuarioId, NombreListaGame nuevoNombreListaGame, ListaGameId listaId) {}
+      UUID usuarioId, String nuevoNombreRaw, ListaGameId listaId) {}
 }

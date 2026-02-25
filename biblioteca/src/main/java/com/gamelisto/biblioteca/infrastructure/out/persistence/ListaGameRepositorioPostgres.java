@@ -10,13 +10,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public class ListaGameRepositorioPostgre implements ListaGameRepositorio {
+public class ListaGameRepositorioPostgres implements ListaGameRepositorio {
 
   private final ListaGameJpaRepository listaJpa;
   private final ListaGameMapper mapper;
   private final UsuarioRefJpaRepository usuarioRefJpa;
 
-  public ListaGameRepositorioPostgre(
+  public ListaGameRepositorioPostgres(
       ListaGameJpaRepository jpaRepository,
       ListaGameMapper mapper,
       UsuarioRefJpaRepository usuarioRefJpa) {

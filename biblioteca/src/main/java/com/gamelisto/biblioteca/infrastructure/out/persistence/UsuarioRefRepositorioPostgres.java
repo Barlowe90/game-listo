@@ -9,13 +9,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public class UsuarioRefRepositorioPostgre implements UsuariosRefRepositorio {
+public class UsuarioRefRepositorioPostgres implements UsuariosRefRepositorio {
 
   private final UsuarioRefJpaRepository jpaRepository;
   private final UsuarioRefMapper mapper;
   private final ListaGameRepositorio listaGameRepositorio;
 
-  public UsuarioRefRepositorioPostgre(
+  public UsuarioRefRepositorioPostgres(
       UsuarioRefJpaRepository jpaRepository,
       UsuarioRefMapper mapper,
       ListaGameRepositorio listaGameRepositorio) {

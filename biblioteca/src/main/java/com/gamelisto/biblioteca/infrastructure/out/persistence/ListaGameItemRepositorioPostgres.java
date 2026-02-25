@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public class ListaGameItemRepositorioPostgre implements ListaGameItemRepositorio {
+public class ListaGameItemRepositorioPostgres implements ListaGameItemRepositorio {
   private final ListaGameItemJpaRepository jpa;
 
-  public ListaGameItemRepositorioPostgre(ListaGameItemJpaRepository jpa) {
+  public ListaGameItemRepositorioPostgres(ListaGameItemJpaRepository jpa) {
     this.jpa = jpa;
   }
 

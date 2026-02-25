@@ -1,12 +1,10 @@
-package com.gamelisto.biblioteca.application.usecase.buscarlistagame;
+package com.gamelisto.biblioteca.application.usecase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import com.gamelisto.biblioteca.application.exceptions.ApplicationException;
-import com.gamelisto.biblioteca.application.usecase.BuscarListaGameUseCase;
-import com.gamelisto.biblioteca.application.usecase.ListaGameResult;
 import com.gamelisto.biblioteca.domain.ListaGame;
 import com.gamelisto.biblioteca.domain.ListaGameId;
 import com.gamelisto.biblioteca.domain.NombreListaGame;

@@ -15,7 +15,7 @@ class GameEstadoTest {
   @DisplayName("debe aceptar rating válido 0.0, 0.25, 5.0, 0.1 y rechazar 5.1")
   void ratingValidation() {
     UUID userId = UUID.randomUUID();
-    UUID gameId = UUID.randomUUID();
+    Long gameId = Long.MAX_VALUE;
 
     // valores válidos
     GameEstado.create(userId, gameId, Estado.DESEADO, 0.0);

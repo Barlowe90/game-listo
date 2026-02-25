@@ -8,14 +8,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public class GameEstadoRepositorioPostgre implements GameEstadoRepositorio {
+public class GameEstadoRepositorioPostgres implements GameEstadoRepositorio {
 
   private final GameEstadoJpaRepository estadoJpa;
   private final UsuarioRefJpaRepository usuarioJpa;
   private final GameRefJpaRepository gameRefJpa;
   private final GameEstadoMapper mapper;
 
-  public GameEstadoRepositorioPostgre(
+  public GameEstadoRepositorioPostgres(
       GameEstadoJpaRepository estadoJpa,
       UsuarioRefJpaRepository usuarioJpa,
       GameRefJpaRepository gameRefJpa,

@@ -12,9 +12,12 @@ import java.util.UUID;
 public class CrearListaGameUseCase implements CrearListaGameHandler {
 
   private final ListaGameRepositorio listaGameRepositorio;
+  private final UsuariosRefRepositorio usuariosRefRepositorio;
 
-  public CrearListaGameUseCase(ListaGameRepositorio listaGameRepositorio) {
+  public CrearListaGameUseCase(
+      ListaGameRepositorio listaGameRepositorio, UsuariosRefRepositorio usuariosRefRepositorio) {
     this.listaGameRepositorio = listaGameRepositorio;
+    this.usuariosRefRepositorio = usuariosRefRepositorio;
   }
 
   @Override
@@ -22,12 +25,20 @@ public class CrearListaGameUseCase implements CrearListaGameHandler {
   public ListaGameResult execute(CrearListaGameCommand command) {
     MapearCommandToListaGame result = mapperCommandToLista(command);
 
+    if (usuariosRefRepositorio.findById(result.usuarioRefId()).isEmpty()) {
+      throw new ApplicationException("Usuario no sincronizado");
+    }
+
     comprobarPersonalizadaOrThrow(result);
 
     ListaGame listaGame =
         ListaGame.create(result.usuarioRefId(), result.nombreListaGame(), result.tipo());
 
     ListaGame listaGuardada = listaGameRepositorio.save(listaGame);
+
+    if (listaGuardada == null) {
+      throw new ApplicationException("No se pudo crear la lista");
+    }
 
     return ListaGameResult.from(listaGuardada);
   }

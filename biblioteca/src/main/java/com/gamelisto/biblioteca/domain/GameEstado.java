@@ -30,12 +30,6 @@ public class GameEstado {
   }
 
   private static void validateRating(double rating) {
-    double scaled = rating * 4.0;
-
-    if (Math.abs(scaled - Math.rint(scaled)) > 1e-9) {
-      throw new DomainException("El rating debe ir en incrementos de 0.25");
-    }
-
     if (!Double.isFinite(rating)) {
       throw new DomainException("El rating debe ser un número finito entre 0.0 y 5.0");
     }

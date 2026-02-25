@@ -1,10 +1,8 @@
-package com.gamelisto.biblioteca.application.usecase.buscastodaslaslistas;
+package com.gamelisto.biblioteca.application.usecase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.gamelisto.biblioteca.application.usecase.BuscarTodasLasListasUseCase;
-import com.gamelisto.biblioteca.application.usecase.ListaGameResult;
 import com.gamelisto.biblioteca.domain.ListaGame;
 import com.gamelisto.biblioteca.domain.NombreListaGame;
 import com.gamelisto.biblioteca.domain.Tipo;
@@ -37,8 +35,8 @@ class BuscarTodasLasListasUseCaseTest {
   @DisplayName("debeRetornarTodasLasListasDelUsuario")
   void debeRetornarTodasLasListasDelUsuario() {
     // Given
-    ListaGame l1 = ListaGame.create(usuarioId, NombreListaGame.of("A"), Tipo.PERSONALIZADA);
-    ListaGame l2 = ListaGame.create(usuarioId, NombreListaGame.of("B"), Tipo.PERSONALIZADA);
+    ListaGame l1 = ListaGame.create(usuarioId, NombreListaGame.of("AAA"), Tipo.PERSONALIZADA);
+    ListaGame l2 = ListaGame.create(usuarioId, NombreListaGame.of("BBB"), Tipo.PERSONALIZADA);
     when(listaGameRepositorio.findByUsuarioRefId(usuarioId)).thenReturn(List.of(l1, l2));
 
     // When

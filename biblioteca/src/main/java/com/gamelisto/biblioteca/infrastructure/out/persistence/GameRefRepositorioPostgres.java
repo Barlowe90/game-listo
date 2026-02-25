@@ -7,12 +7,12 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public class GameRefRepositorioPostgre implements GameRefRepositorio {
+public class GameRefRepositorioPostgres implements GameRefRepositorio {
 
   private final GameRefJpaRepository jpaRepository;
   private final GameRefMapper mapper;
 
-  public GameRefRepositorioPostgre(GameRefJpaRepository jpaRepository, GameRefMapper mapper) {
+  public GameRefRepositorioPostgres(GameRefJpaRepository jpaRepository, GameRefMapper mapper) {
     this.jpaRepository = jpaRepository;
     this.mapper = mapper;
   }
