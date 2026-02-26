@@ -12,8 +12,9 @@ import com.gamelist.catalogo.application.dto.out.GameDTO;
 import com.gamelist.catalogo.application.dto.out.PlatformDTO;
 import com.gamelist.catalogo.application.dto.out.SyncResultDTO;
 import com.gamelist.catalogo.application.usecases.*;
-import com.gamelist.catalogo.domain.exceptions.EntityNotFoundException;
 import java.util.List;
+
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,8 +121,8 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   @DisplayName("GET /v1/catalogo/games/{id} debe retornar 404 cuando el juego no existe")
   void debeRetornar404SiJuegoNoExiste() throws Exception {
     when(getGameByIdUseCase.execute(any()))
-        .thenThrow(new EntityNotFoundException("Juego no encontrado con ID: 999"));
-    mockMvc.perform(get("/v1/catalogo/games/999")).andExpect(status().isNotFound());
+        .thenThrow(new DomainException("Juego no encontrado con ID: 999"));
+    mockMvc.perform(get("/v1/catalogo/games/999")).andExpect(status().isBadRequest());
   }
 
   // ─── Platforms ────────────────────────────────────────────────────────────

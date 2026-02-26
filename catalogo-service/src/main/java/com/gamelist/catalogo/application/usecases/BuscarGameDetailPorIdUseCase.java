@@ -2,7 +2,7 @@ package com.gamelist.catalogo.application.usecases;
 
 import com.gamelist.catalogo.application.dto.command.BuscarGameDetailPorIdCommand;
 import com.gamelist.catalogo.application.dto.out.GameDetailDTO;
-import com.gamelist.catalogo.domain.exceptions.EntityNotFoundException;
+import com.gamelist.catalogo.domain.exceptions.DomainException;
 import com.gamelist.catalogo.domain.game.GameId;
 import com.gamelist.catalogo.domain.gamedetail.GameDetail;
 import com.gamelist.catalogo.domain.repositories.IGameDetailRepository;
@@ -24,8 +24,7 @@ public class BuscarGameDetailPorIdUseCase {
     GameId gameId = GameId.of(command.gameId());
     gameRepository
         .findById(gameId)
-        .orElseThrow(
-            () -> new EntityNotFoundException("Juego no encontrado con ID: " + command.gameId()));
+        .orElseThrow(() -> new DomainException("Juego no encontrado con ID: " + command.gameId()));
 
     GameDetail gameDetail =
         gameDetailRepository.findByGameId(gameId).orElse(GameDetail.empty(gameId));

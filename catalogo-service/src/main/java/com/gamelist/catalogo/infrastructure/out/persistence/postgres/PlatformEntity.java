@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.infrastructure.out.persistence.postgres.entity;
+package com.gamelist.catalogo.infrastructure.out.persistence.postgres;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

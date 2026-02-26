@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.infrastructure.in.api.rest;
+package com.gamelist.catalogo.infrastructure.in.api;
 
 import com.gamelist.catalogo.application.dto.out.SyncResultDTO;
 import com.gamelist.catalogo.application.usecases.SyncGamesFromIGDBUseCase;

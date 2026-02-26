@@ -1,7 +1,6 @@
-package com.gamelist.catalogo.infrastructure.out.persistence.postgres.mapper;
+package com.gamelist.catalogo.infrastructure.out.persistence.postgres;
 
 import com.gamelist.catalogo.domain.platform.*;
-import com.gamelist.catalogo.infrastructure.out.persistence.postgres.entity.PlatformEntity;
 import org.springframework.stereotype.Component;
 
 @Component

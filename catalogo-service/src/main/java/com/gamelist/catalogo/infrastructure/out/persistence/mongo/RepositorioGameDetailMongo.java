@@ -1,10 +1,8 @@
-package com.gamelist.catalogo.infrastructure.out.persistence.mongo.repository;
+package com.gamelist.catalogo.infrastructure.out.persistence.mongo;
 
 import com.gamelist.catalogo.domain.game.GameId;
 import com.gamelist.catalogo.domain.gamedetail.GameDetail;
 import com.gamelist.catalogo.domain.repositories.IGameDetailRepository;
-import com.gamelist.catalogo.infrastructure.out.persistence.mongo.document.GameDetailDocument;
-import com.gamelist.catalogo.infrastructure.out.persistence.mongo.mapper.GameDetailMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

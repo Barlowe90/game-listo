@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.infrastructure.in.api.rest;
+package com.gamelist.catalogo.infrastructure.in.api;
 
 import com.gamelist.catalogo.application.dto.command.BuscarGamePorIdCommand;
 import com.gamelist.catalogo.application.dto.command.BuscarGameDetailPorIdCommand;

@@ -1,8 +1,7 @@
-package com.gamelist.catalogo.infrastructure.out.persistence.mongo.mapper;
+package com.gamelist.catalogo.infrastructure.out.persistence.mongo;
 
 import com.gamelist.catalogo.domain.game.GameId;
 import com.gamelist.catalogo.domain.gamedetail.GameDetail;
-import com.gamelist.catalogo.infrastructure.out.persistence.mongo.document.GameDetailDocument;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
