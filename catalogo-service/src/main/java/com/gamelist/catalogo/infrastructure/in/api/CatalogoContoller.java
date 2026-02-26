@@ -36,6 +36,11 @@ public class CatalogoContoller {
   private final BuscarGamePorIdUseCase getGameByIdUseCase;
   private final ObtenerTodasLasPlatformasUseCase obtenerTodasLasPlatformasUseCase;
 
+  @GetMapping("/health")
+  public ResponseEntity<String> health() {
+    return ResponseEntity.ok("UP");
+  }
+
   @GetMapping("/games")
   @Operation(summary = "Listar todos los juegos", description = "Retorna lista paginada de juegos")
   public ResponseEntity<List<GameResponse>> getAllGames(

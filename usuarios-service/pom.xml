@@ -166,23 +166,8 @@
             <groupId>com.resend</groupId>
             <artifactId>resend-java</artifactId>
             <version>4.12.0</version>
-            <!-- Excluir OkHttp / Okio transitivos (mitigación temporal) -->
-            <exclusions>
-                <exclusion>
-                    <groupId>com.squareup.okhttp3</groupId>
-                    <artifactId>okhttp</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.squareup.okio</groupId>
-                    <artifactId>okio</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.squareup.okio</groupId>
-                    <artifactId>okio-jvm</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-
+        
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -196,14 +181,6 @@
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <version>4.3.0</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- OkHttp - solo para tests (ResendEmailService lo necesita en tiempo de prueba) -->
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>4.12.0</version>
             <scope>test</scope>
         </dependency>
 
