@@ -37,7 +37,7 @@ public class CatalogoContoller {
   private final ObtenerTodasLasPlatformasUseCase obtenerTodasLasPlatformasUseCase;
 
   @GetMapping("/games")
-  @Operation(summary = "Listar todos los juegos", description = "Retorna lista paginada de juegos")
+  @Operation(summary = "Listar todos los juegos")
   public ResponseEntity<List<GameResponse>> getAllGames(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
     logger.info("Obteniendo listado de juegos (page: {}, size: {})", page, size);
@@ -50,9 +50,7 @@ public class CatalogoContoller {
   }
 
   @GetMapping("/games/{id}")
-  @Operation(
-      summary = "Obtener un juego por ID",
-      description = "Retorna información del juego desde PostgreSQL")
+  @Operation(summary = "Obtener un juego por ID")
   public ResponseEntity<GameResponse> getGameById(@PathVariable Long id) {
     logger.info("Obteniendo juego ID: {} desde PostgreSQL", id);
 
@@ -63,9 +61,7 @@ public class CatalogoContoller {
   }
 
   @GetMapping("/games/{id}/detail")
-  @Operation(
-      summary = "Obtener gameEstado detail de MongoDB",
-      description = "Retorna información multimedia del juego desde MongoDB")
+  @Operation(summary = "Obtener gameEstado detail de MongoDB")
   public ResponseEntity<GameDetailResponse> getGameDetailOnly(@PathVariable Long id) {
     logger.info("Obteniendo Game Detail (MongoDB) del juego ID: {}", id);
 
@@ -76,9 +72,7 @@ public class CatalogoContoller {
   }
 
   @GetMapping("/platforms")
-  @Operation(
-      summary = "Listar todas las plataformas",
-      description = "Retorna el catálogo completo de plataformas")
+  @Operation(summary = "Listar todas las plataformas")
   public ResponseEntity<List<PlatformResponse>> getAllPlatforms() {
     logger.info("Obteniendo listado de plataformas");
 

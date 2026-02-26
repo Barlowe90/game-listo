@@ -566,28 +566,7 @@ Todos los VOs implementan validación en construcción y son inmutables:
 - **Docker** y **Docker Compose** (para PostgreSQL)
 - **Git** para control de versiones
 
-### Opción 1: Modo desarrollo (H2 in-memory)
-
-```bash
-cd usuarios-service
-
-# Compilar proyecto
-./mvnw clean install
-
-# Ejecutar con perfil de desarrollo (usa H2)
-./mvnw spring-boot:run
-
-# La aplicación arranca en http://localhost:8080
-# H2 Console disponible en http://localhost:8080/h2-console
-```
-
-**Configuración H2:**
-
-- JDBC URL: `jdbc:h2:mem:usuariosdb`
-- Username: `sa`
-- Password: (vacío)
-
-### Opción 2: Con PostgreSQL (producción-like)
+### Con PostgreSQL (producción-like)
 
 ```bash
 # 1. Levantar PostgreSQL con Docker Compose

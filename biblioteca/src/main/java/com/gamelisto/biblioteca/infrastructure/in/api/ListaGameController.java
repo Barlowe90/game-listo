@@ -9,6 +9,9 @@ import com.gamelisto.biblioteca.application.usecase.EditarListaGameHandler;
 import com.gamelisto.biblioteca.application.usecase.EliminarGameFromListHandler;
 import com.gamelisto.biblioteca.application.usecase.EliminarListaGameHandler;
 import com.gamelisto.biblioteca.infrastructure.in.api.dto.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -19,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Biblioteca - Listas", description = "Gestión de listas de juegos del usuario")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/v1/biblioteca")
 @RequiredArgsConstructor
@@ -33,6 +38,7 @@ public class ListaGameController {
   private final AddGameToListHandler addGameToList;
   private final EliminarGameFromListHandler eliminarGameFromList;
 
+  @Operation(summary = "Crear una lista")
   @PostMapping("/lists")
   public ResponseEntity<ListaGameResponse> crearLista(
       @Valid @RequestBody CrearListaGameRequest request) {
@@ -44,6 +50,7 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.CREATED).body(ListaGameResponse.from(result));
   }
 
+  @Operation(summary = "Editar una lista")
   @PatchMapping("/user/{userId}/lists/{listaId}")
   public ResponseEntity<ListaGameResponse> modificarLista(
       @PathVariable String listaId,
@@ -57,6 +64,7 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.OK).body(ListaGameResponse.from(result));
   }
 
+  @Operation(summary = "Eliminar una lista")
   @DeleteMapping("/user/{userId}/lists/{listaId}")
   public ResponseEntity<Void> eliminarLista(
       @PathVariable String userId, @PathVariable String listaId) {
@@ -68,6 +76,7 @@ public class ListaGameController {
     return ResponseEntity.noContent().build();
   }
 
+  @Operation(summary = "Obtener una lista")
   @GetMapping("/user/{userId}/lists/{listaId}")
   public ResponseEntity<ListaGameResponse> buscarLista(
       @PathVariable String userId, @PathVariable String listaId) {
@@ -79,6 +88,7 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.OK).body(ListaGameResponse.from(result));
   }
 
+  @Operation(summary = "Listar todas las listas de un usuario")
   @GetMapping("/user/{userId}/lists")
   public ResponseEntity<List<ListaGameResponse>> buscarTodasLasListas(@PathVariable String userId) {
 
@@ -91,6 +101,7 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
+  @Operation(summary = "Añadir un juego a una lista")
   @PostMapping("/user/{userId}/lists/{listaId}/games/{gameRefId}")
   public ResponseEntity<Void> addGameToList(
       @PathVariable String userId, @PathVariable String listaId, @PathVariable String gameRefId) {
@@ -102,6 +113,7 @@ public class ListaGameController {
     return ResponseEntity.noContent().build();
   }
 
+  @Operation(summary = "Eliminar un juego de una lista")
   @DeleteMapping("/user/{userId}/lists/{listaId}/games/{gameRefId}")
   public ResponseEntity<Void> eliminarGameFromList(
       @PathVariable String userId, @PathVariable String listaId, @PathVariable String gameRefId) {

@@ -23,9 +23,7 @@ public class IGDBController {
   private final IgdbProperties igdbProperties;
 
   @PostMapping("/sync/games")
-  @Operation(
-      summary = "Sincronizar juegos desde IGDB",
-      description = "Ejecuta sincronización manual de juegos desde IGDB API")
+  @Operation(summary = "Sincronizar juegos desde IGDB")
   public ResponseEntity<SyncStatusResponse> syncGames(
       @RequestBody(required = false) SyncGamesRequest request) {
 
@@ -42,9 +40,7 @@ public class IGDBController {
   }
 
   @PostMapping("/sync/platforms")
-  @Operation(
-      summary = "Sincronizar plataformas desde IGDB",
-      description = "Ejecuta sincronización manual de plataformas desde IGDB API")
+  @Operation(summary = "Sincronizar plataformas desde IGDB")
   public ResponseEntity<SyncStatusResponse> syncPlatforms() {
 
     SyncResultDTO result = syncPlatformsUseCase.execute();
