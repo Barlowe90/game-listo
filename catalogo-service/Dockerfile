@@ -1,24 +1,18 @@
+# ---- build ----
 FROM maven:3.9.6-eclipse-temurin-21 AS builder
+WORKDIR /workspace
 
-WORKDIR /app/
+COPY pom.xml ./pom.xml
+COPY catalogo-service/pom.xml ./catalogo-service/pom.xml
 
-COPY pom.xml .
-RUN mvn -e -B dependency:resolve
+COPY catalogo-service/src ./catalogo-service/src
 
-COPY src ./src
-# Skip tests during image build (use maven.test.skip to skip compilation of test sources)
-RUN mvn -B package -Dmaven.test.skip=true
+WORKDIR /workspace/catalogo-service
+RUN mvn -DskipTests package
 
-FROM eclipse-temurin:21-jre-jammy
-
-RUN useradd -r -u 10001 spring
-
+# ---- runtime ----
+FROM eclipse-temurin:21-jre
 WORKDIR /app
-# Copy the built jar from the builder stage. Use a loose wildcard to match the artifact.
-COPY --from=builder /app/target/catalogo-service-*.jar app.jar
-
-RUN chown spring:spring app.jar
-USER spring
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
-
+COPY --from=builder /workspace/catalogo-service/target/*.jar /app/app.jar
 EXPOSE 8082
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

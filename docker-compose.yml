@@ -4,8 +4,8 @@ services:
   # ============================================
   gateway:
     build:
-      context: ./gateway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: gateway/Dockerfile
     container_name: gateway
     ports:
       - "8090:8090"
@@ -29,12 +29,12 @@ services:
       - backend
 
   # ============================================
-  # USUARIOS SERVICE - Gestión de usuarios y autenticación
+  # USUARIOS SERVICE - Gestion de usuarios y autenticacion
   # ============================================
   usuarios-service:
     build:
-      context: ./usuarios-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: usuarios-service/Dockerfile
     container_name: usuarios-service
     ports:
       - "8081:8081"
@@ -66,12 +66,12 @@ services:
       - backend
 
   # ============================================
-  # CATALOGO SERVICE - Gestión del catálogo de videojuegos
+  # CATALOGO SERVICE - Gestion del catalogo de videojuegos
   # ============================================
   catalogo-service:
     build:
-      context: ./catalogo-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: catalogo-service/Dockerfile
     container_name: catalogo-service
     ports:
       - "8082:8082"
@@ -103,12 +103,12 @@ services:
       - backend
 
   # ============================================
-  # BIBLIOTECA SERVICE - Gestión de las bibliotecas de juegos
+  # BIBLIOTECA SERVICE - Gestion de las bibliotecas de juegos
   # ============================================
   biblioteca:
     build:
-      context: ./biblioteca
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: biblioteca/Dockerfile
     container_name: biblioteca
     ports:
       - "8083:8083"
@@ -134,7 +134,7 @@ services:
       - backend
 
   # ============================================
-  # REDIS - Rate limiting y revocación de tokens
+  # REDIS - Rate limiting y revocacion de tokens
   # ============================================
   redis:
     image: redis:7-alpine
