@@ -8,7 +8,6 @@ import com.gamelisto.usuarios.infrastructure.in.api.dto.CambiarCorreoRequest;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.CambiarEstadoUsuarioRequest;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.CambiarRolUsuarioRequest;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.EditarPerfilUsuarioRequest;
-import com.gamelisto.usuarios.infrastructure.in.api.dto.VincularDiscordRequest;
 import com.gamelisto.usuarios.infrastructure.out.dto.UsuarioResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -46,8 +44,6 @@ public class UsuariosController {
   private final CambiarRolUsuarioUseCase cambiarRolUsuarioUseCase;
   private final CambiarContrasenaUseCase cambiarContrasenaUseCase;
   private final CambiarCorreoUseCase cambiarCorreoUseCase;
-  private final VincularDiscordUseCase vincularDiscordUseCase;
-  private final DesvincularDiscordUseCase desvincularDiscordUseCase;
   private final BuscarUsuariosPorEstadoUseCase buscarUsuariosPorEstadoUseCase;
   private final EliminarUsuarioUseCase eliminarUsuarioUseCase;
   private final BuscarUsuariosPorNombreUseCase buscarUsuariosPorNombreUseCase;
@@ -85,31 +81,6 @@ public class UsuariosController {
     return ResponseEntity.ok().build();
   }
 
-  // TODO sacar a su controlador
-  @Operation(summary = "Vincular cuenta de Discord")
-  @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
-  @PutMapping(value = "/{id}/discord", consumes = "application/json")
-  public ResponseEntity<UsuarioResponse> vincularDiscord(
-      @PathVariable @NonNull String id, @Valid @RequestBody VincularDiscordRequest request) {
-    logger.info(
-        "PUT /v1/usuarios/{}/discord - Vinculando cuenta de Discord para usuario con ID: {}",
-        id,
-        id);
-
-    UsuarioDTO usuarioDTO = vincularDiscordUseCase.execute(request.toCommand(id));
-
-    UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
-
-    logger.info(
-        "Cuenta de Discord vinculada exitosamente - ID: {}, Username: {}, Discord: {}",
-        response.id(),
-        response.username(),
-        response.discordUsername());
-
-    return ResponseEntity.ok(response);
-  }
-
-  // TODO solo operation y description
   @Operation(summary = "Editar perfil de usuario")
   @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
   @PatchMapping(value = "/{id}", consumes = "application/json")
@@ -225,27 +196,6 @@ public class UsuariosController {
     List<UsuarioResponse> responses = usuariosDTO.stream().map(UsuarioResponse::from).toList();
     logger.info("Todos los usuarios obtenidos - Total: {}", responses.size());
     return ResponseEntity.ok(responses);
-  }
-
-  @Operation(summary = "Desvincular cuenta de Discord")
-  @DeleteMapping(value = "/{id}/discord")
-  @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
-  public ResponseEntity<UsuarioResponse> desvincularDiscord(@PathVariable String id) {
-    logger.info(
-        "DELETE /v1/usuarios/{}/discord - Desvinculando cuenta de Discord para usuario con ID: {}",
-        id,
-        id);
-
-    UsuarioDTO usuarioDTO = desvincularDiscordUseCase.execute(id);
-
-    UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
-
-    logger.info(
-        "Cuenta de Discord desvinculada exitosamente - ID: {}, Username: {}",
-        response.id(),
-        response.username());
-
-    return ResponseEntity.ok(response);
   }
 
   @Operation(summary = "Eliminar usuario")
