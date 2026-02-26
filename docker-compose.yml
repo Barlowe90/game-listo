@@ -8,7 +8,7 @@ services:
       dockerfile: gateway/Dockerfile
     container_name: gateway
     ports:
-      - "8090:8090"
+      - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker # busca application-docker.properties
       JWT_SECRET: ${JWT_SECRET}
@@ -17,10 +17,10 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      usuarios-service:
-        condition: service_healthy
+    #      usuarios:
+    #        condition: service_healthy
     healthcheck:
-      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8090/actuator/health" ]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -29,15 +29,15 @@ services:
       - backend
 
   # ============================================
-  # USUARIOS SERVICE - Gestion de usuarios y autenticacion
+  # USUARIOS - Gestion de usuarios y autenticacion
   # ============================================
-  usuarios-service:
+  usuarios:
     build:
       context: .
-      dockerfile: usuarios-service/Dockerfile
-    container_name: usuarios-service
-    ports:
-      - "8081:8081"
+      dockerfile: usuarios/Dockerfile
+    container_name: usuarios
+    expose:
+      - "8081"
     environment:
       SPRING_PROFILES_ACTIVE: docker # busca application-docker.properties
       POSTGRES_USER: ${POSTGRES_USER}
@@ -66,15 +66,15 @@ services:
       - backend
 
   # ============================================
-  # CATALOGO SERVICE - Gestion del catalogo de videojuegos
+  # CATALOGO - Gestion del catalogo de videojuegos
   # ============================================
-  catalogo-service:
+  catalogo:
     build:
       context: .
-      dockerfile: catalogo-service/Dockerfile
-    container_name: catalogo-service
-    ports:
-      - "8082:8082"
+      dockerfile: catalogo/Dockerfile
+    container_name: catalogo
+    expose:
+      - "8082"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       POSTGRES_USER: ${POSTGRES_USER}
@@ -103,15 +103,15 @@ services:
       - backend
 
   # ============================================
-  # BIBLIOTECA SERVICE - Gestion de las bibliotecas de juegos
+  # BIBLIOTECA - Gestion de las bibliotecas de juegos
   # ============================================
   biblioteca:
     build:
       context: .
       dockerfile: biblioteca/Dockerfile
     container_name: biblioteca
-    ports:
-      - "8083:8083"
+    expose:
+      - "8083"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       POSTGRES_USER: ${POSTGRES_USER}

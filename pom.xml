@@ -18,8 +18,8 @@
 
     <modules>
         <module>gateway</module>
-        <module>usuarios-service</module>
-        <module>catalogo-service</module>
+        <module>usuarios</module>
+        <module>catalogo</module>
         <module>biblioteca</module>
     </modules>
 

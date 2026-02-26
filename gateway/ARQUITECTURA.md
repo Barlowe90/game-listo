@@ -12,7 +12,7 @@
                              │ Authorization: Bearer <JWT>
                              ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    API GATEWAY (Puerto 8090)                        │
+│                    API GATEWAY (Puerto 8080)                        │
 │                    Spring Cloud Gateway                             │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
@@ -69,9 +69,9 @@
 │  │      ┌──────────────────────────────┐                     │   │
 │  │      │ ¿Qué ruta coincide?          │                     │   │
 │  │      │                              │                     │   │
-│  │      │ /v1/usuarios/** ──→ usuarios-service:8081         │   │
-│  │      │ /v1/catalogo/** ──→ catalogo-service:8082         │   │
-│  │      │ /v1/biblioteca/**→ biblioteca-service:8083        │   │
+│  │      │ /v1/usuarios/** ──→ usuarios:8081         │   │
+│  │      │ /v1/catalogo/** ──→ catalogo:8082         │   │
+│  │      │ /v1/biblioteca/**→ biblioteca:8083        │   │
 │  │      └──────────────┬───────────────┘                     │   │
 │  │                     │                                      │   │
 │  └─────────────────────┼──────────────────────────────────────┘   │
@@ -85,7 +85,7 @@
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  ┌───────────────────┐  ┌───────────────────┐  ┌────────────────┐ │
-│  │ usuarios-service  │  │ catalogo-service  │  │ biblioteca-... │ │
+│  │ usuarios          │  │ catalogo          │  │ biblioteca     │ │
 │  │    :8081          │  │    :8082          │  │    :8083       │ │
 │  │                   │  │                   │  │                │ │
 │  │ Recibe headers:   │  │                   │  │                │ │
@@ -119,17 +119,17 @@
 ### 1. Login (Ruta Pública)
 
 ```
-Cliente → Gateway → usuarios-service
+Cliente → Gateway → usuarios
         /v1/usuarios/auth/login
         
         ✓ Sin validación JWT (ruta pública)
         ✓ Rate limiting aplicado
         
-usuarios-service genera:
+usuarios genera:
   • Access Token (JWT, 15 min)
   • Refresh Token (UUID, 7 días)
   
-Cliente ← Gateway ← usuarios-service
+Cliente ← Gateway ← usuarios
         { "accessToken": "eyJ...", "refreshToken": "..." }
 ```
 
@@ -151,35 +151,35 @@ Gateway agrega headers:
   X-User-Email: john@example.com
   X-User-Roles: USER,ADMIN
   
-Gateway → usuarios-service
+Gateway → usuarios
         /v1/usuarios/auth/me
         + Headers X-User-*
         
-usuarios-service:
+usuarios:
   • Lee X-User-Id del header
   • NO necesita validar JWT (ya lo hizo Gateway)
   • Confía en los headers
   
-Cliente ← Gateway ← usuarios-service
+Cliente ← Gateway ← usuarios
         { "id": "123e4567...", "username": "johndoe", ... }
 ```
 
 ### 3. Logout (Revocación)
 
 ```
-Cliente → Gateway → usuarios-service
+Cliente → Gateway → usuarios
         /v1/usuarios/auth/logout
         Authorization: Bearer eyJ...
         
-usuarios-service:
+usuarios:
   • Extrae JTI del token
   • Agrega a Redis: revoked:jti:<JTI>
   • TTL = tiempo hasta expiración del token
   
-usuarios-service → Redis
+usuarios → Redis
         SET revoked:jti:abc123... "revoked" EX 900
         
-Cliente ← Gateway ← usuarios-service
+Cliente ← Gateway ← usuarios
         200 OK
         
 Próxima petición con ese token:
@@ -212,7 +212,7 @@ Próxima petición con ese token:
 ## 🎯 Puntos Clave
 
 1. **Stateless**: El Gateway no mantiene sesiones
-2. **Secreto compartido**: `jwt.secret` debe ser idéntico en Gateway y usuarios-service
+2. **Secreto compartido**: `jwt.secret` debe ser idéntico en Gateway y usuarios
 3. **Fail-open**: Si Redis falla, el rate limiting permite peticiones (prioriza disponibilidad)
 4. **Headers enriquecidos**: Los microservicios confían en `X-User-*` (red interna segura)
 5. **Orden de filtros**: RateLimitFilter (-50) → JwtAuthenticationFilter (-100)

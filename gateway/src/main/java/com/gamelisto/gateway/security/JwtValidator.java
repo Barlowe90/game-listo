@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Validar tokens JWT. IMPORTANTE: SOLO valida tokens, NO los genera. La generación se realiza en
- * usuarios-service.
+ * usuarios.
  */
 @Component
 public class JwtValidator {

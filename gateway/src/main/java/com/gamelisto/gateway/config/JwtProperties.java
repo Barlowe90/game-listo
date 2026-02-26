@@ -4,8 +4,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * Propiedades de configuración para JWT. Deben coincidir con las del usuarios-service para validar
- * tokens correctamente.
+ * Propiedades de configuración para JWT. Deben coincidir con las del usuarios para validar tokens
+ * correctamente.
  */
 @Component
 @ConfigurationProperties(prefix = "jwt")

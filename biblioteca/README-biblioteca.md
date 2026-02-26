@@ -22,7 +22,7 @@ usuario.
 
 El servicio `biblioteca` permite a los usuarios organizar su colección de videojuegos mediante listas personalizadas y
 mantener el estado de cada juego (por ejemplo: deseado, jugándolo, completado). Para mantener bajo acoplamiento con el
-servicio `catalogo-service`, el microservicio almacena referencias ligeras a usuarios y juegos (`UsuarioRef`, `GameRef`)
+servicio `catalogo`, el microservicio almacena referencias ligeras a usuarios y juegos (`UsuarioRef`, `GameRef`)
 en lugar de dependencias directas.
 
 Es el aggregate root para la información de listas y estados de videojuegos a nivel de usuario en el dominio de
@@ -58,14 +58,14 @@ Regla de dependencias: `infrastructure` → `application` → `domain` (el domin
 
 ### Convenciones de IDs (IMPORTANTE para el agente)
 
-- `userId` (API / path `/user/{userId}`) = `UsuarioRef.id` (UUID) **mismo ID que en `usuarios-service`**.
-- `gameId` (API / path `/games/{gameId}`) = `GameRef.id` (Long) **mismo ID que en `catalogo-service`**.
+- `userId` (API / path `/user/{userId}`) = `UsuarioRef.id` (UUID) **mismo ID que en `usuarios`**.
+- `gameId` (API / path `/games/{gameId}`) = `GameRef.id` (Long) **mismo ID que en `catalogo`**.
 - `listId` (API / path `/lists/{listId}`) = `ListaGame.id` (UUID) **interno del microservicio biblioteca**.
 
 ### Entidades principales (conceptual)
 
 - UsuarioRef
-    - `id` (UUID — mismo identificador que en `usuarios-service`)
+    - `id` (UUID — mismo identificador que en `usuarios`)
     - `username` (String)
     - `avatar` (String, opcional)
     - Relaciones:
@@ -83,7 +83,7 @@ Regla de dependencias: `infrastructure` → `application` → `domain` (el domin
           `estado`.
 
 - GameRef
-    - `id` (Long — mismo identificador que en `catalogo-service`)
+    - `id` (Long — mismo identificador que en `catalogo`)
     - `name` (String)
     - `coverUrl` (String)
 
@@ -103,7 +103,7 @@ Regla de dependencias: `infrastructure` → `application` → `domain` (el domin
 
 ### Reglas de negocio relevantes
 
-- Al crearse un UsuarioRef (evento desde `usuarios-service`) se deben inicializar las listas OFICIALES del usuario:
+- Al crearse un UsuarioRef (evento desde `usuarios`) se deben inicializar las listas OFICIALES del usuario:
     - nombres: DESEADO, PENDIENTE, JUGANDO, PLATINANDO, COMPLETADO, ABANDONADO
     - `tipo = OFICIAL`
 - `GameEstado` es único por usuario y juego:
@@ -205,11 +205,11 @@ Principales propiedades (ejemplos en `src/main/resources/application-local.prope
 
 - `spring.datasource.url` — URL de la base de datos
 - `spring.jpa.hibernate.ddl-auto` — `update` en dev
-- Propiedades de conexión a `catalogo-service` (si se consumen) — URL y timeouts
+- Propiedades de conexión a `catalogo` (si se consumen) — URL y timeouts
 
 ## Convenciones de código
 
-Sigue las mismas convenciones que el resto del mono-repo (`usuarios-service`):
+Sigue las mismas convenciones que el resto del mono-repo (`usuarios`):
 
 - Paquetes: `domain`, `application`, `infrastructure`
 - Puertos (interfaces) en `domain` o `application/ports` y adaptadores en `infrastructure`
@@ -219,8 +219,8 @@ Sigue las mismas convenciones que el resto del mono-repo (`usuarios-service`):
 
 ## Integración y buenas prácticas
 
-- Antes de añadir carpetas o convensiones, revisar `usuarios-service` para mantener consistencia (por ejemplo, ubicación
-  de `mapper` dentro de `persistence/postgres/mapper` si así está en usuarios-service).
+- Antes de añadir carpetas o convensiones, revisar `usuarios` para mantener consistencia (por ejemplo, ubicación
+  de `mapper` dentro de `persistence/postgres/mapper` si así está en usuarios).
 - Mantener KISS: no añadir complejidad innecesaria para el TFG.
 
 ---
@@ -228,4 +228,4 @@ Sigue las mismas convenciones que el resto del mono-repo (`usuarios-service`):
 Referencias:
 
 - Documento TFG (modelo de dominio y diagramas)
-- `usuarios-service/README-usuarios.md` (estilo y convenciones)
+- `usuarios/README-usuarios.md` (estilo y convenciones)

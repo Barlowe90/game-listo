@@ -71,7 +71,7 @@ GameListo está construido con **microservicios desacoplados** basados en:
 
 | Microservicio     | Tecnología                         | Puerto | Descripción                                                           |
 |-------------------|------------------------------------|--------|-----------------------------------------------------------------------|
-| **gateway**       | Spring Cloud Gateway + Redis       | 8090   | Puerta de entrada, validación JWT, rate limiting, CORS                |
+| **gateway**       | Spring Cloud Gateway + Redis       | 8080   | Puerta de entrada, validación JWT, rate limiting, CORS                |
 | **usuarios**      | Spring Boot + PostgreSQL + Redis   | 8081   | Registro, login, perfil, JWT, integrado con Gateway                   |
 | **catalogo**      | Spring Boot + PostgreSQL + MongoDB | 8082   | Juegos, plataformas, sincronización con IGDB                          |
 | **biblioteca**    | Spring Boot + PostgreSQL           | 8083   | Estados de juego, listas personalizadas, reseñas                      |

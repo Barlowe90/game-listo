@@ -3,18 +3,18 @@ name: CI - GameListo v1
 on:
   push:
     paths:
-      - "usuarios-service/**"
+      - "usuarios/**"
     branches: [ main ]
   pull_request:
     paths:
-      - "usuarios-service/**"
+      - "usuarios/**"
       - "deployment/**" # cambiar?
     branches: [ main ]
   workflow_dispatch:
 
 jobs:
   ci:
-    name: usuarios-service - tests
+    name: usuarios - tests
     runs-on: ubuntu-latest
     if: github.actor != 'github-actions[bot]'
     permissions:
@@ -22,7 +22,7 @@ jobs:
       pull-requests: write
     defaults:
       run:
-        working-directory: usuarios-service
+        working-directory: usuarios
 
     services:
       postgres:
@@ -111,7 +111,7 @@ jobs:
 
       - name: Run tests (mvn verify)
         if: github.event_name != 'pull_request' || steps.spotless.outputs.pushed != 'true'
-        working-directory: usuarios-service
+        working-directory: usuarios
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/usuarios_db
           SPRING_DATASOURCE_USERNAME: guest
@@ -125,16 +125,16 @@ jobs:
 
       - name: Generate JaCoCo report
         if: github.event_name != 'pull_request' || steps.spotless.outputs.pushed != 'true'
-        working-directory: usuarios-service
+        working-directory: usuarios
         run: ./mvnw -B -ntp jacoco:report
 
       - name: Upload test artifacts
         if: always() && (github.event_name != 'pull_request' || steps.spotless.outputs.pushed != 'true')
         uses: actions/upload-artifact@v4
         with:
-          name: usuarios-service-test-artifacts
+          name: usuarios-test-artifacts
           path: |
-            usuarios-service/target/surefire-reports/
-            usuarios-service/target/failsafe-reports/
-            usuarios-service/target/site/jacoco/
+            usuarios/target/surefire-reports/
+            usuarios/target/failsafe-reports/
+            usuarios/target/site/jacoco/
           retention-days: 7

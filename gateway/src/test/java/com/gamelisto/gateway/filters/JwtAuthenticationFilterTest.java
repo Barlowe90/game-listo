@@ -38,7 +38,7 @@ import static org.mockito.Mockito.*;
 @DisplayName("JwtAuthenticationFilter - tests básicos")
 class JwtAuthenticationFilterTest {
 
-  private static final String URL_PROTEGIDA = "http://localhost:8090/v1/usuarios/perfil";
+  private static final String URL_PROTEGIDA = "http://localhost:8080/v1/usuarios/perfil";
   private static final String HMAC_SHA_256 = "HmacSHA256";
   private static final String USERNAME = "username";
   private static final String EMAIL = "email";
@@ -66,7 +66,7 @@ class JwtAuthenticationFilterTest {
   @DisplayName("Permite rutas públicas sin token (login)")
   void permiteRutaPublicaSinToken() {
     MockServerHttpRequest request =
-        MockServerHttpRequest.get("http://localhost:8090/v1/usuarios/auth/login").build();
+        MockServerHttpRequest.get("http://localhost:8080/v1/usuarios/auth/login").build();
     ServerWebExchange exchange = MockServerWebExchange.from(request);
 
     when(chain.filter(exchange)).thenReturn(Mono.empty());

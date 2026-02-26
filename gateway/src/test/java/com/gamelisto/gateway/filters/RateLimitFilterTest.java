@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 @DisplayName("RateLimitFilter - tests básicos")
 class RateLimitFilterTest {
 
-  private static final String URL = "http://localhost:8090/v1/usuarios/perfil";
+  private static final String URL = "http://localhost:8080/v1/usuarios/perfil";
 
   @Mock private ReactiveRedisTemplate<String, String> redisTemplate;
   @Mock private ReactiveValueOperations<String, String> valueOps;
