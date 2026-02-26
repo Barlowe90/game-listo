@@ -45,12 +45,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
           "/v1/usuarios/auth/reset-password", // Restablecimiento con token
           "/v1/usuarios/auth/login", // Login
           "/v1/usuarios/auth/refresh", // Renovación de tokens (semi-público)
-          // Health checks
-          "/v1/usuarios/health",
           "/actuator/health",
           // Catalogo (desarrollo) - permitir acceso sin JWT temporalmente
-          "/v1/catalogo",
-          "/v1/catalogo/health");
+          "/v1/catalogo");
 
   private final JwtValidator jwtValidator;
   private final TokenRevocationService tokenRevocationService;

@@ -280,37 +280,6 @@ class AuthorizationIntegrationTest {
     }
   }
 
-  @Nested
-  @DisplayName("GET /v1/usuarios/health - Health check (Solo ADMIN)")
-  class HealthCheckTests {
-
-    @Test
-    @DisplayName("ADMIN puede acceder al health check")
-    void adminPuedeAccederHealthCheck() throws Exception {
-      mockMvc
-          .perform(
-              get("/v1/usuarios/health")
-                  .header("X-User-Id", adminUser.getId().value())
-                  .header("X-User-Username", adminUser.getUsername().value())
-                  .header("X-User-Roles", "ADMIN")
-                  .contentType(MediaType.APPLICATION_JSON))
-          .andExpect(status().isOk());
-    }
-
-    @Test
-    @DisplayName("USER no puede acceder al health check (403 Forbidden)")
-    void userNoPuedeAccederHealthCheck() throws Exception {
-      mockMvc
-          .perform(
-              get("/v1/usuarios/health")
-                  .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
-                  .header("X-User-Roles", "USER")
-                  .contentType(MediaType.APPLICATION_JSON))
-          .andExpect(status().isForbidden());
-    }
-  }
-
   // ============================================================================
   // ENDPOINTS ADMIN O PROPIO USUARIO
   // ============================================================================

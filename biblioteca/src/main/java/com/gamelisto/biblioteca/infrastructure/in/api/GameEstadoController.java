@@ -21,11 +21,6 @@ public class GameEstadoController {
   private final RateGameEstadoHandler rateGameEstado;
   private final CrearGameEstadoHandler crearGameEstado;
 
-  @GetMapping("/health")
-  public ResponseEntity<String> health() {
-    return ResponseEntity.ok("UP");
-  }
-
   @PostMapping("/user/{userId}/games/{gameRefId}/state")
   public ResponseEntity<Void> crearGameEstado(
       @PathVariable String userId,

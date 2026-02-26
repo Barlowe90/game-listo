@@ -654,13 +654,6 @@ class UsuariosControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("GET /v1/usuarios/health debe retornar 200")
-    void healthEndpointDebeRetornar200() throws Exception {
-        mockMvc.perform(get("/v1/usuarios/health"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
     @DisplayName("POST /v1/usuarios/auth/register debe crear usuario")
     void debeCrearUsuario() throws Exception {
         // Arrange

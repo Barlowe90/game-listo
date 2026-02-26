@@ -48,13 +48,6 @@ public class UsuariosController {
   private final EliminarUsuarioUseCase eliminarUsuarioUseCase;
   private final BuscarUsuariosPorNombreUseCase buscarUsuariosPorNombreUseCase;
 
-  @Operation(summary = "Health check del servicio")
-  @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping("/health")
-  public ResponseEntity<String> health() {
-    return ResponseEntity.ok("UP");
-  }
-
   @Operation(summary = "Cambiar contraseña (usuario autenticado)")
   @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
   @PutMapping(value = "/{id}/password", consumes = "application/json")
