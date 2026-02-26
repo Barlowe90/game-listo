@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(
@@ -29,6 +30,7 @@ public class GameEstadoController {
   private final CrearGameEstadoHandler crearGameEstado;
 
   @Operation(summary = "Crear o actualizar el estado de un juego")
+  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
   @PostMapping("/user/{userId}/games/{gameRefId}/state")
   public ResponseEntity<Void> crearGameEstado(
       @PathVariable String userId,
@@ -43,6 +45,7 @@ public class GameEstadoController {
   }
 
   @Operation(summary = "Valorar un juego")
+  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
   @PostMapping("/user/{userId}/games/{gameRefId}/rate")
   public ResponseEntity<Void> rateGameEstado(
       @PathVariable String userId,

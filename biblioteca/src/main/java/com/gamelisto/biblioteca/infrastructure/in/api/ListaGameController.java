@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,18 +41,21 @@ public class ListaGameController {
   private final EliminarGameFromListHandler eliminarGameFromList;
 
   @Operation(summary = "Crear una lista")
+  @PreAuthorize("isAuthenticated()")
   @PostMapping("/lists")
   public ResponseEntity<ListaGameResponse> crearLista(
-      @Valid @RequestBody CrearListaGameRequest request) {
+      @Valid @RequestBody CrearListaGameRequest request, Authentication authentication) {
+    String userId = (String) authentication.getPrincipal();
 
-    logger.info("Crear nueva lista");
+    logger.info("Crear nueva lista para el usuario {}", userId);
 
-    ListaGameResult result = crearLista.execute(request.toCommand());
+    ListaGameResult result = crearLista.execute(request.toCommand(userId));
 
     return ResponseEntity.status(HttpStatus.CREATED).body(ListaGameResponse.from(result));
   }
 
   @Operation(summary = "Editar una lista")
+  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
   @PatchMapping("/user/{userId}/lists/{listaId}")
   public ResponseEntity<ListaGameResponse> modificarLista(
       @PathVariable String listaId,
@@ -65,6 +70,7 @@ public class ListaGameController {
   }
 
   @Operation(summary = "Eliminar una lista")
+  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
   @DeleteMapping("/user/{userId}/lists/{listaId}")
   public ResponseEntity<Void> eliminarLista(
       @PathVariable String userId, @PathVariable String listaId) {
@@ -77,6 +83,7 @@ public class ListaGameController {
   }
 
   @Operation(summary = "Obtener una lista")
+  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
   @GetMapping("/user/{userId}/lists/{listaId}")
   public ResponseEntity<ListaGameResponse> buscarLista(
       @PathVariable String userId, @PathVariable String listaId) {
@@ -89,6 +96,7 @@ public class ListaGameController {
   }
 
   @Operation(summary = "Listar todas las listas de un usuario")
+  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
   @GetMapping("/user/{userId}/lists")
   public ResponseEntity<List<ListaGameResponse>> buscarTodasLasListas(@PathVariable String userId) {
 
@@ -102,6 +110,7 @@ public class ListaGameController {
   }
 
   @Operation(summary = "Añadir un juego a una lista")
+  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
   @PostMapping("/user/{userId}/lists/{listaId}/games/{gameRefId}")
   public ResponseEntity<Void> addGameToList(
       @PathVariable String userId, @PathVariable String listaId, @PathVariable String gameRefId) {
@@ -114,6 +123,7 @@ public class ListaGameController {
   }
 
   @Operation(summary = "Eliminar un juego de una lista")
+  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
   @DeleteMapping("/user/{userId}/lists/{listaId}/games/{gameRefId}")
   public ResponseEntity<Void> eliminarGameFromList(
       @PathVariable String userId, @PathVariable String listaId, @PathVariable String gameRefId) {

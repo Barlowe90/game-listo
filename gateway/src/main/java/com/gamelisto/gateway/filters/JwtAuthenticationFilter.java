@@ -9,6 +9,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -47,7 +48,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
           "/v1/usuarios/auth/logout",
           "/v1/usuarios/auth/refresh",
           "/actuator/health",
-          // Catalogo (desarrollo) - permitir acceso sin JWT temporalmente
           "/v1/catalogo");
 
   private final JwtValidator jwtValidator;
@@ -62,6 +62,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
     String path = exchange.getRequest().getURI().getPath();
+
+    // Permitir preflight CORS
+    if (exchange.getRequest().getMethod() == HttpMethod.OPTIONS) {
+      return chain.filter(exchange);
+    }
 
     // Permitir rutas públicas sin validación
     if (isPublicPath(path)) {
@@ -102,10 +107,15 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     exchange
                         .getRequest()
                         .mutate()
-                        .header("X-User-Id", jwtValidator.getUserId(claims))
-                        .header("X-User-Username", jwtValidator.getUsername(claims))
-                        .header("X-User-Email", jwtValidator.getEmail(claims))
-                        .header("X-User-Roles", String.join(",", jwtValidator.getRoles(claims)))
+                        .headers(
+                            h -> {
+                              // Usar "set" para sobrescribir y evitar duplicados
+                              h.set("X-User-Id", jwtValidator.getUserId(claims));
+                              h.set("X-User-Username", jwtValidator.getUsername(claims));
+                              h.set("X-User-Email", jwtValidator.getEmail(claims));
+                              h.set(
+                                  "X-User-Roles", String.join(",", jwtValidator.getRoles(claims)));
+                            })
                         .build();
 
                 logger.debug(
@@ -123,6 +133,16 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
   }
 
   private boolean isPublicPath(String path) {
+    // Catálogo: publico EXCEPTO sincronización
+    if (path.startsWith("/v1/catalogo/sync")) {
+      return false;
+    }
+
+    // El resto de /v1/catalogo/** es público
+    if (path.startsWith("/v1/catalogo")) {
+      return true;
+    }
+
     return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
   }
 
