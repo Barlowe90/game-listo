@@ -7,10 +7,6 @@ import com.gamelisto.usuarios.infrastructure.out.dto.AuthResponse;
 import com.gamelisto.usuarios.infrastructure.out.dto.UsuarioResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -25,9 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/v1/usuarios/auth")
 @RequiredArgsConstructor
-@Tag(
-    name = "Autenticación",
-    description = "Registro, login, tokens, verificación de email y recuperación de cuenta")
+@Tag(name = "Autenticación", description = "Sesiones")
 public class AuthController {
 
   private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -43,28 +37,10 @@ public class AuthController {
   private final RestablecerContrasenaUseCase restablecerContrasenaUseCase;
 
   // TODO mover a usuarios (Create CRUD)
-  @Operation(
-      summary = "Registrar nuevo usuario",
-      description =
-          "Crea una nueva cuenta de usuario en estado PENDIENTE_DE_VERIFICACION. "
-              + "Envía un email con token de verificación (válido 24h).")
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "201",
-            description = "Usuario creado exitosamente",
-            content =
-                @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = UsuarioResponse.class))),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Datos inválidos o email/username ya registrados")
-      })
+  @Operation(summary = "Registrar nuevo usuario")
   @PostMapping("/register")
   public ResponseEntity<UsuarioResponse> registrar(
-      @Parameter(description = "Datos del nuevo usuario", required = true) @Valid @RequestBody
-          CrearUsuarioRequest request) {
+      @Valid @RequestBody CrearUsuarioRequest request) {
 
     logger.info("Request de registro para email: {}", request.email());
 
@@ -73,27 +49,14 @@ public class AuthController {
     UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
     logger.info("Usuario registrado exitosamente: {}", usuarioDTO.username());
-    // que pueda entrar a su perfil, con el aviso de que tiene que verificar email.
-    // permisos para cambiar correo por si se ha equivocado
+    // TODO que pueda entrar a su perfil, con el aviso de que tiene que verificar email.
+    // TODO permisos para cambiar correo por si se ha equivocado
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
-  @Operation(
-      summary = "Verificar email",
-      description =
-          "Activa la cuenta del usuario mediante el token enviado por email. "
-              + "Cambia el estado de PENDIENTE_DE_VERIFICACION a ACTIVO.")
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "200", description = "Email verificado exitosamente"),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Token inválido, expirado o usuario ya verificado")
-      })
+  @Operation(summary = "Verificar email")
   @PostMapping("/verify-email")
-  public ResponseEntity<Void> verificarEmail(
-      @Parameter(description = "Token de verificación", required = true) @Valid @RequestBody
-          VerificarEmailRequest request) {
+  public ResponseEntity<Void> verificarEmail(@Valid @RequestBody VerificarEmailRequest request) {
 
     logger.info("Request de verificación de email con token: {}", request.token());
 
@@ -104,22 +67,10 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
-  @Operation(
-      summary = "Reenviar email de verificación",
-      description =
-          "Genera y envía un nuevo token de verificación al email del usuario. "
-              + "Solo funciona si el usuario está en estado PENDIENTE_DE_VERIFICACION.")
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "200", description = "Email de verificación reenviado"),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Email no registrado o usuario ya verificado")
-      })
+  @Operation(summary = "Reenviar email de verificación")
   @PostMapping("/resend-verification")
   public ResponseEntity<Void> reenviarVerificacion(
-      @Parameter(description = "Email del usuario", required = true) @Valid @RequestBody
-          ReenviarVerificacionRequest request) {
+      @Valid @RequestBody ReenviarVerificacionRequest request) {
 
     logger.info("Request de reenvío de verificación para email: {}", request.email());
 
@@ -129,21 +80,10 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
-  @Operation(
-      summary = "Solicitar restablecimiento de contraseña",
-      description =
-          "Genera y envía un token de restablecimiento al email (válido 1h). "
-              + "Si el email no existe, retorna 200 OK por seguridad (no revela si el email está registrado).")
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Si el email existe, se envió el token de restablecimiento")
-      })
+  @Operation(summary = "Solicitar restablecimiento de contraseña")
   @PostMapping("/forgot-password")
   public ResponseEntity<Void> solicitarRestablecimiento(
-      @Parameter(description = "Email del usuario", required = true) @Valid @RequestBody
-          SolicitarRestablecimientoRequest request) {
+      @Valid @RequestBody SolicitarRestablecimientoRequest request) {
 
     logger.info("Request de restablecimiento de contraseña para email: {}", request.email());
 
@@ -153,20 +93,10 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
-  @Operation(
-      summary = "Restablecer contraseña",
-      description =
-          "Cambia la contraseña del usuario usando el token de restablecimiento. "
-              + "El token se invalida después de usarse.")
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "200", description = "Contraseña restablecida exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Token inválido o expirado")
-      })
+  @Operation(summary = "Restablecer contraseña")
   @PostMapping("/reset-password")
   public ResponseEntity<Void> restablecerContrasena(
-      @Parameter(description = "Token y nueva contraseña", required = true) @Valid @RequestBody
-          RestablecerContrasenaRequest request) {
+      @Valid @RequestBody RestablecerContrasenaRequest request) {
 
     logger.info("Request de restablecimiento de contraseña con token");
 
@@ -177,28 +107,9 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
-  @Operation(
-      summary = "Login de usuario",
-      description =
-          "Autentica al usuario con email y contraseña. Retorna access token JWT (15 min) y refresh token UUID (7 días).")
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Login exitoso",
-            content =
-                @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = AuthResponse.class))),
-        @ApiResponse(
-            responseCode = "401",
-            description = "Credenciales inválidas o usuario no activo"),
-        @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
-      })
+  @Operation(summary = "Login de usuario")
   @PostMapping("/login")
-  public ResponseEntity<AuthResponse> login(
-      @Parameter(description = "Credenciales de login", required = true) @Valid @RequestBody
-          LoginRequest request) {
+  public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
 
     logger.info("Request de login para email: {}", request.email());
 
@@ -211,32 +122,10 @@ public class AuthController {
     return ResponseEntity.ok(response);
   }
 
-  @Operation(
-      summary = "Renovar access token",
-      description =
-          "Genera un nuevo access token usando un refresh token válido. "
-              + "Implementa Refresh Token Rotation: el refresh token antiguo se revoca automáticamente. "
-              + "Requiere autenticación.",
-      security = @SecurityRequirement(name = "bearerAuth"))
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Tokens renovados exitosamente",
-            content =
-                @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = AuthResponse.class))),
-        @ApiResponse(
-            responseCode = "401",
-            description = "Refresh token inválido, revocado o expirado"),
-        @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
-      })
+  @Operation(summary = "Renovar access token", security = @SecurityRequirement(name = "bearerAuth"))
   @PreAuthorize("isAuthenticated()")
   @PostMapping("/refresh")
-  public ResponseEntity<AuthResponse> refresh(
-      @Parameter(description = "Refresh token válido", required = true) @Valid @RequestBody
-          RefreshTokenRequest request) {
+  public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
 
     logger.info("Request de refresh token");
 
@@ -249,24 +138,10 @@ public class AuthController {
     return ResponseEntity.ok(response);
   }
 
-  @Operation(
-      summary = "Logout de usuario",
-      description =
-          "Cierra la sesión revocando el refresh token. "
-              + "Si se proporciona el access token, su JTI se agrega a la blacklist para invalidación inmediata. "
-              + "Requiere autenticación.",
-      security = @SecurityRequirement(name = "bearerAuth"))
-  @ApiResponses(
-      value = {
-        @ApiResponse(responseCode = "204", description = "Logout exitoso"),
-        @ApiResponse(responseCode = "401", description = "Refresh token inválido"),
-        @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
-      })
+  @Operation(summary = "Logout de usuario", security = @SecurityRequirement(name = "bearerAuth"))
   @PreAuthorize("isAuthenticated()")
   @PostMapping("/logout")
-  public ResponseEntity<Void> logout(
-      @Parameter(description = "Tokens a revocar", required = true) @Valid @RequestBody
-          LogoutRequest request) {
+  public ResponseEntity<Void> logout(@Valid @RequestBody LogoutRequest request) {
 
     logger.info("Request de logout");
 
@@ -279,40 +154,18 @@ public class AuthController {
 
   @Operation(
       summary = "Obtener perfil autenticado",
-      description =
-          "Retorna los datos del usuario autenticado. "
-              + "El userId se extrae del access token JWT (claim 'sub') por el API Gateway y se envía en el header X-User-Id. "
-              + "Requiere autenticación.",
       security = @SecurityRequirement(name = "bearerAuth"))
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "Perfil obtenido exitosamente",
-            content =
-                @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = UsuarioResponse.class))),
-        @ApiResponse(
-            responseCode = "401",
-            description = "No autenticado - Header X-User-Id ausente"),
-        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
-      })
   @PreAuthorize("isAuthenticated()")
   @GetMapping("/me")
   public ResponseEntity<UsuarioResponse> getAuthenticatedProfile(
-      @Parameter(
-              description = "User ID extraído del JWT por el Gateway",
-              required = true,
-              hidden = true)
-          @RequestHeader(value = "X-User-Id", required = false)
+      @Parameter(hidden = true) @RequestHeader(value = "X-User-Id", required = false)
           String userId) {
 
     logger.info("📥 Request de perfil autenticado - X-User-Id: {}", userId);
 
-    // El Gateway valida el JWT y envía el userId en el header X-User-Id
-    // Si el header no está presente, significa que:
-    // 1. Se está accediendo directamente al servicio (sin pasar por el Gateway)
+    // El Gateway valida el JWT y envia el userId en el header X-User-Id
+    // Si el header no esta presente, significa que:
+    // 1. Se esta accediendo directamente al servicio (sin pasar por el Gateway)
     // 2. El Gateway no pudo validar el token
     if (userId == null || userId.isBlank()) {
       logger.warn("Request sin X-User-Id header - El Gateway debe validar el JWT primero");
