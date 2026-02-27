@@ -132,7 +132,7 @@ jobs:
         if: always() && (github.event_name != 'pull_request' || steps.spotless.outputs.pushed != 'true')
         uses: actions/upload-artifact@v4
         with:
-          name: usuarios-test-artifacts
+          name: usuarios-ºtest-artifacts
           path: |
             usuarios/target/surefire-reports/
             usuarios/target/failsafe-reports/
