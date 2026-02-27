@@ -9,9 +9,6 @@ import com.gamelisto.biblioteca.application.usecase.EditarListaGameHandler;
 import com.gamelisto.biblioteca.application.usecase.EliminarGameFromListHandler;
 import com.gamelisto.biblioteca.application.usecase.EliminarListaGameHandler;
 import com.gamelisto.biblioteca.infrastructure.in.api.dto.*;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -24,8 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Biblioteca - Listas", description = "Gestión de listas de juegos del usuario")
-@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/v1/biblioteca")
 @RequiredArgsConstructor
@@ -40,7 +35,6 @@ public class ListaGameController {
   private final AddGameToListHandler addGameToList;
   private final EliminarGameFromListHandler eliminarGameFromList;
 
-  @Operation(summary = "Crear una lista")
   @PreAuthorize("isAuthenticated()")
   @PostMapping("/lists")
   public ResponseEntity<ListaGameResponse> crearLista(
@@ -54,7 +48,6 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.CREATED).body(ListaGameResponse.from(result));
   }
 
-  @Operation(summary = "Editar una lista")
   @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
   @PatchMapping("/user/{userId}/lists/{listaId}")
   public ResponseEntity<ListaGameResponse> modificarLista(
@@ -69,7 +62,6 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.OK).body(ListaGameResponse.from(result));
   }
 
-  @Operation(summary = "Eliminar una lista")
   @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
   @DeleteMapping("/user/{userId}/lists/{listaId}")
   public ResponseEntity<Void> eliminarLista(
@@ -82,7 +74,6 @@ public class ListaGameController {
     return ResponseEntity.noContent().build();
   }
 
-  @Operation(summary = "Obtener una lista")
   @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
   @GetMapping("/user/{userId}/lists/{listaId}")
   public ResponseEntity<ListaGameResponse> buscarLista(
@@ -95,7 +86,6 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.OK).body(ListaGameResponse.from(result));
   }
 
-  @Operation(summary = "Listar todas las listas de un usuario")
   @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
   @GetMapping("/user/{userId}/lists")
   public ResponseEntity<List<ListaGameResponse>> buscarTodasLasListas(@PathVariable String userId) {
@@ -109,7 +99,6 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
-  @Operation(summary = "Añadir un juego a una lista")
   @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
   @PostMapping("/user/{userId}/lists/{listaId}/games/{gameRefId}")
   public ResponseEntity<Void> addGameToList(
@@ -122,7 +111,6 @@ public class ListaGameController {
     return ResponseEntity.noContent().build();
   }
 
-  @Operation(summary = "Eliminar un juego de una lista")
   @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
   @DeleteMapping("/user/{userId}/lists/{listaId}/games/{gameRefId}")
   public ResponseEntity<Void> eliminarGameFromList(
