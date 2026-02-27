@@ -21,9 +21,8 @@ Este proyecto sigue el principio **KISS (Keep It Simple, Stupid)**:
 
 **Decisiones pragmáticas:**
 
-- Arquitectura hexagonal + DDD correcta pero simplificada
+- Arquitectura hexagonal + DDD
 - Persistencia políglota
-- Value Objects solo donde mejoran la comprensión del dominio
 - Strings/primitivos directos cuando sean suficientes
 
 ---

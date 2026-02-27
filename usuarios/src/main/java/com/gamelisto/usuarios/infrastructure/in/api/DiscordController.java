@@ -5,8 +5,6 @@ import com.gamelisto.usuarios.application.usecases.DesvincularDiscordUseCase;
 import com.gamelisto.usuarios.application.usecases.VincularDiscordUseCase;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.VincularDiscordRequest;
 import com.gamelisto.usuarios.infrastructure.out.dto.UsuarioResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,14 +17,12 @@ import org.slf4j.LoggerFactory;
 @RestController
 @RequestMapping("/v1/usuarios")
 @RequiredArgsConstructor
-@Tag(name = "Discord", description = "Gestión de perfiles de Discord")
 public class DiscordController {
 
   private final VincularDiscordUseCase vincularDiscordUseCase;
   private final DesvincularDiscordUseCase desvincularDiscordUseCase;
   private static final Logger logger = LoggerFactory.getLogger(DiscordController.class);
 
-  @Operation(summary = "Vincular cuenta de Discord")
   @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
   @PutMapping(value = "/{id}/discord", consumes = "application/json")
   public ResponseEntity<UsuarioResponse> vincularDiscord(
@@ -49,7 +45,6 @@ public class DiscordController {
     return ResponseEntity.ok(response);
   }
 
-  @Operation(summary = "Desvincular cuenta de Discord")
   @DeleteMapping(value = "/{id}/discord")
   @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
   public ResponseEntity<UsuarioResponse> desvincularDiscord(@PathVariable String id) {

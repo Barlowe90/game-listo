@@ -5,10 +5,6 @@ import com.gamelisto.usuarios.application.usecases.*;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.*;
 import com.gamelisto.usuarios.infrastructure.out.dto.AuthResponse;
 import com.gamelisto.usuarios.infrastructure.out.dto.UsuarioResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -21,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/v1/usuarios/auth")
 @RequiredArgsConstructor
-@Tag(name = "Autenticación", description = "Sesiones")
 public class AuthController {
 
   private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -37,7 +32,6 @@ public class AuthController {
   private final RestablecerContrasenaUseCase restablecerContrasenaUseCase;
 
   // TODO mover a usuarios (Create CRUD)
-  @Operation(summary = "Registrar nuevo usuario")
   @PostMapping("/register")
   public ResponseEntity<UsuarioResponse> registrar(
       @Valid @RequestBody CrearUsuarioRequest request) {
@@ -54,7 +48,6 @@ public class AuthController {
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
-  @Operation(summary = "Verificar email")
   @PostMapping("/verify-email")
   public ResponseEntity<Void> verificarEmail(@Valid @RequestBody VerificarEmailRequest request) {
 
@@ -67,7 +60,6 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
-  @Operation(summary = "Reenviar email de verificación")
   @PostMapping("/resend-verification")
   public ResponseEntity<Void> reenviarVerificacion(
       @Valid @RequestBody ReenviarVerificacionRequest request) {
@@ -80,7 +72,6 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
-  @Operation(summary = "Solicitar restablecimiento de contraseña")
   @PostMapping("/forgot-password")
   public ResponseEntity<Void> solicitarRestablecimiento(
       @Valid @RequestBody SolicitarRestablecimientoRequest request) {
@@ -93,7 +84,6 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
-  @Operation(summary = "Restablecer contraseña")
   @PostMapping("/reset-password")
   public ResponseEntity<Void> restablecerContrasena(
       @Valid @RequestBody RestablecerContrasenaRequest request) {
@@ -107,7 +97,6 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
-  @Operation(summary = "Login de usuario")
   @PostMapping("/login")
   public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
 
@@ -122,7 +111,6 @@ public class AuthController {
     return ResponseEntity.ok(response);
   }
 
-  @Operation(summary = "Renovar access token", security = @SecurityRequirement(name = "bearerAuth"))
   @PostMapping("/refresh")
   public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
 
@@ -137,7 +125,6 @@ public class AuthController {
     return ResponseEntity.ok(response);
   }
 
-  @Operation(summary = "Logout de usuario", security = @SecurityRequirement(name = "bearerAuth"))
   @PostMapping("/logout")
   public ResponseEntity<Void> logout(@Valid @RequestBody LogoutRequest request) {
 
@@ -150,14 +137,10 @@ public class AuthController {
     return ResponseEntity.noContent().build();
   }
 
-  @Operation(
-      summary = "Obtener perfil autenticado",
-      security = @SecurityRequirement(name = "bearerAuth"))
-  @PreAuthorize("isAuthenticated()")
   @GetMapping("/me")
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<UsuarioResponse> getAuthenticatedProfile(
-      @Parameter(hidden = true) @RequestHeader(value = "X-User-Id", required = false)
-          String userId) {
+      @RequestHeader(value = "X-User-Id", required = false) String userId) {
 
     logger.info("📥 Request de perfil autenticado - X-User-Id: {}", userId);
 

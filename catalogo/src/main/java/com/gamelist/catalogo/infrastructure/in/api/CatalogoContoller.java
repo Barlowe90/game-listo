@@ -12,8 +12,6 @@ import com.gamelist.catalogo.application.usecases.ObtenerTodosLosJuegosUseCase;
 import com.gamelist.catalogo.infrastructure.out.dto.GameDetailResponse;
 import com.gamelist.catalogo.infrastructure.out.dto.GameResponse;
 import com.gamelist.catalogo.infrastructure.out.dto.PlatformResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/v1/catalogo")
-@Tag(name = "Catálogo de Videojuegos", description = "Gestión de videojuegos")
 @RequiredArgsConstructor
 public class CatalogoContoller {
 
@@ -37,7 +34,6 @@ public class CatalogoContoller {
   private final ObtenerTodasLasPlatformasUseCase obtenerTodasLasPlatformasUseCase;
 
   @GetMapping("/games")
-  @Operation(summary = "Listar todos los juegos")
   public ResponseEntity<List<GameResponse>> getAllGames(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
     logger.info("Obteniendo listado de juegos (page: {}, size: {})", page, size);
@@ -50,7 +46,6 @@ public class CatalogoContoller {
   }
 
   @GetMapping("/games/{id}")
-  @Operation(summary = "Obtener un juego por ID")
   public ResponseEntity<GameResponse> getGameById(@PathVariable Long id) {
     logger.info("Obteniendo juego ID: {} desde PostgreSQL", id);
 
@@ -61,7 +56,6 @@ public class CatalogoContoller {
   }
 
   @GetMapping("/games/{id}/detail")
-  @Operation(summary = "Obtener gameEstado detail de MongoDB")
   public ResponseEntity<GameDetailResponse> getGameDetailOnly(@PathVariable Long id) {
     logger.info("Obteniendo Game Detail (MongoDB) del juego ID: {}", id);
 
@@ -72,7 +66,6 @@ public class CatalogoContoller {
   }
 
   @GetMapping("/platforms")
-  @Operation(summary = "Listar todas las plataformas")
   public ResponseEntity<List<PlatformResponse>> getAllPlatforms() {
     logger.info("Obteniendo listado de plataformas");
 

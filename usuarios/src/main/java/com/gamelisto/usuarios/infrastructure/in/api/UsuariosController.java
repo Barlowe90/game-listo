@@ -9,9 +9,6 @@ import com.gamelisto.usuarios.infrastructure.in.api.dto.CambiarEstadoUsuarioRequ
 import com.gamelisto.usuarios.infrastructure.in.api.dto.CambiarRolUsuarioRequest;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.EditarPerfilUsuarioRequest;
 import com.gamelisto.usuarios.infrastructure.out.dto.UsuarioResponse;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v1/usuarios")
 @RequiredArgsConstructor
-@Tag(name = "Usuario", description = "Gestión de perfiles y datos de usuarios autenticados")
 public class UsuariosController {
 
   private static final Logger logger = LoggerFactory.getLogger(UsuariosController.class);
@@ -48,9 +44,8 @@ public class UsuariosController {
   private final EliminarUsuarioUseCase eliminarUsuarioUseCase;
   private final BuscarUsuariosPorNombreUseCase buscarUsuariosPorNombreUseCase;
 
-  @Operation(summary = "Cambiar contraseña (usuario autenticado)")
-  @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
   @PutMapping(value = "/{id}/password", consumes = "application/json")
+  @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
   public ResponseEntity<Void> cambiarContrasena(
       @PathVariable String id, @Valid @RequestBody CambiarContrasenaRequest request) {
     logger.info(
@@ -62,9 +57,8 @@ public class UsuariosController {
     return ResponseEntity.ok().build();
   }
 
-  @Operation(summary = "Cambiar email del usuario")
-  @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
   @PutMapping(value = "/{id}/email", consumes = "application/json")
+  @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
   public ResponseEntity<Void> cambiarCorreo(
       @PathVariable String id, @Valid @RequestBody CambiarCorreoRequest request) {
     logger.info("PUT /v1/usuarios/{}/email - Cambiando correo para usuario con ID: {}", id, id);
@@ -74,9 +68,8 @@ public class UsuariosController {
     return ResponseEntity.ok().build();
   }
 
-  @Operation(summary = "Editar perfil de usuario")
-  @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
   @PatchMapping(value = "/{id}", consumes = "application/json")
+  @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
   public ResponseEntity<UsuarioResponse> editarPerfilUsuario(
       @PathVariable String id, @Valid @RequestBody EditarPerfilUsuarioRequest request) {
     logger.info("PATCH /v1/usuarios/{} - Editando perfil de usuario con ID: {}", id, id);
@@ -86,16 +79,15 @@ public class UsuariosController {
     UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
     logger.info(
-        "Perfil de usuario editado exitosamente - ID: {}, Username: {}",
+        "Perfil de usuario editado exitosamente - ID: {}, Username: ",
         response.id(),
         response.username());
 
     return ResponseEntity.ok(response);
   }
 
-  @Operation(summary = "Cambiar estado de usuario (Admin)")
-  @PreAuthorize("hasRole('ADMIN')")
   @PatchMapping(value = "/{id}/estado", consumes = "application/json")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UsuarioResponse> cambiarEstadoUsuario(
       @PathVariable String id, @Valid @RequestBody CambiarEstadoUsuarioRequest request) {
     logger.info("PATCH /v1/usuarios/{}/estado - Cambiando el estado de usuario con ID: {}", id, id);
@@ -112,9 +104,8 @@ public class UsuariosController {
     return ResponseEntity.ok(response);
   }
 
-  @Operation(summary = "Cambiar rol de usuario (Admin)")
-  @PreAuthorize("hasRole('ADMIN')")
   @PatchMapping(value = "/{id}/rol", consumes = "application/json")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UsuarioResponse> cambiarRolUsuario(
       @PathVariable String id, @Valid @RequestBody CambiarRolUsuarioRequest request) {
     logger.info("PATCH /v1/usuarios/{}/rol - Cambiando el rol de usuario con ID: {}", id, id);
@@ -132,11 +123,9 @@ public class UsuariosController {
     return ResponseEntity.ok(response);
   }
 
-  @Operation(summary = "Obtener usuario por ID")
-  @PreAuthorize("hasRole('ADMIN')")
   @GetMapping(value = "/{id}", produces = "application/json")
-  public ResponseEntity<UsuarioResponse> obtenerUsuarioPorIdEndpoint(
-      @Parameter(description = "ID del usuario", required = true) @PathVariable String id) {
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<UsuarioResponse> obtenerUsuarioPorIdEndpoint(@PathVariable String id) {
     logger.info("GET /v1/usuarios/{} - Obteniendo usuario con ID: {}", id, id);
 
     UsuarioDTO usuarioDTO = obtenerUsuarioPorId.execute(id);
@@ -149,9 +138,8 @@ public class UsuariosController {
     return ResponseEntity.ok(response);
   }
 
-  @Operation(summary = "Listar y buscar usuarios")
-  @PreAuthorize("isAuthenticated()")
   @GetMapping(value = "/users", produces = "application/json")
+  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<?> obtenerUsuarios(
       @RequestParam(required = false) String username,
       @RequestParam(required = false) EstadoUsuario estado,
@@ -159,7 +147,6 @@ public class UsuariosController {
 
     logger.info("GET /v1/usuarios/users - username: {}, estado: {}", username, estado);
 
-    // TODO pasar a open search? Busqueda por username → Cualquier usuario autenticado
     if (username != null && !username.isBlank()) {
       UsuarioDTO usuarioDTO = buscarUsuariosPorNombreUseCase.execute(username);
       UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
@@ -167,7 +154,6 @@ public class UsuariosController {
       return ResponseEntity.ok(response);
     }
 
-    // Filtro por estado o lista completa → Solo ADMIN
     boolean isAdmin =
         authentication.getAuthorities().stream()
             .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
@@ -191,9 +177,8 @@ public class UsuariosController {
     return ResponseEntity.ok(responses);
   }
 
-  @Operation(summary = "Eliminar usuario")
-  @PreAuthorize("hasRole('ADMIN')")
   @DeleteMapping(value = "/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Void> eliminarUsuario(@PathVariable String id) {
     logger.info("DELETE /v1/usuarios/{} - Eliminando usuario con ID: {}", id, id);
 
