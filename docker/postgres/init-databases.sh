@@ -9,13 +9,13 @@ echo "Iniciando creacion de bases de datos..."
 
 # Crear las bases de datos
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-    -- Base de datos para usuarios-service
+    -- Base de datos para usuarios
     CREATE DATABASE usuarios_db;
 
-    -- Base de datos para catalogo-service
+    -- Base de datos para catalogo
     CREATE DATABASE catalogo_db;
 
-    -- Base de datos para biblioteca-service (futuro)
+    -- Base de datos para biblioteca (futuro)
     CREATE DATABASE biblioteca_db;
 EOSQL
 

@@ -39,7 +39,7 @@ capas, manteniendo la independencia del dominio y probando cada componente segú
 
 ### 1.1. Tests de Value Objects
 
-**Ubicación**: `src/test/java/com/gamelisto/usuarios_service/domain/usuario/`
+**Ubicación**: `src/test/java/com/gamelisto/usuarios/domain/usuario/`
 
 **Patrón**: Validar construcción, validaciones y comportamiento.
 
@@ -111,7 +111,7 @@ class EmailTest {
 
 ### 1.2. Tests de Entidades (Aggregate Root)
 
-**Ubicación**: `src/test/java/com/gamelisto/usuarios_service/domain/usuario/`
+**Ubicación**: `src/test/java/com/gamelisto/usuarios/domain/usuario/`
 
 ```java
 package com.gamelisto.usuarios.domain.usuario;
@@ -266,7 +266,7 @@ class UsuarioTest {
 
 ## 2. Tests de Application (Casos de Uso)
 
-**Ubicación**: `src/test/java/com/gamelisto/usuarios_service/application/usecases/`
+**Ubicación**: `src/test/java/com/gamelisto/usuarios/application/usecases/`
 
 **Patrón**: Usar mocks de Mockito para repositorios.
 
@@ -404,7 +404,7 @@ class CrearUsuarioUseCaseTest {
 
 ### 3.1. Tests de Mappers
 
-**Ubicación**: `src/test/java/com/gamelisto/usuarios_service/infrastructure/persistence/postgres/mapper/`
+**Ubicación**: `src/test/java/com/gamelisto/usuarios/infrastructure/persistence/postgres/mapper/`
 
 ```java
 package com.gamelisto.usuarios.infrastructure.persistence.postgres.mapper;
@@ -423,7 +423,7 @@ class UsuarioMapperTest {
     private final UsuarioMapper mapper = new UsuarioMapper();
 
     @Test
-    @DisplayName("Debe convertir Usuario de dominio a UsuarioEntity")
+    @DisplayName("Debe convertir Usuario de domain a UsuarioEntity")
     void debeConvertirDominioAEntity() {
         // Arrange
         Usuario usuario = Usuario.create(
@@ -445,7 +445,7 @@ class UsuarioMapperTest {
     }
 
     @Test
-    @DisplayName("Debe convertir UsuarioEntity a Usuario de dominio")
+    @DisplayName("Debe convertir UsuarioEntity a Usuario de domain")
     void debeConvertirEntityADominio() {
         // Arrange
         UsuarioEntity entity = new UsuarioEntity();
@@ -505,7 +505,7 @@ class UsuarioMapperTest {
 
 ### 3.2. Tests de Repositorios (Integration)
 
-**Ubicación**: `src/test/java/com/gamelisto/usuarios_service/infrastructure/persistence/postgres/repository/`
+**Ubicación**: `src/test/java/com/gamelisto/usuarios/infrastructure/persistence/postgres/repository/`
 
 ```java
 package com.gamelisto.usuarios.infrastructure.persistence.postgres.repository;
@@ -622,7 +622,7 @@ class RepositorioUsuariosPostgreTest {
 
 ### 3.3. Tests de Controladores REST
 
-**Ubicación**: `src/test/java/com/gamelisto/usuarios_service/infrastructure/api/rest/`
+**Ubicación**: `src/test/java/com/gamelisto/usuarios/infrastructure/api/rest/`
 
 ```java
 package com.gamelisto.usuarios.infrastructure.api.rest;
@@ -652,13 +652,6 @@ class UsuariosControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Test
-    @DisplayName("GET /v1/usuarios/health debe retornar 200")
-    void healthEndpointDebeRetornar200() throws Exception {
-        mockMvc.perform(get("/v1/usuarios/health"))
-                .andExpect(status().isOk());
-    }
 
     @Test
     @DisplayName("POST /v1/usuarios/auth/register debe crear usuario")

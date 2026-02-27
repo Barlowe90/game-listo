@@ -18,8 +18,8 @@ API Gateway para la plataforma GameListo. Actúa como puerta de entrada única p
 ### IMPORTANTE
 
 - **Este servicio NO genera tokens JWT**, solo los valida
-- La generación de tokens se realiza en `usuarios-service`
-- El secreto JWT debe ser el mismo en Gateway y usuarios-service (en application.properties)
+- La generación de tokens se realiza en `usuarios`
+- El secreto JWT debe ser el mismo en Gateway y usuarios (en application.properties)
 
 ## Arquitectura
 
@@ -59,7 +59,6 @@ Petición → RateLimitFilter (-50) → JwtAuthenticationFilter (-100) → Enrut
 - `POST /v1/usuarios/auth/reset-password` - Restablecer contraseña con token
 - `POST /v1/usuarios/auth/login` - Login
 - `POST /v1/usuarios/auth/refresh` - Renovar access token
-- `GET /v1/usuarios/health` - Health check
 
 #### Protegidas (requieren JWT)
 
@@ -87,7 +86,7 @@ docker-compose up -d
 ## Flujo de Autenticación
 
 1. Cliente hace login en `POST /v1/usuarios/auth/login` (ruta pública)
-2. `usuarios-service` genera access token + refresh token
+2. `usuarios` genera access token + refresh token
 3. Cliente incluye access token en header `Authorization: Bearer <token>`
 4. Gateway valida token en `JwtAuthenticationFilter`:
     - Verifica firma con el secreto compartido
