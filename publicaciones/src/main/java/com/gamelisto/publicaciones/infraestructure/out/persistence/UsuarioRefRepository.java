@@ -1,6 +1,7 @@
 package com.gamelisto.publicaciones.infraestructure.out.persistence;
 
-import java.util.UUID;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface UsuarioRefRepository extends JpaRepository<UsuarioRefDocument, UUID> {}
+import java.util.UUID;
+
+public interface UsuarioRefRepository extends MongoRepository<UsuarioRefDocument, UUID> {}
