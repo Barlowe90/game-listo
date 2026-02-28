@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface GrupoJuegoUsuarioRepositorio {
-  GrupoJuegoUsuario save(GrupoJuegoUsuario rel);
+  GrupoJuegoUsuario save(GrupoJuegoUsuario grupoJuegoUsuario);
 
   List<GrupoJuegoUsuario> findByGrupoId(UUID grupoId);
 

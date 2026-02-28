@@ -1,7 +1,12 @@
 package com.gamelisto.publicaciones.domain;
 
+import lombok.Getter;
+import lombok.ToString;
+
 import java.util.UUID;
 
+@Getter
+@ToString
 public class GrupoJuegoUsuario {
   private final UUID id;
   private final UUID grupoId;
@@ -17,7 +22,7 @@ public class GrupoJuegoUsuario {
     return new GrupoJuegoUsuario(UUID.randomUUID(), grupoId, usuarioId);
   }
 
-  public static GrupoJuegoUsuario create(UUID id, UUID grupoId, UUID usuarioId) {
+  public static GrupoJuegoUsuario reconstitute(UUID id, UUID grupoId, UUID usuarioId) {
     return new GrupoJuegoUsuario(id, grupoId, usuarioId);
   }
 }

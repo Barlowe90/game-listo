@@ -1,0 +1,20 @@
+package com.gamelisto.publicaciones.infraestructure.out.persistence;
+
+import com.gamelisto.publicaciones.domain.UsuarioRef;
+import org.springframework.stereotype.Component;
+
+@Component
+public class UsuarioRefMapper {
+
+  public UsuarioRefDocument toEntity(UsuarioRef usuarioRef) {
+    UsuarioRefDocument entity = new UsuarioRefDocument();
+    entity.setId(usuarioRef.getId());
+    entity.setUsername(usuarioRef.getUsername());
+    entity.setAvatar(usuarioRef.getAvatar());
+    return entity;
+  }
+
+  public UsuarioRef toDomain(UsuarioRefDocument entity) {
+    return UsuarioRef.reconstitute(entity.getId(), entity.getUsername(), entity.getAvatar());
+  }
+}
