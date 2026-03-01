@@ -1,5 +1,6 @@
 package com.gamelisto.publicaciones.infraestructure.out.persistence;
 
+import com.gamelisto.publicaciones.domain.PeticionUnion;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,4 +14,9 @@ public interface PeticionUnionRepository extends MongoRepository<PeticionUnionDo
 
   Optional<PeticionUnionDocument> findByPublicacionIdAndUsuarioId(
       UUID publicacionId, UUID usuarioId);
+
+  List<PeticionUnionDocument> findByUsuarioId(UUID usuarioId); // solicitudes enviadas
+
+  List<PeticionUnionDocument> findByPublicacionIdIn(
+      List<UUID> publicacionIds); // solicitudes recibidas
 }

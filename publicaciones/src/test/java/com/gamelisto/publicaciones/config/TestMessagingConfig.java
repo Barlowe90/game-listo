@@ -36,9 +36,7 @@ public class TestMessagingConfig {
 
   @Bean
   public MockMvc mockMvc(@Autowired WebApplicationContext webApplicationContext) {
-    return MockMvcBuilders.webAppContextSetup(webApplicationContext)
-        .apply(springSecurity())
-        .build();
+    return MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
   }
 
   @Bean

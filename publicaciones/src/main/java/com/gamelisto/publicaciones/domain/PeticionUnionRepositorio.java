@@ -13,5 +13,9 @@ public interface PeticionUnionRepositorio {
 
   Optional<PeticionUnion> findByPublicacionIdAndUsuarioId(UUID publicacionId, UUID usuarioId);
 
+  List<PeticionUnion> findByUsuarioId(UUID usuarioId); // solicitudes enviadas
+
+  List<PeticionUnion> findByPublicacionIdIn(List<UUID> publicacionIds); // solicitudes recibidas
+
   void deleteById(UUID peticionId);
 }

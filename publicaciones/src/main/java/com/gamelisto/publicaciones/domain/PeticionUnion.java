@@ -1,5 +1,6 @@
 package com.gamelisto.publicaciones.domain;
 
+import com.gamelisto.publicaciones.domain.exceptions.DomainException;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -11,7 +12,7 @@ public class PeticionUnion {
   private final UUID id;
   private final UUID publicacionId;
   private final UUID usuarioId;
-  private final EstadoPeticion estadoPeticion;
+  private EstadoPeticion estadoPeticion;
 
   private PeticionUnion(
       UUID id, UUID publicacionId, UUID usuarioId, EstadoPeticion estadoPeticion) {
@@ -21,13 +22,18 @@ public class PeticionUnion {
     this.estadoPeticion = estadoPeticion;
   }
 
-  public static PeticionUnion create(
-      UUID publicacionId, UUID usuarioId, EstadoPeticion estadoPeticion) {
-    return new PeticionUnion(UUID.randomUUID(), publicacionId, usuarioId, estadoPeticion);
+  public static PeticionUnion create(UUID publicacionId, UUID usuarioId) {
+    return new PeticionUnion(
+        UUID.randomUUID(), publicacionId, usuarioId, EstadoPeticion.SOLICITADA);
   }
 
   public static PeticionUnion reconstitute(
       UUID id, UUID publicacionId, UUID usuarioId, EstadoPeticion estadoPeticion) {
     return new PeticionUnion(id, publicacionId, usuarioId, estadoPeticion);
+  }
+
+  public void cambiarEstado(EstadoPeticion nuevo) {
+    if (nuevo == null) throw new DomainException("Estado requerido");
+    this.estadoPeticion = nuevo;
   }
 }

@@ -42,6 +42,21 @@ public class PeticionUnionRepositorioMongo implements PeticionUnionRepositorio {
   }
 
   @Override
+  public List<PeticionUnion> findByUsuarioId(UUID usuarioId) {
+    return mongoRepository.findByUsuarioId(usuarioId).stream().map(mapper::toDomain).toList();
+  }
+
+  @Override
+  public List<PeticionUnion> findByPublicacionIdIn(List<UUID> publicacionIds) {
+    if (publicacionIds == null || publicacionIds.isEmpty()) {
+      return List.of();
+    }
+    return mongoRepository.findByPublicacionIdIn(publicacionIds).stream()
+        .map(mapper::toDomain)
+        .toList();
+  }
+
+  @Override
   public void deleteById(UUID peticionId) {
     mongoRepository.deleteById(peticionId);
   }

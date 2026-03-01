@@ -4,7 +4,6 @@ import java.time.Duration;
 
 import com.gamelisto.publicaciones.config.TestMessagingConfig;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -37,6 +36,7 @@ public abstract class AbstractIntegrationTest {
 
   @DynamicPropertySource
   static void configureProperties(DynamicPropertyRegistry registry) {
-    registry.add("spring.data.mongodb.uri", () -> mongodb.getConnectionString() + "/catalogo_test");
+    registry.add(
+        "spring.data.mongodb.uri", () -> mongodb.getConnectionString() + "/publicaciones_test");
   }
 }

@@ -48,10 +48,10 @@ class PublicacionTest {
             Experiencia.PRO,
             EstiloJuego.LOGROS,
             8,
-            EstadoPublicacion.COMPLETADA);
+            EstadoPublicacion.PUBLICADA);
 
     assertThat(p.getId()).isEqualTo(id);
     assertThat(p.getAutorId()).isEqualTo(autorId);
-    assertThat(p.getEstadoPublicacion()).isEqualTo(EstadoPublicacion.COMPLETADA);
+    assertThat(p.getEstadoPublicacion()).isEqualTo(EstadoPublicacion.PUBLICADA);
   }
 }

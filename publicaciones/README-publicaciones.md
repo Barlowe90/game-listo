@@ -57,17 +57,16 @@ Base path: `/v1/publicaciones`
 
 ### Endpoints (resumen)
 
-| Método             | Ruta                                        | Descripción                                   |
-|--------------------|---------------------------------------------|-----------------------------------------------|
-| GET / POST         | `/publicaciones`                            | Listar publicaciones / Crear publicación      |
-| GET / PUT / DELETE | `/{idPublicacion}`                          | Obtener / Actualizar / Eliminar publicación   |
-| GET / POST         | `/{idPublicacion}/solicitud-union`          | Listar solicitudes / Crear solicitud de unión |
-| PATCH              | `/{idPublicacion}/solicitud-union/{idUser}` | Aceptar/Rechazar una solicitud                |
-| POST               | `/{idPublicacion}/abandonar-grupo`          | Abandonar el grupo                            |
-| GET                | `/usuario/{idUsuario}`                      | Listar publicaciones creadas por un usuario   |
-| GET                | `/game/{idGame}`                            | Listar publicaciones de un juego              |
-| GET                | `/grupos/{idGrupo}`                         | Obtener detalles del grupo                    |
-| GET                | `/{idPublicacion}/participantes`            | Listar participantes de una publicación       |
+| Método             | Ruta                                        | Descripción                                 |
+|--------------------|---------------------------------------------|---------------------------------------------|
+| GET / POST         | `/`                                         | Listar publicaciones / Crear publicación    |
+| GET / PUT / DELETE | `/{publicacionId}`                          | Obtener / Actualizar / Eliminar publicación |
+| GET / POST         | `/{publicacionId}/solicitud-union`          | Listar / Crear solicitud                    |
+| PATCH              | `/{publicacionId}/solicitud-union/{userId}` | Aceptar/Rechazar una solicitud              |
+| POST               | `/{publicacionId}/abandonar-grupo`          | Abandonar el grupo                          |
+| GET                | `/usuario/`                                 | Listar publicaciones creadas por un usuario |
+| GET                | `/game/{gameId}`                            | Listar publicaciones de un juego            |
+| GET                | `/grupos/{grupoId}`                         | Obtener detalles del grupo                  |
 
 > Mantén las reglas de autorización alineadas con la política de Gateway/Seguridad (p. ej., solo el autor puede
 > editar/eliminar; solo miembros pueden abandonar; admin puede tener override).

@@ -46,8 +46,7 @@ public class Publicacion {
       Idioma idioma,
       Experiencia experiencia,
       EstiloJuego estiloJuego,
-      int jugadoresMaximos,
-      EstadoPublicacion estadoPublicacion) {
+      int jugadoresMaximos) {
     return new Publicacion(
         UUID.randomUUID(),
         autorId,
@@ -57,7 +56,7 @@ public class Publicacion {
         experiencia,
         estiloJuego,
         jugadoresMaximos,
-        estadoPublicacion);
+        EstadoPublicacion.PUBLICADA);
   }
 
   public static Publicacion reconstitute(
