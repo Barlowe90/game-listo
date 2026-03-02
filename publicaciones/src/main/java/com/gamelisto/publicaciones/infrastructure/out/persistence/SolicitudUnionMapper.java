@@ -1,16 +1,16 @@
 package com.gamelisto.publicaciones.infrastructure.out.persistence;
 
-import com.gamelisto.publicaciones.domain.PeticionUnion;
-import com.gamelisto.publicaciones.domain.vo.PeticionId;
+import com.gamelisto.publicaciones.domain.SolicitudUnion;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.SolicitudId;
 import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PeticionUnionMapper {
+public class SolicitudUnionMapper {
 
-  public PeticionUnionDocument toDocument(PeticionUnion peticion) {
-    PeticionUnionDocument document = new PeticionUnionDocument();
+  public SolicitudUnionDocument toDocument(SolicitudUnion peticion) {
+    SolicitudUnionDocument document = new SolicitudUnionDocument();
     document.setId(peticion.getId().value());
     document.setPublicacionId(peticion.getPublicacionId().value());
     document.setUsuarioId(peticion.getUsuarioId().value());
@@ -18,9 +18,9 @@ public class PeticionUnionMapper {
     return document;
   }
 
-  public PeticionUnion toDomain(PeticionUnionDocument document) {
-    return PeticionUnion.reconstitute(
-        PeticionId.of(document.getId()),
+  public SolicitudUnion toDomain(SolicitudUnionDocument document) {
+    return SolicitudUnion.reconstitute(
+        SolicitudId.of(document.getId()),
         PublicacionId.of(document.getPublicacionId()),
         UsuarioId.of(document.getUsuarioId()),
         document.getEstadoSolicitud());

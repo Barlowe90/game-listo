@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.UUID;
 
-@Document(collection = "peticiones_union")
+@Document(collection = "solicitudes_union")
 @CompoundIndex(
     name = "uniq_publicacion_usuario",
     def = "{'publicacionId': 1, 'usuarioId': 1}",
@@ -21,7 +21,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PeticionUnionDocument {
+public class SolicitudUnionDocument {
 
   @Id private UUID id;
 

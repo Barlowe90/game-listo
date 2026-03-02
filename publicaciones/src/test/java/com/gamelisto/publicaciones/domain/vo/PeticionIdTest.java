@@ -8,20 +8,20 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("PeticionId - Tests")
-class PeticionIdTest {
+@DisplayName("SolicitudId - Tests")
+class SolicitudIdTest {
 
   @Test
   @DisplayName("of(valid) debe crear instancia y mantener valor")
   void of_debeCrearConValorValido() {
     UUID value = UUID.randomUUID();
-    PeticionId id = PeticionId.of(value);
+    SolicitudId id = SolicitudId.of(value);
     assertThat(id.value()).isEqualTo(value);
   }
 
   @Test
   @DisplayName("of(null) debe lanzar DomainException")
   void of_null_debeLanzar() {
-    assertThatThrownBy(() -> PeticionId.of(null)).isInstanceOf(DomainException.class);
+    assertThatThrownBy(() -> SolicitudId.of(null)).isInstanceOf(DomainException.class);
   }
 }

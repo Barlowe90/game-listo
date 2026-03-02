@@ -2,8 +2,8 @@ package com.gamelisto.publicaciones.application.usecases;
 
 import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.*;
-import com.gamelisto.publicaciones.domain.vo.PeticionId;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.SolicitudId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,31 +13,31 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AceptarORechazarPeticionUseCase implements AceptarORechazarPeticionHandle {
 
-  private final PeticionUnionRepositorio peticionUnionRepositorio;
+  private final SolicitudUnionRepositorio solicitudUnionRepositorio;
   private final PublicacionRepositorio publicacionRepositorio;
 
   @Override
-  public PeticionUnionResult execute(PeticionUnionCommand command) {
+  public SolicitudUnionResult execute(SolicitudUnionCommand command) {
     UUID peticionUnionId = command.peticionUnionId();
     EstadoSolicitud nuevoEstado = EstadoSolicitud.valueOf(command.estadoSolicitud());
 
-    PeticionUnion peticionUnion =
-        peticionUnionRepositorio
-            .findById(PeticionId.of(peticionUnionId))
-            .orElseThrow(() -> new ApplicationException("Peticion no encontrada"));
+    SolicitudUnion solicitudUnion =
+        solicitudUnionRepositorio
+            .findById(SolicitudId.of(peticionUnionId))
+            .orElseThrow(() -> new ApplicationException("Solicitud no encontrada"));
 
     Publicacion publicacion =
         publicacionRepositorio
-            .findById(PublicacionId.of(peticionUnion.getPublicacionId().value()))
+            .findById(PublicacionId.of(solicitudUnion.getPublicacionId().value()))
             .orElseThrow(() -> new ApplicationException("Publicacion no encontrada"));
 
     if (!publicacion.getAutorId().equals(command.userId())) {
       throw new ApplicationException("Usuario no propietario");
     }
 
-    peticionUnion.cambiarEstado(nuevoEstado);
+    solicitudUnion.cambiarEstado(nuevoEstado);
 
-    PeticionUnion saved = peticionUnionRepositorio.save(peticionUnion);
-    return PeticionUnionResult.from(saved);
+    SolicitudUnion saved = solicitudUnionRepositorio.save(solicitudUnion);
+    return SolicitudUnionResult.from(saved);
   }
 }

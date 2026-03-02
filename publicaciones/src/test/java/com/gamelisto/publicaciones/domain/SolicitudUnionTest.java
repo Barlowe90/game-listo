@@ -2,15 +2,15 @@ package com.gamelisto.publicaciones.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.gamelisto.publicaciones.domain.vo.PeticionId;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.SolicitudId;
 import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("PeticionUnion - Unit tests")
-class PeticionUnionTest {
+@DisplayName("SolicitudUnion - Unit tests")
+class SolicitudUnionTest {
 
   @Test
   @DisplayName("create() debe generar id y asignar campos")
@@ -18,8 +18,8 @@ class PeticionUnionTest {
     UUID pubId = UUID.randomUUID();
     UUID userId = UUID.randomUUID();
 
-    PeticionUnion p =
-        PeticionUnion.create(
+    SolicitudUnion p =
+        SolicitudUnion.create(
             PublicacionId.of(pubId), UsuarioId.of(userId), EstadoSolicitud.SOLICITADA);
 
     assertThat(p.getId()).isNotNull();
@@ -35,9 +35,9 @@ class PeticionUnionTest {
     UUID pubId = UUID.randomUUID();
     UUID userId = UUID.randomUUID();
 
-    PeticionUnion p =
-        PeticionUnion.reconstitute(
-            PeticionId.of(id),
+    SolicitudUnion p =
+        SolicitudUnion.reconstitute(
+            SolicitudId.of(id),
             PublicacionId.of(pubId),
             UsuarioId.of(userId),
             EstadoSolicitud.ACEPTADA);

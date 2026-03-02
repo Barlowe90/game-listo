@@ -8,14 +8,14 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface PeticionUnionRepository extends MongoRepository<PeticionUnionDocument, UUID> {
-  List<PeticionUnionDocument> findByPublicacionId(UUID publicacionId);
+public interface SolicitudUnionRepository extends MongoRepository<SolicitudUnionDocument, UUID> {
+  List<SolicitudUnionDocument> findByPublicacionId(UUID publicacionId);
 
-  Optional<PeticionUnionDocument> findByPublicacionIdAndUsuarioId(
+  Optional<SolicitudUnionDocument> findByPublicacionIdAndUsuarioId(
       UUID publicacionId, UUID usuarioId);
 
-  List<PeticionUnionDocument> findByUsuarioId(UUID usuarioId); // solicitudes enviadas
+  List<SolicitudUnionDocument> findByUsuarioId(UUID usuarioId); // solicitudes enviadas
 
-  List<PeticionUnionDocument> findByPublicacionIdIn(
+  List<SolicitudUnionDocument> findByPublicacionIdIn(
       List<UUID> publicacionIds); // solicitudes recibidas
 }

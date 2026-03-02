@@ -2,8 +2,8 @@ package com.gamelisto.publicaciones.application.usecases;
 
 import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.EstadoSolicitud;
-import com.gamelisto.publicaciones.domain.PeticionUnion;
-import com.gamelisto.publicaciones.domain.PeticionUnionRepositorio;
+import com.gamelisto.publicaciones.domain.SolicitudUnion;
+import com.gamelisto.publicaciones.domain.SolicitudUnionRepositorio;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
 import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import lombok.RequiredArgsConstructor;
@@ -16,23 +16,23 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CrearSolicitudUnionUseCase implements CrearSolicitudUnionHandler {
 
-  private final PeticionUnionRepositorio peticionUnionRepositorio;
+  private final SolicitudUnionRepositorio solicitudUnionRepositorio;
 
   @Override
-  public PeticionUnionResult execute(UUID publicacionId, UUID userId) {
+  public SolicitudUnionResult execute(UUID publicacionId, UUID userId) {
 
-    comprobarExistePeticion(publicacionId, userId);
+    comprobarExisteSolicitud(publicacionId, userId);
 
-    PeticionUnion peticionUnion =
-        PeticionUnion.create(
+    SolicitudUnion solicitudUnion =
+        SolicitudUnion.create(
             PublicacionId.of(publicacionId), UsuarioId.of(userId), EstadoSolicitud.SOLICITADA);
-    PeticionUnion saved = peticionUnionRepositorio.save(peticionUnion);
-    return PeticionUnionResult.from(saved);
+    SolicitudUnion saved = solicitudUnionRepositorio.save(solicitudUnion);
+    return SolicitudUnionResult.from(saved);
   }
 
-  private void comprobarExistePeticion(UUID publicacionId, UUID userId) {
-    Optional<PeticionUnion> existente =
-        peticionUnionRepositorio.findByPublicacionIdAndUsuarioId(
+  private void comprobarExisteSolicitud(UUID publicacionId, UUID userId) {
+    Optional<SolicitudUnion> existente =
+        solicitudUnionRepositorio.findByPublicacionIdAndUsuarioId(
             PublicacionId.of(publicacionId), UsuarioId.of(userId));
 
     if (existente.isPresent()) {

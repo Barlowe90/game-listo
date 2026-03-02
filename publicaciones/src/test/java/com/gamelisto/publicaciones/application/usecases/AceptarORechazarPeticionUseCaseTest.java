@@ -7,8 +7,8 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.*;
-import com.gamelisto.publicaciones.domain.vo.PeticionId;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.SolicitudId;
 import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import java.util.Optional;
 import java.util.UUID;
@@ -20,23 +20,23 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("AceptarORechazarPeticionUseCase - Unit tests")
+@DisplayName("AceptarORechazarSolicitudUseCase - Unit tests")
 class AceptarORechazarPeticionUseCaseTest {
 
-  @Mock private PeticionUnionRepositorio peticionUnionRepositorio;
+  @Mock private SolicitudUnionRepositorio solicitudUnionRepositorio;
   @Mock private PublicacionRepositorio publicacionRepositorio;
   @InjectMocks private AceptarORechazarPeticionUseCase useCase;
 
   @Test
-  @DisplayName("debe aceptar la petición si el usuario es el autor de la publicación")
+  @DisplayName("debe aceptar la solicitud si el usuario es el autor de la publicación")
   void debeAceptarPeticion() {
     UUID autorId = UUID.randomUUID();
     UUID publicacionId = UUID.randomUUID();
     UUID peticionId = UUID.randomUUID();
 
-    PeticionUnion peticion =
-        PeticionUnion.reconstitute(
-            PeticionId.of(peticionId),
+    SolicitudUnion peticion =
+        SolicitudUnion.reconstitute(
+            SolicitudId.of(peticionId),
             PublicacionId.of(publicacionId),
             UsuarioId.of(UUID.randomUUID()),
             EstadoSolicitud.SOLICITADA);
@@ -51,15 +51,15 @@ class AceptarORechazarPeticionUseCaseTest {
             EstiloJuego.LOGROS,
             4);
 
-    when(peticionUnionRepositorio.findById(PeticionId.of(peticionId)))
+    when(solicitudUnionRepositorio.findById(SolicitudId.of(peticionId)))
         .thenReturn(Optional.of(peticion));
     // NOTA: el useCase busca por peticionUnion.getPublicacionId().value()
     when(publicacionRepositorio.findById(PublicacionId.of(peticion.getPublicacionId().value())))
         .thenReturn(Optional.of(pub));
-    when(peticionUnionRepositorio.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    when(solicitudUnionRepositorio.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-    PeticionUnionResult result =
-        useCase.execute(new PeticionUnionCommand(peticionId, autorId, "ACEPTADA"));
+    SolicitudUnionResult result =
+        useCase.execute(new SolicitudUnionCommand(peticionId, autorId, "ACEPTADA"));
 
     assertThat(result.estadoSolicitud()).isEqualTo("ACEPTADA");
   }
@@ -72,9 +72,9 @@ class AceptarORechazarPeticionUseCaseTest {
     UUID publicacionId = UUID.randomUUID();
     UUID peticionId = UUID.randomUUID();
 
-    PeticionUnion peticion =
-        PeticionUnion.reconstitute(
-            PeticionId.of(peticionId),
+    SolicitudUnion peticion =
+        SolicitudUnion.reconstitute(
+            SolicitudId.of(peticionId),
             PublicacionId.of(publicacionId),
             UsuarioId.of(UUID.randomUUID()),
             EstadoSolicitud.SOLICITADA);
@@ -89,27 +89,27 @@ class AceptarORechazarPeticionUseCaseTest {
             EstiloJuego.LOGROS,
             4);
 
-    when(peticionUnionRepositorio.findById(PeticionId.of(peticionId)))
+    when(solicitudUnionRepositorio.findById(SolicitudId.of(peticionId)))
         .thenReturn(Optional.of(peticion));
     when(publicacionRepositorio.findById(PublicacionId.of(peticion.getPublicacionId().value())))
         .thenReturn(Optional.of(pub));
 
     assertThatThrownBy(
-            () -> useCase.execute(new PeticionUnionCommand(peticionId, otroUsuario, "ACEPTADA")))
+            () -> useCase.execute(new SolicitudUnionCommand(peticionId, otroUsuario, "ACEPTADA")))
         .isInstanceOf(ApplicationException.class)
         .hasMessageContaining("propietario");
   }
 
   @Test
-  @DisplayName("debe rechazar la petición si el usuario es el autor de la publicación")
+  @DisplayName("debe rechazar la solicitud si el usuario es el autor de la publicación")
   void debeRechazarPeticion() {
     UUID autorId = UUID.randomUUID();
     UUID publicacionId = UUID.randomUUID();
     UUID peticionId = UUID.randomUUID();
 
-    PeticionUnion peticion =
-        PeticionUnion.reconstitute(
-            PeticionId.of(peticionId),
+    SolicitudUnion peticion =
+        SolicitudUnion.reconstitute(
+            SolicitudId.of(peticionId),
             PublicacionId.of(publicacionId),
             UsuarioId.of(UUID.randomUUID()),
             EstadoSolicitud.SOLICITADA);
@@ -124,15 +124,15 @@ class AceptarORechazarPeticionUseCaseTest {
             EstiloJuego.LOGROS,
             4);
 
-    when(peticionUnionRepositorio.findById(PeticionId.of(peticionId)))
+    when(solicitudUnionRepositorio.findById(SolicitudId.of(peticionId)))
         .thenReturn(Optional.of(peticion));
     // Mantener el mismo comportamiento del use case (busca por id de la petición)
     when(publicacionRepositorio.findById(PublicacionId.of(peticion.getPublicacionId().value())))
         .thenReturn(Optional.of(pub));
-    when(peticionUnionRepositorio.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    when(solicitudUnionRepositorio.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-    PeticionUnionResult result =
-        useCase.execute(new PeticionUnionCommand(peticionId, autorId, "RECHAZADA"));
+    SolicitudUnionResult result =
+        useCase.execute(new SolicitudUnionCommand(peticionId, autorId, "RECHAZADA"));
 
     assertThat(result.estadoSolicitud()).isEqualTo("RECHAZADA");
   }

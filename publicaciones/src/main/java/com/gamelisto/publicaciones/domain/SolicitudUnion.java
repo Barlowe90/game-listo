@@ -1,22 +1,22 @@
 package com.gamelisto.publicaciones.domain;
 
 import com.gamelisto.publicaciones.domain.exceptions.DomainException;
-import com.gamelisto.publicaciones.domain.vo.PeticionId;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.SolicitudId;
 import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
-public class PeticionUnion {
-  private final PeticionId id;
+public class SolicitudUnion {
+  private final SolicitudId id;
   private final PublicacionId publicacionId;
   private final UsuarioId usuarioId;
   private EstadoSolicitud estadoSolicitud;
 
-  private PeticionUnion(
-      PeticionId id,
+  private SolicitudUnion(
+      SolicitudId id,
       PublicacionId publicacionId,
       UsuarioId usuarioId,
       EstadoSolicitud estadoSolicitud) {
@@ -26,18 +26,18 @@ public class PeticionUnion {
     this.estadoSolicitud = estadoSolicitud;
   }
 
-  public static PeticionUnion create(
+  public static SolicitudUnion create(
       PublicacionId publicacionId, UsuarioId usuarioId, EstadoSolicitud estadoSolicitud) {
-    return new PeticionUnion(
-        PeticionId.of(java.util.UUID.randomUUID()), publicacionId, usuarioId, estadoSolicitud);
+    return new SolicitudUnion(
+        SolicitudId.of(java.util.UUID.randomUUID()), publicacionId, usuarioId, estadoSolicitud);
   }
 
-  public static PeticionUnion reconstitute(
-      PeticionId id,
+  public static SolicitudUnion reconstitute(
+      SolicitudId id,
       PublicacionId publicacionId,
       UsuarioId usuarioId,
       EstadoSolicitud estadoSolicitud) {
-    return new PeticionUnion(id, publicacionId, usuarioId, estadoSolicitud);
+    return new SolicitudUnion(id, publicacionId, usuarioId, estadoSolicitud);
   }
 
   public void cambiarEstado(EstadoSolicitud nuevo) {

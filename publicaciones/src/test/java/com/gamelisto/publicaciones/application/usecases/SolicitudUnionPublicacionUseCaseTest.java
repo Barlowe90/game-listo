@@ -7,10 +7,10 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.EstadoSolicitud;
-import com.gamelisto.publicaciones.domain.PeticionUnion;
-import com.gamelisto.publicaciones.domain.PeticionUnionRepositorio;
-import com.gamelisto.publicaciones.domain.vo.PeticionId;
+import com.gamelisto.publicaciones.domain.SolicitudUnion;
+import com.gamelisto.publicaciones.domain.SolicitudUnionRepositorio;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.SolicitudId;
 import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,34 +23,34 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("PeticionUnionPublicacionUseCase - Unit tests")
-class PeticionUnionPublicacionUseCaseTest {
+@DisplayName("SolicitudUnionPublicacionUseCase - Unit tests")
+class SolicitudUnionPublicacionUseCaseTest {
 
-  @Mock private PeticionUnionRepositorio peticionUnionRepositorio;
+  @Mock private SolicitudUnionRepositorio solicitudUnionRepositorio;
   @InjectMocks private CrearSolicitudUnionUseCase useCase;
 
   @Test
-  @DisplayName("debe guardar la petición con estado SOLICITADA y devolver el resultado")
+  @DisplayName("debe guardar la solicitud con estado SOLICITADA y devolver el resultado")
   void debeCrearPeticionConEstadoSolicitada() {
     UUID publicacionId = UUID.randomUUID();
     UUID userId = UUID.randomUUID();
 
-    ArgumentCaptor<PeticionUnion> captor = ArgumentCaptor.forClass(PeticionUnion.class);
-    when(peticionUnionRepositorio.findByPublicacionIdAndUsuarioId(
+    ArgumentCaptor<SolicitudUnion> captor = ArgumentCaptor.forClass(SolicitudUnion.class);
+    when(solicitudUnionRepositorio.findByPublicacionIdAndUsuarioId(
             PublicacionId.of(publicacionId), UsuarioId.of(userId)))
         .thenReturn(Optional.empty());
-    when(peticionUnionRepositorio.save(captor.capture())).thenAnswer(inv -> inv.getArgument(0));
+    when(solicitudUnionRepositorio.save(captor.capture())).thenAnswer(inv -> inv.getArgument(0));
 
-    PeticionUnionResult result = useCase.execute(publicacionId, userId);
+    SolicitudUnionResult result = useCase.execute(publicacionId, userId);
 
-    PeticionUnion peticion = captor.getValue();
+    SolicitudUnion peticion = captor.getValue();
     assertThat(peticion.getEstadoSolicitud()).isEqualTo(EstadoSolicitud.SOLICITADA);
     assertThat(peticion.getPublicacionId().value()).isEqualTo(publicacionId);
     assertThat(peticion.getUsuarioId().value()).isEqualTo(userId);
 
     assertThat(result.estadoSolicitud()).isEqualTo("SOLICITADA");
     assertThat(result.publicacionId()).isEqualTo(publicacionId.toString());
-    verify(peticionUnionRepositorio).save(any(PeticionUnion.class));
+    verify(solicitudUnionRepositorio).save(any(SolicitudUnion.class));
   }
 
   @Test
@@ -60,14 +60,14 @@ class PeticionUnionPublicacionUseCaseTest {
     UUID publicacionId = UUID.randomUUID();
     UUID userId = UUID.randomUUID();
 
-    PeticionUnion existente =
-        PeticionUnion.reconstitute(
-            PeticionId.of(UUID.randomUUID()),
+    SolicitudUnion existente =
+        SolicitudUnion.reconstitute(
+            SolicitudId.of(UUID.randomUUID()),
             PublicacionId.of(publicacionId),
             UsuarioId.of(userId),
             EstadoSolicitud.SOLICITADA);
 
-    when(peticionUnionRepositorio.findByPublicacionIdAndUsuarioId(
+    when(solicitudUnionRepositorio.findByPublicacionIdAndUsuarioId(
             PublicacionId.of(publicacionId), UsuarioId.of(userId)))
         .thenReturn(Optional.of(existente));
 
@@ -75,6 +75,6 @@ class PeticionUnionPublicacionUseCaseTest {
         .isInstanceOf(ApplicationException.class)
         .hasMessageContaining("Ya existe una solicitud");
 
-    verify(peticionUnionRepositorio, never()).save(any());
+    verify(solicitudUnionRepositorio, never()).save(any());
   }
 }

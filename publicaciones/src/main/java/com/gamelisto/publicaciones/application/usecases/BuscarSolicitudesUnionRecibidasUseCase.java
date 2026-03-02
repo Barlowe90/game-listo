@@ -1,6 +1,6 @@
 package com.gamelisto.publicaciones.application.usecases;
 
-import com.gamelisto.publicaciones.domain.PeticionUnionRepositorio;
+import com.gamelisto.publicaciones.domain.SolicitudUnionRepositorio;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,14 +13,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class BuscarPeticionesUnionRecibidasUseCase
-    implements BuscarPeticionesUnionRecibidasHandler {
+public class BuscarSolicitudesUnionRecibidasUseCase
+    implements BuscarSolicitudesUnionRecibidasHandler {
 
-  private final PeticionUnionRepositorio peticionUnionRepositorio;
+  private final SolicitudUnionRepositorio solicitudUnionRepositorio;
   private final PublicacionRepositorio publicacionRepositorio;
 
   @Override
-  public List<PeticionUnionResult> execute(UUID userId) {
+  public List<SolicitudUnionResult> execute(UUID userId) {
     // recuperar las publicaciones donde soy autor
     List<PublicacionId> publicacionesIds =
         publicacionRepositorio.findByAutorId(UsuarioId.of(userId)).stream()
@@ -31,8 +31,8 @@ public class BuscarPeticionesUnionRecibidasUseCase
       return List.of();
     }
 
-    return peticionUnionRepositorio.findByPublicacionIdIn(publicacionesIds).stream()
-        .map(PeticionUnionResult::from)
+    return solicitudUnionRepositorio.findByPublicacionIdIn(publicacionesIds).stream()
+        .map(SolicitudUnionResult::from)
         .toList();
   }
 }

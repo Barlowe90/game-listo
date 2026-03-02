@@ -5,16 +5,16 @@ import com.gamelisto.publicaciones.domain.exceptions.DomainException;
 import java.util.Objects;
 import java.util.UUID;
 
-public final class PeticionId {
+public final class SolicitudId {
   private final UUID value;
 
-  private PeticionId(UUID value) {
-    if (value == null) throw new DomainException("PeticionId no puede ser nulo");
+  private SolicitudId(UUID value) {
+    if (value == null) throw new DomainException("SolicitudId no puede ser nulo");
     this.value = value;
   }
 
-  public static PeticionId of(UUID value) {
-    return new PeticionId(value);
+  public static SolicitudId of(UUID value) {
+    return new SolicitudId(value);
   }
 
   public UUID value() {
@@ -25,7 +25,7 @@ public final class PeticionId {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    PeticionId that = (PeticionId) o;
+    SolicitudId that = (SolicitudId) o;
     return Objects.equals(value, that.value);
   }
 
@@ -36,6 +36,6 @@ public final class PeticionId {
 
   @Override
   public String toString() {
-    return "PeticionId{" + value + '}';
+    return "SolicitudId{" + value + '}';
   }
 }

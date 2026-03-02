@@ -21,7 +21,7 @@ public class GrupoJuegoController {
   private final AbandonarGrupoHandler abandonarGrupo;
 
   @PostMapping("/{publicacionId}/abandonar-grupo")
-  public ResponseEntity<PeticionUnionResponse> abandonarGrupo(
+  public ResponseEntity<SolicitudUnionResponse> abandonarGrupo(
       @PathVariable UUID publicacionId, Authentication authentication) {
     logger.info("Abandonando grupo para la publicacion {}", publicacionId);
     UUID userId = UUID.fromString(authentication.getPrincipal().toString());

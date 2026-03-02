@@ -1,7 +1,7 @@
 package com.gamelisto.publicaciones.application.usecases;
 
 import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
-import com.gamelisto.publicaciones.domain.PeticionUnionRepositorio;
+import com.gamelisto.publicaciones.domain.SolicitudUnionRepositorio;
 import com.gamelisto.publicaciones.domain.Publicacion;
 import com.gamelisto.publicaciones.domain.PublicacionRepositorio;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
@@ -12,19 +12,19 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class BuscarPeticionesUnionRecibidasEnLaPublicacionUseCase
-    implements BuscarPeticionesUnionRecibidasEnLaPublicacionHandler {
+public class BuscarSolicitudesUnionRecibidasEnLaPublicacionUseCase
+    implements BuscarSolicitudesUnionRecibidasEnLaPublicacionHandler {
 
-  private final PeticionUnionRepositorio peticionUnionRepositorio;
+  private final SolicitudUnionRepositorio solicitudUnionRepositorio;
   private final PublicacionRepositorio publicacionRepositorio;
 
   @Override
-  public List<PeticionUnionResult> execute(UUID userId, UUID publicacionId) {
+  public List<SolicitudUnionResult> execute(UUID userId, UUID publicacionId) {
 
     validarUsuarioEsAutorPublicacion(userId, publicacionId);
 
-    return peticionUnionRepositorio.findByPublicacionId(PublicacionId.of(publicacionId)).stream()
-        .map(PeticionUnionResult::from)
+    return solicitudUnionRepositorio.findByPublicacionId(PublicacionId.of(publicacionId)).stream()
+        .map(SolicitudUnionResult::from)
         .toList();
   }
 

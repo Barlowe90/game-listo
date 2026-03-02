@@ -20,79 +20,82 @@ public class SolicitudesUnionController {
 
   private static final Logger logger = LoggerFactory.getLogger(SolicitudesUnionController.class);
   private final CrearSolicitudUnionHandler crearSolicitud;
-  private final BuscarPeticionesUnionEnviadasHandler buscarPeticionesEnviadas;
-  private final BuscarPeticionesUnionRecibidasHandler buscarPeticionesRecibidas;
-  private final BuscarPeticionesUnionRecibidasEnLaPublicacionHandler
-      buscarPeticionesUnionRecibidasEnLaPublicacion;
+  private final BuscarSolicitudesUnionEnviadasHandler buscarSolicitudesEnviadas;
+  private final BuscarSolicitudesUnionRecibidasHandler buscarSolicitudesRecibidas;
+  private final BuscarSolicitudesUnionRecibidasEnLaPublicacionHandler
+      buscarSolicitudesUnionRecibidasEnLaPublicacion;
   private final AceptarORechazarPeticionHandle aceptarORechazarPeticionHandle;
 
   @PostMapping("/{publicacionId}/solicitud-union")
-  public ResponseEntity<PeticionUnionResponse> crearSolicitudUnion(
+  public ResponseEntity<SolicitudUnionResponse> crearSolicitudUnion(
       @PathVariable UUID publicacionId, Authentication authentication) {
     UUID userId = UUID.fromString(authentication.getPrincipal().toString());
 
     logger.info(
         "Crear nueva solicitud por el usuario {} para la publicacion {}", userId, publicacionId);
 
-    PeticionUnionResult result = crearSolicitud.execute(userId, publicacionId);
+    SolicitudUnionResult result = crearSolicitud.execute(publicacionId, userId);
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(PeticionUnionResponse.from(result));
+    return ResponseEntity.status(HttpStatus.CREATED).body(SolicitudUnionResponse.from(result));
   }
 
-  @PatchMapping("/solicitudes-union/{peticionId}")
-  public ResponseEntity<PeticionUnionResponse> aceptarORechazarPeticion(
-      @PathVariable UUID peticionId,
-      @Valid @RequestBody PeticionUnionRequest request,
+  @PatchMapping("/solicitudes-union/{solicitudId}")
+  public ResponseEntity<SolicitudUnionResponse> aceptarORechazarSolicitud(
+      @PathVariable UUID solicitudId,
+      @Valid @RequestBody SolicitudUnionRequest request,
       Authentication authentication) {
     UUID userId = UUID.fromString(authentication.getPrincipal().toString());
     logger.info(
-        "{} peticion con id {} por el usuario {} ", request.estadoSolicitud(), peticionId, userId);
+        "{} solicitud con id {} por el usuario {} ",
+        request.estadoSolicitud(),
+        solicitudId,
+        userId);
 
-    PeticionUnionResult result =
-        aceptarORechazarPeticionHandle.execute(request.toCommand(peticionId, userId));
+    SolicitudUnionResult result =
+        aceptarORechazarPeticionHandle.execute(request.toCommand(solicitudId, userId));
 
-    return ResponseEntity.status(HttpStatus.OK).body(PeticionUnionResponse.from(result));
+    return ResponseEntity.status(HttpStatus.OK).body(SolicitudUnionResponse.from(result));
   }
 
   @GetMapping("/solicitudes-union/enviadas")
-  public ResponseEntity<List<PeticionUnionResponse>> obtenerPeticionesUnionEnviadas(
+  public ResponseEntity<List<SolicitudUnionResponse>> obtenerSolicitudesUnionEnviadas(
       Authentication authentication) {
     UUID userId = UUID.fromString(authentication.getPrincipal().toString());
-    logger.info("Listar peticiones de union enviadas por el usuario {}", userId);
+    logger.info("Listar solicitudes de union enviadas por el usuario {}", userId);
 
-    List<PeticionUnionResult> result = buscarPeticionesEnviadas.execute(userId);
+    List<SolicitudUnionResult> result = buscarSolicitudesEnviadas.execute(userId);
 
-    List<PeticionUnionResponse> response =
-        result.stream().map(PeticionUnionResponse::from).toList();
+    List<SolicitudUnionResponse> response =
+        result.stream().map(SolicitudUnionResponse::from).toList();
 
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   @GetMapping("/solicitudes-union/recibidas")
-  public ResponseEntity<List<PeticionUnionResponse>> obtenerPeticionUnionRecibidas(
+  public ResponseEntity<List<SolicitudUnionResponse>> obtenerSolicitudesUnionRecibidas(
       Authentication authentication) {
     UUID userId = UUID.fromString(authentication.getPrincipal().toString());
-    logger.info("Listar peticiones de union recibidas por el usuario {}", userId);
+    logger.info("Listar solicitudes de union recibidas por el usuario {}", userId);
 
-    List<PeticionUnionResult> result = buscarPeticionesRecibidas.execute(userId);
+    List<SolicitudUnionResult> result = buscarSolicitudesRecibidas.execute(userId);
 
-    List<PeticionUnionResponse> response =
-        result.stream().map(PeticionUnionResponse::from).toList();
+    List<SolicitudUnionResponse> response =
+        result.stream().map(SolicitudUnionResponse::from).toList();
 
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   @GetMapping("/{publicacionId}/solicitudes-union")
-  public ResponseEntity<List<PeticionUnionResponse>> obtenerPeticionesUnion(
+  public ResponseEntity<List<SolicitudUnionResponse>> obtenerSolicitudesUnion(
       @PathVariable UUID publicacionId, Authentication authentication) {
     UUID userId = UUID.fromString(authentication.getPrincipal().toString());
-    logger.info("Listar peticiones recibidas a la publicacion {}", publicacionId);
+    logger.info("Listar solicitudes recibidas a la publicacion {}", publicacionId);
 
-    List<PeticionUnionResult> result =
-        buscarPeticionesUnionRecibidasEnLaPublicacion.execute(userId, publicacionId);
+    List<SolicitudUnionResult> result =
+        buscarSolicitudesUnionRecibidasEnLaPublicacion.execute(userId, publicacionId);
 
-    List<PeticionUnionResponse> response =
-        result.stream().map(PeticionUnionResponse::from).toList();
+    List<SolicitudUnionResponse> response =
+        result.stream().map(SolicitudUnionResponse::from).toList();
 
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
