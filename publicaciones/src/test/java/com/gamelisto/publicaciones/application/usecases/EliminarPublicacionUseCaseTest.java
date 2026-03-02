@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.*;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class EliminarPublicacionUseCaseTest {
 
   @Mock private PublicacionRepositorio publicacionRepositorio;
+  @Mock private GrupoJuegoRepositorio grupoJuegoRepositorio;
+  @Mock private GrupoJuegoUsuarioRepositorio grupoJuegoUsuarioRepositorio;
   @InjectMocks private EliminarPublicacionUseCase useCase;
 
   private Publicacion publicacionDe(UUID autorId) {
@@ -35,6 +38,31 @@ class EliminarPublicacionUseCaseTest {
 
     useCase.execute(pub.getId(), autorId);
 
+    verify(publicacionRepositorio).deleteById(pub.getId());
+  }
+
+  @Test
+  @DisplayName("debe eliminar el grupo y sus miembros cuando existe")
+  void debeEliminarGrupoYMiembrosSiExiste() {
+    UUID autorId = UUID.randomUUID();
+    Publicacion pub = publicacionDe(autorId);
+    when(publicacionRepositorio.findById(pub.getId())).thenReturn(Optional.of(pub));
+
+    GrupoJuego grupo = GrupoJuego.create(pub.getId());
+    GrupoJuegoUsuario miembro1 = GrupoJuegoUsuario.create(grupo.getId(), UUID.randomUUID());
+    GrupoJuegoUsuario miembro2 = GrupoJuegoUsuario.create(grupo.getId(), UUID.randomUUID());
+
+    when(grupoJuegoRepositorio.findByPublicacionId(pub.getId())).thenReturn(Optional.of(grupo));
+    when(grupoJuegoUsuarioRepositorio.findByGrupoId(grupo.getId()))
+        .thenReturn(List.of(miembro1, miembro2));
+
+    useCase.execute(pub.getId(), autorId);
+
+    verify(grupoJuegoUsuarioRepositorio)
+        .deleteByGrupoIdAndUsuarioId(grupo.getId(), miembro1.getUsuarioId());
+    verify(grupoJuegoUsuarioRepositorio)
+        .deleteByGrupoIdAndUsuarioId(grupo.getId(), miembro2.getUsuarioId());
+    verify(grupoJuegoRepositorio).delete(grupo);
     verify(publicacionRepositorio).deleteById(pub.getId());
   }
 
