@@ -5,6 +5,9 @@
 Esta guía describe los patrones de testing para la arquitectura DDD + Hexagonal del proyecto. Los tests se organizan por
 capas, manteniendo la independencia del dominio y probando cada componente según su responsabilidad.
 
+Los test deberán ser básicos, evitando el uso excesivo de test ya que esta aplicación es un TFG y no saldrá a
+producción.
+
 ## Tipos de Tests
 
 ### 1. Tests de Dominio (Unit Tests)
@@ -146,21 +149,6 @@ class UsuarioTest {
     }
 
     @Test
-    @DisplayName("Debe cambiar username y actualizar timestamp")
-    void debeCambiarUsername() {
-        // Arrange
-        Usuario usuario = crearUsuarioDefault();
-        Username nuevoUsername = Username.of("nuevoNombre");
-
-        // Act
-        usuario.changeUsername(nuevoUsername);
-
-        // Assert
-        assertEquals("nuevoNombre", usuario.getUsername().value());
-        assertTrue(usuario.getUpdatedAt().isAfter(usuario.getCreatedAt()));
-    }
-
-    @Test
     @DisplayName("Debe lanzar excepción al cambiar username a nulo")
     void debeLanzarExcepcionAlCambiarUsernameANulo() {
         // Arrange
@@ -185,24 +173,6 @@ class UsuarioTest {
         assertEquals("nuevo@test.com", usuario.getEmail().value());
     }
 
-    @Test
-    @DisplayName("Debe vincular cuenta de Discord")
-    void debeVincularCuentaDeDiscord() {
-        // Arrange
-        Usuario usuario = crearUsuarioDefault();
-        DiscordUserId discordId = DiscordUserId.of("123456789");
-        DiscordUsername discordUsername = DiscordUsername.of("player#1234");
-
-        // Act
-        usuario.linkDiscord(discordId, discordUsername);
-
-        // Assert
-        assertEquals("123456789", usuario.getDiscordUserId().value());
-        assertEquals("player#1234", usuario.getDiscordUsername().value());
-        assertNotNull(usuario.getDiscordLinkedAt());
-        assertTrue(usuario.isDiscordConsent());
-        assertTrue(usuario.hasDiscordLinked());
-    }
 
     @Test
     @DisplayName("Debe generar token de verificación al crear usuario")
@@ -472,34 +442,7 @@ class UsuarioMapperTest {
         assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
     }
 
-    @Test
-    @DisplayName("Debe manejar correctamente valores opcionales (Avatar, Discord)")
-    void debeManejareValoresOpcionales() {
-        // Arrange
-        UsuarioEntity entity = new UsuarioEntity();
-        entity.setId(java.util.UUID.randomUUID());
-        entity.setUsername("testuser");
-        entity.setEmail("test@test.com");
-        entity.setPasswordHash("$2a$10$hash");
-        entity.setAvatar(null);
-        entity.setDiscordUserId(null);
-        entity.setDiscordUsername(null);
-        entity.setCreatedAt(Instant.now());
-        entity.setUpdatedAt(Instant.now());
-        entity.setRole(Rol.USER);
-        entity.setLanguage(Idioma.ESP);
-        entity.setNotificationsActive(true);
-        entity.setStatus(EstadoUsuario.ACTIVO);
-        entity.setDiscordConsent(false);
-
-        // Act
-        Usuario usuario = mapper.toDomain(entity);
-
-        // Assert
-        assertTrue(usuario.getAvatar().isEmpty());
-        assertTrue(usuario.getDiscordUserId().isEmpty());
-        assertTrue(usuario.getDiscordUsername().isEmpty());
-    }
+}
 }
 ```
 

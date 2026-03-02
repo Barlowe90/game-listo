@@ -23,6 +23,8 @@ public class SecurityConfig {
         .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
 
         // Permitir todas las peticiones (la autenticación se hace en el filtro)
+        // o sea que Spring Security no bloquea nada por si mismo y quien decide bloquear o no
+        // es el filtro global de JwTAuthenticationFilter
         .authorizeExchange(exchanges -> exchanges.anyExchange().permitAll())
         .build();
   }
