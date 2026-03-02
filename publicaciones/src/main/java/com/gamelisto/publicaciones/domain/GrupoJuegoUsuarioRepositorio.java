@@ -8,7 +8,7 @@ public interface GrupoJuegoUsuarioRepositorio {
 
   List<GrupoJuegoUsuario> findByGrupoId(UUID grupoId);
 
-  boolean existsByGrupoIdAndUsuarioId(UUID grupoId, UUID usuarioId);
+  boolean existsByGrupoIdAndUsuarioId(UUID grupoId, UUID usuarioId); // no usada
 
   void deleteByGrupoIdAndUsuarioId(UUID grupoId, UUID usuarioId);
 }

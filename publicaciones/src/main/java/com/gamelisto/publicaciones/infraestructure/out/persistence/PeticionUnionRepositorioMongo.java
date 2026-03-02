@@ -55,9 +55,4 @@ public class PeticionUnionRepositorioMongo implements PeticionUnionRepositorio {
         .map(mapper::toDomain)
         .toList();
   }
-
-  @Override
-  public void deleteById(UUID peticionId) {
-    mongoRepository.deleteById(peticionId);
-  }
 }
