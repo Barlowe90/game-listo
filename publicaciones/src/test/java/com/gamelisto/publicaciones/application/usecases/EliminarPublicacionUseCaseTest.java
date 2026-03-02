@@ -23,14 +23,7 @@ class EliminarPublicacionUseCaseTest {
 
   private Publicacion publicacionDe(UUID autorId) {
     return Publicacion.create(
-        autorId,
-        1L,
-        "Titulo",
-        Idioma.ESP,
-        Experiencia.NOVATO,
-        EstiloJuego.LOGROS,
-        4,
-        EstadoPublicacion.PUBLICADA);
+        autorId, 1L, "Titulo", Idioma.ESP, Experiencia.NOVATO, EstiloJuego.LOGROS, 4);
   }
 
   @Test

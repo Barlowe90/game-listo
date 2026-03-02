@@ -16,7 +16,6 @@ public class Publicacion {
   private final Experiencia experiencia;
   private final EstiloJuego estiloJuego;
   private final int jugadoresMaximos;
-  private final EstadoPublicacion estadoPublicacion;
 
   private Publicacion(
       UUID id,
@@ -26,8 +25,7 @@ public class Publicacion {
       Idioma idioma,
       Experiencia experiencia,
       EstiloJuego estiloJuego,
-      int jugadoresMaximos,
-      EstadoPublicacion estadoPublicacion) {
+      int jugadoresMaximos) {
     this.id = id;
     this.autorId = autorId;
     this.gameId = gameId;
@@ -36,7 +34,6 @@ public class Publicacion {
     this.experiencia = experiencia;
     this.estiloJuego = estiloJuego;
     this.jugadoresMaximos = jugadoresMaximos;
-    this.estadoPublicacion = estadoPublicacion;
   }
 
   public static Publicacion create(
@@ -46,8 +43,7 @@ public class Publicacion {
       Idioma idioma,
       Experiencia experiencia,
       EstiloJuego estiloJuego,
-      int jugadoresMaximos,
-      EstadoPublicacion estadoPublicacion) {
+      int jugadoresMaximos) {
     return new Publicacion(
         UUID.randomUUID(),
         autorId,
@@ -56,8 +52,7 @@ public class Publicacion {
         idioma,
         experiencia,
         estiloJuego,
-        jugadoresMaximos,
-        estadoPublicacion);
+        jugadoresMaximos);
   }
 
   public static Publicacion reconstitute(
@@ -68,17 +63,8 @@ public class Publicacion {
       Idioma idioma,
       Experiencia experiencia,
       EstiloJuego estiloJuego,
-      int jugadoresMaximos,
-      EstadoPublicacion estadoPublicacion) {
+      int jugadoresMaximos) {
     return new Publicacion(
-        id,
-        autorId,
-        gameId,
-        titulo,
-        idioma,
-        experiencia,
-        estiloJuego,
-        jugadoresMaximos,
-        estadoPublicacion);
+        id, autorId, gameId, titulo, idioma, experiencia, estiloJuego, jugadoresMaximos);
   }
 }

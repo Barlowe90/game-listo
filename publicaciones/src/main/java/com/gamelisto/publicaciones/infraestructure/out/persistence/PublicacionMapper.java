@@ -15,7 +15,6 @@ public class PublicacionMapper {
     document.setExperiencia(publicacion.getExperiencia());
     document.setEstiloJuego(publicacion.getEstiloJuego());
     document.setJugadoresMaximos(publicacion.getJugadoresMaximos());
-    document.setEstadoPublicacion(publicacion.getEstadoPublicacion());
     return document;
   }
 
@@ -28,7 +27,6 @@ public class PublicacionMapper {
         document.getIdioma(),
         document.getExperiencia(),
         document.getEstiloJuego(),
-        document.getJugadoresMaximos(),
-        document.getEstadoPublicacion());
+        document.getJugadoresMaximos());
   }
 }

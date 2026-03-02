@@ -13,7 +13,6 @@ public record PublicacionDetalleResponse(
     String experiencia,
     String estiloJuego,
     int jugadoresMaximos,
-    String estadoPublicacion,
     int participantesCount,
     int plazasDisponibles,
     List<UsuarioRefResponse> participantes) {
@@ -27,7 +26,6 @@ public record PublicacionDetalleResponse(
         r.experiencia(),
         r.estiloJuego(),
         r.jugadoresMaximos(),
-        r.estadoPublicacion(),
         r.participantesCount(),
         r.plazasDisponibles(),
         r.participantes().stream().map(UsuarioRefResponse::from).toList());

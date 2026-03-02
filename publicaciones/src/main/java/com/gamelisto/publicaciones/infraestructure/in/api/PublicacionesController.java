@@ -25,16 +25,8 @@ public class PublicacionesController {
   private final BuscarPublicacionHandler buscarPublicacion;
   private final EditarPublicacionHandler editarPublicacion;
   private final EliminarPublicacionHandler eliminarPublicacion;
-  private final PeticionUnionPublicacionHandler peticionUnionPublicacion;
-  private final BuscarPeticionesUnionEnviadasHandler buscarPeticionesEnviadas;
-  private final BuscarPeticionesUnionRecibidasHandler buscarPeticionesRecibidas;
-  private final BuscarPeticionesUnionRecibidasEnLaPublicacionHandler
-      buscarPeticionesUnionRecibidasEnLaPublicacion;
-  private final AceptarORechazarPeticionHandle aceptarORechazarPeticionHandle;
   private final BuscarPublicacionesUsuarioHandler buscarPublicacionesUsuario;
   private final BuscarPublicacionesPorJuegoHandler buscarPublicacionesPorJuego;
-  private final BuscarGrupoJuegoHandle buscarGrupoJuegoHandle;
-  private final AbandonarGrupoHandler abandonarGrupo;
 
   @PostMapping
   public ResponseEntity<PublicacionResponse> crearPublicacion(
@@ -93,88 +85,8 @@ public class PublicacionesController {
     return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/{publicacionId}/peticion-union")
-  public ResponseEntity<PeticionUnionResponse> crearPeticionUnion(
-      @PathVariable UUID publicacionId, Authentication authentication) {
-    logger.info("Peticion de union para la publicacion {}", publicacionId);
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
-
-    PeticionUnionResult result = peticionUnionPublicacion.execute(publicacionId, userId);
-
-    return ResponseEntity.status(HttpStatus.OK).body(PeticionUnionResponse.from(result));
-  }
-
-  @GetMapping("/peticiones-union/enviadas")
-  public ResponseEntity<List<PeticionUnionResponse>> obtenerPeticionesUnionEnviadas(
-      Authentication authentication) {
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
-    logger.info("Listar peticiones de union enviadas por el usuario", userId);
-
-    List<PeticionUnionResult> result = buscarPeticionesEnviadas.execute(userId);
-
-    List<PeticionUnionResponse> response =
-        result.stream().map(PeticionUnionResponse::from).toList();
-
-    return ResponseEntity.status(HttpStatus.OK).body(response);
-  }
-
-  @GetMapping("/peticiones-union/recibidas")
-  public ResponseEntity<List<PeticionUnionResponse>> obtenerPeticionUnionRecibidas(
-      Authentication authentication) {
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
-    logger.info("Listar peticiones de union recibidas por el usuario", userId);
-
-    List<PeticionUnionResult> result = buscarPeticionesRecibidas.execute(userId);
-
-    List<PeticionUnionResponse> response =
-        result.stream().map(PeticionUnionResponse::from).toList();
-
-    return ResponseEntity.status(HttpStatus.OK).body(response);
-  }
-
-  @GetMapping("/{publicacionId}/peticiones-union")
-  public ResponseEntity<List<PeticionUnionResponse>> obtenerPeticionesUnion(
-      @PathVariable UUID publicacionId, Authentication authentication) {
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
-    logger.info("Listar peticiones recibidas a la publicacion {}", publicacionId);
-
-    List<PeticionUnionResult> result =
-        buscarPeticionesUnionRecibidasEnLaPublicacion.execute(userId, publicacionId);
-
-    List<PeticionUnionResponse> response =
-        result.stream().map(PeticionUnionResponse::from).toList();
-
-    return ResponseEntity.status(HttpStatus.OK).body(response);
-  }
-
-  @PatchMapping("/peticiones-union/{peticionId}") // aceptar/rechazar peticion
-  public ResponseEntity<PeticionUnionResponse> aceptarORechazarPeticion(
-      @PathVariable UUID peticionId,
-      @Valid @RequestBody PeticionUnionRequest request,
-      Authentication authentication) {
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
-    logger.info(
-        "Aceptar o rechazar peticion para la peticion {} por el usuario {} ", peticionId, userId);
-
-    PeticionUnionResult result =
-        aceptarORechazarPeticionHandle.execute(request.toCommand(peticionId, userId));
-
-    return ResponseEntity.status(HttpStatus.OK).body(PeticionUnionResponse.from(result));
-  }
-
-  @PostMapping("/{publicacionId}/abandonar-grupo") // abandonar grupo
-  public ResponseEntity<PeticionUnionResponse> abandonarGrupo(
-      @PathVariable UUID publicacionId, Authentication authentication) {
-    logger.info("Peticion de union para la publicacion {}", publicacionId);
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
-
-    abandonarGrupo.execute(publicacionId, userId);
-
-    return ResponseEntity.noContent().build();
-  }
-
-  @GetMapping("/user") // listar publicaciones creadas por usuario
-  public ResponseEntity<List<PublicacionResponse>> obtenerPublicacionesUsuario(
+  @GetMapping("/user")
+  public ResponseEntity<List<PublicacionResponse>> obtenerPublicacionesCreadasPorUsuario(
       Authentication authentication) {
     UUID userId = UUID.fromString(authentication.getPrincipal().toString());
     logger.info("Buscar las publicaciones del usuario {}", userId);
@@ -186,7 +98,7 @@ public class PublicacionesController {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
-  @GetMapping("/game/{gameId}") // listar publicaciones de un juego
+  @GetMapping("/game/{gameId}")
   public ResponseEntity<List<PublicacionResponse>> obtenerPublicacionesPorJuego(
       @PathVariable Long gameId) {
     logger.info("Buscar las publicaciones del juego {}", gameId);
@@ -196,14 +108,5 @@ public class PublicacionesController {
     List<PublicacionResponse> response = result.stream().map(PublicacionResponse::from).toList();
 
     return ResponseEntity.status(HttpStatus.OK).body(response);
-  }
-
-  @GetMapping("/grupos/{grupoId}") // obtener detalles grupo
-  public ResponseEntity<GrupoJuegoResponse> obtenerGrupoJuego(@PathVariable UUID grupoId) {
-    logger.info("Obtener datos grupo juego con id {}", grupoId);
-
-    GrupoJuegoResult result = buscarGrupoJuegoHandle.execute(grupoId);
-
-    return ResponseEntity.status(HttpStatus.OK).body(GrupoJuegoResponse.from(result));
   }
 }

@@ -45,8 +45,7 @@ public class EditarPublicacionUseCase implements EditarPublicacionHandler {
             idioma,
             experiencia,
             estiloJuego,
-            jugadoresMaximos,
-            publicacion.getEstadoPublicacion());
+            jugadoresMaximos);
 
     Publicacion guardado = publicacionRepositorio.save(actualizado);
 

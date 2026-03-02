@@ -43,8 +43,7 @@ class AceptarORechazarPeticionUseCaseTest {
             Idioma.ESP,
             Experiencia.NOVATO,
             EstiloJuego.LOGROS,
-            4,
-            EstadoPublicacion.PUBLICADA);
+            4);
 
     when(peticionUnionRepositorio.findById(peticionId)).thenReturn(Optional.of(peticion));
     // NOTA: el useCase busca por peticionUnion.getId() en vez de publicacionId — bug conocido
@@ -77,8 +76,7 @@ class AceptarORechazarPeticionUseCaseTest {
             Idioma.ESP,
             Experiencia.NOVATO,
             EstiloJuego.LOGROS,
-            4,
-            EstadoPublicacion.PUBLICADA);
+            4);
 
     when(peticionUnionRepositorio.findById(peticionId)).thenReturn(Optional.of(peticion));
     when(publicacionRepositorio.findById(peticionId)).thenReturn(Optional.of(pub));

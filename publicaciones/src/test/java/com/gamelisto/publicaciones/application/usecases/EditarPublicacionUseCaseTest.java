@@ -25,14 +25,7 @@ class EditarPublicacionUseCaseTest {
 
   private Publicacion publicacionDe(UUID autorId) {
     return Publicacion.create(
-        autorId,
-        100L,
-        "Titulo original",
-        Idioma.ESP,
-        Experiencia.NOVATO,
-        EstiloJuego.LOGROS,
-        4,
-        EstadoPublicacion.PUBLICADA);
+        autorId, 100L, "Titulo original", Idioma.ESP, Experiencia.NOVATO, EstiloJuego.LOGROS, 4);
   }
 
   @Test

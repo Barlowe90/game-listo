@@ -38,8 +38,7 @@ class AbandonarGrupoUseCaseTest {
             Idioma.ESP,
             Experiencia.NOVATO,
             EstiloJuego.LOGROS,
-            4,
-            EstadoPublicacion.PUBLICADA);
+            4);
     GrupoJuego grupo = GrupoJuego.create(publicacionId);
 
     when(publicacionRepositorio.findById(publicacionId)).thenReturn(Optional.of(pub));
@@ -65,8 +64,7 @@ class AbandonarGrupoUseCaseTest {
             Idioma.ESP,
             Experiencia.NOVATO,
             EstiloJuego.LOGROS,
-            4,
-            EstadoPublicacion.PUBLICADA);
+            4);
 
     when(publicacionRepositorio.findById(publicacionId)).thenReturn(Optional.of(pub));
 

@@ -25,14 +25,7 @@ public class CrearPublicacionUseCase implements CrearPublicacionHandler {
 
     Publicacion publicacion =
         Publicacion.create(
-            autorUuid,
-            gameId,
-            titulo,
-            idioma,
-            experiencia,
-            estiloJuego,
-            jugadoresMaximos,
-            EstadoPublicacion.PUBLICADA);
+            autorUuid, gameId, titulo, idioma, experiencia, estiloJuego, jugadoresMaximos);
 
     Publicacion publicacionGuardada = publicacionRepositorio.save(publicacion);
 

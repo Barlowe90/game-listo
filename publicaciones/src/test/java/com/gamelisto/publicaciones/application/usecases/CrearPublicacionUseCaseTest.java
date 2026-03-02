@@ -35,8 +35,6 @@ class CrearPublicacionUseCaseTest {
 
     assertThat(result.autorId()).isEqualTo(autorId.toString());
     assertThat(result.titulo()).isEqualTo("Busco grupo");
-    assertThat(result.estadoPublicacion()).isEqualTo("PUBLICADA");
-    assertThat(captor.getValue().getEstadoPublicacion()).isEqualTo(EstadoPublicacion.PUBLICADA);
     verify(publicacionRepositorio).save(any(Publicacion.class));
   }
 

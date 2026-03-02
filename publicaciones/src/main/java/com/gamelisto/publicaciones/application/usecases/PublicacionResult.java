@@ -10,8 +10,7 @@ public record PublicacionResult(
     String idioma,
     String experiencia,
     String estiloJuego,
-    int jugadoresMaximos,
-    String estadoPublicacion) {
+    int jugadoresMaximos) {
 
   public static PublicacionResult from(Publicacion p) {
     return new PublicacionResult(
@@ -22,7 +21,6 @@ public record PublicacionResult(
         p.getIdioma().toString(),
         p.getExperiencia().toString(),
         p.getEstiloJuego().toString(),
-        p.getJugadoresMaximos(),
-        p.getEstadoPublicacion().toString());
+        p.getJugadoresMaximos());
   }
 }

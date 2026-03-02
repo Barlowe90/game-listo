@@ -1,6 +1,5 @@
 package com.gamelisto.publicaciones.infraestructure.out.persistence;
 
-import com.gamelisto.publicaciones.domain.EstadoPublicacion;
 import com.gamelisto.publicaciones.domain.EstiloJuego;
 import com.gamelisto.publicaciones.domain.Experiencia;
 import com.gamelisto.publicaciones.domain.Idioma;
@@ -35,6 +34,4 @@ public class PublicacionDocument {
   private EstiloJuego estiloJuego;
 
   private int jugadoresMaximos;
-
-  @Indexed private EstadoPublicacion estadoPublicacion;
 }

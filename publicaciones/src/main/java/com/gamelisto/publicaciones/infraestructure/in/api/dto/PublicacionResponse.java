@@ -10,8 +10,7 @@ public record PublicacionResponse(
     String idioma,
     String experiencia,
     String estiloJuego,
-    int jugadoresMaximos,
-    String estadoPublicacion) {
+    int jugadoresMaximos) {
 
   public static PublicacionResponse from(PublicacionResult p) {
     return new PublicacionResponse(
@@ -22,7 +21,6 @@ public record PublicacionResponse(
         p.idioma(),
         p.experiencia(),
         p.estiloJuego(),
-        p.jugadoresMaximos(),
-        p.estadoPublicacion());
+        p.jugadoresMaximos());
   }
 }
