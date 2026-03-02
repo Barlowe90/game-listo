@@ -1,5 +1,6 @@
 package com.gamelisto.publicaciones.application.usecases;
 
+import com.gamelisto.publicaciones.domain.EstadoPeticion;
 import com.gamelisto.publicaciones.domain.PeticionUnion;
 import com.gamelisto.publicaciones.domain.PeticionUnionRepositorio;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,8 @@ public class PeticionUnionPublicacionUseCase implements PeticionUnionPublicacion
 
   @Override
   public PeticionUnionResult execute(UUID publicacionId, UUID userId) {
-    PeticionUnion peticionUnion = PeticionUnion.create(publicacionId, userId);
+    PeticionUnion peticionUnion =
+        PeticionUnion.create(publicacionId, userId, EstadoPeticion.SOLICITADA);
     PeticionUnion saved = peticionUnionRepositorio.save(peticionUnion);
     return PeticionUnionResult.from(saved);
   }

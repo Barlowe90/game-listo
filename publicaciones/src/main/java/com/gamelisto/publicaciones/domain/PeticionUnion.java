@@ -22,9 +22,9 @@ public class PeticionUnion {
     this.estadoPeticion = estadoPeticion;
   }
 
-  public static PeticionUnion create(UUID publicacionId, UUID usuarioId) {
-    return new PeticionUnion(
-        UUID.randomUUID(), publicacionId, usuarioId, EstadoPeticion.SOLICITADA);
+  public static PeticionUnion create(
+      UUID publicacionId, UUID usuarioId, EstadoPeticion estadoPeticion) {
+    return new PeticionUnion(UUID.randomUUID(), publicacionId, usuarioId, estadoPeticion);
   }
 
   public static PeticionUnion reconstitute(

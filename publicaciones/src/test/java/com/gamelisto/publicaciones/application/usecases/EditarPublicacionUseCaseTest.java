@@ -1,0 +1,73 @@
+package com.gamelisto.publicaciones.application.usecases;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
+import com.gamelisto.publicaciones.domain.*;
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("EditarPublicacionUseCase - Unit tests")
+class EditarPublicacionUseCaseTest {
+
+  @Mock private PublicacionRepositorio publicacionRepositorio;
+  @InjectMocks private EditarPublicacionUseCase useCase;
+
+  private Publicacion publicacionDe(UUID autorId) {
+    return Publicacion.create(
+        autorId,
+        100L,
+        "Titulo original",
+        Idioma.ESP,
+        Experiencia.NOVATO,
+        EstiloJuego.LOGROS,
+        4,
+        EstadoPublicacion.PUBLICADA);
+  }
+
+  @Test
+  @DisplayName("debe actualizar el título y devolver el resultado")
+  void debeEditarTitulo() {
+    UUID autorId = UUID.randomUUID();
+    Publicacion pub = publicacionDe(autorId);
+    when(publicacionRepositorio.findById(pub.getId())).thenReturn(Optional.of(pub));
+    when(publicacionRepositorio.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+    EditarPublicacionCommand command =
+        new EditarPublicacionCommand(
+            pub.getId(), autorId, "Nuevo titulo", "ENG", "PRO", "DISFRUTAR_DEL_JUEGO", 6);
+
+    PublicacionResult result = useCase.execute(command);
+
+    assertThat(result.titulo()).isEqualTo("Nuevo titulo");
+    assertThat(result.idioma()).isEqualTo("ENG");
+    assertThat(result.jugadoresMaximos()).isEqualTo(6);
+    verify(publicacionRepositorio).save(any(Publicacion.class));
+  }
+
+  @Test
+  @DisplayName("debe lanzar excepción si el usuario no es el autor")
+  void debeLanzarExcepcionSiNoEsElAutor() {
+    UUID autorId = UUID.randomUUID();
+    Publicacion pub = publicacionDe(autorId);
+    when(publicacionRepositorio.findById(pub.getId())).thenReturn(Optional.of(pub));
+
+    EditarPublicacionCommand command =
+        new EditarPublicacionCommand(
+            pub.getId(), UUID.randomUUID(), "Hack", "ESP", "NOVATO", "LOGROS", 2);
+
+    assertThatThrownBy(() -> useCase.execute(command))
+        .isInstanceOf(ApplicationException.class)
+        .hasMessageContaining("propietario");
+  }
+}

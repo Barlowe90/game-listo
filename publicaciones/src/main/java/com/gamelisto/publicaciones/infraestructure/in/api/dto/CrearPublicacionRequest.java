@@ -5,7 +5,7 @@ import com.gamelisto.publicaciones.application.usecases.CrearPublicacionCommand;
 import java.util.UUID;
 
 public record CrearPublicacionRequest(
-    UUID gameId,
+    Long gameId,
     String titulo,
     String idioma,
     String experiencia,

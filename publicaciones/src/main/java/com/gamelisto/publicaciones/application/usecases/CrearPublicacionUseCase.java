@@ -15,8 +15,8 @@ public class CrearPublicacionUseCase implements CrearPublicacionHandler {
 
   @Override
   public PublicacionResult execute(CrearPublicacionCommand command) {
-    UUID autorUuid = UUID.fromString(command.autorId());
-    Long gameId = Long.parseLong(command.gameId());
+    UUID autorUuid = command.autorId();
+    Long gameId = command.gameId();
     String titulo = command.titulo();
     Idioma idioma = Idioma.valueOf(command.idioma());
     Experiencia experiencia = Experiencia.valueOf(command.experiencia());
@@ -25,7 +25,14 @@ public class CrearPublicacionUseCase implements CrearPublicacionHandler {
 
     Publicacion publicacion =
         Publicacion.create(
-            autorUuid, gameId, titulo, idioma, experiencia, estiloJuego, jugadoresMaximos);
+            autorUuid,
+            gameId,
+            titulo,
+            idioma,
+            experiencia,
+            estiloJuego,
+            jugadoresMaximos,
+            EstadoPublicacion.PUBLICADA);
 
     Publicacion publicacionGuardada = publicacionRepositorio.save(publicacion);
 

@@ -19,8 +19,8 @@ public class EditarPublicacionUseCase implements EditarPublicacionHandler {
 
   @Override
   public PublicacionResult execute(EditarPublicacionCommand command) {
-    UUID publicacionId = UUID.fromString(command.publicacionId());
-    UUID autorId = UUID.fromString(command.autorId());
+    UUID publicacionId = command.publicacionId();
+    UUID autorId = command.autorId();
     String titulo = command.titulo();
     Idioma idioma = Idioma.valueOf(command.idioma());
     Experiencia experiencia = Experiencia.valueOf(command.experiencia());

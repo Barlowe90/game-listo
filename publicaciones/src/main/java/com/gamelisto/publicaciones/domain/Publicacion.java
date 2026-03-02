@@ -41,12 +41,13 @@ public class Publicacion {
 
   public static Publicacion create(
       UUID autorId,
-      Long gameId,
+      long gameId,
       String titulo,
       Idioma idioma,
       Experiencia experiencia,
       EstiloJuego estiloJuego,
-      int jugadoresMaximos) {
+      int jugadoresMaximos,
+      EstadoPublicacion estadoPublicacion) {
     return new Publicacion(
         UUID.randomUUID(),
         autorId,
@@ -56,7 +57,7 @@ public class Publicacion {
         experiencia,
         estiloJuego,
         jugadoresMaximos,
-        EstadoPublicacion.PUBLICADA);
+        estadoPublicacion);
   }
 
   public static Publicacion reconstitute(

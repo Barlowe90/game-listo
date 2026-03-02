@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public record CrearPublicacionCommand(
     UUID autorId,
-    UUID gameId,
+    Long gameId,
     String titulo,
     String idioma,
     String experiencia,
