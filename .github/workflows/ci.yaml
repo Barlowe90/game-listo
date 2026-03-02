@@ -175,6 +175,7 @@ jobs:
           SPRING_RABBITMQ_USERNAME: guest
           SPRING_RABBITMQ_PASSWORD: guest
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          MESSAGING_RABBITMQ_ENABLED: "true"
         run: ./mvnw -B -ntp verify
 
       - name: Generate JaCoCo report
@@ -259,6 +260,7 @@ jobs:
           SPRING_RABBITMQ_PORT: "5672"
           SPRING_RABBITMQ_USERNAME: guest
           SPRING_RABBITMQ_PASSWORD: guest
+          MESSAGING_RABBITMQ_ENABLED: "true"
         run: ./mvnw -B -ntp verify
 
       - name: Upload test artifacts
