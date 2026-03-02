@@ -1,12 +1,15 @@
 package com.gamelisto.publicaciones.application.usecases;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.EstadoSolicitud;
 import com.gamelisto.publicaciones.domain.PeticionUnion;
 import com.gamelisto.publicaciones.domain.PeticionUnionRepositorio;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +33,8 @@ class PeticionUnionPublicacionUseCaseTest {
     UUID userId = UUID.randomUUID();
 
     ArgumentCaptor<PeticionUnion> captor = ArgumentCaptor.forClass(PeticionUnion.class);
+    when(peticionUnionRepositorio.findByPublicacionIdAndUsuarioId(publicacionId, userId))
+        .thenReturn(Optional.empty());
     when(peticionUnionRepositorio.save(captor.capture())).thenAnswer(inv -> inv.getArgument(0));
 
     PeticionUnionResult result = useCase.execute(publicacionId, userId);
@@ -42,5 +47,26 @@ class PeticionUnionPublicacionUseCaseTest {
     assertThat(result.estadoSolicitud()).isEqualTo("SOLICITADA");
     assertThat(result.publicacionId()).isEqualTo(publicacionId.toString());
     verify(peticionUnionRepositorio).save(any(PeticionUnion.class));
+  }
+
+  @Test
+  @DisplayName(
+      "debe lanzar excepción si ya existe una solicitud del mismo usuario para la publicacion")
+  void debeLanzarSiYaExiste() {
+    UUID publicacionId = UUID.randomUUID();
+    UUID userId = UUID.randomUUID();
+
+    PeticionUnion existente =
+        PeticionUnion.reconstitute(
+            UUID.randomUUID(), publicacionId, userId, EstadoSolicitud.SOLICITADA);
+
+    when(peticionUnionRepositorio.findByPublicacionIdAndUsuarioId(publicacionId, userId))
+        .thenReturn(Optional.of(existente));
+
+    assertThatThrownBy(() -> useCase.execute(publicacionId, userId))
+        .isInstanceOf(ApplicationException.class)
+        .hasMessageContaining("Ya existe una solicitud");
+
+    verify(peticionUnionRepositorio, never()).save(any());
   }
 }

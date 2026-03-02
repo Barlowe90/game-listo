@@ -9,11 +9,11 @@ public interface PeticionUnionRepositorio {
 
   Optional<PeticionUnion> findById(UUID id);
 
-  List<PeticionUnion> findByPublicacionId(UUID publicacionId); // no usada
+  List<PeticionUnion> findByPublicacionId(UUID publicacionId);
 
   Optional<PeticionUnion> findByPublicacionIdAndUsuarioId(UUID publicacionId, UUID usuarioId);
 
-  List<PeticionUnion> findByUsuarioId(UUID usuarioId); // solicitudes enviadas
+  List<PeticionUnion> findByUsuarioId(UUID usuarioId);
 
-  List<PeticionUnion> findByPublicacionIdIn(List<UUID> publicacionIds); // solicitudes recibidas
+  List<PeticionUnion> findByPublicacionIdIn(List<UUID> publicacionIds);
 }
