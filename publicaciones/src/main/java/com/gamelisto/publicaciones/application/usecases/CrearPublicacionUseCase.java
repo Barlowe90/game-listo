@@ -12,6 +12,8 @@ import java.util.UUID;
 public class CrearPublicacionUseCase implements CrearPublicacionHandler {
 
   private final PublicacionRepositorio publicacionRepositorio;
+  private final GrupoJuegoRepositorio grupoJuegoRepositorio;
+  private final GrupoJuegoUsuarioRepositorio grupoJuegoUsuarioRepositorio;
 
   @Override
   public PublicacionResult execute(CrearPublicacionCommand command) {
@@ -32,6 +34,14 @@ public class CrearPublicacionUseCase implements CrearPublicacionHandler {
     if (publicacionGuardada == null) {
       throw new ApplicationException("No se pudo crear la publicacion");
     }
+
+    // Crear y persistir el GrupoJuego asociado a la publicacion
+    GrupoJuego grupo = GrupoJuego.create(publicacionGuardada.getId());
+    GrupoJuego grupoGuardado = grupoJuegoRepositorio.save(grupo);
+
+    // Añadir al autor como miembro del grupo
+    GrupoJuegoUsuario miembro = GrupoJuegoUsuario.create(grupoGuardado.getId(), autorUuid);
+    grupoJuegoUsuarioRepositorio.save(miembro);
 
     return PublicacionResult.from(publicacionGuardada);
   }
