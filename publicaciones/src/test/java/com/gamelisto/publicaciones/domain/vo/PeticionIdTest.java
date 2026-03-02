@@ -1,0 +1,22 @@
+package com.gamelisto.publicaciones.domain.vo;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+@Disabled("Plantilla de test para PeticionId: deshabilitada hasta implementar el VO")
+@DisplayName("PeticionId - Plantilla de tests")
+class PeticionIdTest {
+
+  @Test
+  @DisplayName("of(valid) debe crear instancia y mantener valor")
+  void of_debeCrearConValorValido() {
+    // TODO: implementar cuando se cree PeticionId
+  }
+
+  @Test
+  @DisplayName("of(null) debe lanzar DomainException")
+  void of_null_debeLanzar() {
+    // TODO: implementar cuando se cree PeticionId
+  }
+}
