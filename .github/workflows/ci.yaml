@@ -107,6 +107,16 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps: # esto es lo que ejecutará actions
       - name: Checkout code # esto lo tiene antonio en su CI
         uses: actions/checkout@v4
@@ -176,6 +186,8 @@ jobs:
           SPRING_RABBITMQ_PASSWORD: guest
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           MESSAGING_RABBITMQ_ENABLED: "true"
+          SPRING_DATA_REDIS_HOST: localhost
+          SPRING_DATA_REDIS_PORT: "6379"
         run: ./mvnw -B -ntp verify
 
       - name: Generate JaCoCo report
