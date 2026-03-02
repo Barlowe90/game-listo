@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import com.gamelisto.publicaciones.domain.Publicacion;
 import com.gamelisto.publicaciones.domain.PublicacionRepositorio;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +22,10 @@ public class BuscarPeticionesUnionRecibidasUseCase
   @Override
   public List<PeticionUnionResult> execute(UUID userId) {
     // recuperar las publicaciones donde soy autor
-    List<UUID> publicacionesIds =
-        publicacionRepositorio.findByAutorId(userId).stream().map(Publicacion::getId).toList();
+    List<PublicacionId> publicacionesIds =
+        publicacionRepositorio.findByAutorId(UsuarioId.of(userId)).stream()
+            .map(Publicacion::getId)
+            .toList();
 
     if (publicacionesIds.isEmpty()) {
       return List.of();

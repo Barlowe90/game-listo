@@ -2,6 +2,7 @@ package com.gamelisto.publicaciones.application.usecases;
 
 import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.*;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -45,8 +46,9 @@ public class CrearPublicacionUseCase implements CrearPublicacionHandler {
 
   private void agregarAutorComoMiembroDelGrupo(GrupoJuego grupoGuardado, UUID autorUuid) {
     if (!grupoJuegoUsuarioRepositorio.existsByGrupoIdAndUsuarioId(
-        grupoGuardado.getId(), autorUuid)) {
-      GrupoJuegoUsuario miembro = GrupoJuegoUsuario.create(grupoGuardado.getId(), autorUuid);
+        grupoGuardado.getId(), UsuarioId.of(autorUuid))) {
+      GrupoJuegoUsuario miembro =
+          GrupoJuegoUsuario.create(grupoGuardado.getId(), UsuarioId.of(autorUuid));
       grupoJuegoUsuarioRepositorio.save(miembro);
     }
   }

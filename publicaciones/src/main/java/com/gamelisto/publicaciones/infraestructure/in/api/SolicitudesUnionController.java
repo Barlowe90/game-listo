@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/v1/publicaciones")
 @RequiredArgsConstructor
-public class PeticionesUnionController {
+public class SolicitudesUnionController {
 
-  private static final Logger logger = LoggerFactory.getLogger(PeticionesUnionController.class);
+  private static final Logger logger = LoggerFactory.getLogger(SolicitudesUnionController.class);
   private final CrearSolicitudUnionHandler crearSolicitud;
   private final BuscarPeticionesUnionEnviadasHandler buscarPeticionesEnviadas;
   private final BuscarPeticionesUnionRecibidasHandler buscarPeticionesRecibidas;
@@ -39,14 +39,14 @@ public class PeticionesUnionController {
     return ResponseEntity.status(HttpStatus.CREATED).body(PeticionUnionResponse.from(result));
   }
 
-  @PatchMapping("/peticiones-union/{peticionId}")
+  @PatchMapping("/solicitudes-union/{peticionId}")
   public ResponseEntity<PeticionUnionResponse> aceptarORechazarPeticion(
       @PathVariable UUID peticionId,
       @Valid @RequestBody PeticionUnionRequest request,
       Authentication authentication) {
     UUID userId = UUID.fromString(authentication.getPrincipal().toString());
     logger.info(
-        request.estadoSolicitud() + " peticion con id {} por el usuario {} ", peticionId, userId);
+        "{} peticion con id {} por el usuario {} ", request.estadoSolicitud(), peticionId, userId);
 
     PeticionUnionResult result =
         aceptarORechazarPeticionHandle.execute(request.toCommand(peticionId, userId));
@@ -54,11 +54,11 @@ public class PeticionesUnionController {
     return ResponseEntity.status(HttpStatus.OK).body(PeticionUnionResponse.from(result));
   }
 
-  @GetMapping("/peticiones-union/enviadas")
+  @GetMapping("/solicitudes-union/enviadas")
   public ResponseEntity<List<PeticionUnionResponse>> obtenerPeticionesUnionEnviadas(
       Authentication authentication) {
     UUID userId = UUID.fromString(authentication.getPrincipal().toString());
-    logger.info("Listar peticiones de union enviadas por el usuario", userId);
+    logger.info("Listar peticiones de union enviadas por el usuario {}", userId);
 
     List<PeticionUnionResult> result = buscarPeticionesEnviadas.execute(userId);
 
@@ -68,11 +68,11 @@ public class PeticionesUnionController {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
-  @GetMapping("/peticiones-union/recibidas")
+  @GetMapping("/solicitudes-union/recibidas")
   public ResponseEntity<List<PeticionUnionResponse>> obtenerPeticionUnionRecibidas(
       Authentication authentication) {
     UUID userId = UUID.fromString(authentication.getPrincipal().toString());
-    logger.info("Listar peticiones de union recibidas por el usuario", userId);
+    logger.info("Listar peticiones de union recibidas por el usuario {}", userId);
 
     List<PeticionUnionResult> result = buscarPeticionesRecibidas.execute(userId);
 
@@ -82,7 +82,7 @@ public class PeticionesUnionController {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
-  @GetMapping("/{publicacionId}/peticiones-union")
+  @GetMapping("/{publicacionId}/solicitudes-union")
   public ResponseEntity<List<PeticionUnionResponse>> obtenerPeticionesUnion(
       @PathVariable UUID publicacionId, Authentication authentication) {
     UUID userId = UUID.fromString(authentication.getPrincipal().toString());

@@ -5,6 +5,9 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.*;
+import com.gamelisto.publicaciones.domain.vo.GrupoId;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,7 +39,7 @@ class EliminarPublicacionUseCaseTest {
     Publicacion pub = publicacionDe(autorId);
     when(publicacionRepositorio.findById(pub.getId())).thenReturn(Optional.of(pub));
 
-    useCase.execute(pub.getId(), autorId);
+    useCase.execute(pub.getId().value(), autorId);
 
     verify(publicacionRepositorio).deleteById(pub.getId());
   }
@@ -48,15 +51,17 @@ class EliminarPublicacionUseCaseTest {
     Publicacion pub = publicacionDe(autorId);
     when(publicacionRepositorio.findById(pub.getId())).thenReturn(Optional.of(pub));
 
-    GrupoJuego grupo = GrupoJuego.create(pub.getId());
-    GrupoJuegoUsuario miembro1 = GrupoJuegoUsuario.create(grupo.getId(), UUID.randomUUID());
-    GrupoJuegoUsuario miembro2 = GrupoJuegoUsuario.create(grupo.getId(), UUID.randomUUID());
+    GrupoJuego grupo = GrupoJuego.create(PublicacionId.of(pub.getId().value()));
+    GrupoJuegoUsuario miembro1 =
+        GrupoJuegoUsuario.create(grupo.getId(), UsuarioId.of(UUID.randomUUID()));
+    GrupoJuegoUsuario miembro2 =
+        GrupoJuegoUsuario.create(grupo.getId(), UsuarioId.of(UUID.randomUUID()));
 
     when(grupoJuegoRepositorio.findByPublicacionId(pub.getId())).thenReturn(Optional.of(grupo));
     when(grupoJuegoUsuarioRepositorio.findByGrupoId(grupo.getId()))
         .thenReturn(List.of(miembro1, miembro2));
 
-    useCase.execute(pub.getId(), autorId);
+    useCase.execute(pub.getId().value(), autorId);
 
     verify(grupoJuegoUsuarioRepositorio)
         .deleteByGrupoIdAndUsuarioId(grupo.getId(), miembro1.getUsuarioId());
@@ -74,7 +79,7 @@ class EliminarPublicacionUseCaseTest {
     Publicacion pub = publicacionDe(autorId);
     when(publicacionRepositorio.findById(pub.getId())).thenReturn(Optional.of(pub));
 
-    assertThatThrownBy(() -> useCase.execute(pub.getId(), otroUsuario))
+    assertThatThrownBy(() -> useCase.execute(pub.getId().value(), otroUsuario))
         .isInstanceOf(ApplicationException.class)
         .hasMessageContaining("propietario");
 
@@ -85,7 +90,7 @@ class EliminarPublicacionUseCaseTest {
   @DisplayName("debe lanzar excepción si la publicación no existe")
   void debeLanzarExcepcionSiNoExiste() {
     UUID id = UUID.randomUUID();
-    when(publicacionRepositorio.findById(id)).thenReturn(Optional.empty());
+    when(publicacionRepositorio.findById(PublicacionId.of(id))).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> useCase.execute(id, UUID.randomUUID()))
         .isInstanceOf(ApplicationException.class);

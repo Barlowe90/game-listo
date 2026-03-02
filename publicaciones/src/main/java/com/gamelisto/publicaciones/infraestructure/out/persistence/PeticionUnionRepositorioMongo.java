@@ -2,12 +2,14 @@ package com.gamelisto.publicaciones.infraestructure.out.persistence;
 
 import com.gamelisto.publicaciones.domain.PeticionUnion;
 import com.gamelisto.publicaciones.domain.PeticionUnionRepositorio;
+import com.gamelisto.publicaciones.domain.vo.PeticionId;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -22,37 +24,38 @@ public class PeticionUnionRepositorioMongo implements PeticionUnionRepositorio {
   }
 
   @Override
-  public Optional<PeticionUnion> findById(UUID id) {
-    return mongoRepository.findById(id).map(mapper::toDomain);
+  public Optional<PeticionUnion> findById(PeticionId id) {
+    return mongoRepository.findById(id.value()).map(mapper::toDomain);
   }
 
   @Override
-  public List<PeticionUnion> findByPublicacionId(UUID publicacionId) {
-    return mongoRepository.findByPublicacionId(publicacionId).stream()
+  public List<PeticionUnion> findByPublicacionId(PublicacionId publicacionId) {
+    return mongoRepository.findByPublicacionId(publicacionId.value()).stream()
         .map(mapper::toDomain)
         .toList();
   }
 
   @Override
   public Optional<PeticionUnion> findByPublicacionIdAndUsuarioId(
-      UUID publicacionId, UUID usuarioId) {
+      PublicacionId publicacionId, UsuarioId usuarioId) {
     return mongoRepository
-        .findByPublicacionIdAndUsuarioId(publicacionId, usuarioId)
+        .findByPublicacionIdAndUsuarioId(publicacionId.value(), usuarioId.value())
         .map(mapper::toDomain);
   }
 
   @Override
-  public List<PeticionUnion> findByUsuarioId(UUID usuarioId) {
-    return mongoRepository.findByUsuarioId(usuarioId).stream().map(mapper::toDomain).toList();
+  public List<PeticionUnion> findByUsuarioId(UsuarioId usuarioId) {
+    return mongoRepository.findByUsuarioId(usuarioId.value()).stream()
+        .map(mapper::toDomain)
+        .toList();
   }
 
   @Override
-  public List<PeticionUnion> findByPublicacionIdIn(List<UUID> publicacionIds) {
+  public List<PeticionUnion> findByPublicacionIdIn(List<PublicacionId> publicacionIds) {
     if (publicacionIds == null || publicacionIds.isEmpty()) {
       return List.of();
     }
-    return mongoRepository.findByPublicacionIdIn(publicacionIds).stream()
-        .map(mapper::toDomain)
-        .toList();
+    List<java.util.UUID> ids = publicacionIds.stream().map(PublicacionId::value).toList();
+    return mongoRepository.findByPublicacionIdIn(ids).stream().map(mapper::toDomain).toList();
   }
 }

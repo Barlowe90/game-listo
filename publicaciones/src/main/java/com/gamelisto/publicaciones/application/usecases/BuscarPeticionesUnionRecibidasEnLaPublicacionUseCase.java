@@ -4,6 +4,7 @@ import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.PeticionUnionRepositorio;
 import com.gamelisto.publicaciones.domain.Publicacion;
 import com.gamelisto.publicaciones.domain.PublicacionRepositorio;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class BuscarPeticionesUnionRecibidasEnLaPublicacionUseCase
 
     validarUsuarioEsAutorPublicacion(userId, publicacionId);
 
-    return peticionUnionRepositorio.findByPublicacionId(publicacionId).stream()
+    return peticionUnionRepositorio.findByPublicacionId(PublicacionId.of(publicacionId)).stream()
         .map(PeticionUnionResult::from)
         .toList();
   }
@@ -30,7 +31,7 @@ public class BuscarPeticionesUnionRecibidasEnLaPublicacionUseCase
   private void validarUsuarioEsAutorPublicacion(UUID userId, UUID publicacionId) {
     Publicacion publicacion =
         publicacionRepositorio
-            .findById(publicacionId)
+            .findById(PublicacionId.of(publicacionId))
             .orElseThrow(() -> new ApplicationException("Publicacion no encontrada"));
 
     if (!publicacion.getAutorId().equals(userId)) {

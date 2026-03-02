@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 public class PublicacionMapper {
   public PublicacionDocument toDocument(Publicacion publicacion) {
     PublicacionDocument document = new PublicacionDocument();
-    document.setId(publicacion.getId());
+    document.setId(publicacion.getId().value());
     document.setAutorId(publicacion.getAutorId());
     document.setGameId(publicacion.getGameId());
     document.setTitulo(publicacion.getTitulo());

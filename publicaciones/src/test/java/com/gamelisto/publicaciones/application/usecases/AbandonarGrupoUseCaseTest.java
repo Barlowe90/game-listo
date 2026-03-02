@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 import com.gamelisto.publicaciones.domain.*;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -39,14 +41,17 @@ class AbandonarGrupoUseCaseTest {
             Experiencia.NOVATO,
             EstiloJuego.LOGROS,
             4);
-    GrupoJuego grupo = GrupoJuego.create(publicacionId);
+    GrupoJuego grupo = GrupoJuego.create(PublicacionId.of(publicacionId));
 
-    when(publicacionRepositorio.findById(publicacionId)).thenReturn(Optional.of(pub));
-    when(grupoJuegoRepositorio.findByPublicacionId(publicacionId)).thenReturn(Optional.of(grupo));
+    when(publicacionRepositorio.findById(PublicacionId.of(publicacionId)))
+        .thenReturn(Optional.of(pub));
+    when(grupoJuegoRepositorio.findByPublicacionId(PublicacionId.of(publicacionId)))
+        .thenReturn(Optional.of(grupo));
 
     useCase.execute(publicacionId, otroUsuario);
 
-    verify(grupoJuegoUsuarioRepositorio).deleteByGrupoIdAndUsuarioId(grupo.getId(), otroUsuario);
+    verify(grupoJuegoUsuarioRepositorio)
+        .deleteByGrupoIdAndUsuarioId(grupo.getId(), UsuarioId.of(otroUsuario));
   }
 
   @Test
@@ -66,7 +71,8 @@ class AbandonarGrupoUseCaseTest {
             EstiloJuego.LOGROS,
             4);
 
-    when(publicacionRepositorio.findById(publicacionId)).thenReturn(Optional.of(pub));
+    when(publicacionRepositorio.findById(PublicacionId.of(publicacionId)))
+        .thenReturn(Optional.of(pub));
 
     assertThatThrownBy(() -> useCase.execute(publicacionId, autorId))
         .isInstanceOf(RuntimeException.class)

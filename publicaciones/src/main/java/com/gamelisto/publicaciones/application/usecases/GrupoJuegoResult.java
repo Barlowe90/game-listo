@@ -9,6 +9,8 @@ public record GrupoJuegoResult(UUID id, UUID publicacionId, Instant fechaCreacio
 
   public static GrupoJuegoResult from(GrupoJuego grupoJuego) {
     return new GrupoJuegoResult(
-        grupoJuego.getId(), grupoJuego.getPublicacionId(), grupoJuego.getFechaCreacion());
+        grupoJuego.getId().value(),
+        grupoJuego.getPublicacionId().value(),
+        grupoJuego.getFechaCreacion());
   }
 }

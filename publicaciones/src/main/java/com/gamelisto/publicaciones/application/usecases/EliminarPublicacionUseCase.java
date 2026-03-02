@@ -6,6 +6,8 @@ import com.gamelisto.publicaciones.domain.PublicacionRepositorio;
 import com.gamelisto.publicaciones.domain.GrupoJuegoRepositorio;
 import com.gamelisto.publicaciones.domain.GrupoJuegoUsuario;
 import com.gamelisto.publicaciones.domain.GrupoJuegoUsuarioRepositorio;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,29 +25,30 @@ public class EliminarPublicacionUseCase implements EliminarPublicacionHandler {
 
     Publicacion publicacion =
         publicacionRepositorio
-            .findById(publicacionId)
+            .findById(PublicacionId.of(publicacionId))
             .orElseThrow(() -> new ApplicationException("Publicacion no encontrada"));
 
     if (!publicacion.getAutorId().equals(userId)) {
       throw new ApplicationException("Usuario no propietario");
     }
 
-    // Si existe un grupo asociado, eliminar sus miembros y luego el grupo
+    EliminarMiembrosYGrupo(PublicacionId.of(publicacionId));
+
+    publicacionRepositorio.deleteById(PublicacionId.of(publicacionId));
+  }
+
+  private void EliminarMiembrosYGrupo(PublicacionId publicacionId) {
     grupoJuegoRepositorio
         .findByPublicacionId(publicacionId)
         .ifPresent(
             grupo -> {
-              // eliminar todos los miembros
               for (GrupoJuegoUsuario miembro :
                   grupoJuegoUsuarioRepositorio.findByGrupoId(grupo.getId())) {
                 grupoJuegoUsuarioRepositorio.deleteByGrupoIdAndUsuarioId(
-                    grupo.getId(), miembro.getUsuarioId());
+                    grupo.getId(), UsuarioId.of(miembro.getUsuarioId().value()));
               }
-              // eliminar el grupo
+
               grupoJuegoRepositorio.delete(grupo);
             });
-
-    // finalmente eliminar la publicación
-    publicacionRepositorio.deleteById(publicacionId);
   }
 }

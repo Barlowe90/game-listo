@@ -6,6 +6,7 @@ import com.gamelisto.publicaciones.domain.Publicacion;
 import com.gamelisto.publicaciones.domain.PublicacionRepositorio;
 import com.gamelisto.publicaciones.domain.Idioma;
 import com.gamelisto.publicaciones.domain.Experiencia;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,7 @@ public class EditarPublicacionUseCase implements EditarPublicacionHandler {
 
     Publicacion publicacion =
         publicacionRepositorio
-            .findById(publicacionId)
+            .findById(PublicacionId.of(publicacionId))
             .orElseThrow(() -> new ApplicationException("Publicacion no encontrada"));
 
     if (!publicacion.getAutorId().equals(autorId)) {
@@ -38,7 +39,7 @@ public class EditarPublicacionUseCase implements EditarPublicacionHandler {
 
     Publicacion actualizado =
         Publicacion.reconstitute(
-            publicacion.getId(),
+            publicacion.getId().value(),
             publicacion.getAutorId(),
             publicacion.getGameId(),
             titulo,

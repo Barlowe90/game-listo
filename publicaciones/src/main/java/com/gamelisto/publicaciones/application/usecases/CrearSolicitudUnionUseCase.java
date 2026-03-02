@@ -4,6 +4,8 @@ import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.EstadoSolicitud;
 import com.gamelisto.publicaciones.domain.PeticionUnion;
 import com.gamelisto.publicaciones.domain.PeticionUnionRepositorio;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,14 +24,16 @@ public class CrearSolicitudUnionUseCase implements CrearSolicitudUnionHandler {
     comprobarExistePeticion(publicacionId, userId);
 
     PeticionUnion peticionUnion =
-        PeticionUnion.create(publicacionId, userId, EstadoSolicitud.SOLICITADA);
+        PeticionUnion.create(
+            PublicacionId.of(publicacionId), UsuarioId.of(userId), EstadoSolicitud.SOLICITADA);
     PeticionUnion saved = peticionUnionRepositorio.save(peticionUnion);
     return PeticionUnionResult.from(saved);
   }
 
   private void comprobarExistePeticion(UUID publicacionId, UUID userId) {
     Optional<PeticionUnion> existente =
-        peticionUnionRepositorio.findByPublicacionIdAndUsuarioId(publicacionId, userId);
+        peticionUnionRepositorio.findByPublicacionIdAndUsuarioId(
+            PublicacionId.of(publicacionId), UsuarioId.of(userId));
 
     if (existente.isPresent()) {
       throw new ApplicationException(

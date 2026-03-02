@@ -2,6 +2,8 @@ package com.gamelisto.publicaciones.application.usecases;
 
 import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.*;
+import com.gamelisto.publicaciones.domain.vo.PeticionId;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,12 +23,12 @@ public class AceptarORechazarPeticionUseCase implements AceptarORechazarPeticion
 
     PeticionUnion peticionUnion =
         peticionUnionRepositorio
-            .findById(peticionUnionId)
+            .findById(PeticionId.of(peticionUnionId))
             .orElseThrow(() -> new ApplicationException("Peticion no encontrada"));
 
     Publicacion publicacion =
         publicacionRepositorio
-            .findById(peticionUnion.getId())
+            .findById(PublicacionId.of(peticionUnion.getPublicacionId().value()))
             .orElseThrow(() -> new ApplicationException("Publicacion no encontrada"));
 
     if (!publicacion.getAutorId().equals(command.userId())) {

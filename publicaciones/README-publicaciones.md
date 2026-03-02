@@ -129,22 +129,22 @@ Relaciones orientativas:
 
 ### 5.2 Endpoints (resumen)
 
-| Método | Ruta                                        | Descripción                                   | Quién puede            |
-|--------|---------------------------------------------|-----------------------------------------------|------------------------|
-| POST   | `/`                                         | Crear publicación                             | Autenticado            |
-| PUT    | `/{publicacionId}`                          | Actualizar publicación                        | **Autor**              |
-| GET    | `/{publicacionId}`                          | Obtener detalle de una publicación            | Público                |
-| GET    | `/`                                         | Obtener todas las publicaciones               | Público                |
-| GET    | `/user`                                     | Obtener publicaciones por usuario             | Público                |
-| GET    | `/game/{gameId}`                            | Listar publicaciones de un juego              | Público                |
-| DELETE | `/{publicacionId}`                          | Eliminar publicación                          | **Autor                |
-| POST   | `/{publicacionId}/solicitud-union`          | Crear solicitud de unión                      | Autenticado (no autor) |
-| PATCH  | `/{publicacionId}/solicitud-union/{userId}` | Aceptar/Rechazar solicitud                    | **Autor**              |
-| GET    | `/solicitud-union/enviadas`                 | Listar solicitudes de unión enviadas          | Autenticado            |
-| GET    | `/solicitud-union/recibidas`                | Listar solicitudes de unión recibidas         | Autenticado            |
-| GET    | `/{publicacionId}/peticiones-union`         | Listar solicitudes de unión de la publicacion | **Autor**              |
-| POST   | `/{publicacionId}/abandonar-grupo`          | Abandonar grupo                               | Autenticado            |
-| GET    | `/grupos/{grupoId}`                         | Obtener datos grupo juego                     | Autenticado            |
+| Método | Ruta                                 | Descripción                                   | Quién puede            |
+|--------|--------------------------------------|-----------------------------------------------|------------------------|
+| POST   | `/`                                  | Crear publicación                             | Autenticado            |
+| PUT    | `/{publicacionId}`                   | Actualizar publicación                        | **Autor**              |
+| GET    | `/{publicacionId}`                   | Obtener detalle de una publicación            | Público                |
+| GET    | `/`                                  | Obtener todas las publicaciones               | Público                |
+| GET    | `/user`                              | Obtener publicaciones por usuario             | Público                |
+| GET    | `/game/{gameId}`                     | Listar publicaciones de un juego              | Público                |
+| DELETE | `/{publicacionId}`                   | Eliminar publicación                          | **Autor                |
+| POST   | `/{publicacionId}/solicitud-union`   | Crear solicitud de unión                      | Autenticado (no autor) |
+| PATCH  | `/solicitudes-union/{peticionId}`    | Aceptar/Rechazar solicitud                    | **Autor**              |
+| GET    | `/solicitudes-union/enviadas`        | Listar solicitudes de unión enviadas          | Autenticado            |
+| GET    | `/solicitudes-union/recibidas`       | Listar solicitudes de unión recibidas         | Autenticado            |
+| GET    | `/{publicacionId}/solicitudes-union` | Listar solicitudes de unión de la publicacion | **Autor**              |
+| POST   | `/{publicacionId}/abandonar-grupo`   | Abandonar grupo                               | Autenticado            |
+| GET    | `/grupos/{grupoId}`                  | Obtener datos grupo juego                     | Autenticado            |
 
 > Nota: en `PATCH .../{userId}` se asume que hay **una solicitud por usuario** para esa publicación. Si en tu diseño hay
 `solicitudId`, es más robusto usarlo en la ruta.

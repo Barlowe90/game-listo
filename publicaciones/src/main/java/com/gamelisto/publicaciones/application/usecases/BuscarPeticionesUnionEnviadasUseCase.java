@@ -1,6 +1,7 @@
 package com.gamelisto.publicaciones.application.usecases;
 
 import com.gamelisto.publicaciones.domain.PeticionUnionRepositorio;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ public class BuscarPeticionesUnionEnviadasUseCase implements BuscarPeticionesUni
 
   @Override
   public List<PeticionUnionResult> execute(UUID userId) {
-    return peticionUnionRepositorio.findByUsuarioId(userId).stream()
+    return peticionUnionRepositorio.findByUsuarioId(UsuarioId.of(userId)).stream()
         .map(PeticionUnionResult::from)
         .toList();
   }

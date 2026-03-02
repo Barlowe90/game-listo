@@ -38,7 +38,7 @@ class EditarPublicacionUseCaseTest {
 
     EditarPublicacionCommand command =
         new EditarPublicacionCommand(
-            pub.getId(), autorId, "Nuevo titulo", "ENG", "PRO", "DISFRUTAR_DEL_JUEGO", 6);
+            pub.getId().value(), autorId, "Nuevo titulo", "ENG", "PRO", "DISFRUTAR_DEL_JUEGO", 6);
 
     PublicacionResult result = useCase.execute(command);
 
@@ -57,7 +57,7 @@ class EditarPublicacionUseCaseTest {
 
     EditarPublicacionCommand command =
         new EditarPublicacionCommand(
-            pub.getId(), UUID.randomUUID(), "Hack", "ESP", "NOVATO", "LOGROS", 2);
+            pub.getId().value(), UUID.randomUUID(), "Hack", "ESP", "NOVATO", "LOGROS", 2);
 
     assertThatThrownBy(() -> useCase.execute(command))
         .isInstanceOf(ApplicationException.class)

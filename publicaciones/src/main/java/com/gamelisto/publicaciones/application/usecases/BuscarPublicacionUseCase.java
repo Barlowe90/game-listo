@@ -2,6 +2,8 @@ package com.gamelisto.publicaciones.application.usecases;
 
 import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.*;
+import com.gamelisto.publicaciones.domain.vo.GrupoId;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,19 +26,19 @@ public class BuscarPublicacionUseCase implements BuscarPublicacionHandler {
 
     Publicacion publicacion =
         publicacionRepositorio
-            .findById(publicacionUuid)
+            .findById(PublicacionId.of(publicacionUuid))
             .orElseThrow(() -> new ApplicationException("No se encuentra la publicacion"));
 
     GrupoJuego grupoJuego =
         grupoJuegoRepositorio
-            .findByPublicacionId(publicacionUuid)
+            .findByPublicacionId(PublicacionId.of(publicacionUuid))
             .orElseThrow(() -> new ApplicationException("No se encuentra el grupo de juego"));
 
-    UUID grupoId = grupoJuego.getId();
+    GrupoId grupoId = grupoJuego.getId();
 
-    List<UUID> userIds =
+    List<java.util.UUID> userIds =
         grupoJuegoUsuarioRepositorio.findByGrupoId(grupoId).stream()
-            .map(GrupoJuegoUsuario::getUsuarioId)
+            .map(g -> g.getUsuarioId().value())
             .toList();
 
     List<UsuarioRef> usuarios =

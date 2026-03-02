@@ -7,6 +7,9 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.*;
+import com.gamelisto.publicaciones.domain.vo.PeticionId;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +36,10 @@ class AceptarORechazarPeticionUseCaseTest {
 
     PeticionUnion peticion =
         PeticionUnion.reconstitute(
-            peticionId, publicacionId, UUID.randomUUID(), EstadoSolicitud.SOLICITADA);
+            PeticionId.of(peticionId),
+            PublicacionId.of(publicacionId),
+            UsuarioId.of(UUID.randomUUID()),
+            EstadoSolicitud.SOLICITADA);
     Publicacion pub =
         Publicacion.reconstitute(
             publicacionId,
@@ -45,9 +51,11 @@ class AceptarORechazarPeticionUseCaseTest {
             EstiloJuego.LOGROS,
             4);
 
-    when(peticionUnionRepositorio.findById(peticionId)).thenReturn(Optional.of(peticion));
-    // NOTA: el useCase busca por peticionUnion.getId() en vez de publicacionId — bug conocido
-    when(publicacionRepositorio.findById(peticionId)).thenReturn(Optional.of(pub));
+    when(peticionUnionRepositorio.findById(PeticionId.of(peticionId)))
+        .thenReturn(Optional.of(peticion));
+    // NOTA: el useCase busca por peticionUnion.getPublicacionId().value()
+    when(publicacionRepositorio.findById(PublicacionId.of(peticion.getPublicacionId().value())))
+        .thenReturn(Optional.of(pub));
     when(peticionUnionRepositorio.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
     PeticionUnionResult result =
@@ -66,7 +74,10 @@ class AceptarORechazarPeticionUseCaseTest {
 
     PeticionUnion peticion =
         PeticionUnion.reconstitute(
-            peticionId, publicacionId, UUID.randomUUID(), EstadoSolicitud.SOLICITADA);
+            PeticionId.of(peticionId),
+            PublicacionId.of(publicacionId),
+            UsuarioId.of(UUID.randomUUID()),
+            EstadoSolicitud.SOLICITADA);
     Publicacion pub =
         Publicacion.reconstitute(
             publicacionId,
@@ -78,8 +89,10 @@ class AceptarORechazarPeticionUseCaseTest {
             EstiloJuego.LOGROS,
             4);
 
-    when(peticionUnionRepositorio.findById(peticionId)).thenReturn(Optional.of(peticion));
-    when(publicacionRepositorio.findById(peticionId)).thenReturn(Optional.of(pub));
+    when(peticionUnionRepositorio.findById(PeticionId.of(peticionId)))
+        .thenReturn(Optional.of(peticion));
+    when(publicacionRepositorio.findById(PublicacionId.of(peticion.getPublicacionId().value())))
+        .thenReturn(Optional.of(pub));
 
     assertThatThrownBy(
             () -> useCase.execute(new PeticionUnionCommand(peticionId, otroUsuario, "ACEPTADA")))
@@ -96,7 +109,10 @@ class AceptarORechazarPeticionUseCaseTest {
 
     PeticionUnion peticion =
         PeticionUnion.reconstitute(
-            peticionId, publicacionId, UUID.randomUUID(), EstadoSolicitud.SOLICITADA);
+            PeticionId.of(peticionId),
+            PublicacionId.of(publicacionId),
+            UsuarioId.of(UUID.randomUUID()),
+            EstadoSolicitud.SOLICITADA);
     Publicacion pub =
         Publicacion.reconstitute(
             publicacionId,
@@ -108,9 +124,11 @@ class AceptarORechazarPeticionUseCaseTest {
             EstiloJuego.LOGROS,
             4);
 
-    when(peticionUnionRepositorio.findById(peticionId)).thenReturn(Optional.of(peticion));
+    when(peticionUnionRepositorio.findById(PeticionId.of(peticionId)))
+        .thenReturn(Optional.of(peticion));
     // Mantener el mismo comportamiento del use case (busca por id de la petición)
-    when(publicacionRepositorio.findById(peticionId)).thenReturn(Optional.of(pub));
+    when(publicacionRepositorio.findById(PublicacionId.of(peticion.getPublicacionId().value())))
+        .thenReturn(Optional.of(pub));
     when(peticionUnionRepositorio.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
     PeticionUnionResult result =

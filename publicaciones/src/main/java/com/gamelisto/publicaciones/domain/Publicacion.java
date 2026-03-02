@@ -1,5 +1,6 @@
 package com.gamelisto.publicaciones.domain;
 
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -8,7 +9,7 @@ import java.util.UUID;
 @Getter
 @ToString
 public class Publicacion {
-  private final UUID id;
+  private final PublicacionId id;
   private final UUID autorId;
   private final Long gameId;
   private final String titulo;
@@ -18,7 +19,7 @@ public class Publicacion {
   private final int jugadoresMaximos;
 
   private Publicacion(
-      UUID id,
+      PublicacionId id,
       UUID autorId,
       Long gameId,
       String titulo,
@@ -45,7 +46,7 @@ public class Publicacion {
       EstiloJuego estiloJuego,
       int jugadoresMaximos) {
     return new Publicacion(
-        UUID.randomUUID(),
+        PublicacionId.of(UUID.randomUUID()),
         autorId,
         gameId,
         titulo,
@@ -65,6 +66,13 @@ public class Publicacion {
       EstiloJuego estiloJuego,
       int jugadoresMaximos) {
     return new Publicacion(
-        id, autorId, gameId, titulo, idioma, experiencia, estiloJuego, jugadoresMaximos);
+        PublicacionId.of(id),
+        autorId,
+        gameId,
+        titulo,
+        idioma,
+        experiencia,
+        estiloJuego,
+        jugadoresMaximos);
   }
 }

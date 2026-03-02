@@ -3,6 +3,7 @@ package com.gamelisto.publicaciones.application.usecases;
 import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.GrupoJuego;
 import com.gamelisto.publicaciones.domain.GrupoJuegoRepositorio;
+import com.gamelisto.publicaciones.domain.vo.GrupoId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ public class BuscarGrupoJuegoUseCase implements BuscarGrupoJuegoHandle {
   public GrupoJuegoResult execute(UUID grupoJuegoId) {
     GrupoJuego grupoJuego =
         grupoJuegoRepositorio
-            .findById(grupoJuegoId)
+            .findById(GrupoId.of(grupoJuegoId))
             .orElseThrow(() -> new ApplicationException("Grupo juego no encontrado"));
 
     return GrupoJuegoResult.from(grupoJuego);

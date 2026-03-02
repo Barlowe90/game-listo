@@ -1,6 +1,8 @@
 package com.gamelisto.publicaciones.application.usecases;
 
 import com.gamelisto.publicaciones.domain.*;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +20,7 @@ public class AbandonarGrupoUseCase implements AbandonarGrupoHandler {
   public void execute(UUID publicacionId, UUID userId) {
     Publicacion pub =
         publicacionRepositorio
-            .findById(publicacionId)
+            .findById(PublicacionId.of(publicacionId))
             .orElseThrow(() -> new RuntimeException("Publicación no encontrada"));
 
     if (pub.getAutorId().equals(userId)) {
@@ -27,9 +29,9 @@ public class AbandonarGrupoUseCase implements AbandonarGrupoHandler {
 
     GrupoJuego grupo =
         grupoJuegoRepositorio
-            .findByPublicacionId(publicacionId)
+            .findByPublicacionId(PublicacionId.of(publicacionId))
             .orElseThrow(() -> new RuntimeException("Grupo no existe para esa publicación"));
 
-    grupoJuegoUsuarioRepositorio.deleteByGrupoIdAndUsuarioId(grupo.getId(), userId);
+    grupoJuegoUsuarioRepositorio.deleteByGrupoIdAndUsuarioId(grupo.getId(), UsuarioId.of(userId));
   }
 }

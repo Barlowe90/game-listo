@@ -7,9 +7,9 @@ public record PeticionUnionResult(
 
   public static PeticionUnionResult from(PeticionUnion peticionUnion) {
     return new PeticionUnionResult(
-        peticionUnion.getId().toString(),
-        peticionUnion.getPublicacionId().toString(),
-        peticionUnion.getUsuarioId().toString(),
+        peticionUnion.getId().value().toString(),
+        peticionUnion.getPublicacionId().value().toString(),
+        peticionUnion.getUsuarioId().value().toString(),
         peticionUnion.getEstadoSolicitud().toString());
   }
 }

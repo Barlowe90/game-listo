@@ -2,6 +2,9 @@ package com.gamelisto.publicaciones.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.gamelisto.publicaciones.domain.vo.GrupoId;
+import com.gamelisto.publicaciones.domain.vo.GrupoJuegoUsuarioId;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,11 +18,11 @@ class GrupoJuegoUsuarioTest {
     UUID grupoId = UUID.randomUUID();
     UUID usuarioId = UUID.randomUUID();
 
-    GrupoJuegoUsuario rel = GrupoJuegoUsuario.create(grupoId, usuarioId);
+    GrupoJuegoUsuario rel = GrupoJuegoUsuario.create(GrupoId.of(grupoId), UsuarioId.of(usuarioId));
 
     assertThat(rel.getId()).isNotNull();
-    assertThat(rel.getGrupoId()).isEqualTo(grupoId);
-    assertThat(rel.getUsuarioId()).isEqualTo(usuarioId);
+    assertThat(rel.getGrupoId().value()).isEqualTo(grupoId);
+    assertThat(rel.getUsuarioId().value()).isEqualTo(usuarioId);
   }
 
   @Test
@@ -29,8 +32,10 @@ class GrupoJuegoUsuarioTest {
     UUID grupoId = UUID.randomUUID();
     UUID usuarioId = UUID.randomUUID();
 
-    GrupoJuegoUsuario rel = GrupoJuegoUsuario.reconstitute(id, grupoId, usuarioId);
+    GrupoJuegoUsuario rel =
+        GrupoJuegoUsuario.reconstitute(
+            GrupoJuegoUsuarioId.of(id), GrupoId.of(grupoId), UsuarioId.of(usuarioId));
 
-    assertThat(rel.getId()).isEqualTo(id);
+    assertThat(rel.getId().value()).isEqualTo(id);
   }
 }

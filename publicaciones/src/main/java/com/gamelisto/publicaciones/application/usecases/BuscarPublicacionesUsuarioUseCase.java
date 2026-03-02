@@ -1,6 +1,7 @@
 package com.gamelisto.publicaciones.application.usecases;
 
 import com.gamelisto.publicaciones.domain.PublicacionRepositorio;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ public class BuscarPublicacionesUsuarioUseCase implements BuscarPublicacionesUsu
 
   @Override
   public List<PublicacionResult> execute(UUID userId) {
-    return publicacionRepositorio.findByAutorId(userId).stream()
+    return publicacionRepositorio.findByAutorId(UsuarioId.of(userId)).stream()
         .map(PublicacionResult::from)
         .toList();
   }

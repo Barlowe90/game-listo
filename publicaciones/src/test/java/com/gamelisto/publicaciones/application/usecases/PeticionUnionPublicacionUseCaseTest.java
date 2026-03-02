@@ -9,6 +9,9 @@ import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.EstadoSolicitud;
 import com.gamelisto.publicaciones.domain.PeticionUnion;
 import com.gamelisto.publicaciones.domain.PeticionUnionRepositorio;
+import com.gamelisto.publicaciones.domain.vo.PeticionId;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +36,8 @@ class PeticionUnionPublicacionUseCaseTest {
     UUID userId = UUID.randomUUID();
 
     ArgumentCaptor<PeticionUnion> captor = ArgumentCaptor.forClass(PeticionUnion.class);
-    when(peticionUnionRepositorio.findByPublicacionIdAndUsuarioId(publicacionId, userId))
+    when(peticionUnionRepositorio.findByPublicacionIdAndUsuarioId(
+            PublicacionId.of(publicacionId), UsuarioId.of(userId)))
         .thenReturn(Optional.empty());
     when(peticionUnionRepositorio.save(captor.capture())).thenAnswer(inv -> inv.getArgument(0));
 
@@ -41,8 +45,8 @@ class PeticionUnionPublicacionUseCaseTest {
 
     PeticionUnion peticion = captor.getValue();
     assertThat(peticion.getEstadoSolicitud()).isEqualTo(EstadoSolicitud.SOLICITADA);
-    assertThat(peticion.getPublicacionId()).isEqualTo(publicacionId);
-    assertThat(peticion.getUsuarioId()).isEqualTo(userId);
+    assertThat(peticion.getPublicacionId().value()).isEqualTo(publicacionId);
+    assertThat(peticion.getUsuarioId().value()).isEqualTo(userId);
 
     assertThat(result.estadoSolicitud()).isEqualTo("SOLICITADA");
     assertThat(result.publicacionId()).isEqualTo(publicacionId.toString());
@@ -58,9 +62,13 @@ class PeticionUnionPublicacionUseCaseTest {
 
     PeticionUnion existente =
         PeticionUnion.reconstitute(
-            UUID.randomUUID(), publicacionId, userId, EstadoSolicitud.SOLICITADA);
+            PeticionId.of(UUID.randomUUID()),
+            PublicacionId.of(publicacionId),
+            UsuarioId.of(userId),
+            EstadoSolicitud.SOLICITADA);
 
-    when(peticionUnionRepositorio.findByPublicacionIdAndUsuarioId(publicacionId, userId))
+    when(peticionUnionRepositorio.findByPublicacionIdAndUsuarioId(
+            PublicacionId.of(publicacionId), UsuarioId.of(userId)))
         .thenReturn(Optional.of(existente));
 
     assertThatThrownBy(() -> useCase.execute(publicacionId, userId))

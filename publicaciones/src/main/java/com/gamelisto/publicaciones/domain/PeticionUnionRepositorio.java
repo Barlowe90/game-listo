@@ -1,19 +1,22 @@
 package com.gamelisto.publicaciones.domain;
 
+import com.gamelisto.publicaciones.domain.vo.PeticionId;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public interface PeticionUnionRepositorio {
   PeticionUnion save(PeticionUnion peticionUnion);
 
-  Optional<PeticionUnion> findById(UUID id);
+  Optional<PeticionUnion> findById(PeticionId id);
 
-  List<PeticionUnion> findByPublicacionId(UUID publicacionId);
+  List<PeticionUnion> findByPublicacionId(PublicacionId publicacionId);
 
-  Optional<PeticionUnion> findByPublicacionIdAndUsuarioId(UUID publicacionId, UUID usuarioId);
+  Optional<PeticionUnion> findByPublicacionIdAndUsuarioId(
+      PublicacionId publicacionId, UsuarioId usuarioId);
 
-  List<PeticionUnion> findByUsuarioId(UUID usuarioId);
+  List<PeticionUnion> findByUsuarioId(UsuarioId usuarioId);
 
-  List<PeticionUnion> findByPublicacionIdIn(List<UUID> publicacionIds);
+  List<PeticionUnion> findByPublicacionIdIn(List<PublicacionId> publicacionIds);
 }

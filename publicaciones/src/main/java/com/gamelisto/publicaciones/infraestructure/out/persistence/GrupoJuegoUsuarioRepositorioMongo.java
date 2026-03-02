@@ -2,11 +2,12 @@ package com.gamelisto.publicaciones.infraestructure.out.persistence;
 
 import com.gamelisto.publicaciones.domain.GrupoJuegoUsuario;
 import com.gamelisto.publicaciones.domain.GrupoJuegoUsuarioRepositorio;
+import com.gamelisto.publicaciones.domain.vo.GrupoId;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -21,17 +22,17 @@ public class GrupoJuegoUsuarioRepositorioMongo implements GrupoJuegoUsuarioRepos
   }
 
   @Override
-  public List<GrupoJuegoUsuario> findByGrupoId(UUID grupoId) {
-    return mongoRepository.findByGrupoId(grupoId).stream().map(mapper::toDomain).toList();
+  public List<GrupoJuegoUsuario> findByGrupoId(GrupoId grupoId) {
+    return mongoRepository.findByGrupoId(grupoId.value()).stream().map(mapper::toDomain).toList();
   }
 
   @Override
-  public boolean existsByGrupoIdAndUsuarioId(UUID grupoId, UUID usuarioId) {
-    return mongoRepository.existsByGrupoIdAndUsuarioId(grupoId, usuarioId);
+  public boolean existsByGrupoIdAndUsuarioId(GrupoId grupoId, UsuarioId usuarioId) {
+    return mongoRepository.existsByGrupoIdAndUsuarioId(grupoId.value(), usuarioId.value());
   }
 
   @Override
-  public void deleteByGrupoIdAndUsuarioId(UUID grupoId, UUID usuarioId) {
-    mongoRepository.deleteByGrupoIdAndUsuarioId(grupoId, usuarioId);
+  public void deleteByGrupoIdAndUsuarioId(GrupoId grupoId, UsuarioId usuarioId) {
+    mongoRepository.deleteByGrupoIdAndUsuarioId(grupoId.value(), usuarioId.value());
   }
 }

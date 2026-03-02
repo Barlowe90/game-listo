@@ -2,6 +2,9 @@ package com.gamelisto.publicaciones.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.gamelisto.publicaciones.domain.vo.PeticionId;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,11 +18,13 @@ class PeticionUnionTest {
     UUID pubId = UUID.randomUUID();
     UUID userId = UUID.randomUUID();
 
-    PeticionUnion p = PeticionUnion.create(pubId, userId, EstadoSolicitud.SOLICITADA);
+    PeticionUnion p =
+        PeticionUnion.create(
+            PublicacionId.of(pubId), UsuarioId.of(userId), EstadoSolicitud.SOLICITADA);
 
     assertThat(p.getId()).isNotNull();
-    assertThat(p.getPublicacionId()).isEqualTo(pubId);
-    assertThat(p.getUsuarioId()).isEqualTo(userId);
+    assertThat(p.getPublicacionId().value()).isEqualTo(pubId);
+    assertThat(p.getUsuarioId().value()).isEqualTo(userId);
     assertThat(p.getEstadoSolicitud()).isEqualTo(EstadoSolicitud.SOLICITADA);
   }
 
@@ -30,9 +35,14 @@ class PeticionUnionTest {
     UUID pubId = UUID.randomUUID();
     UUID userId = UUID.randomUUID();
 
-    PeticionUnion p = PeticionUnion.reconstitute(id, pubId, userId, EstadoSolicitud.ACEPTADA);
+    PeticionUnion p =
+        PeticionUnion.reconstitute(
+            PeticionId.of(id),
+            PublicacionId.of(pubId),
+            UsuarioId.of(userId),
+            EstadoSolicitud.ACEPTADA);
 
-    assertThat(p.getId()).isEqualTo(id);
+    assertThat(p.getId().value()).isEqualTo(id);
     assertThat(p.getEstadoSolicitud()).isEqualTo(EstadoSolicitud.ACEPTADA);
   }
 }
