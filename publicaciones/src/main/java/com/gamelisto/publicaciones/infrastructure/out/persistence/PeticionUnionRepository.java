@@ -1,6 +1,5 @@
-package com.gamelisto.publicaciones.infraestructure.out.persistence;
+package com.gamelisto.publicaciones.infrastructure.out.persistence;
 
-import com.gamelisto.publicaciones.domain.PeticionUnion;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

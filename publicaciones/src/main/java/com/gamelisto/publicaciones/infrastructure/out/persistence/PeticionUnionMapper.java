@@ -1,4 +1,4 @@
-package com.gamelisto.publicaciones.infraestructure.out.persistence;
+package com.gamelisto.publicaciones.infrastructure.out.persistence;
 
 import com.gamelisto.publicaciones.domain.PeticionUnion;
 import com.gamelisto.publicaciones.domain.vo.PeticionId;

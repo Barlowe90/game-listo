@@ -1,4 +1,4 @@
-package com.gamelisto.publicaciones.infraestructure.in.api.dto;
+package com.gamelisto.publicaciones.infrastructure.in.api.dto;
 
 import com.gamelisto.publicaciones.application.usecases.PeticionUnionResult;
 

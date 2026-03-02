@@ -1,7 +1,7 @@
-package com.gamelisto.publicaciones.infraestructure.in.api;
+package com.gamelisto.publicaciones.infrastructure.in.api;
 
 import com.gamelisto.publicaciones.application.usecases.*;
-import com.gamelisto.publicaciones.infraestructure.in.api.dto.*;
+import com.gamelisto.publicaciones.infrastructure.in.api.dto.*;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;

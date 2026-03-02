@@ -1,4 +1,4 @@
-package com.gamelisto.publicaciones.infraestructure.in.security;
+package com.gamelisto.publicaciones.infrastructure.in.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

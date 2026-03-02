@@ -1,4 +1,4 @@
-package com.gamelisto.publicaciones.infraestructure.exceptions;
+package com.gamelisto.publicaciones.infrastructure.exceptions;
 
 public class InfrastructureException extends RuntimeException {
 
