@@ -33,6 +33,7 @@ class CrearPublicacionUseCaseTest {
     ArgumentCaptor<Publicacion> captor = ArgumentCaptor.forClass(Publicacion.class);
     when(publicacionRepositorio.save(captor.capture())).thenAnswer(inv -> inv.getArgument(0));
     when(grupoJuegoRepositorio.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    when(grupoJuegoUsuarioRepositorio.existsByGrupoIdAndUsuarioId(any(), any())).thenReturn(false);
     when(grupoJuegoUsuarioRepositorio.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
     PublicacionResult result = useCase.execute(command);

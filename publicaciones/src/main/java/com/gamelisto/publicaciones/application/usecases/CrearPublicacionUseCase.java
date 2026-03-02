@@ -35,14 +35,19 @@ public class CrearPublicacionUseCase implements CrearPublicacionHandler {
       throw new ApplicationException("No se pudo crear la publicacion");
     }
 
-    // Crear y persistir el GrupoJuego asociado a la publicacion
     GrupoJuego grupo = GrupoJuego.create(publicacionGuardada.getId());
     GrupoJuego grupoGuardado = grupoJuegoRepositorio.save(grupo);
 
-    // Añadir al autor como miembro del grupo
-    GrupoJuegoUsuario miembro = GrupoJuegoUsuario.create(grupoGuardado.getId(), autorUuid);
-    grupoJuegoUsuarioRepositorio.save(miembro);
+    agregarAutorComoMiembroDelGrupo(grupoGuardado, autorUuid);
 
     return PublicacionResult.from(publicacionGuardada);
+  }
+
+  private void agregarAutorComoMiembroDelGrupo(GrupoJuego grupoGuardado, UUID autorUuid) {
+    if (!grupoJuegoUsuarioRepositorio.existsByGrupoIdAndUsuarioId(
+        grupoGuardado.getId(), autorUuid)) {
+      GrupoJuegoUsuario miembro = GrupoJuegoUsuario.create(grupoGuardado.getId(), autorUuid);
+      grupoJuegoUsuarioRepositorio.save(miembro);
+    }
   }
 }
