@@ -17,7 +17,7 @@ public class AceptarORechazarPeticionUseCase implements AceptarORechazarPeticion
   @Override
   public PeticionUnionResult execute(PeticionUnionCommand command) {
     UUID peticionUnionId = command.peticionUnionId();
-    EstadoPeticion nuevoEstado = EstadoPeticion.valueOf(command.estadoPeticion());
+    EstadoSolicitud nuevoEstado = EstadoSolicitud.valueOf(command.estadoSolicitud());
 
     PeticionUnion peticionUnion =
         peticionUnionRepositorio

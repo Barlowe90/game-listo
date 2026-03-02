@@ -1,8 +1,7 @@
 package com.gamelisto.publicaciones.domain;
 
-public enum EstadoPeticion {
+public enum EstadoSolicitud {
   SOLICITADA,
-  CANCELADA,
   ACEPTADA,
   RECHAZADA
 }

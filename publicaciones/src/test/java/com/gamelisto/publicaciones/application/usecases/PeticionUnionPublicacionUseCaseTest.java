@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.gamelisto.publicaciones.domain.EstadoPeticion;
+import com.gamelisto.publicaciones.domain.EstadoSolicitud;
 import com.gamelisto.publicaciones.domain.PeticionUnion;
 import com.gamelisto.publicaciones.domain.PeticionUnionRepositorio;
 import java.util.UUID;
@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PeticionUnionPublicacionUseCaseTest {
 
   @Mock private PeticionUnionRepositorio peticionUnionRepositorio;
-  @InjectMocks private PeticionUnionPublicacionUseCase useCase;
+  @InjectMocks private CrearSolicitudUnionUseCase useCase;
 
   @Test
   @DisplayName("debe guardar la petición con estado SOLICITADA y devolver el resultado")
@@ -35,11 +35,11 @@ class PeticionUnionPublicacionUseCaseTest {
     PeticionUnionResult result = useCase.execute(publicacionId, userId);
 
     PeticionUnion peticion = captor.getValue();
-    assertThat(peticion.getEstadoPeticion()).isEqualTo(EstadoPeticion.SOLICITADA);
+    assertThat(peticion.getEstadoSolicitud()).isEqualTo(EstadoSolicitud.SOLICITADA);
     assertThat(peticion.getPublicacionId()).isEqualTo(publicacionId);
     assertThat(peticion.getUsuarioId()).isEqualTo(userId);
 
-    assertThat(result.estadoPeticion()).isEqualTo("SOLICITADA");
+    assertThat(result.estadoSolicitud()).isEqualTo("SOLICITADA");
     assertThat(result.publicacionId()).isEqualTo(publicacionId.toString());
     verify(peticionUnionRepositorio).save(any(PeticionUnion.class));
   }

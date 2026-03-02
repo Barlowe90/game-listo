@@ -11,7 +11,7 @@ public class PeticionUnionMapper {
     document.setId(peticion.getId());
     document.setPublicacionId(peticion.getPublicacionId());
     document.setUsuarioId(peticion.getUsuarioId());
-    document.setEstadoPeticion(peticion.getEstadoPeticion());
+    document.setEstadoSolicitud(peticion.getEstadoSolicitud());
     return document;
   }
 
@@ -20,6 +20,6 @@ public class PeticionUnionMapper {
         document.getId(),
         document.getPublicacionId(),
         document.getUsuarioId(),
-        document.getEstadoPeticion());
+        document.getEstadoSolicitud());
   }
 }

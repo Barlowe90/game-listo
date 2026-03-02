@@ -12,28 +12,28 @@ public class PeticionUnion {
   private final UUID id;
   private final UUID publicacionId;
   private final UUID usuarioId;
-  private EstadoPeticion estadoPeticion;
+  private EstadoSolicitud estadoSolicitud;
 
   private PeticionUnion(
-      UUID id, UUID publicacionId, UUID usuarioId, EstadoPeticion estadoPeticion) {
+      UUID id, UUID publicacionId, UUID usuarioId, EstadoSolicitud estadoSolicitud) {
     this.id = id;
     this.publicacionId = publicacionId;
     this.usuarioId = usuarioId;
-    this.estadoPeticion = estadoPeticion;
+    this.estadoSolicitud = estadoSolicitud;
   }
 
   public static PeticionUnion create(
-      UUID publicacionId, UUID usuarioId, EstadoPeticion estadoPeticion) {
-    return new PeticionUnion(UUID.randomUUID(), publicacionId, usuarioId, estadoPeticion);
+      UUID publicacionId, UUID usuarioId, EstadoSolicitud estadoSolicitud) {
+    return new PeticionUnion(UUID.randomUUID(), publicacionId, usuarioId, estadoSolicitud);
   }
 
   public static PeticionUnion reconstitute(
-      UUID id, UUID publicacionId, UUID usuarioId, EstadoPeticion estadoPeticion) {
-    return new PeticionUnion(id, publicacionId, usuarioId, estadoPeticion);
+      UUID id, UUID publicacionId, UUID usuarioId, EstadoSolicitud estadoSolicitud) {
+    return new PeticionUnion(id, publicacionId, usuarioId, estadoSolicitud);
   }
 
-  public void cambiarEstado(EstadoPeticion nuevo) {
+  public void cambiarEstado(EstadoSolicitud nuevo) {
     if (nuevo == null) throw new DomainException("Estado requerido");
-    this.estadoPeticion = nuevo;
+    this.estadoSolicitud = nuevo;
   }
 }

@@ -43,8 +43,7 @@ Flujo funcional (vista de usuario):
 - **Publicación**
     - Post creado por un usuario (`UsuarioRef`) y vinculado a un juego (`GameRef`).
     - Contiene metadata para emparejar jugadores (idioma, plataforma, nivel, estilo, etc.).
-    - Tiene un estado (publicada / eliminada).
-- **Petición de unión**
+- **Petición de unión**s
     - Solicitud de un usuario para unirse a una publicación.
     - Está asociada a una **publicación** y a un **usuario solicitante**.
 - **Grupo de juego**
@@ -57,9 +56,8 @@ Flujo funcional (vista de usuario):
 **Estado de Petición**
 
 ```java
-public enum EstadoPeticion {
+public enum EstadoSolicitud {
     SOLICITADA,
-    CANCELADA,
     ACEPTADA,
     RECHAZADA
 }
@@ -73,20 +71,6 @@ Ciclo de vida típico:
 
 > Importante: **sí se persiste** la petición desde que está `SOLICITADA` (tabla `peticion_union`). El estado se
 > actualiza según la acción.
-
-**Estado de Publicación**
-
-```java
-public enum EstadoPublicacion {
-    PUBLICADA,
-    ELIMINADA
-}
-```
-
-Recomendación:
-
-- `ELIMINADA` como **borrado lógico**: no se devuelve en listados normales, pero se mantiene el registro para
-  auditoría / consistencia / troubleshooting.
 
 ### 3.3 Reglas de negocio (invariantes)
 
@@ -145,18 +129,22 @@ Relaciones orientativas:
 
 ### 5.2 Endpoints (resumen)
 
-| Método | Ruta                                        | Descripción                                 | Quién puede            |
-|--------|---------------------------------------------|---------------------------------------------|------------------------|
-| GET    | `/game/{gameId}`                            | Listar publicaciones de un juego            | Público                |
-| GET    | `/usuario/{userId}`                         | Listar publicaciones creadas por un usuario | Público                |
-| POST   | `/`                                         | Crear publicación                           | Autenticado            |
-| GET    | `/{publicacionId}`                          | Obtener detalle de una publicación          | Público                |
-| PUT    | `/{publicacionId}`                          | Actualizar publicación                      | **Autor**              |
-| DELETE | `/{publicacionId}`                          | Eliminar publicación (lógico)               | **Autor**              |
-| GET    | `/{publicacionId}/solicitud-union`          | Listar solicitudes de unión                 | **Autor**              |
-| POST   | `/{publicacionId}/solicitud-union`          | Crear solicitud de unión                    | Autenticado (no autor) |
-| PATCH  | `/{publicacionId}/solicitud-union/{userId}` | Aceptar/Rechazar solicitud                  | **Autor**              |
-| POST   | `/{publicacionId}/abandonar-grupo`          | Abandonar grupo                             | Miembro autenticado    |
+| Método | Ruta                                        | Descripción                                   | Quién puede            |
+|--------|---------------------------------------------|-----------------------------------------------|------------------------|
+| POST   | `/`                                         | Crear publicación                             | Autenticado            |
+| PUT    | `/{publicacionId}`                          | Actualizar publicación                        | **Autor**              |
+| GET    | `/{publicacionId}`                          | Obtener detalle de una publicación            | Público                |
+| GET    | `/`                                         | Obtener todas las publicaciones               | Público                |
+| GET    | `/user`                                     | Obtener publicaciones por usuario             | Público                |
+| GET    | `/game/{gameId}`                            | Listar publicaciones de un juego              | Público                |
+| DELETE | `/{publicacionId}`                          | Eliminar publicación                          | **Autor                |
+| POST   | `/{publicacionId}/solicitud-union`          | Crear solicitud de unión                      | Autenticado (no autor) |
+| PATCH  | `/{publicacionId}/solicitud-union/{userId}` | Aceptar/Rechazar solicitud                    | **Autor**              |
+| GET    | `/solicitud-union/enviadas`                 | Listar solicitudes de unión enviadas          | Autenticado            |
+| GET    | `/solicitud-union/recibidas`                | Listar solicitudes de unión recibidas         | Autenticado            |
+| GET    | `/{publicacionId}/peticiones-union`         | Listar solicitudes de unión de la publicacion | **Autor**              |
+| POST   | `/{publicacionId}/abandonar-grupo`          | Abandonar grupo                               | Autenticado            |
+| GET    | `/grupos/{grupoId}`                         | Obtener datos grupo juego                     | Autenticado            |
 
 > Nota: en `PATCH .../{userId}` se asume que hay **una solicitud por usuario** para esa publicación. Si en tu diseño hay
 `solicitudId`, es más robusto usarlo en la ruta.
@@ -279,4 +267,3 @@ Estructura típica:
     - crear solicitudes de unión,
     - añadir miembros al grupo.
 - Controla condiciones de carrera: aceptar 2 solicitudes a la vez cuando queda 1 hueco (optimistic lock o constraint).
-- Si usas borrado lógico, filtra `EstadoPublicacion=PUBLICADA` en listados.

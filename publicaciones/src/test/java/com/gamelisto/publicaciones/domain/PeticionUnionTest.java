@@ -15,12 +15,12 @@ class PeticionUnionTest {
     UUID pubId = UUID.randomUUID();
     UUID userId = UUID.randomUUID();
 
-    PeticionUnion p = PeticionUnion.create(pubId, userId, EstadoPeticion.SOLICITADA);
+    PeticionUnion p = PeticionUnion.create(pubId, userId, EstadoSolicitud.SOLICITADA);
 
     assertThat(p.getId()).isNotNull();
     assertThat(p.getPublicacionId()).isEqualTo(pubId);
     assertThat(p.getUsuarioId()).isEqualTo(userId);
-    assertThat(p.getEstadoPeticion()).isEqualTo(EstadoPeticion.SOLICITADA);
+    assertThat(p.getEstadoSolicitud()).isEqualTo(EstadoSolicitud.SOLICITADA);
   }
 
   @Test
@@ -30,9 +30,9 @@ class PeticionUnionTest {
     UUID pubId = UUID.randomUUID();
     UUID userId = UUID.randomUUID();
 
-    PeticionUnion p = PeticionUnion.reconstitute(id, pubId, userId, EstadoPeticion.ACEPTADA);
+    PeticionUnion p = PeticionUnion.reconstitute(id, pubId, userId, EstadoSolicitud.ACEPTADA);
 
     assertThat(p.getId()).isEqualTo(id);
-    assertThat(p.getEstadoPeticion()).isEqualTo(EstadoPeticion.ACEPTADA);
+    assertThat(p.getEstadoSolicitud()).isEqualTo(EstadoSolicitud.ACEPTADA);
   }
 }

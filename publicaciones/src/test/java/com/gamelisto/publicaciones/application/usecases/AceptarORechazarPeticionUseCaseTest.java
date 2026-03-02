@@ -33,7 +33,7 @@ class AceptarORechazarPeticionUseCaseTest {
 
     PeticionUnion peticion =
         PeticionUnion.reconstitute(
-            peticionId, publicacionId, UUID.randomUUID(), EstadoPeticion.SOLICITADA);
+            peticionId, publicacionId, UUID.randomUUID(), EstadoSolicitud.SOLICITADA);
     Publicacion pub =
         Publicacion.reconstitute(
             publicacionId,
@@ -53,7 +53,7 @@ class AceptarORechazarPeticionUseCaseTest {
     PeticionUnionResult result =
         useCase.execute(new PeticionUnionCommand(peticionId, autorId, "ACEPTADA"));
 
-    assertThat(result.estadoPeticion()).isEqualTo("ACEPTADA");
+    assertThat(result.estadoSolicitud()).isEqualTo("ACEPTADA");
   }
 
   @Test
@@ -66,7 +66,7 @@ class AceptarORechazarPeticionUseCaseTest {
 
     PeticionUnion peticion =
         PeticionUnion.reconstitute(
-            peticionId, publicacionId, UUID.randomUUID(), EstadoPeticion.SOLICITADA);
+            peticionId, publicacionId, UUID.randomUUID(), EstadoSolicitud.SOLICITADA);
     Publicacion pub =
         Publicacion.reconstitute(
             publicacionId,
@@ -85,5 +85,37 @@ class AceptarORechazarPeticionUseCaseTest {
             () -> useCase.execute(new PeticionUnionCommand(peticionId, otroUsuario, "ACEPTADA")))
         .isInstanceOf(ApplicationException.class)
         .hasMessageContaining("propietario");
+  }
+
+  @Test
+  @DisplayName("debe rechazar la petición si el usuario es el autor de la publicación")
+  void debeRechazarPeticion() {
+    UUID autorId = UUID.randomUUID();
+    UUID publicacionId = UUID.randomUUID();
+    UUID peticionId = UUID.randomUUID();
+
+    PeticionUnion peticion =
+        PeticionUnion.reconstitute(
+            peticionId, publicacionId, UUID.randomUUID(), EstadoSolicitud.SOLICITADA);
+    Publicacion pub =
+        Publicacion.reconstitute(
+            publicacionId,
+            autorId,
+            1L,
+            "Titulo",
+            Idioma.ESP,
+            Experiencia.NOVATO,
+            EstiloJuego.LOGROS,
+            4);
+
+    when(peticionUnionRepositorio.findById(peticionId)).thenReturn(Optional.of(peticion));
+    // Mantener el mismo comportamiento del use case (busca por id de la petición)
+    when(publicacionRepositorio.findById(peticionId)).thenReturn(Optional.of(pub));
+    when(peticionUnionRepositorio.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+    PeticionUnionResult result =
+        useCase.execute(new PeticionUnionCommand(peticionId, autorId, "RECHAZADA"));
+
+    assertThat(result.estadoSolicitud()).isEqualTo("RECHAZADA");
   }
 }

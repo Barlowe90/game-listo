@@ -1,6 +1,6 @@
 package com.gamelisto.publicaciones.infraestructure.out.persistence;
 
-import com.gamelisto.publicaciones.domain.EstadoPeticion;
+import com.gamelisto.publicaciones.domain.EstadoSolicitud;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,5 +29,5 @@ public class PeticionUnionDocument {
 
   @Indexed private UUID usuarioId;
 
-  private EstadoPeticion estadoPeticion;
+  private EstadoSolicitud estadoSolicitud;
 }

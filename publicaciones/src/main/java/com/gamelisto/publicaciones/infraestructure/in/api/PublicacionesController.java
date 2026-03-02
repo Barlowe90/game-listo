@@ -40,27 +40,6 @@ public class PublicacionesController {
     return ResponseEntity.status(HttpStatus.CREATED).body(PublicacionResponse.from(result));
   }
 
-  @GetMapping
-  public ResponseEntity<List<PublicacionResponse>> obtenerTodasLasPublicaciones() {
-    logger.info("Obtener todas las publicaciones");
-
-    List<PublicacionResult> result = buscarTodasLasPublicaciones.execute();
-
-    List<PublicacionResponse> response = result.stream().map(PublicacionResponse::from).toList();
-
-    return ResponseEntity.status(HttpStatus.OK).body(response);
-  }
-
-  @GetMapping("/{publicacionId}")
-  public ResponseEntity<PublicacionDetalleResponse> obtenerPubliacion(
-      @PathVariable String publicacionId) {
-    logger.info("Obtener datos de la publicacion {}", publicacionId);
-
-    PublicacionDetalleResult result = buscarPublicacion.execute(publicacionId);
-
-    return ResponseEntity.status(HttpStatus.OK).body(PublicacionDetalleResponse.from(result));
-  }
-
   @PutMapping("/{publicacionId}")
   public ResponseEntity<PublicacionResponse> editarPublicacion(
       @PathVariable UUID publicacionId,
@@ -74,15 +53,25 @@ public class PublicacionesController {
     return ResponseEntity.status(HttpStatus.OK).body(PublicacionResponse.from(result));
   }
 
-  @DeleteMapping("/{publicacionId}")
-  public ResponseEntity<Void> eliminarPublicacion(
-      @PathVariable UUID publicacionId, Authentication authentication) {
-    logger.info("Eliminar la publicacion {}", publicacionId);
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
+  @GetMapping("/{publicacionId}")
+  public ResponseEntity<PublicacionDetalleResponse> obtenerPublicacion(
+      @PathVariable String publicacionId) {
+    logger.info("Obtener datos de la publicacion {}", publicacionId);
 
-    eliminarPublicacion.execute(publicacionId, userId);
+    PublicacionDetalleResult result = buscarPublicacion.execute(publicacionId);
 
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.status(HttpStatus.OK).body(PublicacionDetalleResponse.from(result));
+  }
+
+  @GetMapping
+  public ResponseEntity<List<PublicacionResponse>> obtenerTodasLasPublicaciones() {
+    logger.info("Obtener todas las publicaciones");
+
+    List<PublicacionResult> result = buscarTodasLasPublicaciones.execute();
+
+    List<PublicacionResponse> response = result.stream().map(PublicacionResponse::from).toList();
+
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   @GetMapping("/user")
@@ -108,5 +97,16 @@ public class PublicacionesController {
     List<PublicacionResponse> response = result.stream().map(PublicacionResponse::from).toList();
 
     return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
+
+  @DeleteMapping("/{publicacionId}")
+  public ResponseEntity<Void> eliminarPublicacion(
+      @PathVariable UUID publicacionId, Authentication authentication) {
+    logger.info("Eliminar la publicacion {}", publicacionId);
+    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
+
+    eliminarPublicacion.execute(publicacionId, userId);
+
+    return ResponseEntity.noContent().build();
   }
 }
