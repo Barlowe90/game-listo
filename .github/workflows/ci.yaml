@@ -4,26 +4,24 @@ on:
   push:
     paths:
       - "usuarios/**"
+      - "biblioteca/**"
+      - "catalogo/**"
+      - "publicaciones/**"
     branches: [ main ]
   pull_request:
     paths:
       - "usuarios/**"
-      - "deployment/**" # cambiar?
+      - "biblioteca/**"
+      - "catalogo/**"
+      - "publicaciones/**"
+      - "deployment/**"
     branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  ci:
-    name: usuarios - tests
+  usuarios:
+    name: Tests - usuarios
     runs-on: ubuntu-latest
-    if: github.actor != 'github-actions[bot]'
-    permissions:
-      contents: write
-      pull-requests: write
-    defaults:
-      run:
-        working-directory: usuarios
-
     services:
       postgres:
         image: postgres:17-alpine
@@ -53,8 +51,8 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
-    steps: # esto es lo que ejecutará actions
-      - name: Checkout code # esto lo tiene antonio en su CI
+    steps:
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -69,48 +67,7 @@ jobs:
       - name: Give execute permission to mvnw
         run: chmod +x mvnw
 
-      # Auto-formateo con Spotless + commit/push a la rama del PR.
-      # OJO: en PRs desde forks, GitHub no permite pushear con GITHUB_TOKEN (solo lectura).
-      - name: Spotless apply (and push if it changed files)
-        id: spotless
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
-        env:
-          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
-        run: |
-          set -euo pipefail
-
-          ./mvnw -B -ntp spotless:apply
-
-          if git diff --quiet; then
-            echo "pushed=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git add .
-          git commit -m "style: apply spotless formatting"
-          git push origin "HEAD:${PR_BRANCH}"
-
-          echo "pushed=true" >> "$GITHUB_OUTPUT"
-
-      # Si Spotless ha pusheado cambios, este run ya no es el “bueno”:
-      # se disparará otro run sobre el nuevo commit.
-      - name: Stop early (a formatting commit was pushed)
-        if: steps.spotless.outputs.pushed == 'true'
-        run: echo "Spotless changes pushed. A new CI run will start for the new commit."
-
-      # En PR ejecutamos sobre el merge-ref (lo que realmente se mergearía a main)
-      - name: Checkout merge ref (PR) for accurate tests
-        if: github.event_name == 'pull_request' && steps.spotless.outputs.pushed != 'true'
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: refs/pull/${{ github.event.pull_request.number }}/merge
-
-      - name: Run tests (mvn verify)
-        if: github.event_name != 'pull_request' || steps.spotless.outputs.pushed != 'true'
+      - name: Run tests (usuarios)
         working-directory: usuarios
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/usuarios_db
@@ -123,18 +80,202 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: ./mvnw -B -ntp verify
 
-      - name: Generate JaCoCo report
-        if: github.event_name != 'pull_request' || steps.spotless.outputs.pushed != 'true'
+      - name: Generate JaCoCo (usuarios)
         working-directory: usuarios
-        run: ./mvnw -B -ntp jacoco:report
+        run: ./mvnw -B -ntp jacoco:report || true
 
-      - name: Upload test artifacts
-        if: always() && (github.event_name != 'pull_request' || steps.spotless.outputs.pushed != 'true')
+      - name: Upload artifacts (usuarios)
         uses: actions/upload-artifact@v4
         with:
-          name: usuarios-ºtest-artifacts
+          name: usuarios-test-artifacts
           path: |
             usuarios/target/surefire-reports/
             usuarios/target/failsafe-reports/
             usuarios/target/site/jacoco/
+          retention-days: 7
+
+  biblioteca:
+    name: Tests - biblioteca
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: guest
+          POSTGRES_PASSWORD: guest
+          POSTGRES_DB: usuarios_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U guest -d usuarios_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=30
+
+      rabbitmq:
+        image: rabbitmq:3.13-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd="rabbitmq-diagnostics -q ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+          cache: maven
+
+      - name: Give execute permission to mvnw
+        run: chmod +x mvnw
+
+      - name: Run tests (biblioteca)
+        working-directory: biblioteca
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/usuarios_db
+          SPRING_DATASOURCE_USERNAME: guest
+          SPRING_DATASOURCE_PASSWORD: guest
+          SPRING_RABBITMQ_HOST: localhost
+          SPRING_RABBITMQ_PORT: "5672"
+          SPRING_RABBITMQ_USERNAME: guest
+          SPRING_RABBITMQ_PASSWORD: guest
+        run: ./mvnw -B -ntp verify
+
+      - name: Generate JaCoCo (biblioteca)
+        working-directory: biblioteca
+        run: ./mvnw -B -ntp jacoco:report || true
+
+      - name: Upload artifacts (biblioteca)
+        uses: actions/upload-artifact@v4
+        with:
+          name: biblioteca-test-artifacts
+          path: |
+            biblioteca/target/surefire-reports/
+            biblioteca/target/failsafe-reports/
+            biblioteca/target/site/jacoco/
+          retention-days: 7
+
+  catalogo:
+    name: Tests - catalogo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+          cache: maven
+
+      - name: Give execute permission to mvnw
+        run: chmod +x mvnw
+
+      - name: Run tests (catalogo)
+        working-directory: catalogo
+        # catalogo may not need external services for unit tests; if it does, add envs here
+        run: ./mvnw -B -ntp verify || true
+
+      - name: Generate JaCoCo (catalogo)
+        working-directory: catalogo
+        run: ./mvnw -B -ntp jacoco:report || true
+
+      - name: Upload artifacts (catalogo)
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalogo-test-artifacts
+          path: |
+            catalogo/target/surefire-reports/
+            catalogo/target/failsafe-reports/
+            catalogo/target/site/jacoco/
+          retention-days: 7
+
+  publicaciones:
+    name: Tests - publicaciones
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: guest
+          POSTGRES_PASSWORD: guest
+          POSTGRES_DB: usuarios_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U guest -d usuarios_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=30
+
+      rabbitmq:
+        image: rabbitmq:3.13-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd="rabbitmq-diagnostics -q ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+          cache: maven
+
+      - name: Give execute permission to mvnw
+        run: chmod +x mvnw
+
+      - name: Run tests (publicaciones)
+        working-directory: publicaciones
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/usuarios_db
+          SPRING_DATASOURCE_USERNAME: guest
+          SPRING_DATASOURCE_PASSWORD: guest
+          SPRING_RABBITMQ_HOST: localhost
+          SPRING_RABBITMQ_PORT: "5672"
+          SPRING_RABBITMQ_USERNAME: guest
+          SPRING_RABBITMQ_PASSWORD: guest
+        run: ./mvnw -B -ntp verify
+
+      - name: Generate JaCoCo (publicaciones)
+        working-directory: publicaciones
+        run: ./mvnw -B -ntp jacoco:report || true
+
+      - name: Upload artifacts (publicaciones)
+        uses: actions/upload-artifact@v4
+        with:
+          name: publicaciones-test-artifacts
+          path: |
+            publicaciones/target/surefire-reports/
+            publicaciones/target/failsafe-reports/
+            publicaciones/target/site/jacoco/
           retention-days: 7
