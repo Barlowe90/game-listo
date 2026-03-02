@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AceptarORechazarSolicitudUseCase - Unit tests")
-class AceptarORechazarPeticionUseCaseTest {
+class AceptarORechazarSolicitudUseCaseTest {
 
   @Mock private SolicitudUnionRepositorio solicitudUnionRepositorio;
   @Mock private PublicacionRepositorio publicacionRepositorio;
