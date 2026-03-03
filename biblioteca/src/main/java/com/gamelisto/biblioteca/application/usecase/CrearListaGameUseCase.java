@@ -3,6 +3,7 @@ package com.gamelisto.biblioteca.application.usecase;
 import com.gamelisto.biblioteca.application.exceptions.ApplicationException;
 import com.gamelisto.biblioteca.domain.*;
 import org.jspecify.annotations.NonNull;
+import com.gamelisto.biblioteca.domain.UsuarioId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +24,7 @@ public class CrearListaGameUseCase implements CrearListaGameHandler {
   @Override
   @Transactional
   public ListaGameResult execute(CrearListaGameCommand command) {
-    MapearCommandToListaGame result = mapperCommandToLista(command);
+    MapearCommandToLista result = mapperCommandToLista(command);
 
     if (usuariosRefRepositorio.findById(result.usuarioRefId()).isEmpty()) {
       throw new ApplicationException("Usuario no sincronizado");
@@ -31,8 +32,7 @@ public class CrearListaGameUseCase implements CrearListaGameHandler {
 
     comprobarPersonalizadaOrThrow(result);
 
-    ListaGame listaGame =
-        ListaGame.create(result.usuarioRefId(), result.nombreListaGame(), result.tipo());
+    ListaGame listaGame = ListaGame.create(result.usuarioRefId(), result.nombreListaGame(), result.tipo());
 
     ListaGame listaGuardada = listaGameRepositorio.save(listaGame);
 
@@ -43,20 +43,20 @@ public class CrearListaGameUseCase implements CrearListaGameHandler {
     return ListaGameResult.from(listaGuardada);
   }
 
-  private static void comprobarPersonalizadaOrThrow(MapearCommandToListaGame result) {
+  private static void comprobarPersonalizadaOrThrow(MapearCommandToLista result) {
     if (result.tipo != Tipo.PERSONALIZADA) {
       throw new ApplicationException("Solo se puede crear listas personalizadas");
     }
   }
 
-  private static @NonNull MapearCommandToListaGame mapperCommandToLista(
+  private static @NonNull MapearCommandToLista mapperCommandToLista(
       CrearListaGameCommand command) {
-    UUID usuarioRefId = UUID.fromString(command.userId());
+    UsuarioId usuarioRefId = UsuarioId.fromString(command.userId());
     NombreListaGame nombreListaGame = NombreListaGame.of(command.nombre());
     Tipo tipo = Tipo.valueOf(command.tipo());
-    return new MapearCommandToListaGame(usuarioRefId, nombreListaGame, tipo);
+    return new MapearCommandToLista(usuarioRefId, nombreListaGame, tipo);
   }
 
-  private record MapearCommandToListaGame(
-      UUID usuarioRefId, NombreListaGame nombreListaGame, Tipo tipo) {}
+  private record MapearCommandToLista(UsuarioId usuarioRefId, NombreListaGame nombreListaGame, Tipo tipo) {
+  }
 }

@@ -1,16 +1,15 @@
 package com.gamelisto.biblioteca.domain;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface ListaGameItemRepositorio {
-  void add(UUID listaId, Long gameRefId);
+  void add(ListaGameId listaId, GameId gameRefId);
 
-  void remove(UUID listaId, Long gameRefId);
+  void remove(ListaGameId listaId, GameId gameRefId);
 
-  boolean exists(UUID listaId, Long gameRefId);
+  boolean exists(ListaGameId listaId, GameId gameRefId);
 
-  List<Long> findGameIdsByListaId(UUID listaId);
+  List<GameId> findGameIdsByListaId(ListaGameId listaId);
 
-  void deleteAllByListaId(UUID listaId);
+  void deleteAllByListaId(ListaGameId listaId);
 }

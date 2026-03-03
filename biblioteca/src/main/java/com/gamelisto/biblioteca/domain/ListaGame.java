@@ -4,13 +4,13 @@ import com.gamelisto.biblioteca.domain.exceptions.DomainException;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.util.UUID;
+import com.gamelisto.biblioteca.domain.UsuarioId;
 
 @Getter
 @ToString
 public class ListaGame {
   private final ListaGameId id;
-  private final UUID usuarioRefId;
+  private final UsuarioId usuarioRefId;
   private NombreListaGame nombreLista;
   private final Tipo tipo;
 
@@ -27,18 +27,19 @@ public class ListaGame {
 
   public static class Builder {
     private ListaGameId id;
-    private UUID usuarioRefId;
+    private UsuarioId usuarioRefId;
     private NombreListaGame nombreLista;
     private Tipo tipo;
 
-    private Builder() {}
+    private Builder() {
+    }
 
     public Builder id(ListaGameId id) {
       this.id = id;
       return this;
     }
 
-    public Builder usuarioRefId(UUID usuarioRefId) {
+    public Builder usuarioRefId(UsuarioId usuarioRefId) {
       this.usuarioRefId = usuarioRefId;
       return this;
     }
@@ -58,7 +59,7 @@ public class ListaGame {
     }
   }
 
-  public static ListaGame create(UUID usuarioRefId, NombreListaGame nombreLista, Tipo tipo) {
+  public static ListaGame create(UsuarioId usuarioRefId, NombreListaGame nombreLista, Tipo tipo) {
     comprobarCamposNulos(usuarioRefId, nombreLista, tipo);
 
     return ListaGame.builder()
@@ -70,7 +71,7 @@ public class ListaGame {
   }
 
   private static void comprobarCamposNulos(
-      UUID usuarioRefId, NombreListaGame nombreLista, Tipo tipo) {
+      UsuarioId usuarioRefId, NombreListaGame nombreLista, Tipo tipo) {
     if (usuarioRefId == null) {
       throw new DomainException("El usuarioRefId no puede ser nulo.");
     }
@@ -83,13 +84,18 @@ public class ListaGame {
   }
 
   public static ListaGame reconstitute(
-      ListaGameId id, UUID usuarioRefId, NombreListaGame nombreLista, Tipo tipo) {
+      ListaGameId id, UsuarioId usuarioRefId, NombreListaGame nombreLista, Tipo tipo) {
     return ListaGame.builder()
         .id(id)
         .usuarioRefId(usuarioRefId)
         .nombreLista(nombreLista)
         .tipo(tipo)
         .build();
+  }
+
+  public static ListaGame reconstitute(
+      ListaGameId id, java.util.UUID usuarioRefId, NombreListaGame nombreLista, Tipo tipo) {
+    return reconstitute(id, UsuarioId.of(usuarioRefId), nombreLista, tipo);
   }
 
   public void cambiarNombre(NombreListaGame nuevoNombreLista) {

@@ -19,12 +19,12 @@ class EliminarListaGameUseCaseTest {
     ListaGameRepositorio listaRepo = mock(ListaGameRepositorio.class);
     EliminarListaGameUseCase uc = new EliminarListaGameUseCase(listaRepo);
 
-    UUID userId = UUID.randomUUID();
+    java.util.UUID userUuid = UUID.randomUUID();
+    UsuarioId userId = UsuarioId.of(userUuid);
     UUID listUuid = UUID.randomUUID();
     ListaGameId listId = ListaGameId.of(listUuid);
 
-    ListaGame lista =
-        ListaGame.reconstitute(listId, userId, NombreListaGame.of("XXX"), Tipo.PERSONALIZADA);
+    ListaGame lista = ListaGame.reconstitute(listId, userId, NombreListaGame.of("XXX"), Tipo.PERSONALIZADA);
 
     when(listaRepo.findById(listId)).thenReturn(Optional.of(lista));
 
@@ -38,12 +38,12 @@ class EliminarListaGameUseCaseTest {
     ListaGameRepositorio listaRepo = mock(ListaGameRepositorio.class);
     EliminarListaGameUseCase uc = new EliminarListaGameUseCase(listaRepo);
 
-    UUID userId = UUID.randomUUID();
+    java.util.UUID userUuid = UUID.randomUUID();
+    UsuarioId userId = UsuarioId.of(userUuid);
     UUID listUuid = UUID.randomUUID();
     ListaGameId listId = ListaGameId.of(listUuid);
 
-    ListaGame lista =
-        ListaGame.reconstitute(listId, userId, NombreListaGame.of("Completados"), Tipo.OFICIAL);
+    ListaGame lista = ListaGame.reconstitute(listId, userId, NombreListaGame.of("Completados"), Tipo.OFICIAL);
 
     when(listaRepo.findById(listId)).thenReturn(Optional.of(lista));
 

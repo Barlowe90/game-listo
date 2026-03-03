@@ -26,9 +26,10 @@ public class BuscarTodasLasListasUseCase implements BuscarTodasLasListasGameHand
   }
 
   private static EntradaBuscarListaGame mapearCommandAEntrada(String userId) {
-    UUID userUuid = UUID.fromString(userId);
+    com.gamelisto.biblioteca.domain.UsuarioId userUuid = com.gamelisto.biblioteca.domain.UsuarioId.fromString(userId);
     return new EntradaBuscarListaGame(userUuid);
   }
 
-  private record EntradaBuscarListaGame(UUID userUuid) {}
+  private record EntradaBuscarListaGame(com.gamelisto.biblioteca.domain.UsuarioId userUuid) {
+  }
 }
