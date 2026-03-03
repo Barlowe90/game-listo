@@ -1,5 +1,6 @@
 package com.gamelist.catalogo.domain.platform;
 
+import com.gamelist.catalogo.domain.PlatformName;
 import com.gamelist.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

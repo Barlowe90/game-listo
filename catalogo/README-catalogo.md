@@ -1,179 +1,126 @@
-# README — Microservicio Catálogo
+# Microservicio Catálogo
 
-Este documento describe de forma concisa el microservicio **Catalogo** de GameListo: su propósito, arquitectura,
-decisiones principales y cómo trabajar con él en desarrollo.
+## Resumen
 
----
+El microservicio *Catálogo* gestiona la información canónica de videojuegos. Está diseñado siguiendo principios de
+arquitectura hexagonal y DDD: la lógica de dominio está separada de adaptadores de persistencia y de la capa de
+exposición.
 
-## Contexto rápido
+- Lenguaje: Java 21
+- Framework: Spring Boot (módulo catalogo)
+- Patrón: Hexagonal (domain / application / infrastructure)
 
-- Proyecto: Trabajo de Fin de Grado (TFG). No está pensado para producción: prioridad KISS (Keep It Simple, Stupid).
-- Objetivo: servir como *source of truth* para metadatos de videojuegos y gestionar la ingesta desde IGDB.
-- Tecnologías principales: Java 21, Spring Boot 3.5.x, JPA (PostgreSQL) y MongoDB.
+## Modelo de dominio
 
-Principios importantes:
+Se mantiene una separación clara entre los datos estructurados de un juego (consultas frecuentes) y su contenido
+enriquecido (multimedia):
 
-- Funcionalidad básica y código legible > sobre-ingeniería.
-- Arquitectura Hexagonal + DDD (dominio, aplicación, infraestructura).
-- No exponer entidades JPA fuera de la capa de infraestructura.
+### Game (núcleo estructurado)
 
----
+`Game` es la entidad raíz (aggregate root) con la información estructurada y de consulta habitual. Contiene, entre
+otros, los siguientes campos:
 
-## Resumen funcional
+- id
+- name
+- summary
+- coverUrl
+- alternativeNames
+- platforms
+- gameType
+- gameStatus
+- dlcs
+- expandedGames
+- expansionIds
+- externalGames
+- franchises
+- gameModes
+- genres
+- involvedCompanies
+- keywords
+- multiplayerModeIds
+- parentGameId
+- playerPerspectives
+- remakeIds
+- remasterIds
+- similarGames
+- themes
 
-El microservicio Catalogo:
+`Game` es la fuente de verdad para `coverUrl` y `alternativeNames`.
 
-- Mantiene el catálogo de juegos (agregado relacional `Game`).
-- Almacena contenido enriquecido (capturas, videos, descripciones largas) en MongoDB como `GameDetail`.
-- Ejecuta ingestas periódicas desde IGDB (scheduler) y realiza upserts en la base de datos relacional.
-- Publica eventos (por ejemplo `GameCreated` / `GameUpdated`) para que otros servicios (search-service,
-  biblioteca-service, publicaciones) se reindexen o actualicen.
+### GameDetail (contenido enriquecido)
 
----
+`GameDetail` contiene los datos voluminosos o enriquecidos que no forman parte del núcleo estructurado:
 
-## Estructura de capas (convención)
+- screenshots (List<String>)
+- videos (List<String>)
 
-- domain/ — Lógica de dominio limpia (VOs, entidades, excepciones, puertos de repositorio)
-- application/ — Casos de uso y DTOs (use cases que coordinan el dominio)
-- infrastructure/ — Adaptadores: REST controllers, persistencia, mappers, integración con IGDB, mensajería
+`GameDetail` se refiere a `Game` mediante el identificador del juego y sirve para almacenar y consultar el contenido
+multimedia de forma desacoplada.
 
-Regla de dependencia: infrastructure -> application -> domain
+## Persistencia
 
----
+- PostgreSQL: almacena la entidad `Game` y sus colecciones estructuradas (tablas y element collections). Se usa para
+  datos transaccionales y estructurados.
+- MongoDB: almacena `GameDetail` (documentos con screenshots y videos). Se usa para contenido flexible y de alto
+  volumen.
 
-## Modelo mínimo
+## Flujo de ingestión y sincronización
 
-- Agregado relacional: `Game` (tabla `game`) — información canónica: id, nombre, fecha lanzamiento canónica,
-  plataformas, etc.
-- Documento no relacional: `GameDetail` (colección `game_detail` en MongoDB) — screenshots, videos, cover grande,
-  nombres alternativos, contenido voluminoso.
+La sincronización desde proveedores externos (p. ej. IGDB) sigue este flujo:
 
-Regla: `Game` es el núcleo; `GameDetail` contiene el contenido enriquecido y pesado.
+1. Se obtienen los datos externos en un DTO (`IgdbGameDTO`).
+2. Se crea/actualiza la entidad `Game` (Postgres) con los campos estructurados y con `alternativeNames` y `coverUrl`.
+3. Se crea/actualiza el `GameDetail` (Mongo) con `screenshots` y `videos`.
+4. Se publican eventos de dominio cuando procede (por ejemplo `GameCreado`) para notificar a otros servicios.
 
----
+## API pública del servicio
 
-## Endpoints expuestos (v1)
+El contrato público del microservicio expone endpoints REST (puerta de entrada bajo `/v1/catalogo`):
 
-Implementados / esperados (JSON):
+- GET /v1/catalogo/games/{id}
+    - Devuelve los datos estructurados del juego (`GameResponse`) almacenados en PostgreSQL.
+    - Contiene, entre otros, `id`, `name`, `summary`, `coverUrl`, `alternativeNames`, `platforms`, y metadatos.
+
+- GET /v1/catalogo/games/{id}/detail
+    - Devuelve los datos enriquecidos (`GameDetailResponse`) almacenados en MongoDB: `screenshots` y `videos`.
 
 - POST /v1/catalogo/sync/games
-    - Dispara una sincronización por ids o rango (body con lista de ids o criterios mínimos).
-    - Respuesta: 202 Accepted + body con resumen del trabajo (ids procesados, estado).
+    - Endpoint para disparar sincronizaciones/integraciones con la fuente externa (por ejemplo IGDB). El proceso
+      persiste `Game` y `GameDetail` y publica eventos.
 
-Nota: la API debe usar DTOs en `infrastructure/api/dto` y no exponer entidades JPA.
+La capa BFF o la fachada compone la vista final para el cliente (por ejemplo `GameView`) consultando ambos endpoints y
+unificando la información en una única respuesta para el frontend.
 
----
+## Contratos de datos (visión rápida)
 
-## Ingesta desde IGDB
+- `GameResponse` (Postgres): incluye `alternativeNames` y `coverUrl` entre sus campos.
+- `GameDetailResponse` (Mongo): incluye `screenshots` y `videos`.
+- El BFF compone ambos para devolver al cliente un único objeto agregado.
 
-Objetivos y estrategia mínima viable (MVP):
+## Consideraciones operativas
 
-- Ingesta inicial: paginación por id (ej. where id > lastId order by id asc limit 500).
-- Job programado con `@Scheduled` para ingestiones incrementales.
-- Persistencia: upsert en la tabla `game` (mapeo a entidad JPA y uso de `RepositorioGame` como puerto).
-- Throttling y backoff: detectar 429 y aplicar reintentos con backoff exponencial sencillo.
-- Normalización: convertir fechas a una `fecha de lanzamiento canónica` en UTC.
+- Mantener Postgres para datos transaccionales y con esquema y Mongo para contenido flexible reduce el tamaño de payload
+  en consultas frecuentes.
+- Evitar duplicación: cada dato tiene una única fuente de verdad (`Game` o `GameDetail`).
+- Eventos de dominio (RabbitMQ/Spring AMQP) permiten notificar a servicios consumidores tras cambios en `Game` o
+  `GameDetail`.
 
-Recomendación práctica: mantener el código de cliente IGDB simple y desacoplado (una clase/adapter con métodos para
-fetch/paginar).
+## Tests y calidad
 
----
+El proyecto incluye pruebas unitarias e integración (Testcontainers para Postgres y Mongo en tests de integración). Las
+pruebas cubren comportamiento del dominio (`Game`, `GameDetail`) y adaptadores de persistencia.
 
-## Eventos publicados
+## Buenas prácticas
 
-Después de crear/actualizar un juego, publicar un evento reducido con la información necesaria para:
-
-- reindexación en search-service (OpenSearch)
-- notificaciones a biblioteca-service
-- actualizaciones en publicaciones
-
-Formato mínimo del evento: { gameId, name, slug, releaseDate, platforms } (JSON). El envío se hace mediante RabbitMQ o
-el adaptador de mensajería configurado.
-
----
-
-## Persistencia y configuración
-
-- PostgreSQL: información canónica de `Game`.
-- MongoDB: colección `game_detail` con documento ligado por `gameId`.
-
-Propiedades de configuración principales (application.properties / profiles):
-
-- Datasource JDBC (Postgres): url, username, password, hibernate.ddl-auto (en dev puede ser `update`).
-- MongoDB: uri y nombre de base.
-- IGDB: CLIENT_ID y ACCESS_TOKEN (se mantienen en `.env` o en las variables de entorno locales).
+- El BFF debe consumir los endpoints internos y componer la vista agregada; el frontend no debe necesitar conocer la
+  división interna.
+- Mantener los VOs y las fábricas de dominio en la capa `domain`.
+- No exponer entidades de persistencia fuera de la capa de infraestructura.
 
 ---
 
-## Desarrollo local — Quick start (Windows PowerShell)
+Para más detalles sobre la implementación, revisa los paquetes:
 
-1. Desde el directorio `catalogo` compilar y ejecutar con Maven (usa los wrappers incluidos):
-
-```powershell
-# Compilar
-mvnw.cmd clean install
-
-# Ejecutar (usa H2 o configuración local según profiles)
-mvnw.cmd spring-boot:run
-```
-
-2. Si prefieres ejecutar con Docker Compose (recomendado para pruebas integradas con Postgres/Mongo):
-
-```powershell
-# Desde la raíz del repo (game-listo)
-docker-compose up -d
-```
-
-3. Variables útiles (entorno/local):
-
-- IGDB_CLIENT_ID
-- IGDB_ACCESS_TOKEN
-- SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
-- SPRING_DATA_MONGODB_URI
-
----
-
-## Testing
-
-Directrices MVP:
-
-- Tests de dominio puros (sin Spring) para VOs y reglas de negocio.
-- Tests de aplicación con Mockito para casos de uso.
-- Tests de integración con Testcontainers si se quiere un entorno más real (Postgres + MongoDB). No es obligatorio para
-  la entrega si el tiempo es limitado.
-
-Comandos de ejemplo (Windows PowerShell):
-
-```powershell
-mvnw.cmd test
-```
-
----
-
-## Convenciones y buenas prácticas (breve)
-
-- Mantener KISS: simplicidad y claridad en el código.
-- Evitar value objects innecesarios: solo crear VOs cuando aporten valor real.
-- No exponer entidades JPA fuera de `infrastructure`.
-- Cada caso de uso (use case) es una clase `@Service` en `application/usecases`.
-- DTOs entre capas: Request → Command → UseCase → DTO → Response.
-
----
-
-## Próximos pasos (sugeridos)
-
-- Implementar paginación robusta para la ingesta (checkpoint por lastId).
-- Añadir reintentos con backoff configurable frente a 429/5xx de IGDB.
-- Publicar eventos mínimos y pruebas de integración con el consumidor (search-service).
-- Crear un pequeño endpoint de health para el job de sincronización.
-
----
-
-## Referencias
-
-- Documentación interna del proyecto y convenciones: revisar la carpeta raíz y el README general.
-- IGDB API: almacenar credenciales manualmente y rotarlas cuando caduquen.
-
----
-
-Archivo actualizado colaborativamente para el TFG — mantener simple y explicable en la defensa.
+- `com.gamelist.catalogo.domain` (entidades y VOs)
+- `com.gamelist.catalogo.application` (use cases y DTOs)
+- `com.gamelist.catalogo.infrastructure` (adaptadores: REST, persistencia, mappers)

@@ -2,7 +2,7 @@ package com.gamelist.catalogo.infrastructure.in.igdb;
 
 import com.gamelist.catalogo.application.dto.in.IgdbGameDTO;
 import com.gamelist.catalogo.application.dto.in.IgdbPlatformDTO;
-import com.gamelist.catalogo.domain.repositories.IIgdbClientPort;
+import com.gamelist.catalogo.domain.IgdbClientPortRepositorio;
 import com.gamelist.catalogo.infrastructure.in.igdb.dto.PlatformFromIGDBResponse;
 import com.gamelist.catalogo.shared.config.IgdbProperties;
 import com.gamelist.catalogo.infrastructure.in.igdb.dto.GameFromIGDBResponse;
@@ -20,9 +20,9 @@ import org.slf4j.LoggerFactory;
 /** Adapter HTTP para comunicación con la API de IGDB. */
 @Component
 @RequiredArgsConstructor
-public class IgdbHttpAdapter implements IIgdbClientPort {
+public class IgdbHttpAdapterRepositorio implements IgdbClientPortRepositorio {
 
-  private static final Logger logger = LoggerFactory.getLogger(IgdbHttpAdapter.class);
+  private static final Logger logger = LoggerFactory.getLogger(IgdbHttpAdapterRepositorio.class);
 
   private final WebClient igdbWebClient;
   private final IgdbQueryBuilder queryBuilder;

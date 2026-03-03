@@ -1,7 +1,7 @@
 package com.gamelist.catalogo.infrastructure.out.persistence.mongo;
 
-import com.gamelist.catalogo.domain.game.GameId;
-import com.gamelist.catalogo.domain.gamedetail.GameDetail;
+import com.gamelist.catalogo.domain.GameId;
+import com.gamelist.catalogo.domain.GameDetail;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -17,11 +17,6 @@ public class GameDetailMapper {
 
     GameDetailDocument document = new GameDetailDocument();
     document.setGameId(gameDetail.getGameId().value());
-    document.setAlternativeNames(
-        gameDetail.getAlternativeNames() != null
-            ? new ArrayList<>(gameDetail.getAlternativeNames())
-            : new ArrayList<>());
-    document.setCoverUrl(gameDetail.getCoverUrl());
     document.setScreenshots(
         gameDetail.getScreenshots() != null
             ? new ArrayList<>(gameDetail.getScreenshots())
@@ -48,7 +43,6 @@ public class GameDetailMapper {
     List<String> videos =
         document.getVideos() != null ? new ArrayList<>(document.getVideos()) : new ArrayList<>();
 
-    return GameDetail.reconstitute(
-        gameId, document.getAlternativeNames(), document.getCoverUrl(), screenshots, videos);
+    return GameDetail.reconstitute(gameId, screenshots, videos);
   }
 }

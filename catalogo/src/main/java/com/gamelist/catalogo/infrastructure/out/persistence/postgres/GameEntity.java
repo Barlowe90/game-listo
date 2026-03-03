@@ -110,11 +110,6 @@ public class GameEntity {
   private List<Long> remasterIds = new ArrayList<>();
 
   @ElementCollection
-  @CollectionTable(name = "game_screenshots", joinColumns = @JoinColumn(name = "game_id"))
-  @Column(name = "screenshots")
-  private List<String> screenshots = new ArrayList<>();
-
-  @ElementCollection
   @CollectionTable(name = "game_similar_games", joinColumns = @JoinColumn(name = "game_id"))
   @Column(name = "similar_game_id")
   private List<Long> similarGames = new ArrayList<>();
@@ -126,9 +121,4 @@ public class GameEntity {
   @CollectionTable(name = "game_themes", joinColumns = @JoinColumn(name = "game_id"))
   @Column(name = "theme_name")
   private List<String> themes = new ArrayList<>();
-
-  @ElementCollection
-  @CollectionTable(name = "game_videos", joinColumns = @JoinColumn(name = "game_id"))
-  @Column(name = "videos")
-  private List<String> videos = new ArrayList<>();
 }

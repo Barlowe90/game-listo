@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.domain.game;
+package com.gamelist.catalogo.domain;
 
 import java.util.Objects;
 

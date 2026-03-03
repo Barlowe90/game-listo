@@ -3,23 +3,20 @@ package com.gamelist.catalogo.application.usecases;
 import com.gamelist.catalogo.application.dto.command.BuscarGamePorIdCommand;
 import com.gamelist.catalogo.application.dto.out.GameDTO;
 import com.gamelist.catalogo.domain.exceptions.DomainException;
-import com.gamelist.catalogo.domain.game.GameId;
-import com.gamelist.catalogo.domain.repositories.RepositorioGame;
+import com.gamelist.catalogo.domain.GameId;
+import com.gamelist.catalogo.domain.GameRepositorio;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class BuscarGamePorIdUseCase {
+@RequiredArgsConstructor
+public class BuscarGamePorIdUseCase implements BuscarGamePorIdHandle {
 
-  private final RepositorioGame repositorioGame;
+  private final GameRepositorio gameRepositorio;
 
-  public BuscarGamePorIdUseCase(RepositorioGame repositorioGame) {
-    this.repositorioGame = repositorioGame;
-  }
-
-  @Transactional(readOnly = true)
+  @Override
   public GameDTO execute(BuscarGamePorIdCommand command) {
-    return repositorioGame
+    return gameRepositorio
         .findById(GameId.of(command.gameId()))
         .map(GameDTO::from)
         .orElseThrow(() -> new DomainException("Juego no encontrado con ID: " + command.gameId()));

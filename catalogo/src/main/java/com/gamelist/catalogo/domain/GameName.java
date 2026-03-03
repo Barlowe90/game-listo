@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.domain.game;
+package com.gamelist.catalogo.domain;
 
 import com.gamelist.catalogo.domain.exceptions.DomainException;
 import java.util.Objects;

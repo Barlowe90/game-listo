@@ -3,22 +3,21 @@ package com.gamelist.catalogo.application.usecases;
 import com.gamelist.catalogo.application.dto.command.BuscarGameDetailPorIdCommand;
 import com.gamelist.catalogo.application.dto.out.GameDetailDTO;
 import com.gamelist.catalogo.domain.exceptions.DomainException;
-import com.gamelist.catalogo.domain.game.GameId;
-import com.gamelist.catalogo.domain.gamedetail.GameDetail;
-import com.gamelist.catalogo.domain.repositories.IGameDetailRepository;
-import com.gamelist.catalogo.domain.repositories.RepositorioGame;
+import com.gamelist.catalogo.domain.GameId;
+import com.gamelist.catalogo.domain.GameDetail;
+import com.gamelist.catalogo.domain.GameDetailRepositorio;
+import com.gamelist.catalogo.domain.GameRepositorio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class BuscarGameDetailPorIdUseCase {
+public class BuscarGameDetailPorIdUseCase implements BuscarGameDetailPorIdHandle {
 
-  private final RepositorioGame gameRepository;
-  private final IGameDetailRepository gameDetailRepository;
+  private final GameRepositorio gameRepository;
+  private final GameDetailRepositorio gameDetailRepository;
 
-  @Transactional(readOnly = true)
+  @Override
   public GameDetailDTO execute(BuscarGameDetailPorIdCommand command) {
 
     GameId gameId = GameId.of(command.gameId());

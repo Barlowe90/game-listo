@@ -1,6 +1,6 @@
 package com.gamelist.catalogo.infrastructure.out.messaging.publishers;
 
-import com.gamelist.catalogo.domain.repositories.IGamePublisher;
+import com.gamelist.catalogo.domain.GamePublisherRepositorio;
 import com.gamelist.catalogo.infrastructure.exceptions.InfrastructureException;
 import com.gamelist.catalogo.infrastructure.out.messaging.config.RabbitMQConfig;
 import org.slf4j.Logger;
@@ -11,13 +11,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnBean(RabbitTemplate.class)
-public class GamesPublisher implements IGamePublisher {
+public class GamesPublisherRepositorio implements GamePublisherRepositorio {
 
   private final RabbitTemplate rabbitTemplate;
 
-  private static final Logger logger = LoggerFactory.getLogger(GamesPublisher.class);
+  private static final Logger logger = LoggerFactory.getLogger(GamesPublisherRepositorio.class);
 
-  public GamesPublisher(RabbitTemplate rabbitTemplate) {
+  public GamesPublisherRepositorio(RabbitTemplate rabbitTemplate) {
     this.rabbitTemplate = rabbitTemplate;
   }
 

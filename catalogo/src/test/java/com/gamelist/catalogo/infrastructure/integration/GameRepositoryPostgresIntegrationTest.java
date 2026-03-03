@@ -1,7 +1,6 @@
 package com.gamelist.catalogo.infrastructure.integration;
 
-import com.gamelist.catalogo.domain.game.*;
-import com.gamelist.catalogo.domain.repositories.RepositorioGame;
+import com.gamelist.catalogo.domain.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 @DisplayName("GameRepositoryPostgres - Tests de Integracion")
 class GameRepositoryPostgresIntegrationTest {
-  @Autowired private RepositorioGame gameRepository;
+  @Autowired private GameRepositorio gameRepository;
 
   private Game crearJuego(long id, String nombre) {
     return Game.create(

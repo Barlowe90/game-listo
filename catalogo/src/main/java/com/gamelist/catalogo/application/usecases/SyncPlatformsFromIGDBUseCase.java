@@ -2,12 +2,11 @@ package com.gamelist.catalogo.application.usecases;
 
 import com.gamelist.catalogo.application.dto.in.IgdbPlatformDTO;
 import com.gamelist.catalogo.application.dto.out.SyncResultDTO;
-import com.gamelist.catalogo.domain.repositories.IIgdbClientPort;
-import com.gamelist.catalogo.domain.platform.Platform;
-import com.gamelist.catalogo.domain.repositories.RepositorioPlataforma;
+import com.gamelist.catalogo.domain.IgdbClientPortRepositorio;
+import com.gamelist.catalogo.domain.Platform;
+import com.gamelist.catalogo.domain.PlataformaRepositorio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,14 +16,14 @@ import org.slf4j.LoggerFactory;
 /** Se trae de IGDB la info de plataformas */
 @Service
 @RequiredArgsConstructor
-public class SyncPlatformsFromIGDBUseCase {
+public class SyncPlatformsFromIGDBUseCase implements SyncPlatformsFromIGDBHandle {
 
   private static final Logger logger = LoggerFactory.getLogger(SyncPlatformsFromIGDBUseCase.class);
 
-  private final IIgdbClientPort igdbClient;
-  private final RepositorioPlataforma platformRepository;
+  private final IgdbClientPortRepositorio igdbClient;
+  private final PlataformaRepositorio platformRepository;
 
-  @Transactional
+  @Override
   public SyncResultDTO execute() {
     logger.info("Iniciando sincronización de plataformas desde IGDB");
 

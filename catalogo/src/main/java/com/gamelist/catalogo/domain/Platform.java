@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.domain.platform;
+package com.gamelist.catalogo.domain;
 
 import com.gamelist.catalogo.domain.exceptions.DomainException;
 import lombok.Getter;

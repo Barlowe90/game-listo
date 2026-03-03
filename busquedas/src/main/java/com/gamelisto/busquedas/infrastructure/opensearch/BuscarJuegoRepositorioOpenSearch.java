@@ -2,7 +2,7 @@ package com.gamelisto.busquedas.infrastructure.opensearch;
 
 import com.gamelisto.busquedas.domain.BuscarJuegoDoc;
 import com.gamelisto.busquedas.domain.BuscarJuegoRepositorio;
-import com.gamelisto.busquedas.infrastructure.exceptions.OpenSearchUnavailableException;
+import com.gamelisto.busquedas.infrastructure.exceptions.InfrastructureException;
 import lombok.RequiredArgsConstructor;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.OpenSearchException;
@@ -75,7 +75,7 @@ public class BuscarJuegoRepositorioOpenSearch implements BuscarJuegoRepositorio 
           "Error al hacer upsert en OpenSearch para gameId={}: {}",
           doc.getGameId(),
           e.getMessage());
-      throw new OpenSearchUnavailableException("OpenSearch no disponible para upsert", e);
+      throw new InfrastructureException("OpenSearch no disponible para upsert", e);
     }
   }
 
@@ -87,7 +87,7 @@ public class BuscarJuegoRepositorioOpenSearch implements BuscarJuegoRepositorio 
     } catch (OpenSearchException | IOException e) {
       logger.error(
           "Error al eliminar documento en OpenSearch para gameId={}: {}", gameId, e.getMessage());
-      throw new OpenSearchUnavailableException("OpenSearch no disponible para delete", e);
+      throw new InfrastructureException("OpenSearch no disponible para delete", e);
     }
   }
 
@@ -144,7 +144,7 @@ public class BuscarJuegoRepositorioOpenSearch implements BuscarJuegoRepositorio 
           "Error al consultar sugerencias en OpenSearch para prefix='{}': {}",
           prefix,
           e.getMessage());
-      throw new OpenSearchUnavailableException("OpenSearch no disponible para suggest", e);
+      throw new InfrastructureException("OpenSearch no disponible para suggest", e);
     }
   }
 

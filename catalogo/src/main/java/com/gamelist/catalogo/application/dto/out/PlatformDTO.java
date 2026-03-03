@@ -1,6 +1,6 @@
 package com.gamelist.catalogo.application.dto.out;
 
-import com.gamelist.catalogo.domain.platform.Platform;
+import com.gamelist.catalogo.domain.Platform;
 
 public record PlatformDTO(
     Long id,
