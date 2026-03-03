@@ -19,18 +19,17 @@ class EditarListaGameUseCaseTest {
     ListaGameRepositorio listaRepo = mock(ListaGameRepositorio.class);
     EditarListaGameUseCase uc = new EditarListaGameUseCase(listaRepo);
 
-    UUID userId = UUID.randomUUID();
+    java.util.UUID userUuid = UUID.randomUUID();
+    UsuarioId userId = UsuarioId.of(userUuid);
     UUID listUuid = UUID.randomUUID();
     ListaGameId listId = ListaGameId.of(listUuid);
 
-    ListaGame lista =
-        ListaGame.reconstitute(listId, userId, NombreListaGame.of("Mi lista"), Tipo.PERSONALIZADA);
+    ListaGame lista = ListaGame.reconstitute(listId, userId, NombreListaGame.of("Mi lista"), Tipo.PERSONALIZADA);
 
     when(listaRepo.findById(listId)).thenReturn(Optional.of(lista));
     when(listaRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-    EditarListaGameCommand cmd =
-        new EditarListaGameCommand(userId.toString(), listUuid.toString(), "Nuevo nombre");
+    EditarListaGameCommand cmd = new EditarListaGameCommand(userId.toString(), listUuid.toString(), "Nuevo nombre");
 
     ListaGameResult out = uc.execute(cmd);
 
@@ -43,17 +42,16 @@ class EditarListaGameUseCaseTest {
     ListaGameRepositorio listaRepo = mock(ListaGameRepositorio.class);
     EditarListaGameUseCase uc = new EditarListaGameUseCase(listaRepo);
 
-    UUID userId = UUID.randomUUID();
+    java.util.UUID userUuid = UUID.randomUUID();
+    UsuarioId userId = UsuarioId.of(userUuid);
     UUID listUuid = UUID.randomUUID();
     ListaGameId listId = ListaGameId.of(listUuid);
 
-    ListaGame lista =
-        ListaGame.reconstitute(listId, userId, NombreListaGame.of("Completados"), Tipo.OFICIAL);
+    ListaGame lista = ListaGame.reconstitute(listId, userId, NombreListaGame.of("Completados"), Tipo.OFICIAL);
 
     when(listaRepo.findById(listId)).thenReturn(Optional.of(lista));
 
-    EditarListaGameCommand cmd =
-        new EditarListaGameCommand(userId.toString(), listUuid.toString(), "X");
+    EditarListaGameCommand cmd = new EditarListaGameCommand(userId.toString(), listUuid.toString(), "X");
 
     assertThrows(ApplicationException.class, () -> uc.execute(cmd));
     verify(listaRepo, never()).save(any());

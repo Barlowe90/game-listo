@@ -20,17 +20,18 @@ public class RateGameEstadoUseCase implements RateGameEstadoHandler {
   @Transactional
   public void execute(RateGameEstadoCommand command) {
 
-    UUID userId = UUID.fromString(command.userId());
-    Long gameId = Long.parseLong(command.gameId());
+    com.gamelisto.biblioteca.domain.UsuarioId userId = com.gamelisto.biblioteca.domain.UsuarioId
+        .fromString(command.userId());
+    com.gamelisto.biblioteca.domain.GameId gameId = com.gamelisto.biblioteca.domain.GameId
+        .of(Long.parseLong(command.gameId()));
 
-    GameEstado existente =
-        gameEstadoRepositorio
-            .findByUsuarioYGame(userId, gameId)
-            .orElseThrow(() -> new ApplicationException("No existe GameEstado para ese juego"));
+    GameEstado existente = gameEstadoRepositorio
+        .findByUsuarioYGame(userId, gameId)
+        .orElseThrow(() -> new ApplicationException("No existe GameEstado para ese juego"));
 
-    GameEstado actualizado =
-        GameEstado.reconstitute(
-            existente.getId(), userId, gameId, existente.getEstado(), command.rating());
+    GameEstado actualizado = GameEstado.reconstitute(
+        existente.getId(), userId, gameId, existente.getEstado(),
+        com.gamelisto.biblioteca.domain.Rating.of(command.rating()));
 
     gameEstadoRepositorio.save(actualizado);
   }

@@ -5,19 +5,20 @@ import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+
+import com.gamelisto.biblioteca.domain.UsuarioId;
 
 @Getter
 @ToString
 public class UsuarioRef {
-  private final UUID id;
+  private final UsuarioId id;
   private final String username;
   private final String rol;
   private final String avatar;
   private final List<ListaGame> listas;
   private final List<GameEstado> juegos;
 
-  private UsuarioRef(UUID id, String username, String avatar, String rol) {
+  private UsuarioRef(UsuarioId id, String username, String avatar, String rol) {
     this.id = id;
     this.username = username;
     this.avatar = avatar;
@@ -26,7 +27,7 @@ public class UsuarioRef {
     this.juegos = new ArrayList<>();
   }
 
-  public static UsuarioRef reconstitute(UUID id, String username, String avatar, String rol) {
+  public static UsuarioRef reconstitute(UsuarioId id, String username, String avatar, String rol) {
     return new UsuarioRef(id, username, avatar, rol);
   }
 

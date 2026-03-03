@@ -57,11 +57,11 @@ public class EliminarListaGameUseCase implements EliminarListaGameHandler {
   }
 
   private static EntradaEliminarListaGame mapearEntrada(String userId, String listId) {
-    UUID userUuid = UUID.fromString(userId);
-    UUID listaUuid = UUID.fromString(listId);
-    ListaGameId id = ListaGameId.of(listaUuid);
+    com.gamelisto.biblioteca.domain.UsuarioId userUuid = com.gamelisto.biblioteca.domain.UsuarioId.fromString(userId);
+    ListaGameId id = ListaGameId.of(java.util.UUID.fromString(listId));
     return new EntradaEliminarListaGame(userUuid, id);
   }
 
-  private record EntradaEliminarListaGame(UUID userUuid, ListaGameId idLista) {}
+  private record EntradaEliminarListaGame(com.gamelisto.biblioteca.domain.UsuarioId userUuid, ListaGameId idLista) {
+  }
 }

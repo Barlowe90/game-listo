@@ -53,12 +53,13 @@ public class EditarListaGameUseCase implements EditarListaGameHandler {
   }
 
   private static EntradaEditarListaGame mapearCommandAEntrada(EditarListaGameCommand command) {
-    UUID usuarioId = UUID.fromString(command.userId());
-    UUID uuidLista = UUID.fromString(command.listaId());
-    ListaGameId listaId = ListaGameId.of(uuidLista);
+    com.gamelisto.biblioteca.domain.UsuarioId usuarioId = com.gamelisto.biblioteca.domain.UsuarioId
+        .fromString(command.userId());
+    ListaGameId listaId = ListaGameId.of(java.util.UUID.fromString(command.listaId()));
     return new EntradaEditarListaGame(usuarioId, command.nombre(), listaId);
   }
 
   private record EntradaEditarListaGame(
-      UUID usuarioId, String nuevoNombreRaw, ListaGameId listaId) {}
+      com.gamelisto.biblioteca.domain.UsuarioId usuarioId, String nuevoNombreRaw, ListaGameId listaId) {
+  }
 }

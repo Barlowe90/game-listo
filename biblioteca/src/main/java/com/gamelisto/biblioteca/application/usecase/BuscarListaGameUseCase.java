@@ -4,7 +4,7 @@ import com.gamelisto.biblioteca.application.exceptions.ApplicationException;
 import com.gamelisto.biblioteca.domain.ListaGame;
 import com.gamelisto.biblioteca.domain.ListaGameId;
 import com.gamelisto.biblioteca.domain.ListaGameRepositorio;
-import java.util.UUID;
+import com.gamelisto.biblioteca.domain.UsuarioId;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,11 +39,11 @@ public class BuscarListaGameUseCase implements BuscarListaGameHandler {
   }
 
   private static EntradaBuscarListaGame mapearCommandAEntrada(String userId, String listaId) {
-    UUID userUuid = UUID.fromString(userId);
-    UUID uuidLista = UUID.fromString(listaId);
-    ListaGameId listaGameId = ListaGameId.of(uuidLista);
+    UsuarioId userUuid = UsuarioId.fromString(userId);
+    ListaGameId listaGameId = ListaGameId.of(java.util.UUID.fromString(listaId));
     return new EntradaBuscarListaGame(userUuid, listaGameId);
   }
 
-  private record EntradaBuscarListaGame(UUID userUuid, ListaGameId listaId) {}
+  private record EntradaBuscarListaGame(UsuarioId userUuid, ListaGameId listaId) {
+  }
 }

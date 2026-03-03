@@ -29,7 +29,7 @@ public class ListaGameRepositorioPostgres implements ListaGameRepositorio {
   public ListaGame save(ListaGame listaGame) {
     ListaGameEntity entity = mapper.toEntity(listaGame);
 
-    UsuarioRefEntity usuarioRefProxy = usuarioRefJpa.getReferenceById(listaGame.getUsuarioRefId());
+    UsuarioRefEntity usuarioRefProxy = usuarioRefJpa.getReferenceById(listaGame.getUsuarioRefId().value());
     entity.setUsuarioRef(usuarioRefProxy);
 
     ListaGameEntity savedEntity = listaJpa.save(entity);
@@ -42,8 +42,8 @@ public class ListaGameRepositorioPostgres implements ListaGameRepositorio {
   }
 
   @Override
-  public List<ListaGame> findByUsuarioRefId(UUID usuarioRefId) {
-    return listaJpa.findByUsuarioRef_Id(usuarioRefId).stream().map(mapper::toDomain).toList();
+  public List<ListaGame> findByUsuarioRefId(com.gamelisto.biblioteca.domain.UsuarioId usuarioRefId) {
+    return listaJpa.findByUsuarioRef_Id(usuarioRefId.value()).stream().map(mapper::toDomain).toList();
   }
 
   @Override

@@ -20,17 +20,18 @@ class RateGameEstadoUseCaseTest {
     GameEstadoRepositorio repo = mock(GameEstadoRepositorio.class);
     RateGameEstadoUseCase uc = new RateGameEstadoUseCase(repo);
 
-    UUID userId = UUID.randomUUID();
-    GameEstado existing = GameEstado.create(userId, 7L, Estado.JUGANDO, 1.0);
+    java.util.UUID userUuid = UUID.randomUUID();
+    UsuarioId userId = UsuarioId.of(userUuid);
+    GameEstado existing = GameEstado.create(userId, GameId.of(7L), Estado.JUGANDO, Rating.of(1.0));
 
-    when(repo.findByUsuarioYGame(userId, 7L)).thenReturn(Optional.of(existing));
+    when(repo.findByUsuarioYGame(userId, GameId.of(7L))).thenReturn(Optional.of(existing));
     when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
     uc.execute(new RateGameEstadoCommand(userId.toString(), "7", 4.25));
 
     ArgumentCaptor<GameEstado> captor = ArgumentCaptor.forClass(GameEstado.class);
     verify(repo).save(captor.capture());
-    assertEquals(4.25, captor.getValue().getRating());
+    assertEquals(4.25, captor.getValue().getRating().value());
     assertEquals(Estado.JUGANDO, captor.getValue().getEstado());
   }
 
@@ -39,8 +40,9 @@ class RateGameEstadoUseCaseTest {
     GameEstadoRepositorio repo = mock(GameEstadoRepositorio.class);
     RateGameEstadoUseCase uc = new RateGameEstadoUseCase(repo);
 
-    UUID userId = UUID.randomUUID();
-    when(repo.findByUsuarioYGame(userId, 7L)).thenReturn(Optional.empty());
+    java.util.UUID userUuid = UUID.randomUUID();
+    UsuarioId userId = UsuarioId.of(userUuid);
+    when(repo.findByUsuarioYGame(userId, GameId.of(7L))).thenReturn(Optional.empty());
 
     assertThrows(
         ApplicationException.class,

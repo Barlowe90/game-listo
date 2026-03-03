@@ -15,36 +15,41 @@ public class ListaGameItemRepositorioPostgres implements ListaGameItemRepositori
   }
 
   @Override
-  public void add(UUID listaId, Long gameRefId) {
-    ListaGameItemId id = new ListaGameItemId(listaId, gameRefId);
+  public void add(com.gamelisto.biblioteca.domain.ListaGameId listaId,
+      com.gamelisto.biblioteca.domain.GameId gameRefId) {
+    ListaGameItemId id = new ListaGameItemId(listaId.value(), gameRefId.value());
 
     if (jpa.existsById(id)) {
       return;
     }
 
     ListaGameItemEntity e = new ListaGameItemEntity();
-    e.setListaId(listaId);
-    e.setGameRefId(gameRefId);
+    e.setListaId(listaId.value());
+    e.setGameRefId(gameRefId.value());
     jpa.save(e);
   }
 
   @Override
-  public void remove(UUID listaId, Long gameRefId) {
-    jpa.deleteById(new ListaGameItemId(listaId, gameRefId));
+  public void remove(com.gamelisto.biblioteca.domain.ListaGameId listaId,
+      com.gamelisto.biblioteca.domain.GameId gameRefId) {
+    jpa.deleteById(new ListaGameItemId(listaId.value(), gameRefId.value()));
   }
 
   @Override
-  public boolean exists(UUID listaId, Long gameRefId) {
-    return jpa.existsById(new ListaGameItemId(listaId, gameRefId));
+  public boolean exists(com.gamelisto.biblioteca.domain.ListaGameId listaId,
+      com.gamelisto.biblioteca.domain.GameId gameRefId) {
+    return jpa.existsById(new ListaGameItemId(listaId.value(), gameRefId.value()));
   }
 
   @Override
-  public List<Long> findGameIdsByListaId(UUID listaId) {
-    return jpa.findByListaId(listaId).stream().map(ListaGameItemEntity::getGameRefId).toList();
+  public List<com.gamelisto.biblioteca.domain.GameId> findGameIdsByListaId(
+      com.gamelisto.biblioteca.domain.ListaGameId listaId) {
+    return jpa.findByListaId(listaId.value()).stream()
+        .map(e -> com.gamelisto.biblioteca.domain.GameId.of(e.getGameRefId())).toList();
   }
 
   @Override
-  public void deleteAllByListaId(UUID listaId) {
-    jpa.deleteByListaId(listaId);
+  public void deleteAllByListaId(com.gamelisto.biblioteca.domain.ListaGameId listaId) {
+    jpa.deleteByListaId(listaId.value());
   }
 }
