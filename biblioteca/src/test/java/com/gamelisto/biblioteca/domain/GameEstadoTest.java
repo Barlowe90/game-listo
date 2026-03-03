@@ -14,19 +14,22 @@ class GameEstadoTest {
   @Test
   @DisplayName("debe aceptar rating válido 0.0, 0.25, 5.0, 0.1 y rechazar 5.1")
   void ratingValidation() {
-    UUID userId = UUID.randomUUID();
+    java.util.UUID userUuid = UUID.randomUUID();
+    UsuarioId userId = UsuarioId.of(userUuid);
     Long gameId = Long.MAX_VALUE;
 
     // valores válidos
-    GameEstado.create(userId, gameId, Estado.DESEADO, 0.0);
-    GameEstado.create(userId, gameId, Estado.PENDIENTE, 0.25);
-    GameEstado.create(userId, gameId, Estado.COMPLETADO, 5.0);
-    GameEstado.create(userId, gameId, Estado.PENDIENTE, 0.1);
+    GameEstado.create(userId, GameId.of(gameId), Estado.DESEADO, Rating.of(0.0));
+    GameEstado.create(userId, GameId.of(gameId), Estado.PENDIENTE, Rating.of(0.25));
+    GameEstado.create(userId, GameId.of(gameId), Estado.COMPLETADO, Rating.of(5.0));
+    GameEstado.create(userId, GameId.of(gameId), Estado.PENDIENTE, Rating.of(0.1));
 
     // inválidos
     assertThrows(
-        DomainException.class, () -> GameEstado.create(userId, gameId, Estado.PENDIENTE, -1));
+      DomainException.class,
+      () -> GameEstado.create(userId, GameId.of(gameId), Estado.PENDIENTE, Rating.of(-1)));
     assertThrows(
-        DomainException.class, () -> GameEstado.create(userId, gameId, Estado.PENDIENTE, 5.1));
+      DomainException.class,
+      () -> GameEstado.create(userId, GameId.of(gameId), Estado.PENDIENTE, Rating.of(5.1)));
   }
 }

@@ -7,6 +7,7 @@ import com.gamelisto.biblioteca.domain.ListaGame;
 import com.gamelisto.biblioteca.domain.NombreListaGame;
 import com.gamelisto.biblioteca.domain.Tipo;
 import com.gamelisto.biblioteca.domain.ListaGameRepositorio;
+import com.gamelisto.biblioteca.domain.UsuarioId;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,15 +21,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class BuscarTodasLasListasUseCaseTest {
 
-  @Mock private ListaGameRepositorio listaGameRepositorio;
+  @Mock
+  private ListaGameRepositorio listaGameRepositorio;
 
-  @InjectMocks private BuscarTodasLasListasUseCase useCase;
+  @InjectMocks
+  private BuscarTodasLasListasUseCase useCase;
 
-  private UUID usuarioId;
+  private UsuarioId usuarioId;
 
   @BeforeEach
   void setUp() {
-    usuarioId = UUID.randomUUID();
+    usuarioId = UsuarioId.of(UUID.randomUUID());
   }
 
   @Test

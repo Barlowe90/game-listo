@@ -35,7 +35,6 @@ public class ListaGameController {
   private final AddGameToListHandler addGameToList;
   private final EliminarGameFromListHandler eliminarGameFromList;
 
-  @PreAuthorize("isAuthenticated()")
   @PostMapping("/lists")
   public ResponseEntity<ListaGameResponse> crearLista(
       @Valid @RequestBody CrearListaGameRequest request, Authentication authentication) {

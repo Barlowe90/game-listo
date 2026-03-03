@@ -19,8 +19,9 @@ class CrearGameEstadoUseCaseTest {
     GameEstadoRepositorio repo = mock(GameEstadoRepositorio.class);
     CrearGameEstadoUseCase uc = new CrearGameEstadoUseCase(repo);
 
-    UUID userId = UUID.randomUUID();
-    when(repo.findByUsuarioYGame(userId, 10L)).thenReturn(Optional.empty());
+    java.util.UUID userUuid = UUID.randomUUID();
+    UsuarioId userId = UsuarioId.of(userUuid);
+    when(repo.findByUsuarioYGame(userId, GameId.of(10L))).thenReturn(Optional.empty());
     when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
     uc.execute(new CrearGameEstadoCommand(userId.toString(), "10", "COMPLETADO"));
@@ -28,7 +29,7 @@ class CrearGameEstadoUseCaseTest {
     ArgumentCaptor<GameEstado> captor = ArgumentCaptor.forClass(GameEstado.class);
     verify(repo).save(captor.capture());
     assertEquals(userId, captor.getValue().getUsuarioRefId());
-    assertEquals(10L, captor.getValue().getGameRefId());
+    assertEquals(GameId.of(10L), captor.getValue().getGameRefId());
     assertEquals(Estado.COMPLETADO, captor.getValue().getEstado());
   }
 
@@ -37,9 +38,10 @@ class CrearGameEstadoUseCaseTest {
     GameEstadoRepositorio repo = mock(GameEstadoRepositorio.class);
     CrearGameEstadoUseCase uc = new CrearGameEstadoUseCase(repo);
 
-    UUID userId = UUID.randomUUID();
-    GameEstado existing = GameEstado.create(userId, 10L, Estado.PENDIENTE, 2.0);
-    when(repo.findByUsuarioYGame(userId, 10L)).thenReturn(Optional.of(existing));
+    java.util.UUID userUuid = UUID.randomUUID();
+    UsuarioId userId = UsuarioId.of(userUuid);
+    GameEstado existing = GameEstado.create(userId, GameId.of(10L), Estado.PENDIENTE, Rating.of(2.0));
+    when(repo.findByUsuarioYGame(userId, GameId.of(10L))).thenReturn(Optional.of(existing));
     when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
     uc.execute(new CrearGameEstadoCommand(userId.toString(), "10", "COMPLETADO"));
@@ -47,6 +49,6 @@ class CrearGameEstadoUseCaseTest {
     ArgumentCaptor<GameEstado> captor = ArgumentCaptor.forClass(GameEstado.class);
     verify(repo).save(captor.capture());
     assertEquals(Estado.COMPLETADO, captor.getValue().getEstado());
-    assertEquals(2.0, captor.getValue().getRating());
+    assertEquals(2.0, captor.getValue().getRating().value());
   }
 }

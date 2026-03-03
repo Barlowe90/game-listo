@@ -34,7 +34,7 @@ public class EliminarGameFromListUseCase implements EliminarGameFromListHandler 
       throw new ApplicationException("Solo se pueden modificar listas personalizadas");
     }
 
-    listaGameItemRepositorio.remove(result.listaId.value(), result.gameRefId);
+    listaGameItemRepositorio.remove(result.listaId, result.gameRefId);
 
     return ListaGameResult.from(listaGame);
   }
@@ -48,12 +48,15 @@ public class EliminarGameFromListUseCase implements EliminarGameFromListHandler 
 
   private static EntradaBuscarListaGame mapearCommandAEntrada(
       String userId, String listaId, String gameId) {
-    UUID userUuid = UUID.fromString(userId);
-    ListaGameId listaUuid = ListaGameId.of(UUID.fromString(listaId));
-    Long gameRefId = Long.parseLong(gameId);
+    com.gamelisto.biblioteca.domain.UsuarioId userUuid = com.gamelisto.biblioteca.domain.UsuarioId.fromString(userId);
+    ListaGameId listaUuid = ListaGameId.of(java.util.UUID.fromString(listaId));
+    com.gamelisto.biblioteca.domain.GameId gameRefId = com.gamelisto.biblioteca.domain.GameId
+        .of(Long.parseLong(gameId));
 
     return new EntradaBuscarListaGame(userUuid, listaUuid, gameRefId);
   }
 
-  private record EntradaBuscarListaGame(UUID userUuid, ListaGameId listaId, Long gameRefId) {}
+  private record EntradaBuscarListaGame(com.gamelisto.biblioteca.domain.UsuarioId userUuid, ListaGameId listaId,
+      com.gamelisto.biblioteca.domain.GameId gameRefId) {
+  }
 }
