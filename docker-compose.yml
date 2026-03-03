@@ -165,6 +165,37 @@ services:
       - backend
 
   # ============================================
+  # BUSQUEDAS - Microservicio de búsqueda (OpenSearch)
+  # ============================================
+  busquedas:
+    build:
+      context: .
+      dockerfile: busquedas/Dockerfile
+    container_name: busquedas
+    expose:
+      - "8085"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+      OPENSEARCH_URL: http://opensearch:9200
+      SPRING_OPENSEARCH_URL: http://opensearch:9200
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8085/actuator/health" ]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - backend
+
+  # ============================================
   # REDIS - Rate limiting y revocacion de tokens
   # ============================================
   redis:
@@ -250,6 +281,32 @@ services:
       timeout: 5s
       retries: 10
       start_period: 60s
+    networks:
+      - backend
+
+  # ============================================
+  # OPENSEARCH - Motor de búsqueda para catalogo
+  # ============================================
+  opensearch:
+    image: opensearchproject/opensearch:2.9.0
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - plugins.security.disabled=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"' || exit 1" ]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
     networks:
       - backend
 

@@ -79,7 +79,7 @@ public class UsuariosController {
     UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
 
     logger.info(
-        "Perfil de usuario editado exitosamente - ID: {}, Username: ",
+        "Perfil de usuario editado exitosamente - ID: {}, Username: {}",
         response.id(),
         response.username());
 
@@ -139,13 +139,17 @@ public class UsuariosController {
   }
 
   @GetMapping(value = "/users", produces = "application/json")
-  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<?> obtenerUsuarios(
       @RequestParam(required = false) String username,
       @RequestParam(required = false) EstadoUsuario estado,
       Authentication authentication) {
 
     logger.info("GET /v1/usuarios/users - username: {}, estado: {}", username, estado);
+
+    if (authentication == null) {
+      logger.warn("Acceso denegado - Petición sin autenticación");
+      return ResponseEntity.status(403).build();
+    }
 
     if (username != null && !username.isBlank()) {
       UsuarioDTO usuarioDTO = buscarUsuariosPorNombreUseCase.execute(username);
@@ -156,7 +160,7 @@ public class UsuariosController {
 
     boolean isAdmin =
         authentication.getAuthorities().stream()
-            .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+            .anyMatch(auth -> "ROLE_ADMIN".equals(auth.getAuthority()));
 
     if (!isAdmin) {
       logger.warn("Acceso denegado - Usuario sin rol ADMIN intentó listar usuarios");

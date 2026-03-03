@@ -48,7 +48,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
           "/v1/usuarios/auth/logout",
           "/v1/usuarios/auth/refresh",
           "/actuator/health",
-          "/v1/catalogo");
+          "/v1/catalogo",
+          "/v1/busquedas");
 
   private final JwtValidator jwtValidator;
   private final TokenRevocationService tokenRevocationService;

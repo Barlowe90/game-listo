@@ -138,7 +138,6 @@ public class AuthController {
   }
 
   @GetMapping("/me")
-  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<UsuarioResponse> getAuthenticatedProfile(
       @RequestHeader(value = "X-User-Id", required = false) String userId) {
 
