@@ -23,13 +23,6 @@ public class SugerenciasController {
   private static final Logger logger = LoggerFactory.getLogger(SugerenciasController.class);
   private final SugerirJuegosHandle sugerirJuegos;
 
-  /**
-   * GET /v1/games/suggest?q={texto}&size={n} Devuelve sugerencias de autocomplete de videojuegos.
-   *
-   * @param q texto parcial introducido por el usuario (requerido)
-   * @param size número máximo de resultados (opcional)
-   * @return lista de sugerencias { gameId, title }
-   */
   @GetMapping("/sugerencia")
   public ResponseEntity<SugerenciasResponse> suggest(
       @RequestParam(required = true) String q, @RequestParam(required = false) Integer size) {
