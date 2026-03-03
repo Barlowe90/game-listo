@@ -1,10 +1,10 @@
 package com.gamelist.catalogo.application.dto.in;
 
-import com.gamelist.catalogo.domain.game.CoverUrl;
-import com.gamelist.catalogo.domain.game.Game;
-import com.gamelist.catalogo.domain.game.GameId;
-import com.gamelist.catalogo.domain.game.GameName;
-import com.gamelist.catalogo.domain.game.Summary;
+import com.gamelist.catalogo.domain.CoverUrl;
+import com.gamelist.catalogo.domain.Game;
+import com.gamelist.catalogo.domain.GameId;
+import com.gamelist.catalogo.domain.GameName;
+import com.gamelist.catalogo.domain.Summary;
 
 import java.util.List;
 
@@ -69,8 +69,6 @@ public record IgdbGameDTO(
         remakeIds(),
         remasterIds(),
         similarGames(),
-        themes(),
-        screenshots(),
-        videos());
+        themes());
   }
 }

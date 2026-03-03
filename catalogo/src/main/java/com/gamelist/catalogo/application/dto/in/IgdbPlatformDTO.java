@@ -1,9 +1,9 @@
 package com.gamelist.catalogo.application.dto.in;
 
-import com.gamelist.catalogo.domain.platform.Platform;
-import com.gamelist.catalogo.domain.platform.PlatformAbbreviation;
-import com.gamelist.catalogo.domain.platform.PlatformId;
-import com.gamelist.catalogo.domain.platform.PlatformName;
+import com.gamelist.catalogo.domain.Platform;
+import com.gamelist.catalogo.domain.PlatformAbbreviation;
+import com.gamelist.catalogo.domain.PlatformId;
+import com.gamelist.catalogo.domain.PlatformName;
 
 public record IgdbPlatformDTO(
     Long id,

@@ -1,7 +1,6 @@
 package com.gamelist.catalogo.infrastructure.integration;
 
-import com.gamelist.catalogo.domain.platform.*;
-import com.gamelist.catalogo.domain.repositories.RepositorioPlataforma;
+import com.gamelist.catalogo.domain.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 @DisplayName("PlatformRepositoryPostgres - Tests de Integracion")
 class PlatformRepositoryPostgresIntegrationTest {
-  @Autowired private RepositorioPlataforma platformRepository;
+  @Autowired private PlataformaRepositorio platformRepository;
 
   private Platform crearPlataforma(long id, String nombre, String abrev) {
     return Platform.create(

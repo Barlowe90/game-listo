@@ -3,7 +3,7 @@ package com.gamelist.catalogo.config;
 import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
-import com.gamelist.catalogo.domain.repositories.IGamePublisher;
+import com.gamelist.catalogo.domain.GamePublisherRepositorio;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -31,8 +31,8 @@ public class TestMessagingConfig {
    */
   @Bean
   @Primary
-  public IGamePublisher eventPublisher() {
-    return mock(IGamePublisher.class);
+  public GamePublisherRepositorio eventPublisher() {
+    return mock(GamePublisherRepositorio.class);
   }
 
   @Bean

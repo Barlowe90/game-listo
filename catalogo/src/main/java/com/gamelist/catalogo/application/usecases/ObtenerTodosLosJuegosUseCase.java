@@ -1,23 +1,21 @@
 package com.gamelist.catalogo.application.usecases;
 
 import com.gamelist.catalogo.application.dto.out.GameDTO;
-import com.gamelist.catalogo.domain.repositories.RepositorioGame;
+import com.gamelist.catalogo.domain.GameRepositorio;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-public class ObtenerTodosLosJuegosUseCase {
+@RequiredArgsConstructor
+public class ObtenerTodosLosJuegosUseCase implements ObtenerTodosLosJuegosHandle {
 
-  private final RepositorioGame repositorioGame;
+  private final GameRepositorio gameRepositorio;
 
-  public ObtenerTodosLosJuegosUseCase(RepositorioGame repositorioGame) {
-    this.repositorioGame = repositorioGame;
-  }
-
-  @Transactional(readOnly = true)
+  @Override
   public List<GameDTO> execute() {
-    return repositorioGame.findAll().stream().map(GameDTO::from).toList();
+    return gameRepositorio.findAll().stream().map(GameDTO::from).toList();
   }
 }

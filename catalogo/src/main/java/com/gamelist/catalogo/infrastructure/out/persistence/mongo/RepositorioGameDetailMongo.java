@@ -1,8 +1,8 @@
 package com.gamelist.catalogo.infrastructure.out.persistence.mongo;
 
-import com.gamelist.catalogo.domain.game.GameId;
-import com.gamelist.catalogo.domain.gamedetail.GameDetail;
-import com.gamelist.catalogo.domain.repositories.IGameDetailRepository;
+import com.gamelist.catalogo.domain.GameId;
+import com.gamelist.catalogo.domain.GameDetail;
+import com.gamelist.catalogo.domain.GameDetailRepositorio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class RepositorioGameDetailMongo implements IGameDetailRepository {
+public class RepositorioGameDetailMongo implements GameDetailRepositorio {
 
   private final RepositorioGameDetail mongoRepository;
   private final GameDetailMapper mapper;

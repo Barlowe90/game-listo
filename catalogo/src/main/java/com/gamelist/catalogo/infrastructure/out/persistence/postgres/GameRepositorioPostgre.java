@@ -1,8 +1,8 @@
 package com.gamelist.catalogo.infrastructure.out.persistence.postgres;
 
-import com.gamelist.catalogo.domain.game.Game;
-import com.gamelist.catalogo.domain.game.GameId;
-import com.gamelist.catalogo.domain.repositories.RepositorioGame;
+import com.gamelist.catalogo.domain.Game;
+import com.gamelist.catalogo.domain.GameId;
+import com.gamelist.catalogo.domain.GameRepositorio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class RepositorioGamePostgre implements RepositorioGame {
+public class GameRepositorioPostgre implements GameRepositorio {
 
   private final GameJpaRepository jpaRepository;
   private final GameMapper mapper;

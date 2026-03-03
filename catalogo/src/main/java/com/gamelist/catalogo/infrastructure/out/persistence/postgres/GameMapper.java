@@ -1,6 +1,6 @@
 package com.gamelist.catalogo.infrastructure.out.persistence.postgres;
 
-import com.gamelist.catalogo.domain.game.*;
+import com.gamelist.catalogo.domain.*;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -49,9 +49,6 @@ public class GameMapper {
     entity.setSimilarGames(
         game.getSimilarGames() != null ? game.getSimilarGames() : new ArrayList<>());
     entity.setThemes(game.getThemes() != null ? game.getThemes() : new ArrayList<>());
-    entity.setScreenshots(
-        game.getScreenshots() != null ? game.getScreenshots() : new ArrayList<>());
-    entity.setVideos(game.getVideos() != null ? game.getVideos() : new ArrayList<>());
     return entity;
   }
 
@@ -80,8 +77,6 @@ public class GameMapper {
         entity.getRemakeIds(),
         entity.getRemasterIds(),
         entity.getSimilarGames(),
-        entity.getThemes(),
-        entity.getScreenshots(),
-        entity.getVideos());
+        entity.getThemes());
   }
 }

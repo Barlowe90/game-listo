@@ -21,10 +21,6 @@ public class GameDetailDocument {
 
   private Long gameId; // ID referencia PostgreSQL
 
-  private List<String> alternativeNames = new ArrayList<>();
-
-  private String coverUrl;
-
   private List<String> screenshots = new ArrayList<>();
 
   private List<String> videos = new ArrayList<>();

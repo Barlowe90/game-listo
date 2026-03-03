@@ -3,15 +3,14 @@ package com.gamelist.catalogo.application.usecases;
 import com.gamelist.catalogo.application.dto.in.IgdbGameDTO;
 import com.gamelist.catalogo.application.dto.out.SyncResultDTO;
 import com.gamelist.catalogo.domain.events.GameCreado;
-import com.gamelist.catalogo.domain.game.Game;
-import com.gamelist.catalogo.domain.gamedetail.GameDetail;
-import com.gamelist.catalogo.domain.repositories.IGameDetailRepository;
-import com.gamelist.catalogo.domain.repositories.IGamePublisher;
-import com.gamelist.catalogo.domain.repositories.RepositorioGame;
-import com.gamelist.catalogo.domain.repositories.IIgdbClientPort;
+import com.gamelist.catalogo.domain.Game;
+import com.gamelist.catalogo.domain.GameDetail;
+import com.gamelist.catalogo.domain.GameDetailRepositorio;
+import com.gamelist.catalogo.domain.GamePublisherRepositorio;
+import com.gamelist.catalogo.domain.GameRepositorio;
+import com.gamelist.catalogo.domain.IgdbClientPortRepositorio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,17 +20,17 @@ import org.slf4j.LoggerFactory;
 /** Accede a IGDB para persistir en bbdd la info de los videojuegos */
 @Service
 @RequiredArgsConstructor
-public class SyncGamesFromIGDBUseCase {
+public class SyncGamesFromIGDBUseCase implements SyncGamesFromIGDBHandle {
 
   private static final String ROUTING_KEY_SUFFIX = "gameEstado.creado";
   private static final Logger logger = LoggerFactory.getLogger(SyncGamesFromIGDBUseCase.class);
 
-  private final IIgdbClientPort igdbClient;
-  private final RepositorioGame gameRepository;
-  private final IGameDetailRepository gameDetailRepository;
-  private final IGamePublisher eventosPublisher;
+  private final IgdbClientPortRepositorio igdbClient;
+  private final GameRepositorio gameRepository;
+  private final GameDetailRepositorio gameDetailRepository;
+  private final GamePublisherRepositorio eventosPublisher;
 
-  @Transactional
+  @Override
   public SyncResultDTO execute(int limit) {
     logger.info("Iniciando sincronización de juegos desde IGDB");
 
@@ -56,13 +55,7 @@ public class SyncGamesFromIGDBUseCase {
 
         enviarColaGameCreado(game);
 
-        GameDetail gameDetail =
-            GameDetail.create(
-                game.getId(),
-                game.getAlternativeNames(),
-                game.getCoverUrl().isEmpty() ? null : game.getCoverUrl().value(),
-                game.getScreenshots(),
-                game.getVideos());
+        GameDetail gameDetail = GameDetail.create(game.getId(), dto.screenshots(), dto.videos());
         gameDetailRepository.save(gameDetail); // mongoDB
 
         logger.debug(

@@ -29,9 +29,7 @@ public record GameResponse(
     List<Long> remasterIds,
     List<Long> similarGames,
     String summary,
-    List<String> themes,
-    List<String> screenshots,
-    List<String> videos) {
+    List<String> themes) {
 
   public static GameResponse from(GameDTO dto) {
     if (dto == null) return null;
@@ -59,8 +57,6 @@ public record GameResponse(
         dto.remasterIds(),
         dto.similarGames(),
         dto.summary(),
-        dto.themes(),
-        dto.screenshots(),
-        dto.videos());
+        dto.themes());
   }
 }

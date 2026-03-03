@@ -1,5 +1,6 @@
 package com.gamelist.catalogo.domain.game;
 
+import com.gamelist.catalogo.domain.*;
 import com.gamelist.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -92,9 +93,7 @@ class GameTest {
             platforms,
             "main_game",
             "released",
-            null,
-            null,
-            null,
+            List.of(),
             null,
             null,
             null,

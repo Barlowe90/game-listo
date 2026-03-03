@@ -1,6 +1,6 @@
 package com.gamelist.catalogo.application.dto.out;
 
-import com.gamelist.catalogo.domain.game.Game;
+import com.gamelist.catalogo.domain.Game;
 
 import java.util.List;
 
@@ -29,9 +29,7 @@ public record GameDTO(
     List<Long> remakeIds,
     List<Long> remasterIds,
     List<Long> similarGames,
-    List<String> themes,
-    List<String> screenshots,
-    List<String> videos) {
+    List<String> themes) {
 
   public static GameDTO from(Game game) {
     if (game == null) return null;
@@ -64,8 +62,6 @@ public record GameDTO(
         game.getRemakeIds() != null ? List.copyOf(game.getRemakeIds()) : List.of(),
         game.getRemasterIds() != null ? List.copyOf(game.getRemasterIds()) : List.of(),
         game.getSimilarGames() != null ? List.copyOf(game.getSimilarGames()) : List.of(),
-        game.getThemes() != null ? List.copyOf(game.getThemes()) : List.of(),
-        game.getScreenshots() != null ? List.copyOf(game.getScreenshots()) : List.of(),
-        game.getVideos() != null ? List.copyOf(game.getVideos()) : List.of());
+        game.getThemes() != null ? List.copyOf(game.getThemes()) : List.of());
   }
 }

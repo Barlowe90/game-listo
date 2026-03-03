@@ -1,6 +1,7 @@
 package com.gamelist.catalogo.domain.gamedetail;
 
-import com.gamelist.catalogo.domain.game.GameId;
+import com.gamelist.catalogo.domain.GameDetail;
+import com.gamelist.catalogo.domain.GameId;
 import com.gamelist.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,20 +20,15 @@ class GameDetailTest {
   void debeCrearGameDetailConContenido() {
     // Arrange
     GameId gameId = GameId.of(100L);
-    List<String> alternativeNames = List.of("Alt Name 1", "Alt Name 2");
-    String coverUrl = "https://example.com/cover.jpg";
     List<String> screenshots =
         List.of("https://example.com/screenshot1.jpg", "https://example.com/screenshot2.jpg");
     List<String> videos = List.of("https://youtube.com/watch?v=abc123");
 
     // Act
-    GameDetail gameDetail =
-        GameDetail.create(gameId, alternativeNames, coverUrl, screenshots, videos);
+    GameDetail gameDetail = GameDetail.create(gameId, screenshots, videos);
 
     // Assert
     assertThat(gameDetail.getGameId()).isEqualTo(gameId);
-    assertThat(gameDetail.getAlternativeNames()).hasSize(2);
-    assertThat(gameDetail.getCoverUrl()).isEqualTo(coverUrl);
     assertThat(gameDetail.getScreenshots()).hasSize(2);
     assertThat(gameDetail.getVideos()).hasSize(1);
     assertThat(gameDetail.hasContent()).isTrue();
@@ -60,8 +56,7 @@ class GameDetailTest {
   @DisplayName("Debe lanzar excepción si GameId es nulo")
   void debeLanzarExcepcionSiGameIdNulo() {
     // Act & Assert
-    assertThatThrownBy(
-            () -> GameDetail.create(null, List.of(), null, new ArrayList<>(), new ArrayList<>()))
+    assertThatThrownBy(() -> GameDetail.create(null, new ArrayList<>(), new ArrayList<>()))
         .isInstanceOf(DomainException.class)
         .hasMessageContaining("GameId es obligatorio");
   }
@@ -101,8 +96,7 @@ class GameDetailTest {
   void debeEstablecerScreenshots() {
     // Arrange
     GameDetail gameDetail =
-        GameDetail.create(
-            GameId.of(100L), List.of(), null, List.of("https://old.com/1.jpg"), new ArrayList<>());
+        GameDetail.create(GameId.of(100L), List.of("https://old.com/1.jpg"), new ArrayList<>());
     List<String> newScreenshots = List.of("https://new.com/1.jpg", "https://new.com/2.jpg");
 
     // Act
@@ -118,8 +112,7 @@ class GameDetailTest {
   void debeEstablecerVideos() {
     // Arrange
     GameDetail gameDetail =
-        GameDetail.create(
-            GameId.of(100L), List.of(), null, new ArrayList<>(), List.of("https://old.com/video"));
+        GameDetail.create(GameId.of(100L), new ArrayList<>(), List.of("https://old.com/video"));
     List<String> newVideos = List.of("https://new.com/video1", "https://new.com/video2");
 
     // Act
@@ -134,12 +127,7 @@ class GameDetailTest {
   void getScreenshotsDebeRetornarListaInmutable() {
     // Arrange
     GameDetail gameDetail =
-        GameDetail.create(
-            GameId.of(100L),
-            List.of(),
-            null,
-            List.of("https://example.com/1.jpg"),
-            new ArrayList<>());
+        GameDetail.create(GameId.of(100L), List.of("https://example.com/1.jpg"), new ArrayList<>());
 
     // Act & Assert
     assertThatThrownBy(() -> gameDetail.getScreenshots().add("https://example.com/2.jpg"))
@@ -151,12 +139,7 @@ class GameDetailTest {
   void getVideosDebeRetornarListaInmutable() {
     // Arrange
     GameDetail gameDetail =
-        GameDetail.create(
-            GameId.of(100L),
-            List.of(),
-            null,
-            new ArrayList<>(),
-            List.of("https://example.com/video"));
+        GameDetail.create(GameId.of(100L), new ArrayList<>(), List.of("https://example.com/video"));
 
     // Act & Assert
     assertThatThrownBy(() -> gameDetail.getVideos().add("https://example.com/video2"))
@@ -169,7 +152,7 @@ class GameDetailTest {
     // Arrange
     GameId gameId = GameId.of(100L);
     GameDetail gd1 = GameDetail.empty(gameId);
-    GameDetail gd2 = GameDetail.create(gameId, List.of(), null, List.of("url"), new ArrayList<>());
+    GameDetail gd2 = GameDetail.create(gameId, List.of("url"), new ArrayList<>());
 
     // Assert
     assertThat(gd1).isEqualTo(gd2);

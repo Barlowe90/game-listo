@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.domain.game;
+package com.gamelist.catalogo.domain;
 
 import com.gamelist.catalogo.domain.exceptions.DomainException;
 import lombok.Getter;
@@ -34,8 +34,6 @@ public class Game {
   private final List<Long> remasterIds;
   private final List<Long> similarGames;
   private final List<String> themes;
-  private final List<String> screenshots;
-  private final List<String> videos;
 
   private Game(
       GameId id,
@@ -61,9 +59,7 @@ public class Game {
       List<Long> remakeIds,
       List<Long> remasterIds,
       List<Long> similarGames,
-      List<String> themes,
-      List<String> screenshots,
-      List<String> videos) {
+      List<String> themes) {
 
     this.id = Objects.requireNonNull(id, "GameId no puede ser nulo");
     this.name = Objects.requireNonNull(name, "GameName no puede ser nulo");
@@ -93,8 +89,6 @@ public class Game {
     this.remasterIds = remasterIds != null ? new ArrayList<>(remasterIds) : new ArrayList<>();
     this.similarGames = similarGames != null ? new ArrayList<>(similarGames) : new ArrayList<>();
     this.themes = themes != null ? new ArrayList<>(themes) : new ArrayList<>();
-    this.screenshots = screenshots != null ? new ArrayList<>(screenshots) : new ArrayList<>();
-    this.videos = videos != null ? new ArrayList<>(videos) : new ArrayList<>();
   }
 
   public static Game create(GameId id, GameName name, Summary summary, CoverUrl coverUrl) {
@@ -102,7 +96,7 @@ public class Game {
     if (name == null) throw new DomainException("El nombre del juego es obligatorio");
     return new Game(
         id, name, summary, coverUrl, null, null, null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null, null, null, null, null);
+        null, null, null, null, null, null, null, null, null, null);
   }
 
   public static Game reconstitute(
@@ -129,9 +123,7 @@ public class Game {
       List<Long> remakeIds,
       List<Long> remasterIds,
       List<Long> similarGames,
-      List<String> themes,
-      List<String> screenshots,
-      List<String> videos) {
+      List<String> themes) {
     return new Game(
         id,
         name,
@@ -156,9 +148,7 @@ public class Game {
         remakeIds,
         remasterIds,
         similarGames,
-        themes,
-        screenshots,
-        videos);
+        themes);
   }
 
   public void updateMetadata(GameName newName, Summary newSummary, CoverUrl newCoverUrl) {
