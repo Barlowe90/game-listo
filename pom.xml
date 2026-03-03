@@ -21,6 +21,7 @@
         <module>usuarios</module>
         <module>catalogo</module>
         <module>biblioteca</module>
+        <module>publicaciones</module>
     </modules>
 
     <properties>

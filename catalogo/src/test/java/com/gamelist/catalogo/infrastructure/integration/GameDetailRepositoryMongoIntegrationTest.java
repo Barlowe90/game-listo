@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Import(TestcontainersConfiguration.class)
 @DisplayName("GameDetailRepositoryMongo - Tests de Integracion")
 class GameDetailRepositoryMongoIntegrationTest {
+
   @Autowired private IGameDetailRepository gameDetailRepository;
 
   @Test
