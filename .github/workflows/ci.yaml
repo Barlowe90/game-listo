@@ -3,26 +3,80 @@ name: CI - GameListo v1
 on:
   push:
     paths:
-      - "usuarios-service/**"
+      - "usuarios/**"
+      - "biblioteca/**"
+      - "catalogo/**"
+      - "gateway/**"
+      - "publicaciones/**"
     branches: [ main ]
   pull_request:
     paths:
-      - "usuarios-service/**"
+      - "usuarios/**"
+      - "biblioteca/**"
+      - "catalogo/**"
+      - "gateway/**"
+      - "publicaciones/**"
       - "deployment/**" # cambiar?
     branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  ci:
-    name: usuarios-service - tests
+  detect-changes:
+    name: Detect changed folders
     runs-on: ubuntu-latest
-    if: github.actor != 'github-actions[bot]'
+    outputs:
+      usuarios: ${{ steps.set.outputs.usuarios }}
+      biblioteca: ${{ steps.set.outputs.biblioteca }}
+      catalogo: ${{ steps.set.outputs.catalogo }}
+      gateway: ${{ steps.set.outputs.gateway }}
+      publicaciones: ${{ steps.set.outputs.publicaciones }}
+    steps:
+      - name: Checkout full repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed folders
+        id: set
+        run: |
+          set -e
+          # Determine base and head SHAs depending on event
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE_SHA="${{ github.event.before }}"
+            HEAD_SHA="${{ github.sha }}"
+          fi
+
+          echo "Base: $BASE_SHA Head: $HEAD_SHA"
+          # Ensure base is available
+          git fetch origin $BASE_SHA --no-tags || true
+
+          CHANGED=$(git diff --name-only $BASE_SHA $HEAD_SHA || true)
+          echo "Changed files:\n$CHANGED"
+
+          has_change() {
+            echo "$CHANGED" | grep -E --quiet "^$1/" && echo true | true || echo false
+          }
+
+          echo "usuarios=$(has_change usuarios)" >> $GITHUB_OUTPUT
+          echo "biblioteca=$(has_change biblioteca)" >> $GITHUB_OUTPUT
+          echo "catalogo=$(has_change catalogo)" >> $GITHUB_OUTPUT
+          echo "gateway=$(has_change gateway)" >> $GITHUB_OUTPUT
+          echo "publicaciones=$(has_change publicaciones)" >> $GITHUB_OUTPUT
+
+  ci-usuarios:
+    name: usuarios - tests
+    needs: detect-changes
+    if: ${{ (needs.detect-changes.outputs.usuarios == 'true' || github.event_name == 'workflow_dispatch') && github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
     defaults:
       run:
-        working-directory: usuarios-service
+        working-directory: usuarios
 
     services:
       postgres:
@@ -49,6 +103,16 @@ jobs:
           - 15672:15672
         options: >-
           --health-cmd="rabbitmq-diagnostics -q ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
@@ -111,7 +175,7 @@ jobs:
 
       - name: Run tests (mvn verify)
         if: github.event_name != 'pull_request' || steps.spotless.outputs.pushed != 'true'
-        working-directory: usuarios-service
+        working-directory: usuarios
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/usuarios_db
           SPRING_DATASOURCE_USERNAME: guest
@@ -121,20 +185,241 @@ jobs:
           SPRING_RABBITMQ_USERNAME: guest
           SPRING_RABBITMQ_PASSWORD: guest
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          MESSAGING_RABBITMQ_ENABLED: "true"
+          SPRING_DATA_REDIS_HOST: localhost
+          SPRING_DATA_REDIS_PORT: "6379"
         run: ./mvnw -B -ntp verify
 
       - name: Generate JaCoCo report
         if: github.event_name != 'pull_request' || steps.spotless.outputs.pushed != 'true'
-        working-directory: usuarios-service
+        working-directory: usuarios
         run: ./mvnw -B -ntp jacoco:report
 
       - name: Upload test artifacts
         if: always() && (github.event_name != 'pull_request' || steps.spotless.outputs.pushed != 'true')
         uses: actions/upload-artifact@v4
         with:
-          name: usuarios-service-test-artifacts
+          name: usuarios-ºtest-artifacts
           path: |
-            usuarios-service/target/surefire-reports/
-            usuarios-service/target/failsafe-reports/
-            usuarios-service/target/site/jacoco/
+            usuarios/target/surefire-reports/
+            usuarios/target/failsafe-reports/
+            usuarios/target/site/jacoco/
           retention-days: 7
+
+  ci-biblioteca:
+    name: biblioteca - tests
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.biblioteca == 'true' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: biblioteca
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: guest
+          POSTGRES_PASSWORD: guest
+          POSTGRES_DB: biblioteca_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U guest -d biblioteca_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=30
+
+      rabbitmq:
+        image: rabbitmq:3.13-management-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd="rabbitmq-diagnostics -q ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+          cache: maven
+
+      - name: Give execute permission to mvnw
+        run: chmod +x mvnw
+
+      - name: Run tests (mvn verify)
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/biblioteca_db
+          SPRING_DATASOURCE_USERNAME: guest
+          SPRING_DATASOURCE_PASSWORD: guest
+          SPRING_RABBITMQ_HOST: localhost
+          SPRING_RABBITMQ_PORT: "5672"
+          SPRING_RABBITMQ_USERNAME: guest
+          SPRING_RABBITMQ_PASSWORD: guest
+          MESSAGING_RABBITMQ_ENABLED: "true"
+        run: ./mvnw -B -ntp verify
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: biblioteca-test-artifacts
+          path: |
+            biblioteca/target/surefire-reports/
+            biblioteca/target/failsafe-reports/
+          retention-days: 7
+
+  ci-catalogo:
+    name: catalogo - tests
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.catalogo == 'true' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: catalogo
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+          cache: maven
+
+      - name: Give execute permission to mvnw
+        run: chmod +x mvnw
+
+      - name: Run tests (mvn verify)
+        run: ./mvnw -B -ntp verify
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalogo-test-artifacts
+          path: |
+            catalogo/target/surefire-reports/
+            catalogo/target/failsafe-reports/
+          retention-days: 7
+
+  ci-gateway:
+    name: gateway - tests
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.gateway == 'true' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: gateway
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+          cache: maven
+
+      - name: Give execute permission to mvnw
+        run: chmod +x mvnw
+
+      - name: Run tests (mvn verify)
+        run: ./mvnw -B -ntp verify
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gateway-test-artifacts
+          path: |
+            gateway/target/surefire-reports/
+            gateway/target/failsafe-reports/
+          retention-days: 7
+
+  ci-publicaciones:
+    name: publicaciones - tests
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.publicaciones == 'true' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: publicaciones
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: guest
+          POSTGRES_PASSWORD: guest
+          POSTGRES_DB: publicaciones_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U guest -d publicaciones_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+          cache: maven
+
+      - name: Give execute permission to mvnw
+        run: chmod +x mvnw
+
+      - name: Run tests (mvn verify)
+        run: ./mvnw -B -ntp verify
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: publicaciones-test-artifacts
+          path: |
+            publicaciones/target/surefire-reports/
+            publicaciones/target/failsafe-reports/
+          retention-days: 7
+

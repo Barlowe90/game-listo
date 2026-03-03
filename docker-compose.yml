@@ -1,16 +1,14 @@
-version: '3.9'
-
 services:
   # ============================================
   # API GATEWAY - Puerta de entrada única
   # ============================================
-  api-gateway:
+  gateway:
     build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
-    container_name: api-gateway
+      context: .
+      dockerfile: gateway/Dockerfile
+    container_name: gateway
     ports:
-      - "8090:8090"
+      - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker # busca application-docker.properties
       JWT_SECRET: ${JWT_SECRET}
@@ -19,42 +17,186 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      usuarios-service:
-        condition: service_started
+    #      usuarios:
+    #        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
     networks:
       - backend
 
   # ============================================
-  # USUARIOS SERVICE - Gestión de usuarios y autenticación
+  # USUARIOS - Gestion de usuarios y autenticacion
   # ============================================
-  usuarios-service:
+  usuarios:
     build:
-      context: ./usuarios-service
-      dockerfile: Dockerfile
-    container_name: usuarios-service
-    ports:
-      - "8081:8081"
+      context: .
+      dockerfile: usuarios/Dockerfile
+    container_name: usuarios
+    expose:
+      - "8081"
     environment:
       SPRING_PROFILES_ACTIVE: docker # busca application-docker.properties
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
       JWT_SECRET: ${JWT_SECRET}
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      RESEND_API_KEY: ${RESEND_API_KEY}
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     networks:
       - backend
 
   # ============================================
-  # REDIS - Rate limiting y revocación de tokens
+  # CATALOGO - Gestion del catalogo de videojuegos
+  # ============================================
+  catalogo:
+    build:
+      context: .
+      dockerfile: catalogo/Dockerfile
+    container_name: catalogo
+    expose:
+      - "8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      MONGO_USER: ${MONGO_USER}
+      MONGO_PASSWORD: ${MONGO_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+      IGDB_CLIENT_ID: ${IGDB_CLIENT_ID}
+      IGDB_ACCESS_TOKEN: ${IGDB_ACCESS_TOKEN}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8082/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - backend
+
+  # ============================================
+  # BIBLIOTECA - Gestion de las bibliotecas de juegos
+  # ============================================
+  biblioteca:
+    build:
+      context: .
+      dockerfile: biblioteca/Dockerfile
+    container_name: biblioteca
+    expose:
+      - "8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8083/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - backend
+
+  # ============================================
+  # PUBLICACIONES - Gestion de las publiaciones de videojuegos
+  # ============================================
+  publicaciones:
+    build:
+      context: .
+      dockerfile: publicaciones/Dockerfile
+    container_name: publicaciones
+    expose:
+      - "8084"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      MONGO_USER: ${MONGO_USER}
+      MONGO_PASSWORD: ${MONGO_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8084/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - backend
+
+  # ============================================
+  # BUSQUEDAS - Microservicio de búsqueda (OpenSearch)
+  # ============================================
+  busquedas:
+    build:
+      context: .
+      dockerfile: busquedas/Dockerfile
+    container_name: busquedas
+    expose:
+      - "8085"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+      OPENSEARCH_URL: http://opensearch:9200
+      SPRING_OPENSEARCH_URL: http://opensearch:9200
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8085/actuator/health" ]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - backend
+
+  # ============================================
+  # REDIS - Rate limiting y revocacion de tokens
   # ============================================
   redis:
     image: redis:7-alpine
@@ -73,25 +215,51 @@ services:
       - backend
 
   # ============================================
-  # POSTGRESQL - Base de datos relacional
+  # POSTGRESQL
   # ============================================
   postgres:
     image: postgres:16
-    container_name: postgres_usuarios
+    container_name: postgres_game_listo
     restart: always
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_DB: postgres  # Base de datos por defecto
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      test: [ "CMD-SHELL", "pg_isready -U gamelisto_user -d postgres" ]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
+    networks:
+      - backend
+
+  # ============================================
+  # MONGODB
+  # ============================================
+  mongo:
+    image: mongo:7
+    container_name: mongo_game_listo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - mongo-data:/data/db
+      - ./docker/mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     networks:
       - backend
 
@@ -111,13 +279,41 @@ services:
       test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity" ]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 60s
+    networks:
+      - backend
+
+  # ============================================
+  # OPENSEARCH - Motor de búsqueda para catalogo
+  # ============================================
+  opensearch:
+    image: opensearchproject/opensearch:2.9.0
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - plugins.security.disabled=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"' || exit 1" ]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
     networks:
       - backend
 
 volumes:
   postgres-data:
   redis-data:
+  mongo-data:
 
 networks:
   backend:
