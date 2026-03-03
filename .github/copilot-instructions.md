@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-GameListo is a microservices-based social gaming platform built with Spring Boot 3.5.8 and Java 21, using *
+GameListo is a microservices-based social gaming platform built with Spring Boot 4.0.3 and Java 21, using *
 *Domain-Driven Design (DDD)** and **Hexagonal Architecture**. Users manage game libraries, create custom lists, share
 experiences, and connect with other players. Data is sourced from IGDB API.
 
@@ -28,8 +28,8 @@ Para la persistencia de datos se adopta una estrategia políglota eligiendo el a
   publicaciones). MongoDB aporta un esquema flexible y buen rendimiento en lecturas/escrituras.
 - Neo4j como base de grafos para el grafo social (amistades, “amigos que juegan X”, afinidad). Neo4j es muy
   eficiente en recorridos y consultas de relaciones (amigos de amigos y recomendaciones).
-- OpenSearch como motor de búsqueda y filtrado facetado (juegos y buscar grupo), incluyendo autocompletado y
-  ordenación ligera cuando sea necesario. Proporciona búsqueda por texto completo, óptimo para consultas rápidas.
+- OpenSearch como motor de búsqueda y filtrado facetado (juegos), incluyendo autocompletado. Proporciona búsqueda por
+  texto completo, óptimo para consultas rápidas.
 
 La comunicación asíncrona entre servicios se implementa con RabbitMQ (Spring AMQP); este bus transporta los
 eventos de dominio. La ingesta de datos externos (API de IGDB) se automatiza con Spring Scheduler: se realizan
@@ -121,9 +121,11 @@ Esto es un TFG, estoy yo solo haciéndolo, por lo que es MUY IMPORTANTE hacer un
 - Value Objects: `UsuarioId`, `Email`, `Username`, `Avatar`, `PasswordHash`, `DiscordUserId`, `DiscordUsername`,
   `TokenVerificacion`, `RefreshTokenId`, `TokenValue`
 - Enums: `EstadoUsuario`, `Rol`, `Idioma`
-- Repositories: `RepositorioUsuarios` (interface), `RepositorioRefreshTokens` (interface)
-- Exceptions: `EntidadNoEncontrada`, `UsernameYaExisteException`, `EmailYaRegistradoException`,
-  `TokenInvalidoException`, `CredencialesInvalidasException`, `RefreshTokenExpiradoException`
+- Repositories: Use names ending in `Repositorio` placed under the `domain` package (for example:
+  `PublicacionRepositorio`, `PeticionUnionRepositorio`, `GrupoJuegoRepositorio`).
+- Exceptions: Usar un pequeño set estándar de excepciones en todo el proyecto: `DomainException`,
+  `ApplicationException`, `InfrastructureException` y un `GlobalHandleException` para el manejo centralizado de errores
+  en la capa de infraestructura.
 
 **Application Layer:**
 
@@ -284,13 +286,13 @@ Frontend → API Gateway → GraphQL BFF → Microservicios (REST)
 /v1/usuarios/verificar-email=
 /actuator/health=
 # Protected routes (JWT required)
-/v1/usuarios/**=→ usuarios-service:8081
-/v1/catalogo/**=→ catalogo-service:8082 (planned)
+/v1/usuarios/**=→ usuarios:8081
+/v1/catalogo/**=→ catalogo:8082 (planned)
 ```
 
 **Critical Notes:**
 
-- ⚠️ `jwt.secret` MUST be identical in Gateway and usuarios-service
+- ⚠️ `jwt.secret` MUST be identical in Gateway and usuarios
 - ⚠️ Gateway uses WebFlux (reactive), NOT Spring MVC
 - ⚠️ Redis is required for rate limiting and token revocation
 - ⚠️ Microservices trust `X-User-*` headers (internal network only)
@@ -303,9 +305,9 @@ Frontend → API Gateway → GraphQL BFF → Microservicios (REST)
 .\gateway\test-gateway.ps1
 
 # Manual tests
-curl http://localhost:8090/actuator/health
-curl -X POST http://localhost:8090/v1/usuarios/auth/login -H "Content-Type: application/json" -d '{"username":"test","password":"pass"}'
-curl http://localhost:8090/v1/usuarios/auth/me -H "Authorization: Bearer <token>"
+curl http://localhost:8080/actuator/health
+curl -X POST http://localhost:8080/v1/usuarios/auth/login -H "Content-Type: application/json" -d '{"username":"test","password":"pass"}'
+curl http://localhost:8080/v1/usuarios/auth/me -H "Authorization: Bearer <token>"
 ```
 
 **Documentation:**
@@ -316,9 +318,9 @@ curl http://localhost:8090/v1/usuarios/auth/me -H "Authorization: Bearer <token>
 
 ---
 
-### usuarios-service
+### usuarios
 
-**usuarios-service** manages user profiles, authentication and token generation:
+**usuarios** manages user profiles, authentication and token generation:
 
 **Profile & Account Management:**
 
@@ -342,7 +344,7 @@ curl http://localhost:8090/v1/usuarios/auth/me -H "Authorization: Bearer <token>
 
 **Architecture Notes:**
 
-- **Token Generation**: Done by `usuarios-service` (this service)
+- **Token Generation**: Done by `usuarios` (this service)
 - **Token Validation**: Done by API Gateway (verifies signature, expiration, claims, routes public/protected endpoints)
 - **Why this split?**: Centralized validation at gateway level, while auth logic stays with user domain
 
@@ -354,9 +356,9 @@ curl http://localhost:8090/v1/usuarios/auth/me -H "Authorization: Bearer <token>
 
 ---
 
-### catalogo-service (⏳ In Development)
+### catalogo (⏳ In Development)
 
-**catalogo-service** manages the game catalog with IGDB API integration:
+**catalogo** manages the game catalog with IGDB API integration:
 
 **⚠️ IMPORTANT - IGDB Credentials:**
 
@@ -405,7 +407,7 @@ curl http://localhost:8090/v1/usuarios/auth/me -H "Authorization: Bearer <token>
 
 **Data Source:**
 
-- **Event-driven indexing**: Listens to RabbitMQ events from catalogo-service
+- **Event-driven indexing**: Listens to RabbitMQ events from catalogo
 - **Events consumed**: `GameCreated`, `GameUpdated`, `GameDeleted`, `PlatformSynchronized`
 - **No direct DB access**: Search index is built from events only
 
@@ -425,7 +427,7 @@ GET /v1/search/groups?game={id}&platform={id}
 
 **Communication:**
 
-- Consumes events from: catalogo-service, biblioteca-service (for group search)
+- Consumes events from: catalogo, biblioteca-service (for group search)
 - Exposes REST API consumed by: GraphQL BFF
 - Cache layer: Redis for frequently accessed queries
 
@@ -447,7 +449,7 @@ GET /v1/search/groups?game={id}&platform={id}
 - 📊 Data aggregation from multiple services in a single query
 - 📊 Reduce round-trips between frontend and backend
 - 📊 Type-safe schema with GraphQL SDL
-- 📊 Resolver composition (fetch from REST APIs of microservices)
+- 📊 Resolver composition (fetch from REST APIs of microservicios)
 - 📊 Client-specific data shaping (avoid over-fetching/under-fetching)
 
 **Technology:**
@@ -501,11 +503,11 @@ query SearchGames($query: String!, $platforms: [ID!]) {
 
 **Services Called:**
 
-- `usuarios-service`: User profile, friends
-- `catalogo-service`: Game details, platforms
-- `biblioteca-service`: User library, ratings
-- `search-service`: Game search, autocomplete
-- `social-service`: Friend graph, recommendations
+- `usuarios`: User profile, friends
+- `catalogo`: Game details, platforms
+- `biblioteca`: User library, ratings
+- `search`: Game search, autocomplete
+- `social`: Friend graph, recommendations
 
 **Why GraphQL BFF?**
 
@@ -527,7 +529,7 @@ query SearchGames($query: String!, $platforms: [ID!]) {
 
 ### Build & Run
 
-**Maven commands (from `usuarios-service/` directory):**
+**Maven commands (from `usuarios/` directory):**
 
 ```bash
 ./mvnw clean install           # Build with Maven
@@ -580,7 +582,7 @@ query SearchGames($query: String!, $platforms: [ID!]) {
 - **Token Validation**: Delegated to **API Gateway** (Spring Cloud Gateway)
     - Gateway validates signature, expiration, claims
     - Gateway routes public vs protected endpoints
-    - usuarios-service does NOT validate tokens in incoming requests
+    - usuarios does NOT validate tokens in incoming requests
 
 ### Spring Security Configuration
 
@@ -637,14 +639,14 @@ jwt.refresh-expiration=604800000  # 7 days in milliseconds
 **Root Layout:**
 
 ```
-usuarios-service/
-├── src/main/java/com/gamelisto/usuarios_service/
+usuarios/
+├── src/main/java/com/gamelisto/usuarios/
 │   ├── domain/          # Pure business logic (no Spring)
 │   │   ├── usuario/     # Aggregate root + VOs
 │   │   ├── refreshtoken/ # RefreshToken aggregate + VOs
 │   │   ├── events/      # Domain events
 │   │   ├── exceptions/  # Domain exceptions
-│   │   └── repositories/ # Repository interfaces
+│   │   └── repositories/ # (opcional) Repository interfaces — en este repo preferimos colocar las interfaces de repositorio directamente en `domain/`
 │   ├── application/     # Use cases + DTOs
 │   │   ├── usecases/    # Each use case = 1 file
 │   │   ├── dto/         # Commands + inter-layer DTOs
@@ -663,35 +665,6 @@ usuarios-service/
 └── src/test/java/       # Mirror structure with README-TESTS*.md guides
 ```
 
-**Port Naming**: `I` prefix for ports (e.g., `IEmailService`, `IUsuarioPublisher`)
-
-## Database Configuration
-
-**Profile-based switching:**
-
-- Local development: PostgreSQL on `localhost:5432/usuarios_db` (user: `guest`)
-- Docker Compose: PostgreSQL on `postgres:5432/usuarios_db`
-- Tests: H2 in-memory (`jdbc:h2:mem:usuariosdb`) via `application-test.properties`
-- Schema: Auto-generated by Hibernate (`spring.jpa.hibernate.ddl-auto=update`)
-
-**Run with Docker:**
-
-```bash
-docker-compose up -d          # Starts PostgreSQL + RabbitMQ + service on port 8081
-docker-compose logs -f usuarios-service
-```
-
-## Event-Driven Architecture (Planned)
-
-- **RabbitMQ** configured in `/infrastructure/messaging/config`
-- Events defined in `/domain/events` (e.g., `UsuarioCreado`)
-- Publishers in `/infrastructure/messaging/publishers`
-- Listeners in `/infrastructure/messaging/listeners`
-- Currently: Events logged but not published (integration pending)
-
-## References
-
-- Main README: [README.md](../README.md) (platform overview)
-- Service README: [usuarios-service/README-usuarios.md](../usuarios-service/README-usuarios.md)
-- Testing Guide: [.github/testing-guide.md](testing-guide.md) (comprehensive test patterns)
-- Architecture checklists: `usuarios-service/.github/*.md`
+**Port Naming**: usar nombres descriptivos con sufijo `Repositorio` para los puertos de repositorio (por ejemplo
+`PublicacionRepositorio`, `UsuarioRepositorio`, `PeticionUnionRepositorio`). Antes se usaba un prefijo `I`; en este
+proyecto preferimos el sufijo `Repositorio` para mayor claridad y consistencia con el módulo `publicaciones`.

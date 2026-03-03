@@ -5,6 +5,9 @@
 Esta guía describe los patrones de testing para la arquitectura DDD + Hexagonal del proyecto. Los tests se organizan por
 capas, manteniendo la independencia del dominio y probando cada componente según su responsabilidad.
 
+Los test deberán ser básicos, evitando el uso excesivo de test ya que esta aplicación es un TFG y no saldrá a
+producción.
+
 ## Tipos de Tests
 
 ### 1. Tests de Dominio (Unit Tests)
@@ -39,7 +42,7 @@ capas, manteniendo la independencia del dominio y probando cada componente segú
 
 ### 1.1. Tests de Value Objects
 
-**Ubicación**: `src/test/java/com/gamelisto/usuarios_service/domain/usuario/`
+**Ubicación**: `src/test/java/com/gamelisto/usuarios/domain/usuario/`
 
 **Patrón**: Validar construcción, validaciones y comportamiento.
 
@@ -111,7 +114,7 @@ class EmailTest {
 
 ### 1.2. Tests de Entidades (Aggregate Root)
 
-**Ubicación**: `src/test/java/com/gamelisto/usuarios_service/domain/usuario/`
+**Ubicación**: `src/test/java/com/gamelisto/usuarios/domain/usuario/`
 
 ```java
 package com.gamelisto.usuarios.domain.usuario;
@@ -146,21 +149,6 @@ class UsuarioTest {
     }
 
     @Test
-    @DisplayName("Debe cambiar username y actualizar timestamp")
-    void debeCambiarUsername() {
-        // Arrange
-        Usuario usuario = crearUsuarioDefault();
-        Username nuevoUsername = Username.of("nuevoNombre");
-
-        // Act
-        usuario.changeUsername(nuevoUsername);
-
-        // Assert
-        assertEquals("nuevoNombre", usuario.getUsername().value());
-        assertTrue(usuario.getUpdatedAt().isAfter(usuario.getCreatedAt()));
-    }
-
-    @Test
     @DisplayName("Debe lanzar excepción al cambiar username a nulo")
     void debeLanzarExcepcionAlCambiarUsernameANulo() {
         // Arrange
@@ -185,24 +173,6 @@ class UsuarioTest {
         assertEquals("nuevo@test.com", usuario.getEmail().value());
     }
 
-    @Test
-    @DisplayName("Debe vincular cuenta de Discord")
-    void debeVincularCuentaDeDiscord() {
-        // Arrange
-        Usuario usuario = crearUsuarioDefault();
-        DiscordUserId discordId = DiscordUserId.of("123456789");
-        DiscordUsername discordUsername = DiscordUsername.of("player#1234");
-
-        // Act
-        usuario.linkDiscord(discordId, discordUsername);
-
-        // Assert
-        assertEquals("123456789", usuario.getDiscordUserId().value());
-        assertEquals("player#1234", usuario.getDiscordUsername().value());
-        assertNotNull(usuario.getDiscordLinkedAt());
-        assertTrue(usuario.isDiscordConsent());
-        assertTrue(usuario.hasDiscordLinked());
-    }
 
     @Test
     @DisplayName("Debe generar token de verificación al crear usuario")
@@ -266,7 +236,7 @@ class UsuarioTest {
 
 ## 2. Tests de Application (Casos de Uso)
 
-**Ubicación**: `src/test/java/com/gamelisto/usuarios_service/application/usecases/`
+**Ubicación**: `src/test/java/com/gamelisto/usuarios/application/usecases/`
 
 **Patrón**: Usar mocks de Mockito para repositorios.
 
@@ -404,7 +374,7 @@ class CrearUsuarioUseCaseTest {
 
 ### 3.1. Tests de Mappers
 
-**Ubicación**: `src/test/java/com/gamelisto/usuarios_service/infrastructure/persistence/postgres/mapper/`
+**Ubicación**: `src/test/java/com/gamelisto/usuarios/infrastructure/persistence/postgres/mapper/`
 
 ```java
 package com.gamelisto.usuarios.infrastructure.persistence.postgres.mapper;
@@ -423,7 +393,7 @@ class UsuarioMapperTest {
     private final UsuarioMapper mapper = new UsuarioMapper();
 
     @Test
-    @DisplayName("Debe convertir Usuario de dominio a UsuarioEntity")
+    @DisplayName("Debe convertir Usuario de domain a UsuarioEntity")
     void debeConvertirDominioAEntity() {
         // Arrange
         Usuario usuario = Usuario.create(
@@ -445,7 +415,7 @@ class UsuarioMapperTest {
     }
 
     @Test
-    @DisplayName("Debe convertir UsuarioEntity a Usuario de dominio")
+    @DisplayName("Debe convertir UsuarioEntity a Usuario de domain")
     void debeConvertirEntityADominio() {
         // Arrange
         UsuarioEntity entity = new UsuarioEntity();
@@ -472,40 +442,13 @@ class UsuarioMapperTest {
         assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
     }
 
-    @Test
-    @DisplayName("Debe manejar correctamente valores opcionales (Avatar, Discord)")
-    void debeManejareValoresOpcionales() {
-        // Arrange
-        UsuarioEntity entity = new UsuarioEntity();
-        entity.setId(java.util.UUID.randomUUID());
-        entity.setUsername("testuser");
-        entity.setEmail("test@test.com");
-        entity.setPasswordHash("$2a$10$hash");
-        entity.setAvatar(null);
-        entity.setDiscordUserId(null);
-        entity.setDiscordUsername(null);
-        entity.setCreatedAt(Instant.now());
-        entity.setUpdatedAt(Instant.now());
-        entity.setRole(Rol.USER);
-        entity.setLanguage(Idioma.ESP);
-        entity.setNotificationsActive(true);
-        entity.setStatus(EstadoUsuario.ACTIVO);
-        entity.setDiscordConsent(false);
-
-        // Act
-        Usuario usuario = mapper.toDomain(entity);
-
-        // Assert
-        assertTrue(usuario.getAvatar().isEmpty());
-        assertTrue(usuario.getDiscordUserId().isEmpty());
-        assertTrue(usuario.getDiscordUsername().isEmpty());
-    }
+}
 }
 ```
 
 ### 3.2. Tests de Repositorios (Integration)
 
-**Ubicación**: `src/test/java/com/gamelisto/usuarios_service/infrastructure/persistence/postgres/repository/`
+**Ubicación**: `src/test/java/com/gamelisto/usuarios/infrastructure/persistence/postgres/repository/`
 
 ```java
 package com.gamelisto.usuarios.infrastructure.persistence.postgres.repository;
@@ -622,7 +565,7 @@ class RepositorioUsuariosPostgreTest {
 
 ### 3.3. Tests de Controladores REST
 
-**Ubicación**: `src/test/java/com/gamelisto/usuarios_service/infrastructure/api/rest/`
+**Ubicación**: `src/test/java/com/gamelisto/usuarios/infrastructure/api/rest/`
 
 ```java
 package com.gamelisto.usuarios.infrastructure.api.rest;
@@ -652,13 +595,6 @@ class UsuariosControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Test
-    @DisplayName("GET /v1/usuarios/health debe retornar 200")
-    void healthEndpointDebeRetornar200() throws Exception {
-        mockMvc.perform(get("/v1/usuarios/health"))
-                .andExpect(status().isOk());
-    }
 
     @Test
     @DisplayName("POST /v1/usuarios/auth/register debe crear usuario")

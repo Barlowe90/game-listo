@@ -18,8 +18,8 @@ API Gateway para la plataforma GameListo. Actúa como puerta de entrada única p
 ### IMPORTANTE
 
 - **Este servicio NO genera tokens JWT**, solo los valida
-- La generación de tokens se realiza en `usuarios-service`
-- El secreto JWT debe ser el mismo en Gateway y usuarios-service (en application.properties)
+- La generación de tokens se realiza en `usuarios`
+- El secreto JWT debe ser el mismo en Gateway y usuarios (en application.properties)
 
 ## Arquitectura
 
@@ -59,12 +59,38 @@ Petición → RateLimitFilter (-50) → JwtAuthenticationFilter (-100) → Enrut
 - `POST /v1/usuarios/auth/reset-password` - Restablecer contraseña con token
 - `POST /v1/usuarios/auth/login` - Login
 - `POST /v1/usuarios/auth/refresh` - Renovar access token
-- `GET /v1/usuarios/health` - Health check
 
 #### Protegidas (requieren JWT)
 
 - `GET /v1/usuarios/**` - Todas las demás rutas de usuarios
 - Futuras rutas de otros microservicios
+
+### Nuevos microservicios añadidos
+
+- `publicaciones` (protegido): todas las rutas bajo `/v1/publicaciones/**` están protegidas por JWT y deben incluir
+  header `Authorization: Bearer <token>`; el gateway enruta a `http://publicaciones:8084` en Docker.
+- `busquedas` (público): todas las rutas bajo `/v1/busquedas/**` son públicas y el gateway las enruta a
+  `http://busquedas:8085` en Docker.
+
+### Ejemplos rápidos (local)
+
+Comprobar salud del gateway:
+
+```bash
+curl http://localhost:8080/actuator/health
+```
+
+Probar ruta pública de búsquedas:
+
+```bash
+curl http://localhost:8080/v1/busquedas?q=test
+```
+
+Probar ruta protegida de publicaciones (requiere token):
+
+```bash
+curl -H "Authorization: Bearer <token>" http://localhost:8080/v1/publicaciones
+```
 
 ## Configuración
 
@@ -87,7 +113,7 @@ docker-compose up -d
 ## Flujo de Autenticación
 
 1. Cliente hace login en `POST /v1/usuarios/auth/login` (ruta pública)
-2. `usuarios-service` genera access token + refresh token
+2. `usuarios` genera access token + refresh token
 3. Cliente incluye access token en header `Authorization: Bearer <token>`
 4. Gateway valida token en `JwtAuthenticationFilter`:
     - Verifica firma con el secreto compartido

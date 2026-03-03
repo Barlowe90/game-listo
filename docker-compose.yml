@@ -4,11 +4,11 @@ services:
   # ============================================
   gateway:
     build:
-      context: ./gateway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: gateway/Dockerfile
     container_name: gateway
     ports:
-      - "8090:8090"
+      - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker # busca application-docker.properties
       JWT_SECRET: ${JWT_SECRET}
@@ -17,10 +17,10 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      usuarios-service:
-        condition: service_healthy
+    #      usuarios:
+    #        condition: service_healthy
     healthcheck:
-      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8090/actuator/health" ]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -29,15 +29,15 @@ services:
       - backend
 
   # ============================================
-  # USUARIOS SERVICE - Gestión de usuarios y autenticación
+  # USUARIOS - Gestion de usuarios y autenticacion
   # ============================================
-  usuarios-service:
+  usuarios:
     build:
-      context: ./usuarios-service
-      dockerfile: Dockerfile
-    container_name: usuarios-service
-    ports:
-      - "8081:8081"
+      context: .
+      dockerfile: usuarios/Dockerfile
+    container_name: usuarios
+    expose:
+      - "8081"
     environment:
       SPRING_PROFILES_ACTIVE: docker # busca application-docker.properties
       POSTGRES_USER: ${POSTGRES_USER}
@@ -66,15 +66,15 @@ services:
       - backend
 
   # ============================================
-  # CATALOGO SERVICE - Gestión del catálogo de videojuegos
+  # CATALOGO - Gestion del catalogo de videojuegos
   # ============================================
-  catalogo-service:
+  catalogo:
     build:
-      context: ./catalogo-service
-      dockerfile: Dockerfile
-    container_name: catalogo-service
-    ports:
-      - "8082:8082"
+      context: .
+      dockerfile: catalogo/Dockerfile
+    container_name: catalogo
+    expose:
+      - "8082"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       POSTGRES_USER: ${POSTGRES_USER}
@@ -103,7 +103,100 @@ services:
       - backend
 
   # ============================================
-  # REDIS - Rate limiting y revocación de tokens
+  # BIBLIOTECA - Gestion de las bibliotecas de juegos
+  # ============================================
+  biblioteca:
+    build:
+      context: .
+      dockerfile: biblioteca/Dockerfile
+    container_name: biblioteca
+    expose:
+      - "8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8083/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - backend
+
+  # ============================================
+  # PUBLICACIONES - Gestion de las publiaciones de videojuegos
+  # ============================================
+  publicaciones:
+    build:
+      context: .
+      dockerfile: publicaciones/Dockerfile
+    container_name: publicaciones
+    expose:
+      - "8084"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      MONGO_USER: ${MONGO_USER}
+      MONGO_PASSWORD: ${MONGO_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8084/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - backend
+
+  # ============================================
+  # BUSQUEDAS - Microservicio de búsqueda (OpenSearch)
+  # ============================================
+  busquedas:
+    build:
+      context: .
+      dockerfile: busquedas/Dockerfile
+    container_name: busquedas
+    expose:
+      - "8085"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+      OPENSEARCH_URL: http://opensearch:9200
+      SPRING_OPENSEARCH_URL: http://opensearch:9200
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8085/actuator/health" ]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - backend
+
+  # ============================================
+  # REDIS - Rate limiting y revocacion de tokens
   # ============================================
   redis:
     image: redis:7-alpine
@@ -188,6 +281,32 @@ services:
       timeout: 5s
       retries: 10
       start_period: 60s
+    networks:
+      - backend
+
+  # ============================================
+  # OPENSEARCH - Motor de búsqueda para catalogo
+  # ============================================
+  opensearch:
+    image: opensearchproject/opensearch:2.9.0
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - plugins.security.disabled=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"' || exit 1" ]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
     networks:
       - backend
 
