@@ -1,4 +1,4 @@
-package com.gamelisto.usuarios.infrastructure.out.email;
+package com.gamelisto.usuarios.infrastructure.in.api.dto.email;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

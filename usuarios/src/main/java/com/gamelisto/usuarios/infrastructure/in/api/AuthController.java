@@ -3,15 +3,14 @@ package com.gamelisto.usuarios.infrastructure.in.api;
 import com.gamelisto.usuarios.application.dto.*;
 import com.gamelisto.usuarios.application.usecases.*;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.*;
-import com.gamelisto.usuarios.infrastructure.out.dto.AuthResponse;
-import com.gamelisto.usuarios.infrastructure.out.dto.UsuarioResponse;
+import com.gamelisto.usuarios.infrastructure.in.api.dto.AuthResponse;
+import com.gamelisto.usuarios.infrastructure.in.api.dto.UsuarioResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

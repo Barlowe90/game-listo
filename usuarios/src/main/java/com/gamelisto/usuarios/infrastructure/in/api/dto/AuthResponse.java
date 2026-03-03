@@ -1,4 +1,4 @@
-package com.gamelisto.usuarios.infrastructure.out.dto;
+package com.gamelisto.usuarios.infrastructure.in.api.dto;
 
 import com.gamelisto.usuarios.application.dto.AuthResponseDTO;
 

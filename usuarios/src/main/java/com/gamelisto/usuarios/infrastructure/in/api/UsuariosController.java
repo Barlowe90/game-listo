@@ -8,7 +8,7 @@ import com.gamelisto.usuarios.infrastructure.in.api.dto.CambiarCorreoRequest;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.CambiarEstadoUsuarioRequest;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.CambiarRolUsuarioRequest;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.EditarPerfilUsuarioRequest;
-import com.gamelisto.usuarios.infrastructure.out.dto.UsuarioResponse;
+import com.gamelisto.usuarios.infrastructure.in.api.dto.UsuarioResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

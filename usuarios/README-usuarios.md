@@ -37,7 +37,7 @@ toda la información del usuario.
     - Rotación de tokens con refresh endpoint
     - Logout con revocación de refresh tokens
     - Consulta de perfil autenticado con token
-- **Gestión de perfil**: Username único, avatar, idioma preferido, preferencias de notificación, datos de Discord
+- **Gestión de perfil**: Username único, avatar, idioma preferido y datos de Discord
 - **Seguridad de cuenta**: Cambio de contraseña (con validación), restablecimiento mediante token temporal
 - **Ciclo de vida**: Estados `PENDIENTE_DE_VERIFICACION` → `ACTIVO` / `SUSPENDIDO` / `ELIMINADO`
 - **Roles de usuario**: `USER`, `ADMIN`
@@ -102,7 +102,6 @@ toda la información del usuario.
     - Actualización de `email` (requiere nueva verificación)
     - Cambio de `avatar` (URL)
     - Configuración de `language` (`ESP`, `ENG`)
-    - Preferencias de `notificationsActive`
 
 - **Listado de usuarios** (`GET /v1/usuarios/users`)
     - Paginación y filtrado
@@ -237,7 +236,7 @@ Cada caso de uso es una clase `@Service` con un único método `execute()`:
 Puertos (interfaces) en `application/ports`:
 
 - `IEmailService` → Implementación en `infrastructure/email`
-- Futuros: `INotificationService`, `IStorageService`
+- Futuros: `IStorageService`
 
 ---
 
@@ -257,12 +256,11 @@ Puertos (interfaces) en `application/ports`:
 
 #### Configuración de usuario
 
-| Campo                 | Tipo            | Default                     | Descripción                     |
-|-----------------------|-----------------|-----------------------------|---------------------------------|
-| `role`                | `Rol`           | `USER`                      | Rol del usuario                 |
-| `language`            | `Idioma`        | `ESP`                       | Idioma preferido de la interfaz |
-| `notificationsActive` | `boolean`       | `true`                      | Preferencia de notificaciones   |
-| `status`              | `EstadoUsuario` | `PENDIENTE_DE_VERIFICACION` | Estado de la cuenta             |
+| Campo      | Tipo            | Default                     | Descripción                     |
+|------------|-----------------|-----------------------------|---------------------------------|
+| `role`     | `Rol`           | `USER`                      | Rol del usuario                 |
+| `language` | `Idioma`        | `ESP`                       | Idioma preferido de la interfaz |
+| `status`   | `EstadoUsuario` | `PENDIENTE_DE_VERIFICACION` | Estado de la cuenta             |
 
 #### Datos de Discord
 
@@ -390,18 +388,17 @@ Todos los VOs implementan validación en construcción y son inmutables:
 
 ### Gestión de Usuarios
 
-| Método | Endpoint                       | Request Body                  | Response                | Descripción                         | Auth       |
-|--------|--------------------------------|-------------------------------|-------------------------|-------------------------------------|------------|
-| GET    | `/users`                       | -                             | `List<UsuarioResponse>` | Lista todos los usuarios            | Sí         |
-| GET    | `/users?username={username}`   | -                             | `UsuarioResponse`       | Busca usuario por username          | Sí         |
-| GET    | `/users?estado={estado}`       | -                             | `List<UsuarioResponse>` | Busca usuarios por estado           | Sí         |
-| GET    | `/users/notifications-enabled` | -                             | `List<UsuarioResponse>` | Usuarios con notificaciones activas | Sí         |
-| GET    | `/{id}`                        | -                             | `UsuarioResponse`       | Obtiene usuario por ID              | Sí         |
-| PATCH  | `/{id}`                        | `EditarPerfilUsuarioRequest`  | `UsuarioResponse`       | Edita perfil del usuario            | Sí (owner) |
-| PATCH  | `/{id}/estado`                 | `CambiarEstadoUsuarioRequest` | `UsuarioResponse`       | Cambia estado del usuario           | Sí (admin) |
-| PUT    | `/{id}/password`               | `CambiarContrasenaRequest`    | `200 OK`                | Cambia contraseña                   | Sí (owner) |
-| PUT    | `/{id}/email`                  | `CambiarCorreoRequest`        | `200 OK`                | Cambia email del usuario            | Sí (owner) |
-| DELETE | `/{id}`                        | -                             | `204 No Content`        | Elimina usuario (hard delete)       | Sí (admin) |
+| Método | Endpoint                     | Request Body                  | Response                | Descripción                   | Auth       |
+|--------|------------------------------|-------------------------------|-------------------------|-------------------------------|------------|
+| GET    | `/users`                     | -                             | `List<UsuarioResponse>` | Lista todos los usuarios      | Sí         |
+| GET    | `/users?username={username}` | -                             | `UsuarioResponse`       | Busca usuario por username    | Sí         |
+| GET    | `/users?estado={estado}`     | -                             | `List<UsuarioResponse>` | Busca usuarios por estado     | Sí         |
+| GET    | `/{id}`                      | -                             | `UsuarioResponse`       | Obtiene usuario por ID        | Sí         |
+| PATCH  | `/{id}`                      | `EditarPerfilUsuarioRequest`  | `UsuarioResponse`       | Edita perfil del usuario      | Sí (owner) |
+| PATCH  | `/{id}/estado`               | `CambiarEstadoUsuarioRequest` | `UsuarioResponse`       | Cambia estado del usuario     | Sí (admin) |
+| PUT    | `/{id}/password`             | `CambiarContrasenaRequest`    | `200 OK`                | Cambia contraseña             | Sí (owner) |
+| PUT    | `/{id}/email`                | `CambiarCorreoRequest`        | `200 OK`                | Cambia email del usuario      | Sí (owner) |
+| DELETE | `/{id}`                      | -                             | `204 No Content`        | Elimina usuario (hard delete) | Sí (admin) |
 
 ### Discord
 
@@ -478,7 +475,6 @@ Todos los VOs implementan validación en construcción y son inmutables:
 - `GET /v1/usuarios/users` → Cualquier usuario autenticado
 - `GET /v1/usuarios/users?username={username}` → Cualquier usuario autenticado
 - `GET /v1/usuarios/users?estado={estado}` → Cualquier usuario autenticado
-- `GET /v1/usuarios/users/notifications-enabled` → Cualquier usuario autenticado
 - `GET /v1/usuarios/{id}` → Cualquier usuario autenticado
 - `PATCH /v1/usuarios/{id}` → Solo el propietario del perfil
 - `PATCH /v1/usuarios/{id}/estado` → Solo ADMIN/MODERATOR
