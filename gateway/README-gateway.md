@@ -65,6 +65,33 @@ Petición → RateLimitFilter (-50) → JwtAuthenticationFilter (-100) → Enrut
 - `GET /v1/usuarios/**` - Todas las demás rutas de usuarios
 - Futuras rutas de otros microservicios
 
+### Nuevos microservicios añadidos
+
+- `publicaciones` (protegido): todas las rutas bajo `/v1/publicaciones/**` están protegidas por JWT y deben incluir
+  header `Authorization: Bearer <token>`; el gateway enruta a `http://publicaciones:8084` en Docker.
+- `busquedas` (público): todas las rutas bajo `/v1/busquedas/**` son públicas y el gateway las enruta a
+  `http://busquedas:8085` en Docker.
+
+### Ejemplos rápidos (local)
+
+Comprobar salud del gateway:
+
+```bash
+curl http://localhost:8080/actuator/health
+```
+
+Probar ruta pública de búsquedas:
+
+```bash
+curl http://localhost:8080/v1/busquedas?q=test
+```
+
+Probar ruta protegida de publicaciones (requiere token):
+
+```bash
+curl -H "Authorization: Bearer <token>" http://localhost:8080/v1/publicaciones
+```
+
 ## Configuración
 
 ### Redis
