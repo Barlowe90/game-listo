@@ -2,22 +2,21 @@ package com.gamelisto.busquedas.application.usecases;
 
 import com.gamelisto.busquedas.domain.BuscarJuegoRepositorio;
 import com.gamelisto.busquedas.infrastructure.messaging.dto.VideojuegoCreadoEventDto;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-/** Caso de uso: indexar (upsert) un videojuego en OpenSearch a partir de un evento de catálogo. */
 @Service
-public class IndexGameFromEventUseCase {
+@RequiredArgsConstructor
+public class IndexarJuegosDesdeEventoUseCase implements IndexarJuegosDesdeEventoHandle {
 
-  private static final Logger logger = LoggerFactory.getLogger(IndexGameFromEventUseCase.class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(IndexarJuegosDesdeEventoUseCase.class);
 
   private final BuscarJuegoRepositorio repositorio;
 
-  public IndexGameFromEventUseCase(BuscarJuegoRepositorio repositorio) {
-    this.repositorio = repositorio;
-  }
-
+  @Override
   public void execute(VideojuegoCreadoEventDto dto) {
     logger.info(
         "Indexando videojuego en OpenSearch: gameId={}, title={}", dto.gameId(), dto.title());

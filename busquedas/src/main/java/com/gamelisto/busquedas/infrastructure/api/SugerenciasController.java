@@ -1,8 +1,8 @@
 package com.gamelisto.busquedas.infrastructure.api;
 
 import com.gamelisto.busquedas.application.usecases.SugerirJuegosHandle;
-import com.gamelisto.busquedas.infrastructure.api.dto.SuggestItem;
-import com.gamelisto.busquedas.infrastructure.api.dto.SuggestResponse;
+import com.gamelisto.busquedas.infrastructure.api.dto.SugerirItemResponse;
+import com.gamelisto.busquedas.infrastructure.api.dto.SugerenciasResponse;
 import com.gamelisto.busquedas.domain.BuscarJuegoDoc;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -31,15 +31,15 @@ public class SugerenciasController {
    * @return lista de sugerencias { gameId, title }
    */
   @GetMapping("/sugerencia")
-  public ResponseEntity<SuggestResponse> suggest(
+  public ResponseEntity<SugerenciasResponse> suggest(
       @RequestParam(required = true) String q, @RequestParam(required = false) Integer size) {
 
     logger.debug("Buscando sugerencias para query='{}', size={}", q, size);
 
     List<BuscarJuegoDoc> docs = sugerirJuegos.execute(q, size);
-    List<SuggestItem> items =
-        docs.stream().map(doc -> new SuggestItem(doc.getGameId(), doc.getTitle())).toList();
+    List<SugerirItemResponse> items =
+        docs.stream().map(doc -> new SugerirItemResponse(doc.getGameId(), doc.getTitle())).toList();
 
-    return ResponseEntity.ok(new SuggestResponse(q, items));
+    return ResponseEntity.ok(new SugerenciasResponse(q, items));
   }
 }
