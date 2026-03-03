@@ -3,10 +3,10 @@ package com.gamelisto.biblioteca.infrastructure.out.persistence;
 import com.gamelisto.biblioteca.domain.ListaGameRepositorio;
 import com.gamelisto.biblioteca.domain.UsuariosRefRepositorio;
 import com.gamelisto.biblioteca.domain.UsuarioRef;
+import com.gamelisto.biblioteca.domain.UsuarioId;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public class UsuarioRefRepositorioPostgres implements UsuariosRefRepositorio {
@@ -32,8 +32,8 @@ public class UsuarioRefRepositorioPostgres implements UsuariosRefRepositorio {
   }
 
   @Override
-  public Optional<UsuarioRef> findById(UUID id) {
-    return jpaRepository.findById(id).map(mapper::toDomain).map(this::cargarListasDelUsuario);
+  public Optional<UsuarioRef> findById(UsuarioId id) {
+    return jpaRepository.findById(id.value()).map(mapper::toDomain).map(this::cargarListasDelUsuario);
   }
 
   private UsuarioRef cargarListasDelUsuario(UsuarioRef usuarioRef) {

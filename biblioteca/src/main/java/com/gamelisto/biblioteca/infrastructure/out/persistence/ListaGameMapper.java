@@ -3,9 +3,8 @@ package com.gamelisto.biblioteca.infrastructure.out.persistence;
 import com.gamelisto.biblioteca.domain.ListaGame;
 import com.gamelisto.biblioteca.domain.ListaGameId;
 import com.gamelisto.biblioteca.domain.NombreListaGame;
+import com.gamelisto.biblioteca.domain.UsuarioId;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 @Component
 public class ListaGameMapper {
@@ -19,7 +18,7 @@ public class ListaGameMapper {
   }
 
   public ListaGame toDomain(ListaGameEntity entity) {
-    UUID usuarioId = entity.getUsuarioRef().getId();
+    UsuarioId usuarioId = UsuarioId.of(entity.getUsuarioRef().getId());
 
     return ListaGame.reconstitute(
         ListaGameId.of(entity.getId()),

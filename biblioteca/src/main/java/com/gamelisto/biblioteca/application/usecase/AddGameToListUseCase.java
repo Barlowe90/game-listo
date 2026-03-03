@@ -3,8 +3,6 @@ package com.gamelisto.biblioteca.application.usecase;
 import com.gamelisto.biblioteca.application.exceptions.ApplicationException;
 import com.gamelisto.biblioteca.domain.*;
 
-import java.util.UUID;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,14 +21,14 @@ public class AddGameToListUseCase implements AddGameToListHandler {
 
   @Transactional
   public ListaGameResult execute(String userId, String listaId, String gameId) {
-    UUID userUuid = UUID.fromString(userId);
-    ListaGameId listaUuid = ListaGameId.of(UUID.fromString(listaId));
-    Long gameRefId = Long.parseLong(gameId);
+    com.gamelisto.biblioteca.domain.UsuarioId userUuid = com.gamelisto.biblioteca.domain.UsuarioId.fromString(userId);
+    ListaGameId listaUuid = ListaGameId.of(java.util.UUID.fromString(listaId));
+    com.gamelisto.biblioteca.domain.GameId gameRefId = com.gamelisto.biblioteca.domain.GameId
+        .of(Long.parseLong(gameId));
 
-    ListaGame listaGame =
-        listaGameRepositorio
-            .findById(listaUuid)
-            .orElseThrow(() -> new ApplicationException("No se encuentra la lista " + listaUuid));
+    ListaGame listaGame = listaGameRepositorio
+        .findById(listaUuid)
+        .orElseThrow(() -> new ApplicationException("No se encuentra la lista " + listaUuid));
 
     if (!listaGame.getUsuarioRefId().equals(userUuid)) {
       throw new ApplicationException("Usuario no propietario de la lista");
@@ -40,7 +38,7 @@ public class AddGameToListUseCase implements AddGameToListHandler {
       throw new ApplicationException("Solo se pueden modificar listas personalizadas");
     }
 
-    listaGameItemRepositorio.add(listaUuid.value(), gameRefId);
+    listaGameItemRepositorio.add(listaUuid, gameRefId);
 
     return ListaGameResult.from(listaGame);
   }
