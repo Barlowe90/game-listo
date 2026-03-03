@@ -22,6 +22,7 @@
         <module>catalogo</module>
         <module>biblioteca</module>
         <module>publicaciones</module>
+        <module>busquedas</module>
     </modules>
 
     <properties>
