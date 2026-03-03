@@ -1,0 +1,45 @@
+package com.gamelisto.busquedas.infrastructure.api;
+
+import com.gamelisto.busquedas.application.usecases.SugerirJuegosHandle;
+import com.gamelisto.busquedas.infrastructure.api.dto.SuggestItem;
+import com.gamelisto.busquedas.infrastructure.api.dto.SuggestResponse;
+import com.gamelisto.busquedas.domain.BuscarJuegoDoc;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/v1/busquedas")
+@RequiredArgsConstructor
+public class SugerenciasController {
+
+  private static final Logger logger = LoggerFactory.getLogger(SugerenciasController.class);
+  private final SugerirJuegosHandle sugerirJuegos;
+
+  /**
+   * GET /v1/games/suggest?q={texto}&size={n} Devuelve sugerencias de autocomplete de videojuegos.
+   *
+   * @param q texto parcial introducido por el usuario (requerido)
+   * @param size número máximo de resultados (opcional)
+   * @return lista de sugerencias { gameId, title }
+   */
+  @GetMapping("/sugerencia")
+  public ResponseEntity<SuggestResponse> suggest(
+      @RequestParam(required = true) String q, @RequestParam(required = false) Integer size) {
+
+    logger.debug("Buscando sugerencias para query='{}', size={}", q, size);
+
+    List<BuscarJuegoDoc> docs = sugerirJuegos.execute(q, size);
+    List<SuggestItem> items =
+        docs.stream().map(doc -> new SuggestItem(doc.getGameId(), doc.getTitle())).toList();
+
+    return ResponseEntity.ok(new SuggestResponse(q, items));
+  }
+}
