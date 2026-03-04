@@ -1,4 +1,4 @@
-package com.gamelisto.biblioteca.infrastructure.in.api.messaging.dto;
+package com.gamelisto.biblioteca.infrastructure.in.messaging.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

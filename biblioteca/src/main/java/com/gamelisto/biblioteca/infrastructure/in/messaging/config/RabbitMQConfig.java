@@ -1,4 +1,4 @@
-package com.gamelisto.biblioteca.infrastructure.in.api.messaging.config;
+package com.gamelisto.biblioteca.infrastructure.in.messaging.config;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;

@@ -1,11 +1,11 @@
-package com.gamelisto.biblioteca.infrastructure.in.api.messaging.listeners;
+package com.gamelisto.biblioteca.infrastructure.in.messaging.listeners;
 
 import com.gamelisto.biblioteca.application.usecase.EntradaEventosHandle;
 import com.gamelisto.biblioteca.infrastructure.exceptions.InfrastructureException;
-import com.gamelisto.biblioteca.infrastructure.in.api.messaging.config.RabbitMQConfig;
-import com.gamelisto.biblioteca.infrastructure.in.api.messaging.dto.GameCreadoEventDto;
-import com.gamelisto.biblioteca.infrastructure.in.api.messaging.dto.UsuarioCreadoEventDto;
-import com.gamelisto.biblioteca.infrastructure.in.api.messaging.dto.UsuarioEliminadoEventDto;
+import com.gamelisto.biblioteca.infrastructure.in.messaging.config.RabbitMQConfig;
+import com.gamelisto.biblioteca.infrastructure.in.messaging.dto.GameCreadoEventDto;
+import com.gamelisto.biblioteca.infrastructure.in.messaging.dto.UsuarioCreadoEventDto;
+import com.gamelisto.biblioteca.infrastructure.in.messaging.dto.UsuarioEliminadoEventDto;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
