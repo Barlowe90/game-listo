@@ -22,12 +22,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("GamesPublisherRepositorio - Tests")
-class GamesPublisherRepositorioTest {
+@DisplayName("GamesPublisher - Tests")
+class GamesPublisherTest {
 
   @Mock private RabbitTemplate rabbitTemplate;
 
-  @InjectMocks private GamesPublisherRepositorio publisher;
+  @InjectMocks private GamesPublisher publisher;
 
   @Captor private ArgumentCaptor<String> exchangeCaptor;
   @Captor private ArgumentCaptor<String> routingKeyCaptor;

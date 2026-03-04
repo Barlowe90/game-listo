@@ -15,11 +15,11 @@ import org.springframework.stereotype.Component;
 @Component
 @ConditionalOnBean(RabbitTemplate.class)
 @RequiredArgsConstructor
-public class GamesPublisherRepositorio implements GamePublisherRepositorio {
+public class GamesPublisher implements GamePublisherRepositorio {
 
   private final RabbitTemplate rabbitTemplate;
 
-  private static final Logger logger = LoggerFactory.getLogger(GamesPublisherRepositorio.class);
+  private static final Logger logger = LoggerFactory.getLogger(GamesPublisher.class);
 
   @Override
   public void publicarGameCreado(GameCreado evento) {
@@ -33,9 +33,6 @@ public class GamesPublisherRepositorio implements GamePublisherRepositorio {
             message
                 .getMessageProperties()
                 .setHeader("eventType", evento.getClass().getSimpleName());
-            message
-                .getMessageProperties()
-                .setHeader("publishedAt", java.time.Instant.now().toString());
             message.getMessageProperties().setHeader("service", "catalogo");
             return message;
           };

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 /** Publisher no-op para tests (sin RabbitMQ real). */
 @Component
 @Primary
-@ConditionalOnMissingBean(value = GamesPublisherRepositorio.class)
+@ConditionalOnMissingBean(value = GamesPublisher.class)
 public class NoOpGamesPublisherRepositorio implements GamePublisherRepositorio {
 
   private static final Logger logger = LoggerFactory.getLogger(NoOpGamesPublisherRepositorio.class);
