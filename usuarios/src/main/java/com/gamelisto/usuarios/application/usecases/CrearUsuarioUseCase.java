@@ -4,7 +4,6 @@ import com.gamelisto.usuarios.application.dto.CrearUsuarioCommand;
 import com.gamelisto.usuarios.application.dto.UsuarioDTO;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.repositories.IEmailService;
-import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.Email;
 import com.gamelisto.usuarios.domain.usuario.PasswordHash;
@@ -21,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class CrearUsuarioUseCase {
 
   private final RepositorioUsuarios repositorioUsuarios;
-  private final IUsuarioPublisher eventosPublisher;
   private final PasswordEncoder passwordEncoder;
   private final IEmailService emailService;
 

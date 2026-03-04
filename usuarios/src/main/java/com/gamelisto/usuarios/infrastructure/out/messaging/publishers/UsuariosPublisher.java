@@ -8,6 +8,7 @@ import com.gamelisto.usuarios.infrastructure.out.messaging.config.RabbitMQConfig
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,18 @@ public class UsuariosPublisher implements IUsuarioPublisher {
 
   private void publicar(String routingKey, Object evento) {
     try {
-      rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, routingKey, evento);
+      MessagePostProcessor mpp =
+          message -> {
+            message
+                .getMessageProperties()
+                .setHeader("eventType", evento.getClass().getSimpleName());
+            message.getMessageProperties().setHeader("__TypeId__", evento.getClass().getName());
+
+            message.getMessageProperties().setHeader("service", "usuarios");
+            return message;
+          };
+
+      rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, routingKey, evento, mpp);
       logger.info("Evento publicado: {} → {}", evento.getClass().getSimpleName(), routingKey);
     } catch (Exception e) {
       throw new InfrastructureException("Error al publicar evento en RabbitMQ", e);
