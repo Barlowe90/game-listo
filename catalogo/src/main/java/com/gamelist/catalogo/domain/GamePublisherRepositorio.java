@@ -1,6 +1,8 @@
 package com.gamelist.catalogo.domain;
 
+import com.gamelist.catalogo.domain.events.GameCreado;
+
 public interface GamePublisherRepositorio {
 
-  void publish(String routingKeySuffix, Object event);
+  void publicarGameCreado(GameCreado evento);
 }

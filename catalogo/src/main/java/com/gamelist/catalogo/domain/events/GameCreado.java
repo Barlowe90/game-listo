@@ -1,7 +1,85 @@
 package com.gamelist.catalogo.domain.events;
 
-public record GameCreado(String id, String name, String portada) {
-  public static GameCreado of(String id, String name, String portada) {
-    return new GameCreado(id, name, portada);
+import java.time.Instant;
+import java.util.List;
+
+public record GameCreado(
+    String id,
+    String name,
+    String summary,
+    String portada,
+    List<String> platforms,
+    String gameType,
+    String gameStatus,
+    List<String> alternativeNames,
+    List<Long> dlcs,
+    List<Long> expandedGames,
+    List<Long> expansionIds,
+    List<String> externalGames,
+    List<String> franchises,
+    List<String> gameModes,
+    List<String> genres,
+    List<String> involvedCompanies,
+    List<String> keywords,
+    List<Long> multiplayerModeIds,
+    Long parentGameId,
+    List<String> playerPerspectives,
+    List<Long> remakeIds,
+    List<Long> remasterIds,
+    List<Long> similarGames,
+    List<String> themes,
+    Instant occurredOn) {
+
+  public static GameCreado of(
+      String id,
+      String name,
+      String summary,
+      String portada,
+      List<String> platforms,
+      String gameType,
+      String gameStatus,
+      List<String> alternativeNames,
+      List<Long> dlcs,
+      List<Long> expandedGames,
+      List<Long> expansionIds,
+      List<String> externalGames,
+      List<String> franchises,
+      List<String> gameModes,
+      List<String> genres,
+      List<String> involvedCompanies,
+      List<String> keywords,
+      List<Long> multiplayerModeIds,
+      Long parentGameId,
+      List<String> playerPerspectives,
+      List<Long> remakeIds,
+      List<Long> remasterIds,
+      List<Long> similarGames,
+      List<String> themes) {
+    return new GameCreado(
+        id,
+        name,
+        summary,
+        portada,
+        platforms != null ? platforms : List.of(),
+        gameType,
+        gameStatus,
+        alternativeNames != null ? alternativeNames : List.of(),
+        dlcs != null ? dlcs : List.of(),
+        expandedGames != null ? expandedGames : List.of(),
+        expansionIds != null ? expansionIds : List.of(),
+        externalGames != null ? externalGames : List.of(),
+        franchises != null ? franchises : List.of(),
+        gameModes != null ? gameModes : List.of(),
+        genres != null ? genres : List.of(),
+        involvedCompanies != null ? involvedCompanies : List.of(),
+        keywords != null ? keywords : List.of(),
+        multiplayerModeIds != null ? multiplayerModeIds : List.of(),
+        parentGameId,
+        playerPerspectives != null ? playerPerspectives : List.of(),
+        remakeIds != null ? remakeIds : List.of(),
+        remasterIds != null ? remasterIds : List.of(),
+        similarGames != null ? similarGames : List.of(),
+        themes != null ? themes : List.of(),
+        Instant.now());
   }
 }

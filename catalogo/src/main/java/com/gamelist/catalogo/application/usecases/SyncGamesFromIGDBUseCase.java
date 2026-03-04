@@ -16,13 +16,14 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /** Accede a IGDB para persistir en bbdd la info de los videojuegos */
 @Service
 @RequiredArgsConstructor
 public class SyncGamesFromIGDBUseCase implements SyncGamesFromIGDBHandle {
 
-  private static final String ROUTING_KEY_SUFFIX = "gameEstado.creado";
   private static final Logger logger = LoggerFactory.getLogger(SyncGamesFromIGDBUseCase.class);
 
   private final IgdbClientPortRepositorio igdbClient;
@@ -53,19 +54,15 @@ public class SyncGamesFromIGDBUseCase implements SyncGamesFromIGDBHandle {
         Game game = dto.toDomain();
         gameRepository.save(game); // postgreSQL
 
-        enviarColaGameCreado(game);
-
         GameDetail gameDetail = GameDetail.create(game.getId(), dto.screenshots(), dto.videos());
         gameDetailRepository.save(gameDetail); // mongoDB
+
+        publicarAfterCommit(() -> publicarEventoGameCreado(game));
 
         logger.debug(
             "Juego guardado en PostgreSQL y MongoDB: ID={}, Name={}", dto.id(), dto.name());
       } catch (Exception e) {
-        logger.error(
-            "Error al guardar juego: ID={}, Name={}, Error={}",
-            dto.id(),
-            dto.name(),
-            e.getMessage());
+        logger.error("Error al guardar juego: ID={}, Name={}, Error=", dto.id(), dto.name(), e);
       }
     }
 
@@ -74,10 +71,48 @@ public class SyncGamesFromIGDBUseCase implements SyncGamesFromIGDBHandle {
     return new SyncResultDTO(igdbGames.size(), maxId);
   }
 
-  private void enviarColaGameCreado(Game game) {
+  private void publicarEventoGameCreado(Game game) {
     GameCreado evento =
         GameCreado.of(
-            game.getId().toString(), game.getName().toString(), game.getCoverUrl().toString());
-    eventosPublisher.publish(ROUTING_KEY_SUFFIX, evento);
+            game.getId() != null ? game.getId().toString() : null,
+            game.getName() != null ? game.getName().toString() : null,
+            game.getSummary() != null ? game.getSummary().toString() : null,
+            game.getCoverUrl() != null ? game.getCoverUrl().toString() : null,
+            game.getPlatforms(),
+            game.getGameType(),
+            game.getGameStatus(),
+            game.getAlternativeNames(),
+            game.getDlcs(),
+            game.getExpandedGames(),
+            game.getExpansionIds(),
+            game.getExternalGames(),
+            game.getFranchises(),
+            game.getGameModes(),
+            game.getGenres(),
+            game.getInvolvedCompanies(),
+            game.getKeywords(),
+            game.getMultiplayerModeIds(),
+            game.getParentGameId(),
+            game.getPlayerPerspectives(),
+            game.getRemakeIds(),
+            game.getRemasterIds(),
+            game.getSimilarGames(),
+            game.getThemes());
+
+    eventosPublisher.publicarGameCreado(evento);
+  }
+
+  private static void publicarAfterCommit(Runnable action) {
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.registerSynchronization(
+          new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+              action.run();
+            }
+          });
+    } else {
+      action.run();
+    }
   }
 }
