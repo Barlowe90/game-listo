@@ -7,6 +7,7 @@ import com.gamelist.catalogo.infrastructure.out.messaging.config.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,19 @@ public class GamesPublisherRepositorio implements GamePublisherRepositorio {
 
   private void publicar(String routingKey, Object evento) {
     try {
-      rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, routingKey, evento);
+      MessagePostProcessor mpp =
+          message -> {
+            message
+                .getMessageProperties()
+                .setHeader("eventType", evento.getClass().getSimpleName());
+            message
+                .getMessageProperties()
+                .setHeader("publishedAt", java.time.Instant.now().toString());
+            message.getMessageProperties().setHeader("service", "catalogo");
+            return message;
+          };
+
+      rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, routingKey, evento, mpp);
       logger.info("Evento publicado: {} → {}", evento.getClass().getSimpleName(), routingKey);
     } catch (Exception e) {
       throw new InfrastructureException("Error al publicar evento en RabbitMQ", e);

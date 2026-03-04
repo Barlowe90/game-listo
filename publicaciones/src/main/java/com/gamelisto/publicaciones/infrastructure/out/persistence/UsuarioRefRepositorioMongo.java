@@ -24,4 +24,9 @@ public class UsuarioRefRepositorioMongo implements UsuariosRefRepositorio {
   public Optional<UsuarioRef> findById(UUID id) {
     return mongoRepository.findById(id).map(mapper::toDomain);
   }
+
+  @Override
+  public void deleteById(UUID usuarioId) {
+    mongoRepository.deleteById(usuarioId);
+  }
 }
