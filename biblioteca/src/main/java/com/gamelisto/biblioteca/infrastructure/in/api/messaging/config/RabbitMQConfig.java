@@ -1,6 +1,11 @@
-package com.gamelisto.usuarios.infrastructure.out.messaging.config;
+package com.gamelisto.biblioteca.infrastructure.in.api.messaging.config;
 
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
@@ -16,13 +21,29 @@ import org.springframework.context.annotation.Configuration;
     matchIfMissing = true)
 public class RabbitMQConfig {
 
+  public static final String QUEUE_NAME = "biblioteca";
   public static final String EXCHANGE = "gamelisto.eventos";
-  public static final String RK_USUARIO_CREADO = "usuarios.creado";
-  public static final String RK_USUARIO_ELIMINADO = "usuarios.eliminado";
+  public static final String BINDING_USUARIOS_KEY = "usuarios.#";
+  public static final String BINDING_GAMES_KEY = "games.#";
 
   @Bean
   public TopicExchange gamelistoExchange() {
-    return new TopicExchange(EXCHANGE);
+    return new TopicExchange(EXCHANGE, true, false);
+  }
+
+  @Bean
+  public Queue bibliotecaQueue() {
+    return QueueBuilder.durable(QUEUE_NAME).build();
+  }
+
+  @Bean
+  public Binding bindingUsuarios(Queue bibliotecaQueue, TopicExchange gamelistoExchange) {
+    return BindingBuilder.bind(bibliotecaQueue).to(gamelistoExchange).with(BINDING_USUARIOS_KEY);
+  }
+
+  @Bean
+  public Binding bindingGames(Queue bibliotecaQueue, TopicExchange gamelistoExchange) {
+    return BindingBuilder.bind(bibliotecaQueue).to(gamelistoExchange).with(BINDING_GAMES_KEY);
   }
 
   @Bean
@@ -32,9 +53,19 @@ public class RabbitMQConfig {
 
   @Bean
   public RabbitTemplate rabbitTemplate(
-      ConnectionFactory connectionFactory, MessageConverter converter) {
+      ConnectionFactory connectionFactory, MessageConverter jsonMessageConverter) {
     RabbitTemplate template = new RabbitTemplate(connectionFactory);
-    template.setMessageConverter(converter);
+    template.setMessageConverter(jsonMessageConverter);
     return template;
+  }
+
+  @Bean
+  public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
+      ConnectionFactory connectionFactory, MessageConverter jsonMessageConverter) {
+    SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+    factory.setConnectionFactory(connectionFactory);
+    factory.setMessageConverter(jsonMessageConverter);
+    factory.setDefaultRequeueRejected(false);
+    return factory;
   }
 }

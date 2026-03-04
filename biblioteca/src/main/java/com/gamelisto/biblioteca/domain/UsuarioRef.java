@@ -6,8 +6,6 @@ import lombok.ToString;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.gamelisto.biblioteca.domain.UsuarioId;
-
 @Getter
 @ToString
 public class UsuarioRef {
@@ -29,6 +27,23 @@ public class UsuarioRef {
 
   public static UsuarioRef reconstitute(UsuarioId id, String username, String avatar, String rol) {
     return new UsuarioRef(id, username, avatar, rol);
+  }
+
+  public static UsuarioRef create(UsuarioId id, String username, String avatar, String rol) {
+    comprobarIdUsernameVacios(id, username);
+    String safeAvatar = avatar == null ? "" : avatar;
+    String safeRol = rol == null ? "" : rol;
+
+    return new UsuarioRef(id, username, safeAvatar, safeRol);
+  }
+
+  private static void comprobarIdUsernameVacios(UsuarioId id, String username) {
+    if (id == null) {
+      throw new IllegalArgumentException("UsuarioId no puede ser nulo");
+    }
+    if (username == null || username.isBlank()) {
+      throw new IllegalArgumentException("username no puede ser nulo o vacío");
+    }
   }
 
   public void addNuevaLista(ListaGame listaNueva) {
