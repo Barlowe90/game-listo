@@ -8,6 +8,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 import com.gamelisto.usuarios.domain.events.UsuarioCreado;
+import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
 import com.gamelisto.usuarios.infrastructure.out.messaging.config.RabbitMQConfig;
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +20,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,7 +33,6 @@ class UsuariosPublisherTest {
   @Captor private ArgumentCaptor<String> exchangeCaptor;
   @Captor private ArgumentCaptor<String> routingKeyCaptor;
   @Captor private ArgumentCaptor<Object> eventCaptor;
-  @Captor private ArgumentCaptor<MessagePostProcessor> messagePostProcessorCaptor;
 
   private UsuarioCreado sampleEvent;
 
@@ -41,106 +40,65 @@ class UsuariosPublisherTest {
   void setUp() {
     sampleEvent =
         new UsuarioCreado(
-            "user-123", "testuser", "test@example.com", Instant.parse("2026-01-29T10:00:00Z"));
+            "user-123",
+            "testuser",
+            "test@example.com",
+            "avatar.png",
+            "USER",
+            "ESP",
+            "PENDIENTE_DE_VERIFICACION",
+            null,
+            null,
+            Instant.parse("2026-01-29T10:00:00Z"));
   }
 
   @Test
-  @DisplayName("Debe publicar evento con routing key correcta")
-  void debePublicarEventoConRoutingKeyCorrecta() {
-    // Given
-    String routingKeySuffix = "created";
-
+  @DisplayName("Debe publicar UsuarioCreado con exchange y routing key correctos")
+  void debePublicarUsuarioCreadoConExchangeYRk() {
     // When
-    publisher.publish(routingKeySuffix, sampleEvent);
+    publisher.publicarUsuarioCreado(sampleEvent);
 
     // Then
     verify(rabbitTemplate)
         .convertAndSend(
-            exchangeCaptor.capture(),
-            routingKeyCaptor.capture(),
-            eventCaptor.capture(),
-            any(MessagePostProcessor.class));
+            exchangeCaptor.capture(), routingKeyCaptor.capture(), eventCaptor.capture());
 
-    String expectedRoutingKey = RabbitMQConfig.ROUTING_KEY_PREFIX + "." + routingKeySuffix;
-    assertThat(exchangeCaptor.getValue()).isEqualTo(RabbitMQConfig.EXCHANGE_NAME);
-    assertThat(routingKeyCaptor.getValue()).isEqualTo(expectedRoutingKey);
+    assertThat(exchangeCaptor.getValue()).isEqualTo(RabbitMQConfig.EXCHANGE);
+    assertThat(routingKeyCaptor.getValue()).isEqualTo(RabbitMQConfig.RK_USUARIO_CREADO);
     assertThat(eventCaptor.getValue()).isEqualTo(sampleEvent);
   }
 
   @Test
-  @DisplayName("Debe agregar headers al mensaje publicado")
-  void debeAgregarHeadersAlMensaje() {
+  @DisplayName("Debe publicar UsuarioEliminado con exchange y routing key correctos")
+  void debePublicarUsuarioEliminadoConExchangeYRk() {
     // Given
-    String routingKeySuffix = "updated";
+    UsuarioEliminado evento = UsuarioEliminado.of("user-123");
 
     // When
-    publisher.publish(routingKeySuffix, sampleEvent);
+    publisher.publicarUsuarioEliminado(evento);
 
     // Then
     verify(rabbitTemplate)
         .convertAndSend(
-            eq(RabbitMQConfig.EXCHANGE_NAME),
-            eq(RabbitMQConfig.ROUTING_KEY_PREFIX + "." + routingKeySuffix),
-            eq(sampleEvent),
-            messagePostProcessorCaptor.capture());
+            exchangeCaptor.capture(), routingKeyCaptor.capture(), eventCaptor.capture());
 
-    // El MessagePostProcessor se verifica indirectamente por el comportamiento
-    // No podemos acceder directamente a los headers sin ejecutar el processor
+    assertThat(exchangeCaptor.getValue()).isEqualTo(RabbitMQConfig.EXCHANGE);
+    assertThat(routingKeyCaptor.getValue()).isEqualTo(RabbitMQConfig.RK_USUARIO_ELIMINADO);
+    assertThat(eventCaptor.getValue()).isEqualTo(evento);
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción cuando RabbitTemplate falla")
+  @DisplayName("Debe lanzar InfrastructureException cuando RabbitTemplate falla")
   void debeLanzarExcepcionCuandoRabbitTemplateFalla() {
     // Given
-    String routingKeySuffix = "deleted";
     doThrow(new RuntimeException("RabbitMQ connection error"))
         .when(rabbitTemplate)
         .convertAndSend(
-            any(String.class), any(String.class), any(), any(MessagePostProcessor.class));
+            eq(RabbitMQConfig.EXCHANGE), eq(RabbitMQConfig.RK_USUARIO_CREADO), any(Object.class));
 
     // When & Then
-    assertThatThrownBy(() -> publisher.publish(routingKeySuffix, sampleEvent))
+    assertThatThrownBy(() -> publisher.publicarUsuarioCreado(sampleEvent))
         .isInstanceOf(RuntimeException.class)
         .hasMessageContaining("Error al publicar evento");
   }
-
-  @Test
-  @DisplayName("Debe publicar diferentes tipos de eventos")
-  void debePublicarDiferentesTiposDeEventos() {
-    // Given
-    Object customEvent = new CustomTestEvent("test-data");
-
-    // When
-    publisher.publish("custom", customEvent);
-
-    // Then
-    verify(rabbitTemplate)
-        .convertAndSend(
-            eq(RabbitMQConfig.EXCHANGE_NAME),
-            eq(RabbitMQConfig.ROUTING_KEY_PREFIX + ".custom"),
-            eq(customEvent),
-            any(MessagePostProcessor.class));
-  }
-
-  @Test
-  @DisplayName("Debe construir routing key con prefijo correcto")
-  void debeConstruirRoutingKeyConPrefijoCorrect() {
-    // Given
-    String[] suffixes = {"created", "updated", "deleted", "verified"};
-
-    // When & Then
-    for (String suffix : suffixes) {
-      publisher.publish(suffix, sampleEvent);
-
-      verify(rabbitTemplate)
-          .convertAndSend(
-              eq(RabbitMQConfig.EXCHANGE_NAME),
-              eq(RabbitMQConfig.ROUTING_KEY_PREFIX + "." + suffix),
-              any(),
-              any(MessagePostProcessor.class));
-    }
-  }
-
-  // Clase helper para tests
-  private record CustomTestEvent(String data) {}
 }

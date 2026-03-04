@@ -1,45 +1,38 @@
 package com.gamelisto.usuarios.infrastructure.out.messaging.publishers;
 
+import com.gamelisto.usuarios.domain.events.UsuarioCreado;
+import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
 import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.infrastructure.exceptions.InfrastructureException;
 import com.gamelisto.usuarios.infrastructure.out.messaging.config.RabbitMQConfig;
-import java.time.Instant;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnBean(RabbitTemplate.class)
+@RequiredArgsConstructor
 public class UsuariosPublisher implements IUsuarioPublisher {
 
   private static final Logger logger = LoggerFactory.getLogger(UsuariosPublisher.class);
+
   private final RabbitTemplate rabbitTemplate;
 
-  public UsuariosPublisher(RabbitTemplate rabbitTemplate) {
-    this.rabbitTemplate = rabbitTemplate;
+  @Override
+  public void publicarUsuarioCreado(UsuarioCreado evento) {
+    publicar(RabbitMQConfig.RK_USUARIO_CREADO, evento);
   }
 
   @Override
-  public void publish(String routingKeySuffix, Object event) {
+  public void publicarUsuarioEliminado(UsuarioEliminado evento) {
+    publicar(RabbitMQConfig.RK_USUARIO_ELIMINADO, evento);
+  }
+
+  private void publicar(String routingKey, Object evento) {
     try {
-      String routingKey = RabbitMQConfig.ROUTING_KEY_PREFIX + "." + routingKeySuffix;
-
-      rabbitTemplate.convertAndSend(
-          RabbitMQConfig.EXCHANGE_NAME,
-          routingKey,
-          event,
-          message -> {
-            message.getMessageProperties().setHeader("eventType", event.getClass().getSimpleName());
-            message.getMessageProperties().setHeader("publishedAt", Instant.now().toString());
-            message.getMessageProperties().setHeader("service", "usuarios");
-            return message;
-          });
-
-      logger.info(
-          "Evento publicado: {} a routing key: {}", event.getClass().getSimpleName(), routingKey);
-
+      rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, routingKey, evento);
+      logger.info("Evento publicado: {} → {}", evento.getClass().getSimpleName(), routingKey);
     } catch (Exception e) {
       throw new InfrastructureException("Error al publicar evento en RabbitMQ", e);
     }

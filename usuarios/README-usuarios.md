@@ -1,5 +1,7 @@
 # Microservicio de Usuarios – GameListo
 
+TODO todavía tengo que editar este archivo ya que se han hecho cambios posteriores, no hacerle caso a este archivo
+
 Microservicio responsable de la **gestión de cuentas, perfiles de usuario y autenticación JWT** dentro del ecosistema
 GameListo.  
 Implementa el ciclo de vida completo del usuario: registro, verificación de email, gestión de perfil, cambio y
@@ -174,7 +176,7 @@ El microservicio implementa **DDD (Domain-Driven Design)** con **Arquitectura He
 
 ### Estructura de capas
 
-TODO todavía por
+TODO todavía estoy trabajando en ello
 
 ### Regla de dependencias
 
@@ -527,7 +529,7 @@ Todos los VOs implementan validación en construcción y son inmutables:
 **Características:**
 
 - `@SpringBootTest` con contexto completo
-- Base de datos H2 in-memory
+- Base de datos Postgres para simular entorno real. NUNCA USAR H2
 - `@AutoConfigureMockMvc` para tests REST
 - Testing de controllers, repositories, mappers
 
@@ -557,7 +559,7 @@ Todos los VOs implementan validación en construcción y son inmutables:
 
 ### Prerrequisitos
 
-- **Java 21** o superior ([Adoptium OpenJDK](https://adoptium.net/))
+- **Java 21**
 - **Maven 3.9+** (incluido wrapper `./mvnw`)
 - **Docker** y **Docker Compose** (para PostgreSQL)
 - **Git** para control de versiones
@@ -700,14 +702,15 @@ SPRING_MAIL_PASSWORD=your-app-password
 - **Value Objects**: `UsuarioId`, `Email`, `Username`
 - **Enums**: `EstadoUsuario`, `Rol`, `Idioma`
 - **Repositorios (interfaces)**: `RepositorioUsuarios`
-- **Excepciones**: `UsernameYaExisteException`, `EmailYaRegistradoException`
+- **Excepciones**: `DomainException`
 
 #### Capa de Aplicación
 
-- **Use Cases**: `CrearUsuarioUseCase`, `EditarPerfilUsuarioUseCase`
+- **Use Cases**: `CrearUsuarioUseCase`, `CrearUsuarioHandle` (Handle interface, UseCase la implementa)
 - **Commands/Queries**: `CrearUsuarioCommand`, `EditarPerfilUsuarioCommand`
-- **DTOs**: `UsuarioDTO`
+- **DTOs**: `UsuarioResult`
 - **Ports**: `IEmailService`, `INotificationService`
+- **Excepciones**: `ApplicationException`
 
 #### Capa de Infraestructura
 
@@ -717,6 +720,7 @@ SPRING_MAIL_PASSWORD=your-app-password
 - **Request DTOs**: `CrearUsuarioRequest`, `EditarPerfilRequest`
 - **Response DTOs**: `UsuarioResponse`
 - **Mappers**: `UsuarioMapper`
+- **Excepciones**: `InfaestructureException`
 
 ### Reglas de código
 
@@ -731,84 +735,4 @@ SPRING_MAIL_PASSWORD=your-app-password
 9. **Excepciones de dominio**: Nunca `RuntimeException` genérica
 10. **DTOs para inter-capa**: Nunca pasar entidades directamente
 
-### Formato de código
-
-- **Indentación**: 4 espacios
-- **Líneas**: Máximo 120 caracteres
-- **Imports**: Organizados por grupos (java, javax, spring, gamelisto)
-- **Javadoc**: Obligatorio en APIs públicas de dominio
-
 ---
-
-## Roadmap y próximas funcionalidades
-
-### En desarrollo
-
-- Implementación completa de `IEmailService` con plantillas HTML
-- Configuración de mensajería con RabbitMQ
-- Eventos de dominio (`UsuarioCreadoEvent`, `EmailVerificadoEvent`)
-
-### Planeado
-
-- Integración con `auth-service` para JWT
-- Búsqueda avanzada de usuarios con filtros
-- Paginación en endpoints de listado
-- Avatar upload con AWS S3 / Azure Blob Storage
-- Rate limiting para endpoints públicos
-- Auditoría de cambios con Spring Data Envers
-- Métricas con Micrometer + Prometheus
-- Circuit breaker con Resilience4j
-- Caché con Redis para queries frecuentes
-
-### Futuro
-
-- Autenticación multifactor (2FA)
-- Gestión de privacidad (GDPR compliance)
-- API GraphQL además de REST
-
----
-
-## Contribución
-
-Este es un proyecto de TFG (Trabajo Fin de Grado). Para contribuir envíame un correo.
-
----
-
-## Referencias y documentación adicional
-
-### Documentación del proyecto
-
-- [README principal](../README.md) → Visión general de la plataforma
-- [Copilot Instructions](../.github/copilot-instructions.md) → Convenciones arquitectónicas
-
-### Patrones y arquitectura
-
-- [Domain-Driven Design - Eric Evans](https://www.domainlanguage.com/ddd/)
-- [Hexagonal Architecture - Alistair Cockburn](https://alistair.cockburn.us/hexagonal-architecture/)
-- [Spring Boot Best Practices](https://docs.spring.io/spring-boot/docs/current/reference/html/)
-
-### Tecnologías utilizadas
-
-- [Spring Boot 4.0.3](https://spring.io/projects/spring-boot)
-- [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
-- [PostgreSQL 17](https://www.postgresql.org/docs/17/)
-- [H2 Database](https://www.h2database.com/)
-- [BCrypt](https://en.wikipedia.org/wiki/Bcrypt)
-
----
-
-## Licencia
-
-Proyecto académico del TFG GameListo - Universidad de Murcia
-
----
-
-## Autor
-
-Barlowe90
-
----
-
-## Contacto y soporte
-
-<barlowese@gmail.com>

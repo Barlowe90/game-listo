@@ -2,7 +2,6 @@ package com.gamelisto.usuarios.application.usecases;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
@@ -57,7 +56,7 @@ class EliminarUsuarioUseCaseTest {
     // Assert
     verify(repositorioUsuarios).findById(any(UsuarioId.class));
     verify(repositorioUsuarios).save(argThat(u -> u.getStatus() == EstadoUsuario.ELIMINADO));
-    verify(eventosPublisher).publish(eq("usuario.eliminado"), any(UsuarioEliminado.class));
+    verify(eventosPublisher).publicarUsuarioEliminado(any(UsuarioEliminado.class));
   }
 
   @Test
@@ -73,7 +72,7 @@ class EliminarUsuarioUseCaseTest {
 
     verify(repositorioUsuarios).findById(any(UsuarioId.class));
     verify(repositorioUsuarios, never()).save(any(Usuario.class));
-    verify(eventosPublisher, never()).publish(anyString(), any());
+    verify(eventosPublisher, never()).publicarUsuarioEliminado(any(UsuarioEliminado.class));
   }
 
   @Test
@@ -116,7 +115,7 @@ class EliminarUsuarioUseCaseTest {
     eliminarUsuarioUseCase.execute(usuarioId);
 
     // Assert
-    verify(eventosPublisher).publish(eq("usuario.eliminado"), eventoCaptor.capture());
+    verify(eventosPublisher).publicarUsuarioEliminado(eventoCaptor.capture());
 
     UsuarioEliminado evento = eventoCaptor.getValue();
     assertNotNull(evento);
@@ -199,7 +198,7 @@ class EliminarUsuarioUseCaseTest {
 
     verify(repositorioUsuarios, never()).findById(any(UsuarioId.class));
     verify(repositorioUsuarios, never()).save(any(Usuario.class));
-    verify(eventosPublisher, never()).publish(anyString(), any());
+    verify(eventosPublisher, never()).publicarUsuarioEliminado(any(UsuarioEliminado.class));
   }
 
   @Test
