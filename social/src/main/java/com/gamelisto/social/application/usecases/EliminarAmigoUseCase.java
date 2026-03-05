@@ -1,0 +1,20 @@
+package com.gamelisto.social.application.usecases;
+
+import com.gamelisto.social.dominio.Amistad;
+import com.gamelisto.social.dominio.AmistadRepositorio;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class EliminarAmigoUseCase implements EliminarAmigoHandle {
+
+  private final AmistadRepositorio amistadRepositorio;
+
+  @Transactional
+  public void execute(String userId, String friendId) {
+    Amistad.of(userId, friendId);
+    amistadRepositorio.removeFriendship(userId, friendId);
+  }
+}

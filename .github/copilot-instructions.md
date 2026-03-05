@@ -204,7 +204,7 @@ public class CrearUsuarioUseCase {
     @Transactional
     public UsuarioDTO execute(CrearUsuarioCommand command) {
         // 1. Validate business rules
-        // 2. Create domain entity
+        // 2. Create domain dominio
         // 3. Save via repository port
         // 4. Return DTO
     }
