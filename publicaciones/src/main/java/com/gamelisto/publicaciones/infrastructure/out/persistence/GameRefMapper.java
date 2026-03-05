@@ -10,11 +10,11 @@ public class GameRefMapper {
     GameRefDocument document = new GameRefDocument();
     document.setId(gameRef.getId());
     document.setNombre(gameRef.getNombre());
-    document.setPlataforma(gameRef.getPlataforma());
+    document.setPlatforms(gameRef.getPlatforms());
     return document;
   }
 
   public GameRef toDomain(GameRefDocument document) {
-    return GameRef.reconstitute(document.getId(), document.getNombre(), document.getPlataforma());
+    return GameRef.reconstitute(document.getId(), document.getNombre(), document.getPlatforms());
   }
 }

@@ -1,9 +1,7 @@
 package com.gamelisto.usuarios.domain.events;
 
-import java.time.Instant;
-
-public record UsuarioEliminado(String usuarioId, Instant occurredOn) {
+public record UsuarioEliminado(String usuarioId) {
   public static UsuarioEliminado of(String usuarioId) {
-    return new UsuarioEliminado(usuarioId, Instant.now());
+    return new UsuarioEliminado(usuarioId);
   }
 }

@@ -6,4 +6,6 @@ public interface UsuariosRefRepositorio {
   UsuarioRef save(UsuarioRef usuario);
 
   Optional<UsuarioRef> findById(UsuarioId id);
+
+  void deleteById(UsuarioId id);
 }

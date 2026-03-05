@@ -1,5 +1,7 @@
 # Microservicio de Usuarios – GameListo
 
+TODO todavía tengo que editar este archivo ya que se han hecho cambios posteriores, no hacerle caso a este archivo
+
 Microservicio responsable de la **gestión de cuentas, perfiles de usuario y autenticación JWT** dentro del ecosistema
 GameListo.  
 Implementa el ciclo de vida completo del usuario: registro, verificación de email, gestión de perfil, cambio y
@@ -37,7 +39,7 @@ toda la información del usuario.
     - Rotación de tokens con refresh endpoint
     - Logout con revocación de refresh tokens
     - Consulta de perfil autenticado con token
-- **Gestión de perfil**: Username único, avatar, idioma preferido, preferencias de notificación, datos de Discord
+- **Gestión de perfil**: Username único, avatar, idioma preferido y datos de Discord
 - **Seguridad de cuenta**: Cambio de contraseña (con validación), restablecimiento mediante token temporal
 - **Ciclo de vida**: Estados `PENDIENTE_DE_VERIFICACION` → `ACTIVO` / `SUSPENDIDO` / `ELIMINADO`
 - **Roles de usuario**: `USER`, `ADMIN`
@@ -102,7 +104,6 @@ toda la información del usuario.
     - Actualización de `email` (requiere nueva verificación)
     - Cambio de `avatar` (URL)
     - Configuración de `language` (`ESP`, `ENG`)
-    - Preferencias de `notificationsActive`
 
 - **Listado de usuarios** (`GET /v1/usuarios/users`)
     - Paginación y filtrado
@@ -175,7 +176,7 @@ El microservicio implementa **DDD (Domain-Driven Design)** con **Arquitectura He
 
 ### Estructura de capas
 
-TODO todavía por
+TODO todavía estoy trabajando en ello
 
 ### Regla de dependencias
 
@@ -237,7 +238,7 @@ Cada caso de uso es una clase `@Service` con un único método `execute()`:
 Puertos (interfaces) en `application/ports`:
 
 - `IEmailService` → Implementación en `infrastructure/email`
-- Futuros: `INotificationService`, `IStorageService`
+- Futuros: `IStorageService`
 
 ---
 
@@ -257,12 +258,11 @@ Puertos (interfaces) en `application/ports`:
 
 #### Configuración de usuario
 
-| Campo                 | Tipo            | Default                     | Descripción                     |
-|-----------------------|-----------------|-----------------------------|---------------------------------|
-| `role`                | `Rol`           | `USER`                      | Rol del usuario                 |
-| `language`            | `Idioma`        | `ESP`                       | Idioma preferido de la interfaz |
-| `notificationsActive` | `boolean`       | `true`                      | Preferencia de notificaciones   |
-| `status`              | `EstadoUsuario` | `PENDIENTE_DE_VERIFICACION` | Estado de la cuenta             |
+| Campo      | Tipo            | Default                     | Descripción                     |
+|------------|-----------------|-----------------------------|---------------------------------|
+| `role`     | `Rol`           | `USER`                      | Rol del usuario                 |
+| `language` | `Idioma`        | `ESP`                       | Idioma preferido de la interfaz |
+| `status`   | `EstadoUsuario` | `PENDIENTE_DE_VERIFICACION` | Estado de la cuenta             |
 
 #### Datos de Discord
 
@@ -390,18 +390,17 @@ Todos los VOs implementan validación en construcción y son inmutables:
 
 ### Gestión de Usuarios
 
-| Método | Endpoint                       | Request Body                  | Response                | Descripción                         | Auth       |
-|--------|--------------------------------|-------------------------------|-------------------------|-------------------------------------|------------|
-| GET    | `/users`                       | -                             | `List<UsuarioResponse>` | Lista todos los usuarios            | Sí         |
-| GET    | `/users?username={username}`   | -                             | `UsuarioResponse`       | Busca usuario por username          | Sí         |
-| GET    | `/users?estado={estado}`       | -                             | `List<UsuarioResponse>` | Busca usuarios por estado           | Sí         |
-| GET    | `/users/notifications-enabled` | -                             | `List<UsuarioResponse>` | Usuarios con notificaciones activas | Sí         |
-| GET    | `/{id}`                        | -                             | `UsuarioResponse`       | Obtiene usuario por ID              | Sí         |
-| PATCH  | `/{id}`                        | `EditarPerfilUsuarioRequest`  | `UsuarioResponse`       | Edita perfil del usuario            | Sí (owner) |
-| PATCH  | `/{id}/estado`                 | `CambiarEstadoUsuarioRequest` | `UsuarioResponse`       | Cambia estado del usuario           | Sí (admin) |
-| PUT    | `/{id}/password`               | `CambiarContrasenaRequest`    | `200 OK`                | Cambia contraseña                   | Sí (owner) |
-| PUT    | `/{id}/email`                  | `CambiarCorreoRequest`        | `200 OK`                | Cambia email del usuario            | Sí (owner) |
-| DELETE | `/{id}`                        | -                             | `204 No Content`        | Elimina usuario (hard delete)       | Sí (admin) |
+| Método | Endpoint                     | Request Body                  | Response                | Descripción                   | Auth       |
+|--------|------------------------------|-------------------------------|-------------------------|-------------------------------|------------|
+| GET    | `/users`                     | -                             | `List<UsuarioResponse>` | Lista todos los usuarios      | Sí         |
+| GET    | `/users?username={username}` | -                             | `UsuarioResponse`       | Busca usuario por username    | Sí         |
+| GET    | `/users?estado={estado}`     | -                             | `List<UsuarioResponse>` | Busca usuarios por estado     | Sí         |
+| GET    | `/{id}`                      | -                             | `UsuarioResponse`       | Obtiene usuario por ID        | Sí         |
+| PATCH  | `/{id}`                      | `EditarPerfilUsuarioRequest`  | `UsuarioResponse`       | Edita perfil del usuario      | Sí (owner) |
+| PATCH  | `/{id}/estado`               | `CambiarEstadoUsuarioRequest` | `UsuarioResponse`       | Cambia estado del usuario     | Sí (admin) |
+| PUT    | `/{id}/password`             | `CambiarContrasenaRequest`    | `200 OK`                | Cambia contraseña             | Sí (owner) |
+| PUT    | `/{id}/email`                | `CambiarCorreoRequest`        | `200 OK`                | Cambia email del usuario      | Sí (owner) |
+| DELETE | `/{id}`                      | -                             | `204 No Content`        | Elimina usuario (hard delete) | Sí (admin) |
 
 ### Discord
 
@@ -478,7 +477,6 @@ Todos los VOs implementan validación en construcción y son inmutables:
 - `GET /v1/usuarios/users` → Cualquier usuario autenticado
 - `GET /v1/usuarios/users?username={username}` → Cualquier usuario autenticado
 - `GET /v1/usuarios/users?estado={estado}` → Cualquier usuario autenticado
-- `GET /v1/usuarios/users/notifications-enabled` → Cualquier usuario autenticado
 - `GET /v1/usuarios/{id}` → Cualquier usuario autenticado
 - `PATCH /v1/usuarios/{id}` → Solo el propietario del perfil
 - `PATCH /v1/usuarios/{id}/estado` → Solo ADMIN/MODERATOR
@@ -531,7 +529,7 @@ Todos los VOs implementan validación en construcción y son inmutables:
 **Características:**
 
 - `@SpringBootTest` con contexto completo
-- Base de datos H2 in-memory
+- Base de datos Postgres para simular entorno real. NUNCA USAR H2
 - `@AutoConfigureMockMvc` para tests REST
 - Testing de controllers, repositories, mappers
 
@@ -561,7 +559,7 @@ Todos los VOs implementan validación en construcción y son inmutables:
 
 ### Prerrequisitos
 
-- **Java 21** o superior ([Adoptium OpenJDK](https://adoptium.net/))
+- **Java 21**
 - **Maven 3.9+** (incluido wrapper `./mvnw`)
 - **Docker** y **Docker Compose** (para PostgreSQL)
 - **Git** para control de versiones
@@ -704,14 +702,15 @@ SPRING_MAIL_PASSWORD=your-app-password
 - **Value Objects**: `UsuarioId`, `Email`, `Username`
 - **Enums**: `EstadoUsuario`, `Rol`, `Idioma`
 - **Repositorios (interfaces)**: `RepositorioUsuarios`
-- **Excepciones**: `UsernameYaExisteException`, `EmailYaRegistradoException`
+- **Excepciones**: `DomainException`
 
 #### Capa de Aplicación
 
-- **Use Cases**: `CrearUsuarioUseCase`, `EditarPerfilUsuarioUseCase`
+- **Use Cases**: `CrearUsuarioUseCase`, `CrearUsuarioHandle` (Handle interface, UseCase la implementa)
 - **Commands/Queries**: `CrearUsuarioCommand`, `EditarPerfilUsuarioCommand`
-- **DTOs**: `UsuarioDTO`
+- **DTOs**: `UsuarioResult`
 - **Ports**: `IEmailService`, `INotificationService`
+- **Excepciones**: `ApplicationException`
 
 #### Capa de Infraestructura
 
@@ -721,6 +720,7 @@ SPRING_MAIL_PASSWORD=your-app-password
 - **Request DTOs**: `CrearUsuarioRequest`, `EditarPerfilRequest`
 - **Response DTOs**: `UsuarioResponse`
 - **Mappers**: `UsuarioMapper`
+- **Excepciones**: `InfaestructureException`
 
 ### Reglas de código
 
@@ -735,84 +735,4 @@ SPRING_MAIL_PASSWORD=your-app-password
 9. **Excepciones de dominio**: Nunca `RuntimeException` genérica
 10. **DTOs para inter-capa**: Nunca pasar entidades directamente
 
-### Formato de código
-
-- **Indentación**: 4 espacios
-- **Líneas**: Máximo 120 caracteres
-- **Imports**: Organizados por grupos (java, javax, spring, gamelisto)
-- **Javadoc**: Obligatorio en APIs públicas de dominio
-
 ---
-
-## Roadmap y próximas funcionalidades
-
-### En desarrollo
-
-- Implementación completa de `IEmailService` con plantillas HTML
-- Configuración de mensajería con RabbitMQ
-- Eventos de dominio (`UsuarioCreadoEvent`, `EmailVerificadoEvent`)
-
-### Planeado
-
-- Integración con `auth-service` para JWT
-- Búsqueda avanzada de usuarios con filtros
-- Paginación en endpoints de listado
-- Avatar upload con AWS S3 / Azure Blob Storage
-- Rate limiting para endpoints públicos
-- Auditoría de cambios con Spring Data Envers
-- Métricas con Micrometer + Prometheus
-- Circuit breaker con Resilience4j
-- Caché con Redis para queries frecuentes
-
-### Futuro
-
-- Autenticación multifactor (2FA)
-- Gestión de privacidad (GDPR compliance)
-- API GraphQL además de REST
-
----
-
-## Contribución
-
-Este es un proyecto de TFG (Trabajo Fin de Grado). Para contribuir envíame un correo.
-
----
-
-## Referencias y documentación adicional
-
-### Documentación del proyecto
-
-- [README principal](../README.md) → Visión general de la plataforma
-- [Copilot Instructions](../.github/copilot-instructions.md) → Convenciones arquitectónicas
-
-### Patrones y arquitectura
-
-- [Domain-Driven Design - Eric Evans](https://www.domainlanguage.com/ddd/)
-- [Hexagonal Architecture - Alistair Cockburn](https://alistair.cockburn.us/hexagonal-architecture/)
-- [Spring Boot Best Practices](https://docs.spring.io/spring-boot/docs/current/reference/html/)
-
-### Tecnologías utilizadas
-
-- [Spring Boot 4.0.3](https://spring.io/projects/spring-boot)
-- [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
-- [PostgreSQL 17](https://www.postgresql.org/docs/17/)
-- [H2 Database](https://www.h2database.com/)
-- [BCrypt](https://en.wikipedia.org/wiki/Bcrypt)
-
----
-
-## Licencia
-
-Proyecto académico del TFG GameListo - Universidad de Murcia
-
----
-
-## Autor
-
-Barlowe90
-
----
-
-## Contacto y soporte
-
-<barlowese@gmail.com>

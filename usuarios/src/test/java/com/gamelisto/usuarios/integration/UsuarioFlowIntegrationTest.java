@@ -171,7 +171,7 @@ class UsuarioFlowIntegrationTest {
   }
 
   @Test
-  @DisplayName("Flujo completo: Buscar usuarios por estado y notificaciones")
+  @DisplayName("Flujo completo: Buscar usuarios por estado")
   void flujoCompletoBusquedaPorCriterios() {
     // 1. Crear varios usuarios con diferentes estados
     CrearUsuarioCommand user1 =

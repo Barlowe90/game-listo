@@ -33,7 +33,15 @@ public class UsuarioRefRepositorioPostgres implements UsuariosRefRepositorio {
 
   @Override
   public Optional<UsuarioRef> findById(UsuarioId id) {
-    return jpaRepository.findById(id.value()).map(mapper::toDomain).map(this::cargarListasDelUsuario);
+    return jpaRepository
+        .findById(id.value())
+        .map(mapper::toDomain)
+        .map(this::cargarListasDelUsuario);
+  }
+
+  @Override
+  public void deleteById(UsuarioId id) {
+    jpaRepository.deleteById(id.value());
   }
 
   private UsuarioRef cargarListasDelUsuario(UsuarioRef usuarioRef) {

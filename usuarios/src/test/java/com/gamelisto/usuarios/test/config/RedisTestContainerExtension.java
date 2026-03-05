@@ -2,6 +2,7 @@ package com.gamelisto.usuarios.test.config;
 
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.opentest4j.TestAbortedException;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 
@@ -19,7 +20,8 @@ public class RedisTestContainerExtension implements BeforeAllCallback {
         redisContainer.start();
       } catch (RuntimeException e) {
         // If Docker/Testcontainers is not available, rethrow to fail fast in CI
-        throw e;
+        throw new TestAbortedException(
+            "Docker/Testcontainers no disponible: se omiten tests que requieren Redis", e);
       }
 
       String host = redisContainer.getHost();

@@ -4,7 +4,7 @@ import com.gamelisto.usuarios.application.dto.UsuarioDTO;
 import com.gamelisto.usuarios.application.usecases.DesvincularDiscordUseCase;
 import com.gamelisto.usuarios.application.usecases.VincularDiscordUseCase;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.VincularDiscordRequest;
-import com.gamelisto.usuarios.infrastructure.out.dto.UsuarioResponse;
+import com.gamelisto.usuarios.infrastructure.in.api.dto.UsuarioResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -3,7 +3,10 @@ package com.gamelisto.usuarios.infrastructure.out.messaging.publishers;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 import com.gamelisto.usuarios.domain.events.UsuarioCreado;
+import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
 import java.time.Instant;
+
+import com.gamelisto.usuarios.infrastructure.out.messaging.NoOpUsuarioPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,72 +22,76 @@ class NoOpUsuarioPublisherTest {
   }
 
   @Test
-  @DisplayName("Debe ejecutar publish sin lanzar excepciones")
-  void debeEjecutarPublishSinLanzarExcepciones() {
+  @DisplayName("Debe ejecutar publicarUsuarioCreado sin lanzar excepciones")
+  void debeEjecutarPublicarUsuarioCreadoSinLanzarExcepciones() {
     // Given
     UsuarioCreado event =
         new UsuarioCreado(
-            "user-123", "testuser", "test@example.com", Instant.parse("2026-01-29T10:00:00Z"));
+            "user-123",
+            "testuser",
+            "test@example.com",
+            "avatar.png",
+            "USER",
+            "ESP",
+            "PENDIENTE_DE_VERIFICACION",
+            null,
+            null);
 
     // When & Then - No debe lanzar excepción
-    assertThatCode(() -> publisher.publish("created", event)).doesNotThrowAnyException();
+    assertThatCode(() -> publisher.publicarUsuarioCreado(event)).doesNotThrowAnyException();
   }
 
   @Test
-  @DisplayName("Debe aceptar cualquier tipo de evento")
+  @DisplayName("Debe aceptar cualquier tipo de evento para publicarUsuarioEliminado")
   void debeAceptarCualquierTipoDeEvento() {
     // Given
-    Object customEvent = new CustomEvent("test-data");
+    UsuarioEliminado evento = UsuarioEliminado.of("id-1");
 
     // When & Then
-    assertThatCode(() -> publisher.publish("custom", customEvent)).doesNotThrowAnyException();
+    assertThatCode(() -> publisher.publicarUsuarioEliminado(evento)).doesNotThrowAnyException();
   }
 
   @Test
-  @DisplayName("Debe aceptar routing keys vacíos")
+  @DisplayName(
+      "Debe manejar publicarUsuarioCreado con routing keys vacíos y nulos sin lanzar excepciones")
   void debeAceptarRoutingKeysVacios() {
     // Given
-    Object event = new CustomEvent("data");
+    UsuarioCreado event =
+        new UsuarioCreado(
+            "1", "user1", "user1@test.com", "avatar1.png", "USER", "ESP", "ACTIVO", null, null);
 
     // When & Then
-    assertThatCode(() -> publisher.publish("", event)).doesNotThrowAnyException();
+    assertThatCode(() -> publisher.publicarUsuarioCreado(event)).doesNotThrowAnyException();
   }
 
   @Test
   @DisplayName("Debe manejar eventos null sin lanzar excepciones")
   void debeManejarEventosNullSinLanzarExcepciones() {
     // When & Then
-    assertThatCode(() -> publisher.publish("test", null)).doesNotThrowAnyException();
-  }
-
-  @Test
-  @DisplayName("Debe manejar routing key null sin lanzar excepciones")
-  void debeManejarRoutingKeyNullSinLanzarExcepciones() {
-    // Given
-    Object event = new CustomEvent("data");
-
-    // When & Then - El método debería manejar esto sin problemas
-    assertThatCode(() -> publisher.publish(null, event)).doesNotThrowAnyException();
+    assertThatCode(() -> publisher.publicarUsuarioCreado(null)).doesNotThrowAnyException();
   }
 
   @Test
   @DisplayName("Debe publicar múltiples eventos consecutivamente")
   void debePublicarMultiplesEventosConsecutivamente() {
     // Given
-    UsuarioCreado event1 = new UsuarioCreado("1", "user1", "user1@test.com", Instant.now());
-    UsuarioCreado event2 = new UsuarioCreado("2", "user2", "user2@test.com", Instant.now());
-    UsuarioCreado event3 = new UsuarioCreado("3", "user3", "user3@test.com", Instant.now());
+    UsuarioCreado event1 =
+        new UsuarioCreado(
+            "1", "user1", "user1@test.com", "avatar1.png", "USER", "ESP", "ACTIVO", null, null);
+    UsuarioCreado event2 =
+        new UsuarioCreado(
+            "2", "user2", "user2@test.com", "avatar2.png", "USER", "ESP", "ACTIVO", null, null);
+    UsuarioCreado event3 =
+        new UsuarioCreado(
+            "3", "user3", "user3@test.com", "avatar3.png", "USER", "ESP", "ACTIVO", null, null);
 
     // When & Then
     assertThatCode(
             () -> {
-              publisher.publish("created", event1);
-              publisher.publish("created", event2);
-              publisher.publish("created", event3);
+              publisher.publicarUsuarioCreado(event1);
+              publisher.publicarUsuarioCreado(event2);
+              publisher.publicarUsuarioCreado(event3);
             })
         .doesNotThrowAnyException();
   }
-
-  // Clase helper para tests
-  private record CustomEvent(String data) {}
 }

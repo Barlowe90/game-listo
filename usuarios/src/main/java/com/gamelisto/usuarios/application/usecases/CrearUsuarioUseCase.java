@@ -3,39 +3,25 @@ package com.gamelisto.usuarios.application.usecases;
 import com.gamelisto.usuarios.application.dto.CrearUsuarioCommand;
 import com.gamelisto.usuarios.application.dto.UsuarioDTO;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
-import com.gamelisto.usuarios.domain.events.UsuarioCreado;
 import com.gamelisto.usuarios.domain.repositories.IEmailService;
-import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.Email;
 import com.gamelisto.usuarios.domain.usuario.PasswordHash;
 import com.gamelisto.usuarios.domain.usuario.Username;
 import com.gamelisto.usuarios.domain.usuario.Usuario;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class CrearUsuarioUseCase {
 
-  private static final String ROUTING_KEY_SUFFIX = "usuario.creado";
-
   private final RepositorioUsuarios repositorioUsuarios;
-  private final IUsuarioPublisher eventosPublisher;
   private final PasswordEncoder passwordEncoder;
   private final IEmailService emailService;
-
-  public CrearUsuarioUseCase(
-      RepositorioUsuarios repositorioUsuarios,
-      PasswordEncoder passwordEncoder,
-      IUsuarioPublisher eventosPublisher,
-      IEmailService emailService) {
-    this.repositorioUsuarios = repositorioUsuarios;
-    this.passwordEncoder = passwordEncoder;
-    this.eventosPublisher = eventosPublisher;
-    this.emailService = emailService;
-  }
 
   @Transactional
   public UsuarioDTO execute(CrearUsuarioCommand command) {
@@ -50,7 +36,6 @@ public class CrearUsuarioUseCase {
     Usuario usuarioGuardado = crearUsuario(username, email, passwordHash);
 
     enviarUsuarioEmailVerificacion(usuarioGuardado);
-    enviarColaUsuarioCreado(usuarioGuardado);
 
     return UsuarioDTO.from(usuarioGuardado);
   }
@@ -86,14 +71,5 @@ public class CrearUsuarioUseCase {
     if (repositorioUsuarios.existsByUsername(username)) {
       throw new ApplicationException("El username '" + command.username() + "' ya está en uso");
     }
-  }
-
-  private void enviarColaUsuarioCreado(Usuario usuarioGuardado) {
-    UsuarioCreado evento =
-        UsuarioCreado.of(
-            usuarioGuardado.getId().value().toString(),
-            usuarioGuardado.getUsername().value(),
-            usuarioGuardado.getEmail().value());
-    eventosPublisher.publish(ROUTING_KEY_SUFFIX, evento);
   }
 }

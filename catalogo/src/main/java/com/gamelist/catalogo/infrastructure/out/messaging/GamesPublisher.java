@@ -1,0 +1,44 @@
+package com.gamelist.catalogo.infrastructure.out.messaging;
+
+import com.gamelist.catalogo.domain.GamePublisherRepositorio;
+import com.gamelist.catalogo.domain.events.GameCreado;
+import com.gamelist.catalogo.infrastructure.exceptions.InfrastructureException;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.MessagePostProcessor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.stereotype.Component;
+
+@Component
+@ConditionalOnBean(RabbitTemplate.class)
+@RequiredArgsConstructor
+public class GamesPublisher implements GamePublisherRepositorio {
+
+  private final RabbitTemplate rabbitTemplate;
+
+  private static final Logger logger = LoggerFactory.getLogger(GamesPublisher.class);
+
+  @Override
+  public void publicarGameCreado(GameCreado evento) {
+    publicar(RabbitMQConfig.RK_GAME_CREADO, evento);
+  }
+
+  private void publicar(String routingKey, Object evento) {
+    try {
+      MessagePostProcessor mpp =
+          message -> {
+            message
+                .getMessageProperties()
+                .setHeader("eventType", evento.getClass().getSimpleName());
+            return message;
+          };
+
+      rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, routingKey, evento, mpp);
+      logger.info("Evento publicado: {} → {}", evento.getClass().getSimpleName(), routingKey);
+    } catch (Exception e) {
+      throw new InfrastructureException("Error al publicar evento en RabbitMQ", e);
+    }
+  }
+}

@@ -17,6 +17,17 @@ public final class UsuarioId {
     return new UsuarioId(value);
   }
 
+  public static UsuarioId fromString(String value) {
+    if (value == null || value.trim().isEmpty()) {
+      throw new DomainException("El id de usuario no puede ser nulo o vacío");
+    }
+    try {
+      return new UsuarioId(UUID.fromString(value));
+    } catch (DomainException e) {
+      throw new DomainException("Formato de UUID inválido: " + value, e);
+    }
+  }
+
   public UUID value() {
     return value;
   }
