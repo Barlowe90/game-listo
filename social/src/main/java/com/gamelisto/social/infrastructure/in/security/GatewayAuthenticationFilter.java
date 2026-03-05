@@ -1,4 +1,5 @@
 package com.gamelisto.social.infrastructure.in.security;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,12 +16,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 @Component
 public class GatewayAuthenticationFilter extends OncePerRequestFilter {
   private static final Logger log = LoggerFactory.getLogger(GatewayAuthenticationFilter.class);
   private static final String HEADER_USER_ID = "X-User-Id";
   private static final String HEADER_USER_USERNAME = "X-User-Username";
   private static final String HEADER_USER_ROLES = "X-User-Roles";
+
   @Override
   protected void doFilterInternal(
       @NonNull HttpServletRequest request,

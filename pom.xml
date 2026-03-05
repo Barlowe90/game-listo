@@ -23,6 +23,7 @@
         <module>biblioteca</module>
         <module>publicaciones</module>
         <module>busquedas</module>
+        <module>social</module>
     </modules>
 
     <properties>

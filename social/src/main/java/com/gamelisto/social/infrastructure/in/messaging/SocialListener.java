@@ -1,4 +1,5 @@
 package com.gamelisto.social.infrastructure.in.messaging;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamelisto.social.application.usecases.EntradaEventosHandle;
 import com.gamelisto.social.infrastructure.exceptions.InfrastructureException;
@@ -9,6 +10,7 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(
@@ -19,6 +21,7 @@ public class SocialListener {
   private static final Logger log = LoggerFactory.getLogger(SocialListener.class);
   private final EntradaEventosHandle entradaEventos;
   private final ObjectMapper objectMapper;
+
   @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME)
   public void handleEvent(Message message) {
     String eventType = (String) message.getMessageProperties().getHeaders().get("eventType");
@@ -41,10 +44,16 @@ public class SocialListener {
         default -> log.debug("Evento '{}' no gestionado por social, ignorando", eventType);
       }
     } catch (Exception e) {
-      throw new InfrastructureException("Error al procesar evento '" + eventType + "' en social", e);
+      throw new InfrastructureException(
+          "Error al procesar evento '" + eventType + "' en social", e);
     }
   }
-  private <T> T read(Message message, Class<T> targetType) throws Exception {
-    return objectMapper.readValue(message.getBody(), targetType);
+
+  private <T> T read(Message message, Class<T> targetType) {
+    try {
+      return objectMapper.readValue(message.getBody(), targetType);
+    } catch (Exception e) {
+      throw new InfrastructureException("Error al deserializar mensaje de eventos en social", e);
+    }
   }
 }
