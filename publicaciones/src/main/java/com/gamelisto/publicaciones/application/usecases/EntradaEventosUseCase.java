@@ -9,6 +9,7 @@ import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,8 +31,8 @@ public class EntradaEventosUseCase implements EntradaEventosHandle {
   }
 
   @Override
-  public void procesarGameCreado(String gameId, String nombre, String cover) {
-    GameRef gameRef = GameRef.create(Long.parseLong(gameId), nombre, cover);
+  public void procesarGameCreado(Long gameId, String nombre, List<String> platforms) {
+    GameRef gameRef = GameRef.create(gameId, nombre, platforms);
     gameRefRepositorio.save(gameRef);
   }
 }

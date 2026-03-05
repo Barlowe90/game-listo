@@ -8,5 +8,5 @@ public interface EntradaEventosHandle {
 
   void procesarUsuarioEliminado(String usuarioId) throws ApplicationException;
 
-  void procesarGameCreado(String gameId, String nombre, String cover);
+  void procesarGameCreado(Long gameId, String nombre, String cover);
 }

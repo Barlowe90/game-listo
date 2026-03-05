@@ -8,7 +8,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 import com.gamelist.catalogo.domain.events.GameCreado;
-import com.gamelist.catalogo.infrastructure.out.messaging.config.RabbitMQConfig;
+import com.gamelist.catalogo.infrastructure.out.messaging.GamesPublisher;
+import com.gamelist.catalogo.infrastructure.out.messaging.RabbitMQConfig;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -76,7 +77,10 @@ class GamesPublisherTest {
     // Then
     verify(rabbitTemplate)
         .convertAndSend(
-            exchangeCaptor.capture(), routingKeyCaptor.capture(), eventCaptor.capture());
+            exchangeCaptor.capture(),
+            routingKeyCaptor.capture(),
+            eventCaptor.capture(),
+            any(org.springframework.amqp.core.MessagePostProcessor.class));
 
     assertThat(exchangeCaptor.getValue()).isEqualTo(RabbitMQConfig.EXCHANGE);
     assertThat(routingKeyCaptor.getValue()).isEqualTo(RabbitMQConfig.RK_GAME_CREADO);
@@ -90,7 +94,10 @@ class GamesPublisherTest {
     doThrow(new RuntimeException("RabbitMQ connection error"))
         .when(rabbitTemplate)
         .convertAndSend(
-            eq(RabbitMQConfig.EXCHANGE), eq(RabbitMQConfig.RK_GAME_CREADO), any(Object.class));
+            eq(RabbitMQConfig.EXCHANGE),
+            eq(RabbitMQConfig.RK_GAME_CREADO),
+            any(Object.class),
+            any(org.springframework.amqp.core.MessagePostProcessor.class));
 
     // When & Then
     assertThatThrownBy(() -> publisher.publicarGameCreado(sampleEvent))

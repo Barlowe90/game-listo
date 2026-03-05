@@ -1,9 +1,8 @@
-package com.gamelist.catalogo.infrastructure.out.messaging.publishers;
+package com.gamelist.catalogo.infrastructure.out.messaging;
 
 import com.gamelist.catalogo.domain.GamePublisherRepositorio;
 import com.gamelist.catalogo.domain.events.GameCreado;
 import com.gamelist.catalogo.infrastructure.exceptions.InfrastructureException;
-import com.gamelist.catalogo.infrastructure.out.messaging.config.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,6 @@ public class GamesPublisher implements GamePublisherRepositorio {
             message
                 .getMessageProperties()
                 .setHeader("eventType", evento.getClass().getSimpleName());
-            message.getMessageProperties().setHeader("service", "catalogo");
             return message;
           };
 

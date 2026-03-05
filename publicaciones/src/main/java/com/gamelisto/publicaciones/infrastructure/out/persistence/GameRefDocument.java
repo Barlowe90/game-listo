@@ -8,6 +8,8 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Document(collection = "games_ref")
 @Setter
 @Getter
@@ -19,5 +21,5 @@ public class GameRefDocument {
 
   private String nombre;
 
-  private String plataforma;
+  private List<String> platforms;
 }

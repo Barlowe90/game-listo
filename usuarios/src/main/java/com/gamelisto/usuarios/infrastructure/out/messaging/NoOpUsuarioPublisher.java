@@ -1,4 +1,4 @@
-package com.gamelisto.usuarios.infrastructure.out.messaging.publishers;
+package com.gamelisto.usuarios.infrastructure.out.messaging;
 
 import com.gamelisto.usuarios.domain.events.UsuarioCreado;
 import com.gamelisto.usuarios.domain.events.UsuarioEliminado;

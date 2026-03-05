@@ -1,8 +1,8 @@
-package com.gamelisto.publicaciones.infrastructure.in.messaging.dto;
+package com.gamelisto.biblioteca.infrastructure.in.messaging;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /** DTO que mapea el evento UsuarioCreado publicado por el servicio usuarios. */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record UsuarioCreadoEventDto(
-    String usuarioId, String username, String email, String avatar, String role) {}
+    String usuarioId, String username, String avatar, String role) {}

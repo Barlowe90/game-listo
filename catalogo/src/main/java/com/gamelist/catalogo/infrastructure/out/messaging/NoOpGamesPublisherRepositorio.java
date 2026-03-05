@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.infrastructure.out.messaging.publishers;
+package com.gamelist.catalogo.infrastructure.out.messaging;
 
 import com.gamelist.catalogo.domain.GamePublisherRepositorio;
 import com.gamelist.catalogo.domain.events.GameCreado;

@@ -25,8 +25,8 @@ public class EntradaEventosUseCase implements EntradaEventosHandle {
   }
 
   @Override
-  public void procesarGameCreado(String gameId, String nombre, String cover) {
-    GameRef gameRef = GameRef.create(Long.parseLong(gameId), nombre, cover);
+  public void procesarGameCreado(Long gameId, String nombre, String cover) {
+    GameRef gameRef = GameRef.create(gameId, nombre, cover);
     gameRefRepositorio.save(gameRef);
   }
 }

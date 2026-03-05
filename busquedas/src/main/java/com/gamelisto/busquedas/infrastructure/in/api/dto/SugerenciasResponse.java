@@ -1,4 +1,4 @@
-package com.gamelisto.busquedas.infrastructure.api.dto;
+package com.gamelisto.busquedas.infrastructure.in.api.dto;
 
 import java.util.List;
 

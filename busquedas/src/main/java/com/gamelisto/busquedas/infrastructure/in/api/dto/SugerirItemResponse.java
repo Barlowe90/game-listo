@@ -1,3 +1,3 @@
-package com.gamelisto.busquedas.infrastructure.api.dto;
+package com.gamelisto.busquedas.infrastructure.in.api.dto;
 
 public record SugerirItemResponse(long gameId, String title) {}

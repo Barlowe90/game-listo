@@ -1,4 +1,4 @@
-package com.gamelist.catalogo.infrastructure.out.messaging.config;
+package com.gamelisto.usuarios.infrastructure.out.messaging;
 
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -17,11 +17,12 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMQConfig {
 
   public static final String EXCHANGE = "gamelisto.eventos";
-  public static final String RK_GAME_CREADO = "games.creado";
+  public static final String RK_USUARIO_CREADO = "usuarios.creado";
+  public static final String RK_USUARIO_ELIMINADO = "usuarios.eliminado";
 
   @Bean
   public TopicExchange gamelistoExchange() {
-    return new TopicExchange(EXCHANGE);
+    return new TopicExchange(EXCHANGE, true, false);
   }
 
   @Bean

@@ -120,7 +120,6 @@ class EliminarUsuarioUseCaseTest {
     UsuarioEliminado evento = eventoCaptor.getValue();
     assertNotNull(evento);
     assertEquals(usuarioId, evento.usuarioId());
-    assertNotNull(evento.occurredOn());
   }
 
   @Test

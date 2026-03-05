@@ -1,10 +1,9 @@
-package com.gamelisto.usuarios.infrastructure.out.messaging.publishers;
+package com.gamelisto.usuarios.infrastructure.out.messaging;
 
 import com.gamelisto.usuarios.domain.events.UsuarioCreado;
 import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
 import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.infrastructure.exceptions.InfrastructureException;
-import com.gamelisto.usuarios.infrastructure.out.messaging.config.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,13 +36,11 @@ public class UsuariosPublisher implements IUsuarioPublisher {
             message
                 .getMessageProperties()
                 .setHeader("eventType", evento.getClass().getSimpleName());
-            message.getMessageProperties().setHeader("__TypeId__", evento.getClass().getName());
-
-            message.getMessageProperties().setHeader("service", "usuarios");
             return message;
           };
 
       rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, routingKey, evento, mpp);
+
       logger.info("Evento publicado: {} → {}", evento.getClass().getSimpleName(), routingKey);
     } catch (Exception e) {
       throw new InfrastructureException("Error al publicar evento en RabbitMQ", e);

@@ -1,6 +1,5 @@
 package com.gamelist.catalogo.domain.events;
 
-import java.time.Instant;
 import java.util.List;
 
 public record GameCreado(
@@ -27,8 +26,7 @@ public record GameCreado(
     List<Long> remakeIds,
     List<Long> remasterIds,
     List<Long> similarGames,
-    List<String> themes,
-    Instant occurredOn) {
+    List<String> themes) {
 
   public static GameCreado of(
       String id,
@@ -79,7 +77,6 @@ public record GameCreado(
         remakeIds != null ? remakeIds : List.of(),
         remasterIds != null ? remasterIds : List.of(),
         similarGames != null ? similarGames : List.of(),
-        themes != null ? themes : List.of(),
-        Instant.now());
+        themes != null ? themes : List.of());
   }
 }

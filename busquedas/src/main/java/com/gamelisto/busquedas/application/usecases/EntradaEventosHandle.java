@@ -1,12 +1,8 @@
-package com.gamelisto.publicaciones.application.usecases;
+package com.gamelisto.busquedas.application.usecases;
 
-import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
+import java.util.List;
 
 public interface EntradaEventosHandle {
 
-  void procesarUsuarioCreado(String usuarioId, String username, String avatar);
-
-  void procesarUsuarioEliminado(String usuarioId) throws ApplicationException;
-
-  void procesarGameCreado(String gameId, String nombre, String plataforma);
+  void procesarGameCreado(Long gameId, String title, List<String> alternativeNames);
 }

@@ -9,8 +9,10 @@ import static org.mockito.Mockito.verify;
 
 import com.gamelisto.usuarios.domain.events.UsuarioCreado;
 import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
-import com.gamelisto.usuarios.infrastructure.out.messaging.config.RabbitMQConfig;
+import com.gamelisto.usuarios.infrastructure.out.messaging.RabbitMQConfig;
 import java.time.Instant;
+
+import com.gamelisto.usuarios.infrastructure.out.messaging.UsuariosPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,8 +50,7 @@ class UsuariosPublisherTest {
             "ESP",
             "PENDIENTE_DE_VERIFICACION",
             null,
-            null,
-            Instant.parse("2026-01-29T10:00:00Z"));
+            null);
   }
 
   @Test
@@ -61,7 +62,10 @@ class UsuariosPublisherTest {
     // Then
     verify(rabbitTemplate)
         .convertAndSend(
-            exchangeCaptor.capture(), routingKeyCaptor.capture(), eventCaptor.capture());
+            exchangeCaptor.capture(),
+            routingKeyCaptor.capture(),
+            eventCaptor.capture(),
+            any(org.springframework.amqp.core.MessagePostProcessor.class));
 
     assertThat(exchangeCaptor.getValue()).isEqualTo(RabbitMQConfig.EXCHANGE);
     assertThat(routingKeyCaptor.getValue()).isEqualTo(RabbitMQConfig.RK_USUARIO_CREADO);
@@ -80,7 +84,10 @@ class UsuariosPublisherTest {
     // Then
     verify(rabbitTemplate)
         .convertAndSend(
-            exchangeCaptor.capture(), routingKeyCaptor.capture(), eventCaptor.capture());
+            exchangeCaptor.capture(),
+            routingKeyCaptor.capture(),
+            eventCaptor.capture(),
+            any(org.springframework.amqp.core.MessagePostProcessor.class));
 
     assertThat(exchangeCaptor.getValue()).isEqualTo(RabbitMQConfig.EXCHANGE);
     assertThat(routingKeyCaptor.getValue()).isEqualTo(RabbitMQConfig.RK_USUARIO_ELIMINADO);
@@ -94,7 +101,10 @@ class UsuariosPublisherTest {
     doThrow(new RuntimeException("RabbitMQ connection error"))
         .when(rabbitTemplate)
         .convertAndSend(
-            eq(RabbitMQConfig.EXCHANGE), eq(RabbitMQConfig.RK_USUARIO_CREADO), any(Object.class));
+            eq(RabbitMQConfig.EXCHANGE),
+            eq(RabbitMQConfig.RK_USUARIO_CREADO),
+            any(Object.class),
+            any(org.springframework.amqp.core.MessagePostProcessor.class));
 
     // When & Then
     assertThatThrownBy(() -> publisher.publicarUsuarioCreado(sampleEvent))

@@ -1,145 +1,118 @@
 package com.gamelisto.biblioteca.infrastructure.messaging;
 
-import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamelisto.biblioteca.application.usecase.EntradaEventosHandle;
-import com.gamelisto.biblioteca.config.TestContainersConfig;
-import com.gamelisto.biblioteca.infrastructure.in.messaging.config.RabbitMQConfig;
-import com.gamelisto.biblioteca.infrastructure.in.messaging.dto.GameCreadoEventDto;
-import com.gamelisto.biblioteca.infrastructure.in.messaging.dto.UsuarioCreadoEventDto;
-import com.gamelisto.biblioteca.infrastructure.in.messaging.dto.UsuarioEliminadoEventDto;
-import java.util.concurrent.TimeUnit;
+import com.gamelisto.biblioteca.infrastructure.in.messaging.BibliotecaListener;
+import com.gamelisto.biblioteca.infrastructure.in.messaging.GameCreadoEventDto;
+import com.gamelisto.biblioteca.infrastructure.in.messaging.UsuarioCreadoEventDto;
+import com.gamelisto.biblioteca.infrastructure.in.messaging.UsuarioEliminadoEventDto;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.core.MessageProperties;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
-@SpringBootTest
-@ActiveProfiles("test")
-@Import(TestContainersConfig.class)
-@DisplayName("BibliotecaListener - Tests de integración")
+@ExtendWith(MockitoExtension.class)
+@DisplayName("BibliotecaListener - Tests unitarios")
 class BibliotecaListenerTest {
 
-  @Autowired private RabbitTemplate rabbitTemplate;
+  @Mock private EntradaEventosHandle entradaEventos;
 
-  // Spy para verificar que los métodos se llaman sin reemplazar el bean real
-  @MockitoSpyBean private EntradaEventosHandle entradaEventos;
+  private BibliotecaListener listener;
+  private final ObjectMapper objectMapper = new ObjectMapper();
+
+  @BeforeEach
+  void setUp() {
+    listener = new BibliotecaListener(entradaEventos, objectMapper);
+  }
 
   @Test
   @DisplayName("Debe procesar evento UsuarioCreado y guardar UsuarioRef")
-  void debeProcesarEventoUsuarioCreado() {
-    // Arrange - usar DTO para que el MessageConverter preserve el tipo
+  void debeProcesarEventoUsuarioCreado() throws Exception {
+    // Arrange
     UsuarioCreadoEventDto dto =
         new UsuarioCreadoEventDto(
             "550e8400-e29b-41d4-a716-446655440000",
             "jugador1",
-            "jugador1@test.com",
             "https://avatar.url/img.png",
             "USER");
 
+    MessageProperties props = new MessageProperties();
+    props.setHeader("eventType", "UsuarioCreado");
+    Message message =
+        MessageBuilder.withBody(objectMapper.writeValueAsBytes(dto)).andProperties(props).build();
+
     // Act
-    rabbitTemplate.convertAndSend(
-        RabbitMQConfig.EXCHANGE,
-        "usuarios.creado",
-        dto,
-        message -> {
-          message.getMessageProperties().setHeader("eventType", "UsuarioCreado");
-          message.getMessageProperties().setContentType(MessageProperties.CONTENT_TYPE_JSON);
-          return message;
-        });
+    listener.handleEvent(message);
 
     // Assert
-    await()
-        .atMost(5, TimeUnit.SECONDS)
-        .untilAsserted(
-            () ->
-                verify(entradaEventos, atLeastOnce())
-                    .procesarUsuarioCreado(
-                        eq("550e8400-e29b-41d4-a716-446655440000"), eq("jugador1"), any(), any()));
+    verify(entradaEventos)
+        .procesarUsuarioCreado(
+            "550e8400-e29b-41d4-a716-446655440000",
+            "jugador1",
+            "USER",
+            "https://avatar.url/img.png");
   }
 
   @Test
   @DisplayName("Debe procesar evento UsuarioEliminado y eliminar UsuarioRef")
-  void debeProcesarEventoUsuarioEliminado() {
-    // Arrange - DTO
+  void debeProcesarEventoUsuarioEliminado() throws Exception {
+    // Arrange
     String usuarioId = "660e8400-e29b-41d4-a716-446655440001";
     UsuarioEliminadoEventDto dto = new UsuarioEliminadoEventDto(usuarioId);
 
+    MessageProperties props = new MessageProperties();
+    props.setHeader("eventType", "UsuarioEliminado");
+    Message message =
+        MessageBuilder.withBody(objectMapper.writeValueAsBytes(dto)).andProperties(props).build();
+
     // Act
-    rabbitTemplate.convertAndSend(
-        RabbitMQConfig.EXCHANGE,
-        "usuarios.eliminado",
-        dto,
-        message -> {
-          message.getMessageProperties().setHeader("eventType", "UsuarioEliminado");
-          message.getMessageProperties().setContentType(MessageProperties.CONTENT_TYPE_JSON);
-          return message;
-        });
+    listener.handleEvent(message);
 
     // Assert
-    await()
-        .atMost(5, TimeUnit.SECONDS)
-        .untilAsserted(
-            () -> verify(entradaEventos, atLeastOnce()).procesarUsuarioEliminado(usuarioId));
+    verify(entradaEventos).procesarUsuarioEliminado(usuarioId);
   }
 
   @Test
   @DisplayName("Debe procesar evento GameCreado y guardar GameRef")
-  void debeProcesarEventoGameCreado() {
-    // Arrange - DTO
-    GameCreadoEventDto dto =
-        new GameCreadoEventDto("42", "The Legend of Zelda", "https://img.igdb.com/cover.jpg");
+  void debeProcesarEventoGameCreado() throws Exception {
+    // Arrange
+    GameCreadoEventDto dto = new GameCreadoEventDto(42L, "Zelda", "The Legend of Zelda");
+
+    MessageProperties props = new MessageProperties();
+    props.setHeader("eventType", "GameCreado");
+    Message message =
+        MessageBuilder.withBody(objectMapper.writeValueAsBytes(dto)).andProperties(props).build();
 
     // Act
-    rabbitTemplate.convertAndSend(
-        RabbitMQConfig.EXCHANGE,
-        "games.creado",
-        dto,
-        message -> {
-          message.getMessageProperties().setHeader("eventType", "GameCreado");
-          message.getMessageProperties().setContentType(MessageProperties.CONTENT_TYPE_JSON);
-          return message;
-        });
+    listener.handleEvent(message);
 
     // Assert
-    await()
-        .atMost(5, TimeUnit.SECONDS)
-        .untilAsserted(
-            () ->
-                verify(entradaEventos, atLeastOnce())
-                    .procesarGameCreado(eq("42"), eq("The Legend of Zelda"), any()));
+    verify(entradaEventos).procesarGameCreado(42L, "Zelda", "The Legend of Zelda");
   }
 
   @Test
   @DisplayName("Debe ignorar eventos con eventType desconocido sin lanzar excepción")
-  void debeIgnorarEventosDesconocidos() {
+  void debeIgnorarEventosDesconocidos() throws Exception {
     // Arrange
     String payload = "{\"data\":\"algo\"}";
-
     MessageProperties props = new MessageProperties();
     props.setHeader("eventType", "EventoDesconocido");
-    props.setContentType(MessageProperties.CONTENT_TYPE_JSON);
-    org.springframework.amqp.core.Message message =
-        org.springframework.amqp.core.MessageBuilder.withBody(payload.getBytes())
-            .andProperties(props)
-            .build();
+    Message message = MessageBuilder.withBody(payload.getBytes()).andProperties(props).build();
 
     // Act
-    rabbitTemplate.send(RabbitMQConfig.EXCHANGE, "usuarios.otro", message);
+    listener.handleEvent(message);
 
     // Assert - no se debe llamar a ningún método del handle
-    await()
-        .atMost(3, TimeUnit.SECONDS)
-        .untilAsserted(
-            () -> {
-              verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any(), any());
-              verify(entradaEventos, never()).procesarGameCreado(any(), any(), any());
-            });
+    verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any(), any());
+    verify(entradaEventos, never()).procesarGameCreado(any(), any(), any());
+    verify(entradaEventos, never()).procesarUsuarioEliminado(any());
   }
 }

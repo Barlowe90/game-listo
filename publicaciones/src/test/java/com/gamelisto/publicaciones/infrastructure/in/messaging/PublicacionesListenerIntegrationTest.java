@@ -1,77 +1,123 @@
 package com.gamelisto.publicaciones.infrastructure.in.messaging;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamelisto.publicaciones.application.usecases.EntradaEventosHandle;
-import com.gamelisto.publicaciones.infrastructure.in.messaging.config.RabbitMQConfig;
-import org.awaitility.Awaitility;
-import org.junit.jupiter.api.Assumptions;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageBuilder;
+import org.springframework.amqp.core.MessageProperties;
 
-import java.time.Duration;
+import java.util.List;
 
-@SpringBootTest
-@ActiveProfiles("test")
-@Import({TestRabbitConfig.class, TestMocksConfig.class})
+@ExtendWith(MockitoExtension.class)
+@DisplayName("PublicacionesListener - Tests unitarios")
 class PublicacionesListenerIntegrationTest {
 
-  @Autowired private RabbitTemplate rabbitTemplate;
+  @Mock private EntradaEventosHandle entradaEventos;
 
-  @Autowired private EntradaEventosHandle entradaEventos;
+  private PublicacionesListener listener;
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
-  @Autowired private TestRabbitConfig rabbitConfig;
-
-  @Test
-  void debeProcesarUsuarioCreado() {
-    // Skip test when Docker is not available
-    Assumptions.assumeTrue(
-        org.testcontainers.DockerClientFactory.instance().isDockerAvailable(),
-        "Docker no disponible, saltando test");
-
-    // Construir payload acorde a UsuarioCreadoEventDto
-    String payload =
-        "{\"usuarioId\":\"u-123\",\"username\":\"ric\",\"email\":\"ric@example.com\",\"avatar\":\"/avatars/1.png\",\"role\":\"USER\"}";
-
-    // Enviar al exchange con routing key que coincida con bindingUsuarios
-    rabbitTemplate.convertAndSend(
-        RabbitMQConfig.EXCHANGE,
-        "usuarios.created",
-        payload,
-        m -> {
-          m.getMessageProperties().setHeader("eventType", "UsuarioCreado");
-          return m;
-        });
-
-    // Esperar hasta que el mock sea invocado
-    Awaitility.await()
-        .atMost(Duration.ofSeconds(5))
-        .untilAsserted(
-            () ->
-                verify(entradaEventos, times(1))
-                    .procesarUsuarioCreado("u-123", "ric", "/avatars/1.png"));
+  @BeforeEach
+  void setUp() {
+    listener = new PublicacionesListener(entradaEventos, objectMapper);
   }
 
   @Test
+  @DisplayName("Debe procesar evento UsuarioCreado y guardar UsuarioRef")
+  void debeProcesarUsuarioCreado() throws Exception {
+    // Arrange
+    UsuarioCreadoEventDto dto = new UsuarioCreadoEventDto("u-123", "ric", "/avatars/1.png");
+
+    MessageProperties props = new MessageProperties();
+    props.setHeader("eventType", "UsuarioCreado");
+    Message message =
+        MessageBuilder.withBody(objectMapper.writeValueAsBytes(dto)).andProperties(props).build();
+
+    // Act
+    listener.handleEvent(message);
+
+    // Assert
+    verify(entradaEventos).procesarUsuarioCreado("u-123", "ric", "/avatars/1.png");
+  }
+
+  @Test
+  @DisplayName("Debe procesar evento UsuarioEliminado y eliminar UsuarioRef")
+  void debeProcesarUsuarioEliminado() throws Exception {
+    // Arrange
+    UsuarioEliminadoEventDto dto = new UsuarioEliminadoEventDto("u-456");
+
+    MessageProperties props = new MessageProperties();
+    props.setHeader("eventType", "UsuarioEliminado");
+    Message message =
+        MessageBuilder.withBody(objectMapper.writeValueAsBytes(dto)).andProperties(props).build();
+
+    // Act
+    listener.handleEvent(message);
+
+    // Assert
+    verify(entradaEventos).procesarUsuarioEliminado("u-456");
+  }
+
+  @Test
+  @DisplayName("Debe procesar evento GameCreado y guardar GameRef")
+  void debeProcesarGameCreado() throws Exception {
+    // Arrange
+    GameCreadoEventDto dto = new GameCreadoEventDto(42L, "Zelda", List.of("Zelda BOTW"));
+
+    MessageProperties props = new MessageProperties();
+    props.setHeader("eventType", "GameCreado");
+    Message message =
+        MessageBuilder.withBody(objectMapper.writeValueAsBytes(dto)).andProperties(props).build();
+
+    // Act
+    listener.handleEvent(message);
+
+    // Assert
+    verify(entradaEventos).procesarGameCreado(42L, "Zelda", List.of("Zelda BOTW"));
+  }
+
+  @Test
+  @DisplayName("Debe ignorar evento sin header eventType")
   void debeIgnorarEventoSinHeaderEventType() {
-    Assumptions.assumeTrue(
-        org.testcontainers.DockerClientFactory.instance().isDockerAvailable(),
-        "Docker no disponible, saltando test");
+    // Arrange
+    Message message =
+        MessageBuilder.withBody("{\"data\":\"algo\"}".getBytes())
+            .andProperties(new MessageProperties())
+            .build();
 
-    String payload = "{\"usuarioId\":\"u-999\",\"username\":\"noheader\"}";
+    // Act
+    listener.handleEvent(message);
 
-    rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, "usuarios.created", payload);
+    // Assert
+    verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any());
+    verify(entradaEventos, never()).procesarUsuarioEliminado(any());
+    verify(entradaEventos, never()).procesarGameCreado(any(), any(), any());
+  }
 
-    // Esperar un poco y verificar que no haya interacción con el use case
-    Awaitility.await()
-        .atMost(Duration.ofSeconds(2))
-        .untilAsserted(
-            () ->
-                verify(entradaEventos, times(0)).procesarUsuarioCreado("u-999", "noheader", null));
+  @Test
+  @DisplayName("Debe ignorar eventos con eventType desconocido sin lanzar excepción")
+  void debeIgnorarEventosDesconocidos() {
+    // Arrange
+    MessageProperties props = new MessageProperties();
+    props.setHeader("eventType", "EventoDesconocido");
+    Message message =
+        MessageBuilder.withBody("{\"data\":\"algo\"}".getBytes()).andProperties(props).build();
+
+    // Act
+    listener.handleEvent(message);
+
+    // Assert
+    verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any());
+    verify(entradaEventos, never()).procesarGameCreado(any(), any(), any());
+    verify(entradaEventos, never()).procesarUsuarioEliminado(any());
   }
 }

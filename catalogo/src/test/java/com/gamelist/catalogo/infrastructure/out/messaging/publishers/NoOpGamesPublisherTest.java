@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 import com.gamelist.catalogo.domain.events.GameCreado;
 import java.util.List;
+
+import com.gamelist.catalogo.infrastructure.out.messaging.NoOpGamesPublisherRepositorio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

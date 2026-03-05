@@ -1,8 +1,8 @@
-package com.gamelisto.busquedas.infrastructure.api;
+package com.gamelisto.busquedas.infrastructure.in.api;
 
 import com.gamelisto.busquedas.application.usecases.SugerirJuegosHandle;
-import com.gamelisto.busquedas.infrastructure.api.dto.SugerirItemResponse;
-import com.gamelisto.busquedas.infrastructure.api.dto.SugerenciasResponse;
+import com.gamelisto.busquedas.infrastructure.in.api.dto.SugerirItemResponse;
+import com.gamelisto.busquedas.infrastructure.in.api.dto.SugerenciasResponse;
 import com.gamelisto.busquedas.domain.BuscarJuegoDoc;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
