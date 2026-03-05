@@ -121,6 +121,6 @@ pruebas cubren comportamiento del dominio (`Game`, `GameDetail`) y adaptadores d
 
 Para más detalles sobre la implementación, revisa los paquetes:
 
-- `com.gamelist.catalogo.domain` (entidades y VOs)
-- `com.gamelist.catalogo.application` (use cases y DTOs)
-- `com.gamelist.catalogo.infrastructure` (adaptadores: REST, persistencia, mappers)
+- `com.gamelisto.catalogo.domain` (entidades y VOs)
+- `com.gamelisto.catalogo.application` (use cases y DTOs)
+- `com.gamelisto.catalogo.infrastructure` (adaptadores: REST, persistencia, mappers)

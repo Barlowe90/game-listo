@@ -1,0 +1,53 @@
+package com.gamelisto.catalogo.infrastructure.integration;
+
+import com.gamelisto.catalogo.domain.GameId;
+import com.gamelisto.catalogo.domain.GameDetail;
+import com.gamelisto.catalogo.domain.GameDetailRepositorio;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import java.util.List;
+import java.util.Optional;
+import static org.assertj.core.api.Assertions.assertThat;
+
+@SpringBootTest
+@ActiveProfiles("test")
+@Import(TestcontainersConfiguration.class)
+@DisplayName("GameDetailRepositoryMongo - Tests de Integracion")
+class GameDetailRepositoryMongoIntegrationTest {
+
+  @Autowired private GameDetailRepositorio gameDetailRepository;
+
+  @Test
+  @DisplayName("Debe guardar y recuperar un GameDetail por gameId")
+  void debeGuardarYRecuperarGameDetail() {
+    GameId gameId = GameId.of(10001L);
+    GameDetail d =
+        GameDetail.create(gameId, List.of("https://img/ss.jpg"), List.of("https://yt/abc"));
+
+    gameDetailRepository.save(d);
+    Optional<GameDetail> r = gameDetailRepository.findByGameId(gameId);
+    assertThat(r).isPresent();
+    assertThat(r.get().getScreenshots()).hasSize(1);
+    assertThat(r.get().getVideos()).hasSize(1);
+  }
+
+  @Test
+  @DisplayName("Debe devolver Optional vacio si no existe detalle")
+  void debeDevolverEmptyOptionalSiNoExisteDetalle() {
+    assertThat(gameDetailRepository.findByGameId(GameId.of(99999L))).isEmpty();
+  }
+
+  @Test
+  @DisplayName("Debe guardar GameDetail vacio")
+  void debeGuardarGameDetailVacio() {
+    GameId gameId = GameId.of(10003L);
+    gameDetailRepository.save(GameDetail.empty(gameId));
+    Optional<GameDetail> r = gameDetailRepository.findByGameId(gameId);
+    assertThat(r).isPresent();
+    assertThat(r.get().getScreenshots()).isEmpty();
+  }
+}
