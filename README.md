@@ -97,7 +97,6 @@ GameListo está construido con **microservicios desacoplados** basados en:
 |                | Almacenar datos estructurados (PostgreSQL) y multimedia (MongoDB) |
 | **search**     | Indexar juegos en OpenSearch (escucha eventos)                    |
 |                | Búsqueda full-text, autocomplete                                  |
-|                | Filtrado facetado (plataforma, género, año)                       |
 |                | NO accede directamente a BD (event-driven)                        |
 | **graphqlBFF** | Agregar datos de múltiples servicios en una query                 |
 |                | Resolver queries GraphQL llamando APIs REST internas              |
@@ -138,7 +137,6 @@ Stack utilizado:
 - **PostgreSQL**
 - **MongoDB / OpenSearch / Neo4j**
 - **CI/CD con GitHub Actions**
-- **Despliegue en AWS (S3, EC2, ECR, RDS, etc.)**
 
 ## 🐳 Inicio Rápido con Docker Compose
 

@@ -1,231 +1,174 @@
 # Microservicio Biblioteca – GameListo
 
-Microservicio responsable de la **gestión de listas personales y estados/puntuaciones de videojuegos** dentro del
-ecosistema GameListo. Implementa la creación y gestión de listas de juegos (ListasGames), la representación ligera de
-usuarios (`UsuarioRef`) y juegos (`GameRef`) y el registro del estado y puntuación de cada juego en la biblioteca del
-usuario.
+Este documento describe el microservicio `biblioteca` del monorepo GameListo: responsabilidades, modelo de datos,
+contratos HTTP (endpoints), convenciones de diseño y comandos de desarrollo y prueba. Está dirigido a desarrolladores
+que integran, despliegan o mantienen el servicio.
 
-## Tabla de Contenidos
+Tabla de contenidos
 
-- [Descripción del proyecto](#descripción-del-proyecto)
-- [Responsabilidades del microservicio](#responsabilidades-del-microservicio)
-- [Arquitectura](#arquitectura)
-- [Modelo de datos](#modelo-de-datos)
-- [API / Endpoints](#api--endpoints)
-- [Seguridad](#seguridad)
-- [Testing](#testing)
-- [Ejecución local](#ejecución-local)
-- [Variables de entorno](#variables-de-entorno)
-- [Convenciones de código](#convenciones-de-código)
+- Descripción
+- Responsabilidades y alcance
+- Arquitectura y organización del código
+- Modelo de datos (conceptual)
+- Contratos HTTP (endpoints)
+- Seguridad
+- Desarrollo y ejecución local
+- Pruebas
+- Variables de configuración importantes
+- Convenciones y estilo
+- Mantenimiento y próximos pasos
 
-## Descripción del proyecto
+Descripción
 
-El servicio `biblioteca` permite a los usuarios organizar su colección de videojuegos mediante listas personalizadas y
-mantener el estado de cada juego (por ejemplo: deseado, jugándolo, completado). Para mantener bajo acoplamiento con el
-servicio `catalogo`, el microservicio almacena referencias ligeras a usuarios y juegos (`UsuarioRef`, `GameRef`)
-en lugar de dependencias directas.
+`biblioteca` se encarga de la gestión de colecciones personales de videojuegos y del registro del estado y la
+puntuación de juegos por usuario. Internamente maneja entidades de referencia a usuarios y juegos, y expone un conjunto
+claro de operaciones REST para que clientes y otros servicios consuman.
 
-Es el aggregate root para la información de listas y estados de videojuegos a nivel de usuario en el dominio de
-GameListo.
+Responsabilidades y alcance
 
-## Responsabilidades del microservicio
+- CRUD de listas de usuario (crear, actualizar metadatos, eliminar, consultar).
+- Gestión de elementos en una lista (añadir y quitar referencias a juegos).
+- Registro y actualización del estado de un juego para un usuario (p. ej. 'jugando', 'completado') y su valoración.
+- Persistencia de entidades relacionadas con listas, referencias a juegos y estados/puntuaciones.
+- Contratos REST para integración con BFF o frontends, y puntos de extensión para integración con mensajería/eventos.
 
-- Gestión completa de ListasGames (crear, renombrar, eliminar, tipo)
-- Añadir / quitar `GameRef` a listas
-- Registrar y actualizar `GameEstado` por juego y usuario (estado, puntuación)
-- Permitir puntuaciones con escala 0–10 en pasos de 0.25
-- Exponer API REST para operaciones CRUD y consultas de biblioteca
-- Proveer endpoints simples de consulta (listas públicas/privadas, biblioteca por usuario)
+Arquitectura y organización del código
 
-## Arquitectura
+Se sigue una aproximación hexagonal / DDD con separación en tres capas principales:
 
-Se sigue Arquitectura Hexagonal + DDD:
+- `domain` — Entidades de dominio, Value Objects y reglas de negocio puras.
+- `application` — Casos de uso (use cases / handlers) que orquestan la lógica del dominio.
+- `infrastructure` — Adaptadores: controladores REST, persistencia JPA (entities, mappers, repositories) y otros
+  adaptadores técnicos.
 
-- `/domain` → Entidades del dominio (ListaGame, GameEstado, UsuarioRef, GameRef) y Value Objects
-- `/application` → Casos de uso (CreateList, AddGameToList, UpdateGameState, RateGame, RemoveGame)
-- `/infrastructure` → Adaptadores (REST controllers, persistence, mappers)
+Principios aplicados:
 
-Regla de dependencias: `infrastructure` → `application` → `domain` (el dominio no conoce Spring ni JPA).
+- Las entidades y VOs del dominio no dependen de Spring.
+- Los repositorios se definen como puertos en dominio y se implementan en infraestructura.
+- Los controladores son delgados: traducen DTOs → comandos → casos de uso → DTOs de salida.
 
-### Patrones y decisiones
+Modelo de datos (conceptual)
 
-- KISS: usar tipos simples cuando sea suficiente (por ejemplo, `List<String>` para urls de portada)
-- Repositorios como puertos en el dominio, implementaciones JPA en `infrastructure/persistence/postgres`
-- Mappers para convertir entre entidades JPA y agregados del dominio
-- Tests mínimos viables: enfocarse en casos críticos del dominio
+- UsuarioRef: referencia ligera a usuario (id, username, avatar...).
+- GameRef: referencia ligera a juego (id, nombre, cover, campos básicos).
+- ListaGame: agregado raíz que contiene metadatos de la lista (id, nombre, tipo) y una colección de `ListaGameItem`.
+- ListaGameItem: relación entre `ListaGame` y `GameRef` (PK compuesta mediante `ListaGameItemId`).
+- GameEstado: entidad que almacena el estado (`enum`) y la puntuación del juego para un usuario.
 
-## Modelo de datos
+Las implementaciones JPA, mappers y repositorios se encuentran bajo `infrastructure/out/persistence`.
 
-### Convenciones de IDs (IMPORTANTE para el agente)
-
-- `userId` (API / path `/user/{userId}`) = `UsuarioRef.id` (UUID) **mismo ID que en `usuarios`**.
-- `gameId` (API / path `/games/{gameId}`) = `GameRef.id` (Long) **mismo ID que en `catalogo`**.
-- `listId` (API / path `/lists/{listId}`) = `ListaGame.id` (UUID) **interno del microservicio biblioteca**.
-
-### Entidades principales (conceptual)
-
-- UsuarioRef
-    - `id` (UUID — mismo identificador que en `usuarios`)
-    - `username` (String)
-    - `avatar` (String, opcional)
-    - Relaciones:
-        - 1 UsuarioRef → N ListaGame
-        - 1 UsuarioRef → N GameEstado (uno por cada juego que el usuario haya tocado)
-
-- ListaGame (Aggregate Root)
-    - `id` (UUID)
-    - `usuarioRefId` (UUID)
-    - `nombre` (String)
-    - `tipo` (ENUM: PERSONALIZADA, OFICIAL)
-    - Relaciones:
-        - N ListaGame (PERSONALIZADA) ↔ N GameRef mediante ListaGameItem
-        - Para listas OFICIALES: sus juegos **no** se almacenan en ListaGameItem, se obtienen desde `GameEstado` por
-          `estado`.
-
-- GameRef
-    - `id` (Long — mismo identificador que en `catalogo`)
-    - `name` (String)
-    - `coverUrl` (String)
-
-- GameEstado (Estado/puntuación por usuario y juego)
-    - `id` (UUID)
-    - `usuarioRefId` (UUID)
-    - `gameRefId` (Long)
-    - `estado` (ENUM: DESEADO, PENDIENTE, JUGANDO, PLATINANDO, COMPLETADO, ABANDONADO)
-    - `puntuacion` (Decimal, 0.00–5.00, increments 0.25)
-    - Nota: `GameEstado` **NO** referencia una lista. Es la “fuente de verdad” del estado del juego para el usuario.
-
-- ListaGameItem (relación “juego en lista” para listas PERSONALIZADAS)
-    - `listaId` (UUID)
-    - `gameRefId` (Long)
-    - PK compuesta: (`listaId`, `gameRefId`)
-    - Uso: solo para listas de tipo PERSONALIZADA.
-
-### Reglas de negocio relevantes
-
-- Al crearse un UsuarioRef (evento desde `usuarios`) se deben inicializar las listas OFICIALES del usuario:
-    - nombres: DESEADO, PENDIENTE, JUGANDO, PLATINANDO, COMPLETADO, ABANDONADO
-    - `tipo = OFICIAL`
-- `GameEstado` es único por usuario y juego:
-    - Restricción recomendada: UNIQUE (`usuario_ref_id`, `game_ref_id`)
-- `ListaGameItem` permite que un juego pertenezca a múltiples listas PERSONALIZADAS del mismo usuario:
-    - Restricción: UNIQUE (`lista_id`, `game_ref_id`)
-- Un `GameRef` puede aparecer simultáneamente:
-    - en la lista OFICIAL derivada de su `GameEstado.estado` (p.ej. COMPLETADO)
-    - y en una o más listas PERSONALIZADAS (vía ListaGameItem)
-- Al eliminar una lista PERSONALIZADA:
-    - se eliminan sus `ListaGameItem`
-    - **no** se elimina `GameEstado` del juego (sigue existiendo y por tanto sigue apareciendo en la lista OFICIAL
-      correspondiente)
-- La puntuación acepta valores en pasos de 0.25 de 0 a 5; la API valida.
-- `GameEstado` no mantiene histórico, solo el último estado y puntuación.
-
-## API / Endpoints
+Contratos HTTP (endpoints)
 
 Base path: `/v1/biblioteca`
 
-### Health
+Listas
 
-- Usar el de Actuator
+- POST `/lists`
+    - Request: `CrearListaGameRequest` — { "nombre": "string", "tipo": "string" }
+    - Response: `ListaGameResponse` — { "id": "uuid", "usuarioRefId": "uuid", "nombre": "string", "tipo": "string" }
+    - Código: 201 Created
 
-### Listas
+- PATCH `/user/{userId}/lists/{listId}`
+    - Request: `EditarListaGameRequest` — { "nombre": "string" }
+    - Response: `ListaGameResponse`
+    - Código: 200 OK
 
-- POST `/lists` → Crear lista
-    - Body: `CrearListaRequest` (usuarioId, nombre, tipo, visibilidad)
-    - Response: `ListaResponse` (201)
+- DELETE `/user/{userId}/lists/{listId}`
+    - Código: 204 No Content
 
-- PATCH `/user/{userId}/lists/{listId}` → Renombrar/editar metadata
-    - Body: `EditarListaRequest` (nombreNuevo)
-    - Response: `ListaResponse` (200)
+- GET `/user/{userId}/lists/{listId}`
+    - Response: `ListaGameResponse`
+    - Código: 200 OK
 
-- DELETE `/user/{userId}/lists/{listaId}` → Eliminar lista
-    - Response: 204 No Content
+- GET `/user/{userId}/lists`
+    - Response: lista de `ListaGameResponse`
+    - Código: 200 OK
 
-- GET `/user/{userId}/lists/{listaId}` → Listar listas de un usuario
-    - Response: `ListaResponse` (200)
+Gestión de juegos en listas
 
-- GET `/user/{userId}/lists/` → Listar todas las listas de un usuario
-    - Response: `ListaResponse` (200)
+- POST `/user/{userId}/lists/{listaId}/games/{gameRefId}`
+    - Añade una referencia de juego a la lista.
+    - Código: 200 (No Content)
 
-### Gestión de juegos en listas
+- DELETE `/user/{userId}/lists/{listaId}/games/{gameRefId}`
+    - Elimina una referencia de juego de la lista.
+    - Código: 200 (No Content)
 
-- POST `/user/{userId}/lists/{listaId}/games/{gameId}` → Añadir `GameRef` a lista
-    - Response: 200 OK No Content
+Estado y valoración de juegos
 
-- DELETE `/user/{userId}/lists/{listaId}/games/{gameId}` → Quitar `GameRef` de lista
-    - Response: 200 OK No Content
+- POST `/user/{userId}/games/{gameRefId}/state`
+    - Request: `CrearGameEstadoRequest` — { "estado": "string" }
+    - Código: 200 OK
 
-### Estado y puntuación de juegos
+- POST `/user/{userId}/games/{gameRefId}/rate`
+    - Request: `RateGameEstadoRequest` — { "rating": number }
+    - Código: 200 OK
 
-- POST `/user/{userId}/games/{gameId}/state` → Crear/actualizar `GameEstado`
-    - Body: `UpdateStateRequest` (estado)
-    - Response: `GameEstadoResponse` (200)
+Seguridad
 
-- POST `/user/{userId}/games/{gameId}/rate` → Puntuar `GameEstado`
-    - Body: `RateRequest` (puntuacion decimal)
-    - Response: `GameEstadoResponse` (200)
+- Los controladores usan `@PreAuthorize` para validar que la petición provenga del usuario correcto o de un rol
+  administrativo. El mecanismo concreto de autenticación/autorización se define en la configuración global de
+  seguridad del proyecto.
+- Recomendación: validar tokens en el borde (API Gateway) y propagar `X-User-*` headers a microservicios internos.
 
-## Seguridad
+Desarrollo y ejecución local
 
-- Comprobración de roles de usuario para los endpoints.
-- No irá a producción por lo que la seguridad será mínima.
+Requisitos mínimos:
 
-## Testing
+- JDK 21
+- Maven (se usa el wrapper incluido)
 
-- Enfoque: tests muy básicos y representativos (KISS). Priorizar:
-    - Validación de Value Objects
-    - Comportamientos de `ListaGame` (crear, añadir/quitar juegos)
-    - `GameEstado` (registro y actualización de estado/puntuación)
-
-Comandos (desde la carpeta `biblioteca`):
-
-```powershell
-.\mvnw.cmd test; # Ejecuta tests
-```
-
-> Nota: Los tests de integración usarán Postgre; revisar `application-test.properties`.
-
-## Ejecución local
-
-Desde la carpeta `biblioteca`:
+Comandos útiles (PowerShell en Windows, ejecutar desde la carpeta `biblioteca`):
 
 ```powershell
-.\mvnw.cmd spring-boot:run; # Ejecuta la aplicación.
+# Ejecutar la aplicación
+.\mvnw.cmd spring-boot:run;
+
+# Ejecutar tests
+.\mvnw.cmd test;
 ```
 
-O con Maven Wrapper en Unix-like:
+La configuración de datasource y JPA se controla mediante propiedades de Spring (ver `src/main/resources` y
+`src/test/resources`).
 
-```bash
-./mvnw spring-boot:run
-```
+Pruebas
 
-## Variables de entorno
+- La base contiene tests unitarios y de integración. Los resultados de ejecución se encuentran en
+  `target/surefire-reports`.
+- Strategy: las pruebas de dominio son unitarias sin dependencias de Spring; las pruebas de integración usan H2
+  (configurable) para endpoints y repositorios.
 
-Principales propiedades (ejemplos en `src/main/resources/application-local.properties`):
+Variables de configuración importantes
 
-- `spring.datasource.url` — URL de la base de datos
-- `spring.jpa.hibernate.ddl-auto` — `update` en dev
-- Propiedades de conexión a `catalogo` (si se consumen) — URL y timeouts
+- `spring.datasource.url` — URL de conexión a base de datos
+- `spring.jpa.hibernate.ddl-auto` — estrategia DDL (p. ej. `update` o `validate`)
+- Otras propiedades de logging y perfiles de Spring pueden encontrarse en `src/main/resources`.
 
-## Convenciones de código
+Convenciones y estilo
 
-Sigue las mismas convenciones que el resto del mono-repo (`usuarios`):
+- Paquetes: `domain`, `application`, `infrastructure`.
+- Repositorios: interfaces con sufijo `Repositorio` ubicadas en la capa de dominio (puertos), implementaciones en
+  `infrastructure/out/persistence`.
+- Value Objects inmutables con fábrica `of()` cuando procede.
+- Controladores: traducción mínima entre DTOs y casos de uso. No incluir lógica de negocio en controladores.
 
-- Paquetes: `domain`, `application`, `infrastructure`
-- Puertos (interfaces) en `domain` o `application/ports` y adaptadores en `infrastructure`
-- Mappers para convertir entre entidades JPA y agregados del dominio
-- Value Objects inmutables con validación en fábrica `of()`
-- Tests: AAA pattern y nombres en español `debe[Comportamiento]`
+Mantenimiento y próximos pasos
 
-## Integración y buenas prácticas
+- Revisar y documentar contratos JSON concretos para cada endpoint si se van a exponer a consumidores externos.
+- Considerar agregar OpenAPI/Swagger para facilitar la integración.
+- Si se requiere flujo de eventos (por ej. reindexación o notificaciones), conectar adaptadores de mensajería en
+  `infrastructure/messaging` y documentar el contrato de eventos.
 
-- Antes de añadir carpetas o convensiones, revisar `usuarios` para mantener consistencia (por ejemplo, ubicación
-  de `mapper` dentro de `persistence/postgres/mapper` si así está en usuarios).
-- Mantener KISS: no añadir complejidad innecesaria para el TFG.
+Contribuir
 
----
+- Abrir PRs con cambios pequeños y focused commits. Añadir pruebas relevantes para cualquier comportamiento nuevo.
+- Mantener la consistencia con las convenciones del repositorio raíz.
 
-Referencias:
+Referencias rápidas
 
-- Documento TFG (modelo de dominio y diagramas)
-- `usuarios/README-usuarios.md` (estilo y convenciones)
+- Código fuente: `src/main/java/com/gamelisto/biblioteca`
+- Tests: `src/test/java`
+
+Licencia
+
+El proyecto hereda la licencia del repositorio raíz.
