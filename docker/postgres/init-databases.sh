@@ -15,7 +15,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     -- Base de datos para catalogo
     CREATE DATABASE catalogo_db;
 
-    -- Base de datos para biblioteca (futuro)
+    -- Base de datos para biblioteca
     CREATE DATABASE biblioteca_db;
 EOSQL
 

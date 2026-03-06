@@ -39,10 +39,7 @@ class BibliotecaListenerTest {
     // Arrange
     UsuarioCreadoEventDto dto =
         new UsuarioCreadoEventDto(
-            "550e8400-e29b-41d4-a716-446655440000",
-            "jugador1",
-            "https://avatar.url/img.png",
-            "USER");
+            "550e8400-e29b-41d4-a716-446655440000", "jugador1", "https://avatar.url/img.png");
 
     MessageProperties props = new MessageProperties();
     props.setHeader("eventType", "UsuarioCreado");
@@ -55,10 +52,7 @@ class BibliotecaListenerTest {
     // Assert
     verify(entradaEventos)
         .procesarUsuarioCreado(
-            "550e8400-e29b-41d4-a716-446655440000",
-            "jugador1",
-            "USER",
-            "https://avatar.url/img.png");
+            "550e8400-e29b-41d4-a716-446655440000", "jugador1", "https://avatar.url/img.png");
   }
 
   @Test
@@ -111,7 +105,7 @@ class BibliotecaListenerTest {
     listener.handleEvent(message);
 
     // Assert - no se debe llamar a ningún método del handle
-    verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any(), any());
+    verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any());
     verify(entradaEventos, never()).procesarGameCreado(any(), any(), any());
     verify(entradaEventos, never()).procesarUsuarioEliminado(any());
   }

@@ -13,9 +13,8 @@ public class EntradaEventosUseCase implements EntradaEventosHandle {
   private final UsuariosRefRepositorio usuariosRefRepositorio;
 
   @Override
-  public void procesarUsuarioCreado(String usuarioId, String username, String rol, String avatar) {
-    UsuarioRef usuarioRef =
-        UsuarioRef.create(UsuarioId.fromString(usuarioId), username, avatar, rol);
+  public void procesarUsuarioCreado(String usuarioId, String username, String avatar) {
+    UsuarioRef usuarioRef = UsuarioRef.create(UsuarioId.fromString(usuarioId), username, avatar);
     usuariosRefRepositorio.save(usuarioRef);
   }
 

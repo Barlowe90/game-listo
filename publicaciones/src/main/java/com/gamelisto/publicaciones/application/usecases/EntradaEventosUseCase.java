@@ -5,7 +5,6 @@ import com.gamelisto.publicaciones.domain.GameRef;
 import com.gamelisto.publicaciones.domain.GameRefRepositorio;
 import com.gamelisto.publicaciones.domain.UsuarioRef;
 import com.gamelisto.publicaciones.domain.UsuariosRefRepositorio;
-import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

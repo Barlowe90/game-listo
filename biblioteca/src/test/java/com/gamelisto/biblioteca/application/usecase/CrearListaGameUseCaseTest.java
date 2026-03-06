@@ -24,7 +24,8 @@ class CrearListaGameUseCaseTest {
 
     java.util.UUID userUuid = UUID.randomUUID();
     UsuarioId userId = UsuarioId.of(userUuid);
-    CrearListaGameCommand cmd = new CrearListaGameCommand(userId.toString(), "Completados 2026", "OFICIAL");
+    CrearListaGameCommand cmd =
+        new CrearListaGameCommand(userId.toString(), "Completados 2026", "OFICIAL");
 
     assertThrows(ApplicationException.class, () -> uc.execute(cmd));
     verifyNoInteractions(listaRepo);
@@ -39,7 +40,8 @@ class CrearListaGameUseCaseTest {
 
     java.util.UUID userUuid = UUID.randomUUID();
     UsuarioId userId = UsuarioId.of(userUuid);
-    CrearListaGameCommand cmd = new CrearListaGameCommand(userId.toString(), "Completados 2026", "PERSONALIZADA");
+    CrearListaGameCommand cmd =
+        new CrearListaGameCommand(userId.toString(), "Completados 2026", "PERSONALIZADA");
 
     when(usuariosRepo.findById(userId)).thenReturn(Optional.empty());
 
@@ -59,11 +61,12 @@ class CrearListaGameUseCaseTest {
 
     java.util.UUID userUuid = UUID.randomUUID();
     UsuarioId userId = UsuarioId.of(userUuid);
-    CrearListaGameCommand cmd = new CrearListaGameCommand(userId.toString(), "Completados 2026", "PERSONALIZADA");
+    CrearListaGameCommand cmd =
+        new CrearListaGameCommand(userId.toString(), "Completados 2026", "PERSONALIZADA");
 
     // mock usuario presente
     when(usuariosRepo.findById(userId))
-        .thenReturn(Optional.of(UsuarioRef.reconstitute(userId, "u", "a", "USER")));
+        .thenReturn(Optional.of(UsuarioRef.reconstitute(userId, "u", "a")));
 
     ListaGameResult out = uc.execute(cmd);
 

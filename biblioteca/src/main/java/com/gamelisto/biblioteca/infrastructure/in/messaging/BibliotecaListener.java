@@ -38,8 +38,7 @@ public class BibliotecaListener {
         case "UsuarioCreado" -> {
           UsuarioCreadoEventDto dto = read(message, UsuarioCreadoEventDto.class);
           logger.info("Procesando UsuarioCreado: usuarioId={}", dto.usuarioId());
-          entradaEventos.procesarUsuarioCreado(
-              dto.usuarioId(), dto.username(), dto.role(), dto.avatar());
+          entradaEventos.procesarUsuarioCreado(dto.usuarioId(), dto.username(), dto.avatar());
         }
         case "UsuarioEliminado" -> {
           UsuarioEliminadoEventDto dto = read(message, UsuarioEliminadoEventDto.class);
