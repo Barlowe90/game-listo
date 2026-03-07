@@ -161,6 +161,23 @@ cp .env.example .env
 docker-compose up -d
 ```
 
+### Comando para poder ver tablas de Postgresql en docker desktop
+
+```bash
+psql -U gamelisto_user -d postgres
+
+# listar bbdd
+postgres=# \l 
+# conectarse a la bbdd
+postgres=# \c usuarios_db
+# ver tablas
+postgres=# \dt
+# ver info tabla
+postgres=# \d+ public.usuarios
+# listar filas
+postgres=# SELECT * FROM public.usuaruios LIMIT 20;
+```
+
 ## 👨‍💻 Autor
 
 **Barlowe — Estudiante de ingeniería informática**
