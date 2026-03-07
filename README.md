@@ -159,6 +159,10 @@ cp .env.example .env
 
 # 3. Levantar todos los servicios
 docker-compose up -d
+# alternativa
+docker-compose up --build
+# eliminar bbdd
+docker-compose down -v
 ```
 
 ### Comando para volver a levantar solo un servicio en docker
