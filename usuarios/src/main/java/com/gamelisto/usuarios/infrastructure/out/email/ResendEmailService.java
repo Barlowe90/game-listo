@@ -1,4 +1,4 @@
-package com.gamelisto.usuarios.infrastructure.in.api.dto.email;
+package com.gamelisto.usuarios.infrastructure.out.email;
 
 import com.gamelisto.usuarios.domain.repositories.IEmailService;
 import com.gamelisto.usuarios.infrastructure.exceptions.InfrastructureException;
