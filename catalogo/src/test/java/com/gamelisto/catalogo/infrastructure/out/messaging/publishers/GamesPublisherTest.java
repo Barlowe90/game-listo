@@ -41,7 +41,7 @@ class GamesPublisherTest {
     // Construimos un evento compacto usando el factory 'of' con valores mínimos
     sampleEvent =
         GameCreado.of(
-            "game-123",
+            99L,
             "Sample Game",
             "Sample summary",
             "cover.png",

@@ -3,7 +3,7 @@ package com.gamelisto.catalogo.domain.events;
 import java.util.List;
 
 public record GameCreado(
-    String id,
+    Long id,
     String name,
     String summary,
     String portada,
@@ -29,7 +29,7 @@ public record GameCreado(
     List<String> themes) {
 
   public static GameCreado of(
-      String id,
+      Long id,
       String name,
       String summary,
       String portada,

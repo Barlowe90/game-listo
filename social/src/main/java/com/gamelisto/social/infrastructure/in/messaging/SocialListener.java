@@ -32,12 +32,14 @@ public class SocialListener {
     try {
       switch (eventType) {
         case "UsuarioCreado" -> {
-          UsuarioCreadoEventDto dto = read(message, UsuarioCreadoEventDto.class);
+          UsuarioCreadoEventDto dto =
+              objectMapper.readValue(message.getBody(), UsuarioCreadoEventDto.class);
           log.info("Procesando UsuarioCreado: usuarioId={}", dto.usuarioId());
           entradaEventos.procesarUsuarioCreado(dto.usuarioId(), dto.username(), dto.avatar());
         }
         case "UsuarioEliminado" -> {
-          UsuarioEliminadoEventDto dto = read(message, UsuarioEliminadoEventDto.class);
+          UsuarioEliminadoEventDto dto =
+              objectMapper.readValue(message.getBody(), UsuarioEliminadoEventDto.class);
           log.info("Procesando UsuarioEliminado: usuarioId={}", dto.usuarioId());
           entradaEventos.procesarUsuarioEliminado(dto.usuarioId());
         }
@@ -46,14 +48,6 @@ public class SocialListener {
     } catch (Exception e) {
       throw new InfrastructureException(
           "Error al procesar evento '" + eventType + "' en social", e);
-    }
-  }
-
-  private <T> T read(Message message, Class<T> targetType) {
-    try {
-      return objectMapper.readValue(message.getBody(), targetType);
-    } catch (Exception e) {
-      throw new InfrastructureException("Error al deserializar mensaje de eventos en social", e);
     }
   }
 }

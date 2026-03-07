@@ -90,10 +90,10 @@ public class SyncGamesFromIGDBUseCase implements SyncGamesFromIGDBHandle {
   private void publicarEventoGameCreado(Game game) {
     GameCreado evento =
         GameCreado.of(
-            game.getId() != null ? game.getId().toString() : null,
-            game.getName() != null ? game.getName().toString() : null,
-            game.getSummary() != null ? game.getSummary().toString() : null,
-            game.getCoverUrl() != null ? game.getCoverUrl().toString() : null,
+            game.getId() != null ? game.getId().value() : null,
+            game.getName() != null ? game.getName().value() : null,
+            game.getSummary() != null ? game.getSummary().value() : null,
+            game.getCoverUrl() != null ? game.getCoverUrl().value() : null,
             game.getPlatforms(),
             game.getGameType(),
             game.getGameStatus(),

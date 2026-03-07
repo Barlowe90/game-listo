@@ -26,7 +26,7 @@ class NoOpGamesPublisherTest {
     // Given
     GameCreado event =
         GameCreado.of(
-            "game-1",
+            99L,
             "name",
             "summary",
             "cover",
@@ -67,7 +67,7 @@ class NoOpGamesPublisherTest {
   void debePublicarMultiplesEventosConsecutivamente() {
     GameCreado e1 =
         GameCreado.of(
-            "g1",
+            99L,
             "n1",
             "s1",
             "c1",
@@ -93,7 +93,7 @@ class NoOpGamesPublisherTest {
             List.of());
     GameCreado e2 =
         GameCreado.of(
-            "g2",
+            100L,
             "n2",
             "s2",
             "c2",

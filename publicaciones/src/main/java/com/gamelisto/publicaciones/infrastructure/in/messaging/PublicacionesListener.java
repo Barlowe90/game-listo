@@ -36,17 +36,20 @@ public class PublicacionesListener {
     try {
       switch (eventType) {
         case "UsuarioCreado" -> {
-          UsuarioCreadoEventDto dto = read(message, UsuarioCreadoEventDto.class);
+          UsuarioCreadoEventDto dto =
+              objectMapper.readValue(message.getBody(), UsuarioCreadoEventDto.class);
           logger.info("Procesando UsuarioCreado: usuarioId={}", dto.usuarioId());
           entradaEventos.procesarUsuarioCreado(dto.usuarioId(), dto.username(), dto.avatar());
         }
         case "UsuarioEliminado" -> {
-          UsuarioEliminadoEventDto dto = read(message, UsuarioEliminadoEventDto.class);
+          UsuarioEliminadoEventDto dto =
+              objectMapper.readValue(message.getBody(), UsuarioEliminadoEventDto.class);
           logger.info("Procesando UsuarioEliminado: usuarioId={}", dto.usuarioId());
           entradaEventos.procesarUsuarioEliminado(dto.usuarioId());
         }
         case "GameCreado" -> {
-          GameCreadoEventDto dto = read(message, GameCreadoEventDto.class);
+          GameCreadoEventDto dto =
+              objectMapper.readValue(message.getBody(), GameCreadoEventDto.class);
           logger.info("Procesando GameCreado: gameId={}, nombre={}", dto.id(), dto.name());
           entradaEventos.procesarGameCreado(dto.id(), dto.name(), dto.platforms());
         }
@@ -57,9 +60,5 @@ public class PublicacionesListener {
       throw new InfrastructureException(
           "Error al procesar evento '" + eventType + "' en publicaciones", e);
     }
-  }
-
-  private <T> T read(Message message, Class<T> targetType) throws Exception {
-    return objectMapper.readValue(message.getBody(), targetType);
   }
 }

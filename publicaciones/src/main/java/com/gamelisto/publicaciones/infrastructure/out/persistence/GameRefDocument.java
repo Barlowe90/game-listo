@@ -16,7 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GameRefDocument {
-
   @Id private Long id;
 
   private String nombre;

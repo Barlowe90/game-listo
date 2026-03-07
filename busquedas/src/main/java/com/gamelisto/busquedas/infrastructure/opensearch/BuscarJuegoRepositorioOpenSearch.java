@@ -4,6 +4,7 @@ import com.gamelisto.busquedas.domain.BuscarJuegoDoc;
 import com.gamelisto.busquedas.domain.BuscarJuegoRepositorio;
 import com.gamelisto.busquedas.infrastructure.exceptions.InfrastructureException;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.OpenSearchException;
 import org.opensearch.client.opensearch.core.IndexRequest;
@@ -42,15 +43,8 @@ public class BuscarJuegoRepositorioOpenSearch implements BuscarJuegoRepositorio 
   @Override
   public void upsert(BuscarJuegoDoc doc) {
     try {
-      // Construir los inputs para el completion suggester
-      List<String> inputs = new ArrayList<>();
-      inputs.add(doc.getTitle().trim());
-      for (String alt : doc.getAlternativeNames()) {
-        if (alt != null && !alt.isBlank()) {
-          inputs.add(alt.trim());
-        }
-      }
-      // Deduplicar manteniendo orden (case-insensitive)
+      List<String> inputs = construirInputParaSuggester(doc);
+
       List<String> deduplicated = deduplicateInputs(inputs);
 
       // Construir el documento como Map
@@ -68,7 +62,6 @@ public class BuscarJuegoRepositorioOpenSearch implements BuscarJuegoRepositorio 
               b -> b.index(writeIndex).id(String.valueOf(doc.getGameId())).document(document));
 
       client.index(request);
-      logger.info("Upsert en OpenSearch: gameId={}, title={}", doc.getGameId(), doc.getTitle());
 
     } catch (OpenSearchException | IOException e) {
       logger.error(
@@ -77,6 +70,17 @@ public class BuscarJuegoRepositorioOpenSearch implements BuscarJuegoRepositorio 
           e.getMessage());
       throw new InfrastructureException("OpenSearch no disponible para upsert", e);
     }
+  }
+
+  private static @NonNull List<String> construirInputParaSuggester(BuscarJuegoDoc doc) {
+    List<String> inputs = new ArrayList<>();
+    inputs.add(doc.getTitle().trim());
+    for (String alt : doc.getAlternativeNames()) {
+      if (alt != null && !alt.isBlank()) {
+        inputs.add(alt.trim());
+      }
+    }
+    return inputs;
   }
 
   @Override
