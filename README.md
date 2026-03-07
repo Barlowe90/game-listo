@@ -164,8 +164,8 @@ docker-compose up -d
 ### Comando para poder ver tablas de Postgresql en docker desktop
 
 ```bash
+# acceder a los comandos postgres
 psql -U gamelisto_user -d postgres
-
 # listar bbdd
 postgres=# \l 
 # conectarse a la bbdd

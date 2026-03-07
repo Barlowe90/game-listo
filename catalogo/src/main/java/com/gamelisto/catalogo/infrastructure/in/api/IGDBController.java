@@ -20,7 +20,7 @@ public class IGDBController {
   private final SyncPlatformsFromIGDBHandle syncPlatforms;
   private final IgdbProperties igdbProperties;
 
-  @PreAuthorize("hasRole('ADMIN')")
+  //  @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/sync/games")
   public ResponseEntity<SyncStatusResponse> syncGames(
       @RequestBody(required = false) SyncGamesRequest request) {
@@ -37,7 +37,7 @@ public class IGDBController {
     return ResponseEntity.ok(response);
   }
 
-  @PreAuthorize("hasRole('ADMIN')")
+  //  @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/sync/platforms")
   public ResponseEntity<SyncStatusResponse> syncPlatforms() {
 

@@ -5,7 +5,6 @@ import com.gamelisto.catalogo.application.dto.command.BuscarGameDetailPorIdComma
 import com.gamelisto.catalogo.application.dto.out.GameDTO;
 import com.gamelisto.catalogo.application.dto.out.GameDetailDTO;
 import com.gamelisto.catalogo.application.dto.out.PlatformDTO;
-import com.gamelisto.catalogo.application.usecases.*;
 import com.gamelisto.catalogo.application.usecases.BuscarGameDetailPorIdHandle;
 import com.gamelisto.catalogo.application.usecases.BuscarGamePorIdHandle;
 import com.gamelisto.catalogo.application.usecases.ObtenerTodasLasPlatformasHandle;

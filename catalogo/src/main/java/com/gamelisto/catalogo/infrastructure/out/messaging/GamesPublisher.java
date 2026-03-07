@@ -12,7 +12,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnBean(RabbitTemplate.class)
 @RequiredArgsConstructor
 public class GamesPublisher implements GamePublisherRepositorio {
 
@@ -22,6 +21,8 @@ public class GamesPublisher implements GamePublisherRepositorio {
 
   @Override
   public void publicarGameCreado(GameCreado evento) {
+    logger.info(
+        "Estoy en la implementacion del repjo para llamar a publicar evento"); // ya no entra
     publicar(RabbitMQConfig.RK_GAME_CREADO, evento);
   }
 

@@ -2,11 +2,14 @@ package com.gamelisto.usuarios.infrastructure;
 
 import java.util.UUID;
 
+import com.gamelisto.usuarios.UsuariosServiceApplication;
 import com.gamelisto.usuarios.domain.usuario.EstadoUsuario;
 import com.gamelisto.usuarios.domain.usuario.Idioma;
 import com.gamelisto.usuarios.domain.usuario.Rol;
 import com.gamelisto.usuarios.infrastructure.out.persistence.postgres.entity.UsuarioEntity;
 import com.gamelisto.usuarios.infrastructure.out.persistence.postgres.repository.UsuarioJpaRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class AdminInitializerConfig {
+
+  private static final Logger logger = LoggerFactory.getLogger(AdminInitializerConfig.class);
 
   @Bean
   CommandLineRunner initAdminUser(
@@ -43,6 +48,8 @@ public class AdminInitializerConfig {
       admin.setTokenRestablecimientoExpiracion(null);
 
       usuarioJpaRepository.save(admin);
+
+      logger.info("Usuario Admin creado correctamente");
     };
   }
 }
