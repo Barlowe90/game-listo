@@ -1,7 +1,5 @@
 package com.gamelisto.busquedas.infrastructure.opensearch;
 
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.opensearch.client.json.jackson.JacksonJsonpMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5Transport;
@@ -22,7 +20,6 @@ public class OpenSearchConfig {
   @Bean
   public OpenSearchClient openSearchClient() throws URISyntaxException {
     URI uri = new URI(opensearchUrl);
-    CloseableHttpClient httpClient = HttpClients.createDefault();
 
     ApacheHttpClient5Transport transport =
         ApacheHttpClient5TransportBuilder.builder(

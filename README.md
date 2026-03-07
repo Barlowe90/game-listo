@@ -165,12 +165,6 @@ docker-compose up --build
 docker-compose down -v
 ```
 
-### Comando para volver a levantar solo un servicio en docker
-
-```bash
-docker-compose up -d --no-deps --build servicio
-```
-
 ### Comando para poder ver tablas de Postgresql en docker desktop
 
 ```bash

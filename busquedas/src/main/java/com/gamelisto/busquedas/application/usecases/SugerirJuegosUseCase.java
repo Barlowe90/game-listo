@@ -14,21 +14,16 @@ import java.util.List;
 public class SugerirJuegosUseCase implements SugerirJuegosHandle {
 
   private final BuscarJuegoRepositorio repositorio;
-  private static final int MAX_SIZE = 20;
 
   @Value("${busquedas.suggest.min-chars:2}")
   private int minChars;
 
-  @Value("${busquedas.suggest.default-size:4}")
-  private int defaultSize;
-
   @Override
-  public List<BuscarJuegoDoc> execute(String query, Integer requestedSize) {
+  public List<BuscarJuegoDoc> execute(String query, int size) {
     if (query == null || query.length() < minChars) {
       return Collections.emptyList();
     }
 
-    int size = (requestedSize != null) ? Math.min(requestedSize, MAX_SIZE) : defaultSize;
     return repositorio.suggest(query, size);
   }
 }

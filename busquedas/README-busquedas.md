@@ -28,7 +28,6 @@ GET /v1/games/suggest?q={texto}&size={n}
 
 - Parámetros
     - `q` (required): texto del usuario. Si es vacío o inferior a `busquedas.suggest.min-chars` => devolver `[]`.
-    - `size` (optional): número máximo de resultados (por defecto: `busquedas.suggest.default-size`).
 
 - Respuesta mínima (JSON):
 
@@ -44,7 +43,6 @@ GET /v1/games/suggest?q={texto}&size={n}
     - La coincidencia puede producirse por `title` o por cualquiera de los `alternativeNames`, pero la respuesta
       siempre devuelve el `title` principal y el `gameId`.
     - Validar y normalizar `q` (trim, longitud mínima, máximo razonable).
-    - Paginación no necesaria: usar `size` para limitar las sugerencias.
 
 Evento: contrato con `catalogo`
 
@@ -67,7 +65,6 @@ Recomendaciones sobre el flujo de consumo
     - `catalog.game.updated`
     - `catalog.game.deleted`
 - Cola del servicio: `busqueda.catalog.games`
-- DLQ opcional: `busqueda.catalog.games.dlq`
 
 Procesamiento del evento
 
@@ -199,35 +196,3 @@ Desde la raíz del proyecto o desde `busquedas/`:
 # Ejecutar servicio
 .\mvnw.cmd spring-boot:run;
 ```
-
-Observabilidad y métricas
-
-- Instrumentar tiempos de consulta a OpenSearch y latencia de procesamiento de eventos.
-- Exponer métricas (Micrometer/Prometheus) y logs estructurados (incluyendo `eventId` y `gameId`).
-
-Extensiones y futuros pasos (priorizados)
-
-1. Añadir un endpoint de búsqueda "full-text" con paginación y filtros.
-2. Enriquecer el documento con campos relevantes (género, plataformas) si el caso de uso lo requiere.
-3. Implementar reindexación segura y zero-downtime mediante aliases y versionado de índices.
-4. Añadir contratos OpenAPI y ejemplos en Swagger para consumidores.
-
-Responsabilidades operacionales
-
-- Dimensionar OpenSearch según volumen de juegos y uso de completion suggest.
-- Configurar backups/snapshots y políticas de retención del índice.
-- Monitorizar DLQ y reintentos en consumidores de RabbitMQ.
-
-Contribuciones
-
-- Mantener PRs pequeños y probados.
-- Documentar cambios en el contrato de eventos y en el mapping del índice.
-
-Referencias rápidas
-
-- Código: `busquedas/src/main/java/com/gamelisto/busquedas`
-- Tests: `busquedas/src/test/java`
-
-Licencia
-
-El módulo se rige por la licencia del repositorio raíz.

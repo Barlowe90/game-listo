@@ -6,7 +6,5 @@ public interface BuscarJuegoRepositorio {
 
   void upsert(BuscarJuegoDoc doc);
 
-  void delete(long gameId);
-
   List<BuscarJuegoDoc> suggest(String prefix, int size);
 }

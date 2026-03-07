@@ -3,7 +3,6 @@ package com.gamelisto.catalogo.infrastructure.in.api;
 import com.gamelisto.catalogo.application.dto.out.SyncResultDTO;
 import com.gamelisto.catalogo.application.usecases.SyncGamesFromIGDBHandle;
 import com.gamelisto.catalogo.application.usecases.SyncPlatformsFromIGDBHandle;
-import com.gamelisto.catalogo.infrastructure.in.api.dto.SyncGamesRequest;
 import com.gamelisto.catalogo.infrastructure.out.dto.SyncStatusResponse;
 import com.gamelisto.catalogo.shared.config.IgdbProperties;
 import lombok.RequiredArgsConstructor;
@@ -22,14 +21,11 @@ public class IGDBController {
 
   //  @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/sync/games")
-  public ResponseEntity<SyncStatusResponse> syncGames(
-      @RequestBody(required = false) SyncGamesRequest request) {
+  public ResponseEntity<SyncStatusResponse> syncGames() {
 
-    int limit =
-        (request != null && request.limit() != null)
-            ? request.limit()
-            : igdbProperties.getBatchSize();
-    SyncResultDTO result = syncGames.execute(limit);
+    int cantidadJuegosSync = igdbProperties.getBatchSize();
+
+    SyncResultDTO result = syncGames.execute(cantidadJuegosSync);
 
     SyncStatusResponse response =
         SyncStatusResponse.from(result, "Sincronización de juegos completada");
