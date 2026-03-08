@@ -1,13 +1,12 @@
 package com.gamelisto.catalogo.infrastructure.in.api;
 
-import com.gamelisto.catalogo.application.dto.out.SyncResultDTO;
+import com.gamelisto.catalogo.application.usecases.SyncResultResult;
 import com.gamelisto.catalogo.application.usecases.SyncGamesFromIGDBHandle;
 import com.gamelisto.catalogo.application.usecases.SyncPlatformsFromIGDBHandle;
-import com.gamelisto.catalogo.infrastructure.out.dto.SyncStatusResponse;
+import com.gamelisto.catalogo.infrastructure.in.api.dto.SyncStatusResponse;
 import com.gamelisto.catalogo.shared.config.IgdbProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,7 +24,7 @@ public class IGDBController {
 
     int cantidadJuegosSync = igdbProperties.getBatchSize();
 
-    SyncResultDTO result = syncGames.execute(cantidadJuegosSync);
+    SyncResultResult result = syncGames.execute(cantidadJuegosSync);
 
     SyncStatusResponse response =
         SyncStatusResponse.from(result, "Sincronización de juegos completada");
@@ -37,7 +36,7 @@ public class IGDBController {
   @PostMapping("/sync/platforms")
   public ResponseEntity<SyncStatusResponse> syncPlatforms() {
 
-    SyncResultDTO result = syncPlatforms.execute();
+    SyncResultResult result = syncPlatforms.execute();
 
     SyncStatusResponse response =
         SyncStatusResponse.from(result, "Sincronización de plataformas completada");

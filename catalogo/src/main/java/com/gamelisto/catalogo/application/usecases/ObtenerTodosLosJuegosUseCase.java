@@ -1,6 +1,5 @@
 package com.gamelisto.catalogo.application.usecases;
 
-import com.gamelisto.catalogo.application.dto.out.GameDTO;
 import com.gamelisto.catalogo.domain.GameRepositorio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,7 +13,7 @@ public class ObtenerTodosLosJuegosUseCase implements ObtenerTodosLosJuegosHandle
   private final GameRepositorio gameRepositorio;
 
   @Override
-  public List<GameDTO> execute() {
-    return gameRepositorio.findAll().stream().map(GameDTO::from).toList();
+  public List<GameResult> execute() {
+    return gameRepositorio.findAll().stream().map(GameResult::from).toList();
   }
 }

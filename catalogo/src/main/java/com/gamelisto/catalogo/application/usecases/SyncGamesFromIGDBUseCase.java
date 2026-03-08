@@ -1,7 +1,5 @@
 package com.gamelisto.catalogo.application.usecases;
 
-import com.gamelisto.catalogo.application.dto.in.IgdbGameDTO;
-import com.gamelisto.catalogo.application.dto.out.SyncResultDTO;
 import com.gamelisto.catalogo.domain.events.GameCreado;
 import com.gamelisto.catalogo.domain.Game;
 import com.gamelisto.catalogo.domain.GameDetail;
@@ -18,8 +16,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /** Accede a IGDB para persistir en bbdd la info de los videojuegos */
 @Service
@@ -34,26 +30,26 @@ public class SyncGamesFromIGDBUseCase implements SyncGamesFromIGDBHandle {
   private final GamePublisherRepositorio eventosPublisher;
 
   @Override
-  public SyncResultDTO execute(int limit) {
+  public SyncResultResult execute(int limit) {
     Long afterId = determinarQueIdContinuar();
 
     List<IgdbGameDTO> igdbGames = fetchBatchIGDB(limit, afterId);
 
-    SyncResultDTO afterId1 = comprobarSiSeHanSincronizadoJuegos(igdbGames, afterId);
+    SyncResultResult afterId1 = comprobarSiSeHanSincronizadoJuegos(igdbGames, afterId);
     if (afterId1 != null) return afterId1;
 
     convertirAndPersistir(igdbGames);
 
     Long maxId = obtenerUltimoIdSincronizado(igdbGames, afterId);
     logger.info("Sincronización completada: {} juegos, último ID: {}", igdbGames.size(), maxId);
-    return new SyncResultDTO(igdbGames.size(), maxId);
+    return new SyncResultResult(igdbGames.size(), maxId);
   }
 
-  private static @Nullable SyncResultDTO comprobarSiSeHanSincronizadoJuegos(
+  private static @Nullable SyncResultResult comprobarSiSeHanSincronizadoJuegos(
       List<IgdbGameDTO> igdbGames, Long afterId) {
     if (igdbGames.isEmpty()) {
       logger.info("No hay juegos para sincronizar");
-      return new SyncResultDTO(0, afterId);
+      return new SyncResultResult(0, afterId);
     }
     return null;
   }

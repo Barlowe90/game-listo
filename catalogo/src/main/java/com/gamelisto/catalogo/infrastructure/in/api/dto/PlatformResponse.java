@@ -1,6 +1,6 @@
-package com.gamelisto.catalogo.infrastructure.out.dto;
+package com.gamelisto.catalogo.infrastructure.in.api.dto;
 
-import com.gamelisto.catalogo.application.dto.out.PlatformDTO;
+import com.gamelisto.catalogo.application.usecases.PlatformResult;
 
 /** Response DTO para información de una plataforma. */
 public record PlatformResponse(
@@ -11,7 +11,7 @@ public record PlatformResponse(
     String logoURL,
     String tipo) {
 
-  public static PlatformResponse from(PlatformDTO dto) {
+  public static PlatformResponse from(PlatformResult dto) {
     return new PlatformResponse(
         dto.id(), dto.name(), dto.abbreviation(), dto.alternativeName(), dto.logoURL(), dto.tipo());
   }

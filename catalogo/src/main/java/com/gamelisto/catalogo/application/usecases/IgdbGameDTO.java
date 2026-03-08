@@ -1,4 +1,4 @@
-package com.gamelisto.catalogo.application.dto.in;
+package com.gamelisto.catalogo.application.usecases;
 
 import com.gamelisto.catalogo.domain.CoverUrl;
 import com.gamelisto.catalogo.domain.Game;

@@ -1,11 +1,11 @@
-package com.gamelisto.catalogo.application.dto.out;
+package com.gamelisto.catalogo.application.usecases;
 
 import com.gamelisto.catalogo.domain.Game;
 
 import java.util.List;
 
 /** DTO de aplicación con campos alineados al domain `Game`. */
-public record GameDTO(
+public record GameResult(
     Long id,
     String name,
     String summary,
@@ -31,10 +31,10 @@ public record GameDTO(
     List<Long> similarGames,
     List<String> themes) {
 
-  public static GameDTO from(Game game) {
+  public static GameResult from(Game game) {
     if (game == null) return null;
 
-    return new GameDTO(
+    return new GameResult(
         game.getId().value(),
         game.getName().value(),
         game.getSummary() != null ? game.getSummary().value() : null,

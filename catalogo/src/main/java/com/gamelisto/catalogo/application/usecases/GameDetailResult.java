@@ -1,13 +1,13 @@
-package com.gamelisto.catalogo.application.dto.out;
+package com.gamelisto.catalogo.application.usecases;
 
 import com.gamelisto.catalogo.domain.GameDetail;
 
 import java.util.List;
 
-public record GameDetailDTO(Long gameId, List<String> screenshots, List<String> videos) {
+public record GameDetailResult(Long gameId, List<String> screenshots, List<String> videos) {
 
-  public static GameDetailDTO from(GameDetail gameDetail) {
-    return new GameDetailDTO(
+  public static GameDetailResult from(GameDetail gameDetail) {
+    return new GameDetailResult(
         gameDetail.getGameId().value(),
         gameDetail.getScreenshots() != null ? gameDetail.getScreenshots() : List.of(),
         gameDetail.getVideos() != null ? gameDetail.getVideos() : List.of());

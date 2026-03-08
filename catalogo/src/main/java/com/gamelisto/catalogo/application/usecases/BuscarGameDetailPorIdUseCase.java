@@ -1,7 +1,5 @@
 package com.gamelisto.catalogo.application.usecases;
 
-import com.gamelisto.catalogo.application.dto.command.BuscarGameDetailPorIdCommand;
-import com.gamelisto.catalogo.application.dto.out.GameDetailDTO;
 import com.gamelisto.catalogo.domain.exceptions.DomainException;
 import com.gamelisto.catalogo.domain.GameId;
 import com.gamelisto.catalogo.domain.GameDetail;
@@ -18,7 +16,7 @@ public class BuscarGameDetailPorIdUseCase implements BuscarGameDetailPorIdHandle
   private final GameDetailRepositorio gameDetailRepository;
 
   @Override
-  public GameDetailDTO execute(BuscarGameDetailPorIdCommand command) {
+  public GameDetailResult execute(BuscarGameDetailPorIdCommand command) {
 
     GameId gameId = GameId.of(command.gameId());
     gameRepository
@@ -28,6 +26,6 @@ public class BuscarGameDetailPorIdUseCase implements BuscarGameDetailPorIdHandle
     GameDetail gameDetail =
         gameDetailRepository.findByGameId(gameId).orElse(GameDetail.empty(gameId));
 
-    return GameDetailDTO.from(gameDetail);
+    return GameDetailResult.from(gameDetail);
   }
 }

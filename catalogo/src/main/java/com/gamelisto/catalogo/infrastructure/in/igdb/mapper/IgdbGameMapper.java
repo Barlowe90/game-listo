@@ -1,7 +1,6 @@
 package com.gamelisto.catalogo.infrastructure.in.igdb.mapper;
 
-import com.gamelisto.catalogo.application.dto.in.IgdbGameDTO;
-import com.gamelisto.catalogo.infrastructure.in.igdb.dto.*;
+import com.gamelisto.catalogo.application.usecases.IgdbGameDTO;
 import com.gamelisto.catalogo.infrastructure.in.igdb.dto.*;
 import org.springframework.stereotype.Component;
 

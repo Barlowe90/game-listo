@@ -1,6 +1,6 @@
-package com.gamelisto.catalogo.infrastructure.out.dto;
+package com.gamelisto.catalogo.infrastructure.in.api.dto;
 
-import com.gamelisto.catalogo.application.dto.out.GameDTO;
+import com.gamelisto.catalogo.application.usecases.GameResult;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ public record GameResponse(
     String summary,
     List<String> themes) {
 
-  public static GameResponse from(GameDTO dto) {
+  public static GameResponse from(GameResult dto) {
     if (dto == null) return null;
     return new GameResponse(
         dto.id(),

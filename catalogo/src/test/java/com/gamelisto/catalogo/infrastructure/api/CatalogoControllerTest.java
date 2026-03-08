@@ -8,14 +8,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamelisto.catalogo.AbstractIntegrationTest;
-import com.gamelisto.catalogo.application.dto.out.GameDTO;
-import com.gamelisto.catalogo.application.dto.out.PlatformDTO;
-import com.gamelisto.catalogo.application.dto.out.SyncResultDTO;
+import com.gamelisto.catalogo.application.usecases.GameResult;
+import com.gamelisto.catalogo.application.usecases.PlatformResult;
+import com.gamelisto.catalogo.application.usecases.SyncResultResult;
 import com.gamelisto.catalogo.application.usecases.*;
 import java.util.List;
 import java.util.Map;
 
-import com.gamelisto.catalogo.application.usecases.*;
 import com.gamelisto.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,7 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("POST /v1/catalogo/sync/games sin body debe retornar 200 con resultado de sync")
   void debeSincronizarJuegosSinBody() throws Exception {
-    when(syncGamesUseCase.execute(anyInt())).thenReturn(new SyncResultDTO(150, 999L));
+    when(syncGamesUseCase.execute(anyInt())).thenReturn(new SyncResultResult(150, 999L));
 
     mockMvc
         .perform(
@@ -55,7 +54,7 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("POST /v1/catalogo/sync/games con body debe pasar limit al use case")
   void debeSincronizarJuegosConBody() throws Exception {
-    when(syncGamesUseCase.execute(anyInt())).thenReturn(new SyncResultDTO(10, 1010L));
+    when(syncGamesUseCase.execute(anyInt())).thenReturn(new SyncResultResult(10, 1010L));
 
     String requestBody = objectMapper.writeValueAsString(Map.of("limit", 10));
 
@@ -75,7 +74,7 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("POST /v1/catalogo/sync/platforms debe retornar 200 con resultado")
   void debeSincronizarPlataformas() throws Exception {
-    when(syncPlatformsUseCase.execute()).thenReturn(new SyncResultDTO(42, null));
+    when(syncPlatformsUseCase.execute()).thenReturn(new SyncResultResult(42, null));
     mockMvc
         .perform(post("/v1/catalogo/sync/platforms").with(asGatewayUser("ADMIN")))
         .andExpect(status().isOk());
@@ -85,8 +84,8 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("GET /v1/catalogo/games/{id} debe retornar 200 cuando el juego existe")
   void debeRetornarDetalleDeJuego() throws Exception {
-    GameDTO gameDTO =
-        new GameDTO(
+    GameResult gameResult =
+        new GameResult(
             1L,
             "Zelda",
             "Un juego",
@@ -111,7 +110,7 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
             null,
             null,
             null);
-    when(getGameByIdUseCase.execute(any())).thenReturn(gameDTO);
+    when(getGameByIdUseCase.execute(any())).thenReturn(gameResult);
 
     mockMvc
         .perform(get("/v1/catalogo/games/1").with(asGatewayUser("USER")))
@@ -132,7 +131,7 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("GET /v1/catalogo/platforms debe retornar 200 con lista de plataformas")
   void debeListarPlataformas() throws Exception {
-    PlatformDTO ps4DTO = new PlatformDTO(48L, "PlayStation 4", "PS4");
+    PlatformResult ps4DTO = new PlatformResult(48L, "PlayStation 4", "PS4");
     when(obtenerTodasLasPlatformasUseCase.execute()).thenReturn(List.of(ps4DTO));
 
     mockMvc

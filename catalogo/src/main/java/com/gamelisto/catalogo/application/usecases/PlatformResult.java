@@ -1,8 +1,8 @@
-package com.gamelisto.catalogo.application.dto.out;
+package com.gamelisto.catalogo.application.usecases;
 
 import com.gamelisto.catalogo.domain.Platform;
 
-public record PlatformDTO(
+public record PlatformResult(
     Long id,
     String name,
     String abbreviation,
@@ -10,12 +10,12 @@ public record PlatformDTO(
     String logoURL,
     String tipo) {
 
-  public PlatformDTO(Long id, String name, String abbreviation) {
+  public PlatformResult(Long id, String name, String abbreviation) {
     this(id, name, abbreviation, null, null, null);
   }
 
-  public static PlatformDTO from(Platform platform) {
-    return new PlatformDTO(
+  public static PlatformResult from(Platform platform) {
+    return new PlatformResult(
         platform.getId().value(),
         platform.getName().value(),
         platform.getAbbreviation().value(),
