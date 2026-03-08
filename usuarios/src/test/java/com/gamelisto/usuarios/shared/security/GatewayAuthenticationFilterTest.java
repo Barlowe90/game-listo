@@ -46,7 +46,6 @@ class GatewayAuthenticationFilterTest {
   void debeExtraerUserId() throws ServletException, IOException {
     // Arrange
     request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
-    request.addHeader("X-User-Username", "testuser");
     request.addHeader("X-User-Roles", "USER");
 
     // Act
@@ -61,48 +60,10 @@ class GatewayAuthenticationFilterTest {
   }
 
   @Test
-  @DisplayName("Debe extraer username de header X-User-Username")
-  void debeExtraerUsername() throws ServletException, IOException {
-    // Arrange
-    request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
-    request.addHeader("X-User-Username", "testuser");
-    request.addHeader("X-User-Roles", "USER");
-
-    // Act
-    filter.doFilterInternal(request, response, filterChain);
-
-    // Assert
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    assertThat(auth).isNotNull();
-    // El username no se guarda directamente en Authentication, pero se procesa
-    verify(filterChain, times(1)).doFilter(request, response);
-  }
-
-  @Test
-  @DisplayName("Debe extraer email de header X-User-Email")
-  void debeExtraerEmail() throws ServletException, IOException {
-    // Arrange
-    request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
-    request.addHeader("X-User-Username", "testuser");
-    request.addHeader("X-User-Email", "test@example.com");
-    request.addHeader("X-User-Roles", "USER");
-
-    // Act
-    filter.doFilterInternal(request, response, filterChain);
-
-    // Assert
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    assertThat(auth).isNotNull();
-    // El email se procesa pero no se almacena en Authentication
-    verify(filterChain, times(1)).doFilter(request, response);
-  }
-
-  @Test
   @DisplayName("Debe extraer roles de header X-User-Roles")
   void debeExtraerRoles() throws ServletException, IOException {
     // Arrange
     request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
-    request.addHeader("X-User-Username", "testuser");
     request.addHeader("X-User-Roles", "USER,ADMIN");
 
     // Act
@@ -122,7 +83,6 @@ class GatewayAuthenticationFilterTest {
   void debeCrearAutenticacionEnSecurityContext() throws ServletException, IOException {
     // Arrange
     request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
-    request.addHeader("X-User-Username", "testuser");
     request.addHeader("X-User-Roles", "USER");
 
     // Act
@@ -157,7 +117,6 @@ class GatewayAuthenticationFilterTest {
   void debeValidarFormatoHeaders() throws ServletException, IOException {
     // Arrange
     request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
-    request.addHeader("X-User-Username", "validUsername123");
     request.addHeader("X-User-Roles", "USER");
 
     // Act
@@ -194,7 +153,6 @@ class GatewayAuthenticationFilterTest {
   void debeAgregarPrefijoRoleARoles() throws ServletException, IOException {
     // Arrange
     request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
-    request.addHeader("X-User-Username", "testuser");
     request.addHeader("X-User-Roles", "USER");
 
     // Act
@@ -214,7 +172,6 @@ class GatewayAuthenticationFilterTest {
   void debeManejarMultiplesRoles() throws ServletException, IOException {
     // Arrange
     request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
-    request.addHeader("X-User-Username", "adminuser");
     request.addHeader("X-User-Roles", "USER,ADMIN");
 
     // Act
@@ -235,7 +192,6 @@ class GatewayAuthenticationFilterTest {
   void debeManejarRolesConEspacios() throws ServletException, IOException {
     // Arrange
     request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
-    request.addHeader("X-User-Username", "testuser");
     request.addHeader("X-User-Roles", " USER , ADMIN ");
 
     // Act

@@ -24,7 +24,7 @@ class CrearGameEstadoUseCaseTest {
     when(repo.findByUsuarioYGame(userId, GameId.of(10L))).thenReturn(Optional.empty());
     when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-    uc.execute(new CrearGameEstadoCommand(userId.toString(), "10", "COMPLETADO"));
+    uc.execute(new CrearGameEstadoCommand(userId.value(), "10", "COMPLETADO"));
 
     ArgumentCaptor<GameEstado> captor = ArgumentCaptor.forClass(GameEstado.class);
     verify(repo).save(captor.capture());
@@ -40,11 +40,12 @@ class CrearGameEstadoUseCaseTest {
 
     java.util.UUID userUuid = UUID.randomUUID();
     UsuarioId userId = UsuarioId.of(userUuid);
-    GameEstado existing = GameEstado.create(userId, GameId.of(10L), Estado.PENDIENTE, Rating.of(2.0));
+    GameEstado existing =
+        GameEstado.create(userId, GameId.of(10L), Estado.PENDIENTE, Rating.of(2.0));
     when(repo.findByUsuarioYGame(userId, GameId.of(10L))).thenReturn(Optional.of(existing));
     when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-    uc.execute(new CrearGameEstadoCommand(userId.toString(), "10", "COMPLETADO"));
+    uc.execute(new CrearGameEstadoCommand(userId.value(), "10", "COMPLETADO"));
 
     ArgumentCaptor<GameEstado> captor = ArgumentCaptor.forClass(GameEstado.class);
     verify(repo).save(captor.capture());

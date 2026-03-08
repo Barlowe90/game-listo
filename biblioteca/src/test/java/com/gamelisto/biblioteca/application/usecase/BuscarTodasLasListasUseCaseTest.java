@@ -21,11 +21,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class BuscarTodasLasListasUseCaseTest {
 
-  @Mock
-  private ListaGameRepositorio listaGameRepositorio;
+  @Mock private ListaGameRepositorio listaGameRepositorio;
 
-  @InjectMocks
-  private BuscarTodasLasListasUseCase useCase;
+  @InjectMocks private BuscarTodasLasListasUseCase useCase;
 
   private UsuarioId usuarioId;
 
@@ -43,7 +41,7 @@ class BuscarTodasLasListasUseCaseTest {
     when(listaGameRepositorio.findByUsuarioRefId(usuarioId)).thenReturn(List.of(l1, l2));
 
     // When
-    List<ListaGameResult> results = useCase.execute(usuarioId.toString());
+    List<ListaGameResult> results = useCase.execute(usuarioId.value());
 
     // Then
     assertThat(results).hasSize(2);

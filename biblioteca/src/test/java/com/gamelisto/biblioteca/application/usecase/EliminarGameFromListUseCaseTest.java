@@ -25,11 +25,12 @@ class EliminarGameFromListUseCaseTest {
     UUID listUuid = UUID.randomUUID();
     ListaGameId listId = ListaGameId.of(listUuid);
 
-    ListaGame lista = ListaGame.reconstitute(listId, userId, NombreListaGame.of("Mi lista"), Tipo.PERSONALIZADA);
+    ListaGame lista =
+        ListaGame.reconstitute(listId, userId, NombreListaGame.of("Mi lista"), Tipo.PERSONALIZADA);
 
     when(listaRepo.findById(listId)).thenReturn(Optional.of(lista));
 
-    ListaGameResult out = uc.execute(userId.toString(), listUuid.toString(), "999");
+    ListaGameResult out = uc.execute(userId.value(), listUuid.toString(), "999");
 
     verify(itemRepo).remove(listId, GameId.of(999L));
     assertEquals(listUuid.toString(), out.id());
@@ -46,12 +47,13 @@ class EliminarGameFromListUseCaseTest {
     UUID listUuid = UUID.randomUUID();
     ListaGameId listId = ListaGameId.of(listUuid);
 
-    ListaGame lista = ListaGame.reconstitute(listId, userId, NombreListaGame.of("Completados"), Tipo.OFICIAL);
+    ListaGame lista =
+        ListaGame.reconstitute(listId, userId, NombreListaGame.of("Completados"), Tipo.OFICIAL);
 
     when(listaRepo.findById(listId)).thenReturn(Optional.of(lista));
 
     assertThrows(
-        ApplicationException.class, () -> uc.execute(userId.toString(), listUuid.toString(), "1"));
+        ApplicationException.class, () -> uc.execute(userId.value(), listUuid.toString(), "1"));
     verifyNoInteractions(itemRepo);
   }
 }

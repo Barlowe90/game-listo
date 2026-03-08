@@ -129,9 +129,6 @@ class JwtAuthenticationFilterTest {
               ServerHttpRequest enrichedRequest = enrichedExchange.getRequest();
 
               assertThat(enrichedRequest.getHeaders().getFirst("X-User-Id")).isEqualTo(userId);
-              assertThat(enrichedRequest.getHeaders().getFirst("X-User-Username"))
-                  .isEqualTo(username);
-              assertThat(enrichedRequest.getHeaders().getFirst("X-User-Email")).isEqualTo(email);
               assertThat(enrichedRequest.getHeaders().getFirst("X-User-Roles")).isEqualTo("USER");
 
               return Mono.empty();

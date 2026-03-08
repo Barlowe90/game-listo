@@ -56,8 +56,6 @@
 │  │      ┌─────────────────────────────────┐        │         │   │
 │  │      │ d) Agregar headers              │        │         │   │
 │  │      │    X-User-Id: <userId>          │◄───────┘         │   │
-│  │      │    X-User-Username: <username>  │                  │   │
-│  │      │    X-User-Email: <email>        │                  │   │
 │  │      │    X-User-Roles: <roles>        │                  │   │
 │  │      └─────────────┬───────────────────┘                  │   │
 │  │                    │                                       │   │
@@ -90,8 +88,6 @@
 │  │                   │  │                   │  │                │ │
 │  │ Recibe headers:   │  │                   │  │                │ │
 │  │ X-User-Id         │  │                   │  │                │ │
-│  │ X-User-Username   │  │                   │  │                │ │
-│  │ X-User-Email      │  │                   │  │                │ │
 │  │ X-User-Roles      │  │                   │  │                │ │
 │  └───────────────────┘  └───────────────────┘  └────────────────┘ │
 │                                                                     │
@@ -147,8 +143,6 @@ Gateway valida:
   
 Gateway agrega headers:
   X-User-Id: 123e4567-e89b...
-  X-User-Username: johndoe
-  X-User-Email: john@example.com
   X-User-Roles: USER,ADMIN
   
 Gateway → usuarios

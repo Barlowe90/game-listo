@@ -11,7 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/biblioteca")
@@ -22,10 +25,10 @@ public class GameEstadoController {
   private final RateGameEstadoHandler rateGameEstado;
   private final CrearGameEstadoHandler crearGameEstado;
 
-  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
-  @PostMapping("/user/{userId}/games/{gameRefId}/state")
+  @PreAuthorize("#userId == authentication.principal")
+  @PostMapping("/games/{gameRefId}/state")
   public ResponseEntity<Void> crearGameEstado(
-      @PathVariable String userId,
+      @AuthenticationPrincipal UUID userId,
       @PathVariable String gameRefId,
       @Valid @RequestBody CrearGameEstadoRequest request) {
 
@@ -36,10 +39,10 @@ public class GameEstadoController {
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 
-  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
-  @PostMapping("/user/{userId}/games/{gameRefId}/rate")
+  @PreAuthorize("#userId == authentication.principal")
+  @PostMapping("/games/{gameRefId}/rate")
   public ResponseEntity<Void> rateGameEstado(
-      @PathVariable String userId,
+      @AuthenticationPrincipal UUID userId,
       @PathVariable String gameRefId,
       @Valid @RequestBody RateGameEstadoRequest request) {
 

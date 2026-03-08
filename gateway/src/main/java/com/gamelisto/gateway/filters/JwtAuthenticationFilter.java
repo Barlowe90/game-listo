@@ -112,8 +112,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                             h -> {
                               // Usar "set" para sobrescribir y evitar duplicados
                               h.set("X-User-Id", jwtValidator.getUserId(claims));
-                              h.set("X-User-Username", jwtValidator.getUsername(claims));
-                              h.set("X-User-Email", jwtValidator.getEmail(claims));
                               h.set(
                                   "X-User-Roles", String.join(",", jwtValidator.getRoles(claims)));
                             })

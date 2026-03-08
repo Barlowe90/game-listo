@@ -113,7 +113,7 @@ class UsuariosControllerIntegrationTest {
             post("/v1/usuarios/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isUnprocessableEntity())
+        .andExpect(status().is(422))
         .andExpect(jsonPath("$.error").value(containsString("existinguser")));
   }
 
@@ -133,7 +133,7 @@ class UsuariosControllerIntegrationTest {
             post("/v1/usuarios/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isUnprocessableEntity())
+        .andExpect(status().is(422))
         .andExpect(jsonPath("$.error").value(containsString("existing@example.com")));
   }
 
@@ -164,7 +164,6 @@ class UsuariosControllerIntegrationTest {
         .perform(
             get("/v1/usuarios/{id}", usuarioExistente.getId().value())
                 .header("X-User-Id", adminUser.getId().value())
-                .header("X-User-Username", adminUser.getUsername().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -181,10 +180,9 @@ class UsuariosControllerIntegrationTest {
         .perform(
             get("/v1/usuarios/{id}", "00000000-0000-0000-0000-000000000000")
                 .header("X-User-Id", adminUser.getId().value())
-                .header("X-User-Username", adminUser.getUsername().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isUnprocessableEntity());
+        .andExpect(status().is(422));
   }
 
   @Test
@@ -195,7 +193,6 @@ class UsuariosControllerIntegrationTest {
         .perform(
             get("/v1/usuarios/users")
                 .header("X-User-Id", adminUser.getId().value())
-                .header("X-User-Username", adminUser.getUsername().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -216,7 +213,6 @@ class UsuariosControllerIntegrationTest {
         .perform(
             patch("/v1/usuarios", usuarioExistente.getId().value())
                 .header("X-User-Id", usuarioExistente.getId().value())
-                .header("X-User-Username", usuarioExistente.getUsername().value())
                 .header("X-User-Roles", "USER")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
@@ -233,7 +229,6 @@ class UsuariosControllerIntegrationTest {
         .perform(
             delete("/v1/usuarios/{id}", usuarioExistente.getId().value())
                 .header("X-User-Id", adminUser.getId().value())
-                .header("X-User-Username", adminUser.getUsername().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNoContent());
@@ -243,7 +238,6 @@ class UsuariosControllerIntegrationTest {
         .perform(
             get("/v1/usuarios/{id}", usuarioExistente.getId().value())
                 .header("X-User-Id", adminUser.getId().value())
-                .header("X-User-Username", adminUser.getUsername().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -262,7 +256,6 @@ class UsuariosControllerIntegrationTest {
         .perform(
             patch("/v1/usuarios/{id}/estado", usuarioExistente.getId().value())
                 .header("X-User-Id", adminUser.getId().value())
-                .header("X-User-Username", adminUser.getUsername().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
@@ -289,7 +282,6 @@ class UsuariosControllerIntegrationTest {
         .perform(
             put("/v1/usuarios/password", usuario.getId().value())
                 .header("X-User-Id", usuario.getId().value())
-                .header("X-User-Username", usuario.getUsername().value())
                 .header("X-User-Roles", "USER")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
@@ -324,7 +316,7 @@ class UsuariosControllerIntegrationTest {
             post("/v1/usuarios/auth/verify-email")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isUnprocessableEntity());
+        .andExpect(status().is(422));
   }
 
   @Test
@@ -336,7 +328,6 @@ class UsuariosControllerIntegrationTest {
             get("/v1/usuarios/users")
                 .param("estado", "PENDIENTE_DE_VERIFICACION")
                 .header("X-User-Id", adminUser.getId().value())
-                .header("X-User-Username", adminUser.getUsername().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())

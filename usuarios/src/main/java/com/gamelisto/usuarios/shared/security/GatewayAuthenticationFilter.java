@@ -1,5 +1,6 @@
 package com.gamelisto.usuarios.shared.security;
 
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,7 +9,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,8 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * Spring Security.
  *
  * <p>El Gateway valida el JWT y envía información del usuario en headers: - X-User-Id: ID del
- * usuario - X-User-Username: Nombre de usuario - X-User-Email: Email del usuario - X-User-Roles:
- * Roles separados por comas (ej: "USER,ADMIN")
+ * usuario - X-User-Roles: Roles separados por comas (ej: "USER,ADMIN")
  *
  * <p>Este filtro crea un Authentication con estos datos, permitiendo que @PreAuthorize funcione
  * correctamente.
@@ -35,7 +34,9 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(
-      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      @Nonnull HttpServletRequest request,
+      @Nonnull HttpServletResponse response,
+      @Nonnull FilterChain filterChain)
       throws ServletException, IOException {
 
     if (siYaHayAuthNoLaPises(request, response, filterChain)) return;

@@ -13,13 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import com.gamelisto.social.config.TestMessagingConfig;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 @SpringBootTest
@@ -42,7 +38,7 @@ class SocialControllerTest {
         .thenReturn(List.of(new UserRefResult("user2", "bob", null)));
 
     mockMvc
-        .perform(get("/v1/social/users/user1/friends").with(gatewayHeaders("user1")))
+        .perform(get("/v1/social/users/user1/friends").with(gatewayHeaders()))
         .andExpect(status().isOk());
   }
 
@@ -52,7 +48,7 @@ class SocialControllerTest {
     doNothing().when(agregarAmigo).execute("user1", "user2");
 
     mockMvc
-        .perform(post("/v1/social/users/user1/friends/user2").with(gatewayHeaders("user1")))
+        .perform(post("/v1/social/users/user1/friends/user2").with(gatewayHeaders()))
         .andExpect(status().isOk());
   }
 
@@ -62,14 +58,14 @@ class SocialControllerTest {
     doNothing().when(eliminarAmigo).execute("user1", "user2");
 
     mockMvc
-        .perform(delete("/v1/social/users/user1/friends/user2").with(gatewayHeaders("user1")))
+        .perform(delete("/v1/social/users/user1/friends/user2").with(gatewayHeaders()))
         .andExpect(status().isNoContent());
   }
 
-  private static RequestPostProcessor gatewayHeaders(String userId) {
+  private static RequestPostProcessor gatewayHeaders() {
+    final String userId = "user1";
     return request -> {
       request.addHeader("X-User-Id", userId);
-      request.addHeader("X-User-Username", userId);
       request.addHeader("X-User-Roles", "ROLE_USER");
       return request;
     };

@@ -22,8 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * Spring Security.
  *
  * <p>El Gateway valida el JWT y envía información del usuario en headers: - X-User-Id: ID del
- * usuario - X-User-Username: Nombre de usuario - X-User-Email: Email del usuario - X-User-Roles:
- * Roles separados por comas (ej: "USER,ADMIN")
+ * usuario - X-User-Roles: Roles separados por comas (ej: "USER,ADMIN")
  *
  * <p>Este filtro crea un Authentication con estos datos, permitiendo que @PreAuthorize funcione
  * correctamente.
@@ -34,7 +33,6 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
   private static final Logger log = LoggerFactory.getLogger(GatewayAuthenticationFilter.class);
 
   private static final String HEADER_USER_ID = "X-User-Id";
-  private static final String HEADER_USER_USERNAME = "X-User-Username";
   private static final String HEADER_USER_ROLES = "X-User-Roles";
 
   @Override
@@ -45,7 +43,6 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
 
     String userId = request.getHeader(HEADER_USER_ID);
-    String username = request.getHeader(HEADER_USER_USERNAME);
     String rolesHeader = request.getHeader(HEADER_USER_ROLES);
 
     // Si el Gateway envió los headers, crear el Authentication
@@ -64,9 +61,8 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
       SecurityContextHolder.getContext().setAuthentication(authentication);
 
       log.debug(
-          "Authentication creado desde headers del Gateway - UserId: {}, Username: {}, Roles: {}",
+          "Authentication creado desde headers del Gateway - UserId: {}, Roles: {}",
           userId,
-          username,
           rolesHeader);
     } else {
       log.debug("Headers del Gateway no presentes - Petición pública o directa al servicio");

@@ -4,24 +4,20 @@ import com.gamelisto.biblioteca.application.exceptions.ApplicationException;
 import com.gamelisto.biblioteca.domain.*;
 
 import java.util.UUID;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class EliminarGameFromListUseCase implements EliminarGameFromListHandler {
 
   private final ListaGameRepositorio listaGameRepositorio;
   private final ListaGameItemRepositorio listaGameItemRepositorio;
 
-  public EliminarGameFromListUseCase(
-      ListaGameRepositorio listaGameRepositorio,
-      ListaGameItemRepositorio listaGameItemRepositorio) {
-    this.listaGameRepositorio = listaGameRepositorio;
-    this.listaGameItemRepositorio = listaGameItemRepositorio;
-  }
-
   @Transactional
-  public ListaGameResult execute(String userId, String listaId, String gameId) {
+  public ListaGameResult execute(UUID userId, String listaId, String gameId) {
     EntradaBuscarListaGame result = mapearCommandAEntrada(userId, listaId, gameId);
 
     ListaGame listaGame = obtenerListaPorIdOrThrow(result);
@@ -47,16 +43,14 @@ public class EliminarGameFromListUseCase implements EliminarGameFromListHandler 
   }
 
   private static EntradaBuscarListaGame mapearCommandAEntrada(
-      String userId, String listaId, String gameId) {
-    com.gamelisto.biblioteca.domain.UsuarioId userUuid = com.gamelisto.biblioteca.domain.UsuarioId.fromString(userId);
-    ListaGameId listaUuid = ListaGameId.of(java.util.UUID.fromString(listaId));
-    com.gamelisto.biblioteca.domain.GameId gameRefId = com.gamelisto.biblioteca.domain.GameId
-        .of(Long.parseLong(gameId));
+      UUID userId, String listaId, String gameId) {
+    UsuarioId userUuid = UsuarioId.of(userId);
+    ListaGameId listaUuid = ListaGameId.of(UUID.fromString(listaId));
+    GameId gameRefId = GameId.of(Long.parseLong(gameId));
 
     return new EntradaBuscarListaGame(userUuid, listaUuid, gameRefId);
   }
 
-  private record EntradaBuscarListaGame(com.gamelisto.biblioteca.domain.UsuarioId userUuid, ListaGameId listaId,
-      com.gamelisto.biblioteca.domain.GameId gameRefId) {
-  }
+  private record EntradaBuscarListaGame(
+      UsuarioId userUuid, ListaGameId listaId, GameId gameRefId) {}
 }

@@ -27,7 +27,7 @@ class RateGameEstadoUseCaseTest {
     when(repo.findByUsuarioYGame(userId, GameId.of(7L))).thenReturn(Optional.of(existing));
     when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-    uc.execute(new RateGameEstadoCommand(userId.toString(), "7", 4.25));
+    uc.execute(new RateGameEstadoCommand(userId.value(), "7", 4.25));
 
     ArgumentCaptor<GameEstado> captor = ArgumentCaptor.forClass(GameEstado.class);
     verify(repo).save(captor.capture());
@@ -46,7 +46,7 @@ class RateGameEstadoUseCaseTest {
 
     assertThrows(
         ApplicationException.class,
-        () -> uc.execute(new RateGameEstadoCommand(userId.toString(), "7", 4.0)));
+        () -> uc.execute(new RateGameEstadoCommand(userId.value(), "7", 4.0)));
 
     verify(repo, never()).save(any());
   }

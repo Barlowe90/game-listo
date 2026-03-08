@@ -1,5 +1,6 @@
 package com.gamelisto.social.infrastructure.in.security;
 
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,17 +21,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class GatewayAuthenticationFilter extends OncePerRequestFilter {
   private static final Logger log = LoggerFactory.getLogger(GatewayAuthenticationFilter.class);
   private static final String HEADER_USER_ID = "X-User-Id";
-  private static final String HEADER_USER_USERNAME = "X-User-Username";
   private static final String HEADER_USER_ROLES = "X-User-Roles";
 
   @Override
   protected void doFilterInternal(
-      @NonNull HttpServletRequest request,
-      @NonNull HttpServletResponse response,
-      @NonNull FilterChain filterChain)
+      @Nonnull HttpServletRequest request,
+      @Nonnull HttpServletResponse response,
+      @Nonnull FilterChain filterChain)
       throws ServletException, IOException {
     String userId = request.getHeader(HEADER_USER_ID);
-    String username = request.getHeader(HEADER_USER_USERNAME);
     String rolesHeader = request.getHeader(HEADER_USER_ROLES);
     if (userId != null && rolesHeader != null) {
       List<SimpleGrantedAuthority> authorities =
@@ -40,7 +38,7 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
               .map(role -> "ROLE_" + role)
               .map(SimpleGrantedAuthority::new)
               .toList();
-      Authentication auth = new UsernamePasswordAuthenticationToken(userId, username, authorities);
+      Authentication auth = new UsernamePasswordAuthenticationToken(userId, null, authorities);
       SecurityContextHolder.getContext().setAuthentication(auth);
       log.debug("Usuario autenticado via Gateway headers: id={}, roles={}", userId, rolesHeader);
     }

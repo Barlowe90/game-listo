@@ -17,9 +17,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/biblioteca")
@@ -47,11 +49,11 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.CREATED).body(ListaGameResponse.from(result));
   }
 
-  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
-  @PatchMapping("/user/{userId}/lists/{listaId}")
+  @PreAuthorize("#userId == authentication.principal")
+  @PatchMapping("/lists/{listaId}")
   public ResponseEntity<ListaGameResponse> modificarLista(
+      @AuthenticationPrincipal UUID userId,
       @PathVariable String listaId,
-      @PathVariable String userId,
       @Valid @RequestBody EditarListaGameRequest request) {
 
     logger.info("Cambiar nombre lista con id {} del usuario {}", listaId, userId);
@@ -61,10 +63,10 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.OK).body(ListaGameResponse.from(result));
   }
 
-  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
-  @DeleteMapping("/user/{userId}/lists/{listaId}")
+  @PreAuthorize("#userId == authentication.principal")
+  @DeleteMapping("/lists/{listaId}")
   public ResponseEntity<Void> eliminarLista(
-      @PathVariable String userId, @PathVariable String listaId) {
+      @AuthenticationPrincipal UUID userId, @PathVariable String listaId) {
 
     logger.info("Eliminar lista con id {} del usuario {}", listaId, userId);
 
@@ -73,10 +75,10 @@ public class ListaGameController {
     return ResponseEntity.noContent().build();
   }
 
-  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
-  @GetMapping("/user/{userId}/lists/{listaId}")
+  @PreAuthorize("#userId == authentication.principal")
+  @GetMapping("/lists/{listaId}")
   public ResponseEntity<ListaGameResponse> buscarLista(
-      @PathVariable String userId, @PathVariable String listaId) {
+      @AuthenticationPrincipal UUID userId, @PathVariable String listaId) {
 
     logger.info("Buscar lista con id {} del usuario {}", listaId, userId);
 
@@ -85,9 +87,10 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.OK).body(ListaGameResponse.from(result));
   }
 
-  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
-  @GetMapping("/user/{userId}/lists")
-  public ResponseEntity<List<ListaGameResponse>> buscarTodasLasListas(@PathVariable String userId) {
+  @PreAuthorize("#userId == authentication.principal")
+  @GetMapping("/lists")
+  public ResponseEntity<List<ListaGameResponse>> buscarTodasLasListas(
+      @AuthenticationPrincipal UUID userId) {
 
     logger.info("Buscar todas las listas del usuario {}", userId);
 
@@ -98,10 +101,12 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
-  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
-  @PostMapping("/user/{userId}/lists/{listaId}/games/{gameRefId}")
+  @PreAuthorize("#userId == authentication.principal")
+  @PostMapping("/lists/{listaId}/games/{gameRefId}")
   public ResponseEntity<Void> addGameToList(
-      @PathVariable String userId, @PathVariable String listaId, @PathVariable String gameRefId) {
+      @AuthenticationPrincipal UUID userId,
+      @PathVariable String listaId,
+      @PathVariable String gameRefId) {
 
     logger.info("Añadir juego con id {} a la lista con id {}", gameRefId, listaId);
 
@@ -110,10 +115,12 @@ public class ListaGameController {
     return ResponseEntity.noContent().build();
   }
 
-  @PreAuthorize("hasRole('ADMIN') or #userId.toString() == authentication.principal")
-  @DeleteMapping("/user/{userId}/lists/{listaId}/games/{gameRefId}")
+  @PreAuthorize("#userId == authentication.principal")
+  @DeleteMapping("/lists/{listaId}/games/{gameRefId}")
   public ResponseEntity<Void> eliminarGameFromList(
-      @PathVariable String userId, @PathVariable String listaId, @PathVariable String gameRefId) {
+      @AuthenticationPrincipal UUID userId,
+      @PathVariable String listaId,
+      @PathVariable String gameRefId) {
 
     logger.info("Eliminar juego con id {} de la lista con id {}", gameRefId, listaId);
 

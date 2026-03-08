@@ -1,26 +1,22 @@
 package com.gamelisto.biblioteca.application.usecase;
 
 import com.gamelisto.biblioteca.application.exceptions.ApplicationException;
-import com.gamelisto.biblioteca.domain.ListaGame;
-import com.gamelisto.biblioteca.domain.ListaGameId;
-import com.gamelisto.biblioteca.domain.Tipo;
-import com.gamelisto.biblioteca.domain.ListaGameRepositorio;
+import com.gamelisto.biblioteca.domain.*;
+
 import java.util.UUID;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class EliminarListaGameUseCase implements EliminarListaGameHandler {
 
   private final ListaGameRepositorio listaGameRepositorio;
 
-  public EliminarListaGameUseCase(ListaGameRepositorio listaGameRepositorio) {
-    this.listaGameRepositorio = listaGameRepositorio;
-  }
-
   @Transactional
-  public void execute(String userId, String listaId) {
+  public void execute(UUID userId, String listaId) {
 
     EntradaEliminarListaGame result = mapearEntrada(userId, listaId);
     ListaGame listaGame = obtenerListaPorIdOrThrow(result);
@@ -56,12 +52,11 @@ public class EliminarListaGameUseCase implements EliminarListaGameHandler {
             () -> new ApplicationException("No se encuentra la lista " + result.idLista()));
   }
 
-  private static EntradaEliminarListaGame mapearEntrada(String userId, String listId) {
-    com.gamelisto.biblioteca.domain.UsuarioId userUuid = com.gamelisto.biblioteca.domain.UsuarioId.fromString(userId);
-    ListaGameId id = ListaGameId.of(java.util.UUID.fromString(listId));
+  private static EntradaEliminarListaGame mapearEntrada(UUID userId, String listId) {
+    UsuarioId userUuid = UsuarioId.of(userId);
+    ListaGameId id = ListaGameId.of(UUID.fromString(listId));
     return new EntradaEliminarListaGame(userUuid, id);
   }
 
-  private record EntradaEliminarListaGame(com.gamelisto.biblioteca.domain.UsuarioId userUuid, ListaGameId idLista) {
-  }
+  private record EntradaEliminarListaGame(UsuarioId userUuid, ListaGameId idLista) {}
 }

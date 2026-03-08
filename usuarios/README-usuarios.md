@@ -11,6 +11,11 @@ restablecimiento de contraseña, y generación de tokens de acceso.
 > expiración de 24 horas, y **generación de tokens JWT** para autenticación.  
 > La **validación de tokens JWT** en las peticiones es responsabilidad del **API Gateway** (Spring Cloud Gateway), que
 > verifica firma, expiración, claims y controla el acceso a rutas públicas/protegidas.
+>
+> **Separación de responsabilidades**: Este servicio **genera** los tokens JWT en `/auth/login` y `/auth/refresh`, pero
+> el **API Gateway** los valida en todas las demás peticiones. El Gateway envía headers confiables (`X-User-Id`,
+`X-User-Roles`) que
+> este servicio usa sin validar el JWT nuevamente.
 
 ## Tabla de Contenidos
 
@@ -46,7 +51,7 @@ toda la información del usuario.
 
 > **Separación de responsabilidades**: Este servicio **genera** tokens JWT, pero **NO los valida** en peticiones
 > entrantes. La validación es responsabilidad del API Gateway. El Gateway envía headers de confianza (`X-User-Id`,
-> `X-User-Username`, etc.) que este servicio usa sin validar el JWT nuevamente.
+> etc.) que este servicio usa sin validar el JWT nuevamente.
 
 ### Stack tecnológico
 
@@ -735,4 +740,3 @@ SPRING_MAIL_PASSWORD=your-app-password
 9. **Excepciones de dominio**: Nunca `RuntimeException` genérica
 10. **DTOs para inter-capa**: Nunca pasar entidades directamente
 
----

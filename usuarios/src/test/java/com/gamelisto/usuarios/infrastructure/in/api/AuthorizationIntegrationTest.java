@@ -31,8 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Tests de integración para autorización por roles en endpoints protegidos.
  *
  * <p>Simula el comportamiento del API Gateway enviando headers HTTP: - X-User-Id: ID del usuario
- * autenticado - X-User-Username: Nombre de usuario - X-User-Roles: Roles del usuario (ej: "USER",
- * "ADMIN")
+ * autenticado - X-User-Roles: Roles del usuario (ej: "USER", "ADMIN")
  *
  * <p>Valida que @PreAuthorize funcione correctamente en UsuariosController.
  */
@@ -117,7 +116,6 @@ class AuthorizationIntegrationTest {
           .perform(
               get("/v1/usuarios/users")
                   .header("X-User-Id", adminUser.getId().value())
-                  .header("X-User-Username", adminUser.getUsername().value())
                   .header("X-User-Roles", "ADMIN")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
@@ -132,7 +130,6 @@ class AuthorizationIntegrationTest {
           .perform(
               get("/v1/usuarios/users")
                   .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isForbidden());
@@ -158,7 +155,6 @@ class AuthorizationIntegrationTest {
           .perform(
               get("/v1/usuarios/{id}", regularUser.getId().value())
                   .header("X-User-Id", adminUser.getId().value())
-                  .header("X-User-Username", adminUser.getUsername().value())
                   .header("X-User-Roles", "ADMIN")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
@@ -173,7 +169,6 @@ class AuthorizationIntegrationTest {
           .perform(
               get("/v1/usuarios/{id}", otherUser.getId().value())
                   .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isForbidden());
@@ -191,7 +186,6 @@ class AuthorizationIntegrationTest {
           .perform(
               delete("/v1/usuarios/{id}", otherUser.getId().value())
                   .header("X-User-Id", adminUser.getId().value())
-                  .header("X-User-Username", adminUser.getUsername().value())
                   .header("X-User-Roles", "ADMIN")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isNoContent());
@@ -204,7 +198,6 @@ class AuthorizationIntegrationTest {
           .perform(
               delete("/v1/usuarios/{id}", otherUser.getId().value())
                   .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isForbidden());
@@ -225,7 +218,6 @@ class AuthorizationIntegrationTest {
           .perform(
               patch("/v1/usuarios/{id}/estado", regularUser.getId().value())
                   .header("X-User-Id", adminUser.getId().value())
-                  .header("X-User-Username", adminUser.getUsername().value())
                   .header("X-User-Roles", "ADMIN")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(objectMapper.writeValueAsString(request)))
@@ -243,7 +235,6 @@ class AuthorizationIntegrationTest {
           .perform(
               patch("/v1/usuarios/{id}/estado", otherUser.getId().value())
                   .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(objectMapper.writeValueAsString(request)))
@@ -263,7 +254,6 @@ class AuthorizationIntegrationTest {
               get("/v1/usuarios/users")
                   .param("estado", "ACTIVO")
                   .header("X-User-Id", adminUser.getId().value())
-                  .header("X-User-Username", adminUser.getUsername().value())
                   .header("X-User-Roles", "ADMIN")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
@@ -278,7 +268,6 @@ class AuthorizationIntegrationTest {
               get("/v1/usuarios/users")
                   .param("estado", "ACTIVO")
                   .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isForbidden());
@@ -303,7 +292,6 @@ class AuthorizationIntegrationTest {
           .perform(
               patch("/v1/usuarios")
                   .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(objectMapper.writeValueAsString(request)))
@@ -326,7 +314,6 @@ class AuthorizationIntegrationTest {
           .perform(
               put("/v1/usuarios/password")
                   .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(objectMapper.writeValueAsString(request)))
@@ -347,7 +334,6 @@ class AuthorizationIntegrationTest {
           .perform(
               put("/v1/usuarios/email")
                   .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(objectMapper.writeValueAsString(request)))
@@ -368,7 +354,6 @@ class AuthorizationIntegrationTest {
           .perform(
               put("/v1/usuarios/discord")
                   .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(objectMapper.writeValueAsString(request)))
@@ -392,7 +377,6 @@ class AuthorizationIntegrationTest {
           .perform(
               delete("/v1/usuarios/discord")
                   .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
@@ -416,7 +400,6 @@ class AuthorizationIntegrationTest {
               get("/v1/usuarios/users")
                   .param("username", adminUser.getUsername().value())
                   .header("X-User-Id", adminUser.getId().value())
-                  .header("X-User-Username", adminUser.getUsername().value())
                   .header("X-User-Roles", "ADMIN")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
@@ -431,7 +414,6 @@ class AuthorizationIntegrationTest {
               get("/v1/usuarios/users")
                   .param("username", adminUser.getUsername().value())
                   .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
@@ -527,7 +509,6 @@ class AuthorizationIntegrationTest {
           .perform(
               get("/v1/usuarios/users")
                   .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "INVALID_ROLE")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isForbidden());
@@ -540,7 +521,6 @@ class AuthorizationIntegrationTest {
           .perform(
               get("/v1/usuarios/users")
                   .header("X-User-Id", adminUser.getId().value())
-                  .header("X-User-Username", adminUser.getUsername().value())
                   .header("X-User-Roles", "USER,ADMIN,MODERATOR")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk());

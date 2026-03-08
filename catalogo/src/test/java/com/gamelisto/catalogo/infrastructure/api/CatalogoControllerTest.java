@@ -142,7 +142,6 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   private RequestPostProcessor asGatewayUser(String roles) {
     return req -> {
       req.addHeader("X-User-Id", "111");
-      req.addHeader("X-User-Username", "test");
       req.addHeader("X-User-Roles", roles); // ej: "USER" o "USER,ADMIN"
       return req;
     };

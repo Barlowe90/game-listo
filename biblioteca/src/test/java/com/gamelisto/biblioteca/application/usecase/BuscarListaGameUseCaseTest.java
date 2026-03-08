@@ -24,11 +24,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class BuscarListaGameUseCaseTest {
 
-  @Mock
-  private ListaGameRepositorio listaGameRepositorio;
+  @Mock private ListaGameRepositorio listaGameRepositorio;
 
-  @InjectMocks
-  private BuscarListaGameUseCase useCase;
+  @InjectMocks private BuscarListaGameUseCase useCase;
 
   private UsuarioId usuarioId;
   private UUID listaId;
@@ -43,7 +41,8 @@ class BuscarListaGameUseCaseTest {
   @DisplayName("debeRetornarListaCuandoEsPropietario")
   void debeRetornarListaCuandoEsPropietario() {
     // Given
-    ListaGame lista = ListaGame.create(usuarioId, NombreListaGame.of("Mis juegos"), Tipo.PERSONALIZADA);
+    ListaGame lista =
+        ListaGame.create(usuarioId, NombreListaGame.of("Mis juegos"), Tipo.PERSONALIZADA);
     when(listaGameRepositorio.findById(ListaGameId.of(listaId)))
         .thenReturn(
             Optional.of(
@@ -54,7 +53,7 @@ class BuscarListaGameUseCaseTest {
                     Tipo.PERSONALIZADA)));
 
     // When
-    ListaGameResult result = useCase.execute(usuarioId.toString(), listaId.toString());
+    ListaGameResult result = useCase.execute(usuarioId.value(), listaId.toString());
 
     // Then
     assertThat(result).isNotNull();
@@ -76,7 +75,7 @@ class BuscarListaGameUseCaseTest {
                     Tipo.PERSONALIZADA)));
 
     // When & Then
-    assertThatThrownBy(() -> useCase.execute(usuarioId.toString(), listaId.toString()))
+    assertThatThrownBy(() -> useCase.execute(usuarioId.value(), listaId.toString()))
         .isInstanceOf(ApplicationException.class)
         .hasMessageContaining("Usario no propietario de la lista");
   }
@@ -88,7 +87,7 @@ class BuscarListaGameUseCaseTest {
     when(listaGameRepositorio.findById(ListaGameId.of(listaId))).thenReturn(Optional.empty());
 
     // When & Then
-    assertThatThrownBy(() -> useCase.execute(usuarioId.toString(), listaId.toString()))
+    assertThatThrownBy(() -> useCase.execute(usuarioId.value(), listaId.toString()))
         .isInstanceOf(ApplicationException.class)
         .hasMessageContaining("No se encuentra la lista");
   }

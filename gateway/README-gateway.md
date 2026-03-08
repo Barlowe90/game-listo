@@ -36,10 +36,9 @@ Petición → RateLimitFilter (-50) → JwtAuthenticationFilter (-100) → Enrut
 - Verifica que no esté revocado en Redis
 - Agrega headers con info del usuario:
     - `X-User-Id`: ID del usuario
-    - `X-User-Username`: Nombre de usuario
-    - `X-User-Email`: Email del usuario
     - `X-User-Roles`: Roles (separados por comas)
-- Permite paso libre a rutas públicas
+-
+    - Permite paso libre a rutas públicas
 
 #### 2. RateLimitFilter (Order: -50)
 
