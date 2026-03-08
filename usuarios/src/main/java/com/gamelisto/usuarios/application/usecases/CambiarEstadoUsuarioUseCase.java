@@ -1,26 +1,24 @@
 package com.gamelisto.usuarios.application.usecases;
 
 import com.gamelisto.usuarios.application.dto.CambiarEstadoUsuarioCommand;
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.EstadoUsuario;
 import com.gamelisto.usuarios.domain.usuario.Usuario;
 import com.gamelisto.usuarios.domain.usuario.UsuarioId;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CambiarEstadoUsuarioUseCase {
+@RequiredArgsConstructor
+public class CambiarEstadoUsuarioUseCase implements CambiarEstadoUsuarioHandle {
 
   private final RepositorioUsuarios repositorioUsuarios;
 
-  public CambiarEstadoUsuarioUseCase(RepositorioUsuarios repositorioUsuarios) {
-    this.repositorioUsuarios = repositorioUsuarios;
-  }
-
   @Transactional
-  public UsuarioDTO execute(CambiarEstadoUsuarioCommand command) {
+  public UsuarioResult execute(CambiarEstadoUsuarioCommand command) {
     UsuarioId usuarioId = UsuarioId.fromString(command.usuarioId());
 
     Usuario usuario =
@@ -41,6 +39,6 @@ public class CambiarEstadoUsuarioUseCase {
 
     Usuario usuarioEditado = repositorioUsuarios.save(usuario);
 
-    return UsuarioDTO.from(usuarioEditado);
+    return UsuarioResult.from(usuarioEditado);
   }
 }

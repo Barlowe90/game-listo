@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.gamelisto.usuarios.application.dto.AuthResponseDTO;
+import com.gamelisto.usuarios.application.dto.AuthResponseResult;
 import com.gamelisto.usuarios.application.dto.RefreshTokenCommand;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.refreshtoken.RefreshToken;
@@ -87,7 +87,7 @@ class RefreshTokenUseCaseTest {
     when(repositorioUsuarios.findById(usuario.getId())).thenReturn(Optional.of(usuario));
 
     // Act
-    AuthResponseDTO response = refreshTokenUseCase.execute(command);
+    AuthResponseResult response = refreshTokenUseCase.execute(command);
 
     // Assert
     assertNotNull(response);
@@ -132,7 +132,7 @@ class RefreshTokenUseCaseTest {
     when(repositorioUsuarios.findById(usuario.getId())).thenReturn(Optional.of(usuario));
 
     // Act
-    AuthResponseDTO response = refreshTokenUseCase.execute(command);
+    AuthResponseResult response = refreshTokenUseCase.execute(command);
 
     // Assert
     assertNotEquals(tokenValue.value(), response.refreshToken().token());

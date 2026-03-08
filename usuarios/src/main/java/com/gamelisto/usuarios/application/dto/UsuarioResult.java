@@ -2,7 +2,7 @@ package com.gamelisto.usuarios.application.dto;
 
 import com.gamelisto.usuarios.domain.usuario.Usuario;
 
-public record UsuarioDTO(
+public record UsuarioResult(
     String id,
     String username,
     String email,
@@ -12,8 +12,8 @@ public record UsuarioDTO(
     String status,
     String discordUserId,
     String discordUsername) {
-  public static UsuarioDTO from(Usuario usuario) {
-    return new UsuarioDTO(
+  public static UsuarioResult from(Usuario usuario) {
+    return new UsuarioResult(
         usuario.getId().value().toString(),
         usuario.getUsername().value(),
         usuario.getEmail().value(),

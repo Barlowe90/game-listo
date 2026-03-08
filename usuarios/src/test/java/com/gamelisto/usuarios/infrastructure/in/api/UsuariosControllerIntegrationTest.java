@@ -205,7 +205,7 @@ class UsuariosControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("PATCH /v1/usuarios/{id} - Debe editar el perfil de un usuario")
+  @DisplayName("PATCH /v1/usuarios - Debe editar el perfil de un usuario")
   void debeEditarPerfilUsuario() throws Exception {
     // Arrange
     EditarPerfilUsuarioRequest request =
@@ -214,7 +214,7 @@ class UsuariosControllerIntegrationTest {
     // Act & Assert - Usuario edita su propio perfil
     mockMvc
         .perform(
-            patch("/v1/usuarios/{id}", usuarioExistente.getId().value())
+            patch("/v1/usuarios", usuarioExistente.getId().value())
                 .header("X-User-Id", usuarioExistente.getId().value())
                 .header("X-User-Username", usuarioExistente.getUsername().value())
                 .header("X-User-Roles", "USER")
@@ -271,7 +271,7 @@ class UsuariosControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("PUT /v1/usuarios/{id}/password - Debe cambiar la contraseña")
+  @DisplayName("PUT /v1/usuarios/password - Debe cambiar la contraseña")
   void debeCambiarContrasena() throws Exception {
     // Arrange - Crear usuario con contraseña conocida
     Usuario usuario =
@@ -287,7 +287,7 @@ class UsuariosControllerIntegrationTest {
     // Act & Assert - Usuario cambia su propia contraseña
     mockMvc
         .perform(
-            put("/v1/usuarios/{id}/password", usuario.getId().value())
+            put("/v1/usuarios/password", usuario.getId().value())
                 .header("X-User-Id", usuario.getId().value())
                 .header("X-User-Username", usuario.getUsername().value())
                 .header("X-User-Roles", "USER")

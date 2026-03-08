@@ -15,7 +15,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 @Service
 @RequiredArgsConstructor
-public class EliminarUsuarioUseCase {
+public class EliminarUsuarioUseCase implements EliminarUsuarioHandle {
 
   private final RepositorioUsuarios repositorioUsuarios;
   private final IUsuarioPublisher eventosPublisher;

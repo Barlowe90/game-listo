@@ -1,7 +1,7 @@
 package com.gamelisto.usuarios.application.usecases;
 
 import com.gamelisto.usuarios.application.dto.CrearUsuarioCommand;
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.repositories.IEmailService;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
@@ -11,20 +11,23 @@ import com.gamelisto.usuarios.domain.usuario.Username;
 import com.gamelisto.usuarios.domain.usuario.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CrearUsuarioUseCase {
+public class CrearUsuarioUseCase implements CrearUsuarioHandle {
 
   private final RepositorioUsuarios repositorioUsuarios;
   private final PasswordEncoder passwordEncoder;
   private final IEmailService emailService;
+  private static final Logger logger = LoggerFactory.getLogger(CrearUsuarioUseCase.class);
 
   @Transactional
-  public UsuarioDTO execute(CrearUsuarioCommand command) {
+  public UsuarioResult execute(CrearUsuarioCommand command) {
 
     Username username = Username.of(command.username());
     Email email = Email.of(command.email());
@@ -37,7 +40,7 @@ public class CrearUsuarioUseCase {
 
     enviarUsuarioEmailVerificacion(usuarioGuardado);
 
-    return UsuarioDTO.from(usuarioGuardado);
+    return UsuarioResult.from(usuarioGuardado);
   }
 
   private @NonNull PasswordHash hashearPassword(CrearUsuarioCommand command) {
@@ -60,10 +63,13 @@ public class CrearUsuarioUseCase {
   private void enviarUsuarioEmailVerificacion(Usuario usuarioGuardado) {
     String verificationToken = usuarioGuardado.getTokenVerificacion().value();
 
-    emailService.sendVerificationEmail(
-        usuarioGuardado.getEmail().value(),
-        usuarioGuardado.getUsername().value(),
-        verificationToken);
+    logger.info("token verificacion: {}", verificationToken);
+
+    // TODO descomentar cuando me respondan los de resend
+    //    emailService.sendVerificationEmail(
+    //        usuarioGuardado.getEmail().value(),
+    //        usuarioGuardado.getUsername().value(),
+    //        verificationToken);
   }
 
   private void comprobarSiExisteUsuarioParaLanzarExcepcion(

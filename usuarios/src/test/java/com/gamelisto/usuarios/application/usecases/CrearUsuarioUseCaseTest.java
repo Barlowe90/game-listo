@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.CrearUsuarioCommand;
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.repositories.IEmailService;
 import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
@@ -53,7 +53,7 @@ class CrearUsuarioUseCaseTest {
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
-    UsuarioDTO resultado = crearUsuarioUseCase.execute(command);
+    UsuarioResult resultado = crearUsuarioUseCase.execute(command);
 
     // Assert
     assertNotNull(resultado);

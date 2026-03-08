@@ -1,4 +1,6 @@
 package com.gamelisto.usuarios.application.dto;
 
+import java.util.UUID;
+
 public record CambiarContrasenaCommand(
-    String usuarioId, String contrasenaActual, String contrasenaNueva) {}
+    UUID usuarioId, String contrasenaActual, String contrasenaNueva) {}

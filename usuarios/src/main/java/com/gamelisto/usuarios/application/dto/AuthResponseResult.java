@@ -1,8 +1,9 @@
 package com.gamelisto.usuarios.application.dto;
 
-public record AuthResponseDTO(TokenDTO accessToken, TokenDTO refreshToken, UsuarioDTO usuario) {
+public record AuthResponseResult(
+    TokenDTO accessToken, TokenDTO refreshToken, UsuarioResult usuario) {
 
-  public AuthResponseDTO {
+  public AuthResponseResult {
     if (accessToken == null) {
       throw new IllegalArgumentException("El access token no puede ser nulo");
     }

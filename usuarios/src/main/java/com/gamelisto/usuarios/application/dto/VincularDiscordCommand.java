@@ -1,4 +1,6 @@
 package com.gamelisto.usuarios.application.dto;
 
+import java.util.UUID;
+
 public record VincularDiscordCommand(
-    String usuarioId, String discordUserId, String discordUsername) {}
+    UUID usuarioId, String discordUserId, String discordUsername) {}

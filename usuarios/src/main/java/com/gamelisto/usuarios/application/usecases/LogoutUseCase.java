@@ -14,24 +14,18 @@ import io.jsonwebtoken.Claims;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class LogoutUseCase {
+@RequiredArgsConstructor
+public class LogoutUseCase implements LogoutHandle {
 
   private final RepositorioRefreshTokens repositorioRefreshTokens;
   private final RepositorioJtiRevocados repositorioJtiRevocados;
   private final JwtProperties jwtProperties;
-
-  public LogoutUseCase(
-      RepositorioRefreshTokens repositorioRefreshTokens,
-      RepositorioJtiRevocados repositorioJtiRevocados,
-      JwtProperties jwtProperties) {
-    this.repositorioRefreshTokens = repositorioRefreshTokens;
-    this.repositorioJtiRevocados = repositorioJtiRevocados;
-    this.jwtProperties = jwtProperties;
-  }
 
   @Transactional
   public void execute(LogoutCommand command) {

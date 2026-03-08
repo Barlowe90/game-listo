@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import java.time.Instant;
@@ -69,7 +69,7 @@ class BuscarUsuariosPorEstadoUseCaseTest {
         .thenReturn(Arrays.asList(usuario1, usuario2));
 
     // Act
-    List<UsuarioDTO> resultado = useCase.execute(EstadoUsuario.ACTIVO);
+    List<UsuarioResult> resultado = useCase.execute(EstadoUsuario.ACTIVO);
 
     // Assert
     assertThat(resultado).hasSize(2).allMatch(dto -> dto.status().equals("ACTIVO"));
@@ -102,7 +102,7 @@ class BuscarUsuariosPorEstadoUseCaseTest {
         .thenReturn(Collections.singletonList(usuario1));
 
     // Act
-    List<UsuarioDTO> resultado = useCase.execute(EstadoUsuario.SUSPENDIDO);
+    List<UsuarioResult> resultado = useCase.execute(EstadoUsuario.SUSPENDIDO);
 
     // Assert
     assertThat(resultado)
@@ -142,7 +142,7 @@ class BuscarUsuariosPorEstadoUseCaseTest {
         .thenReturn(Collections.singletonList(usuario1));
 
     // Act
-    List<UsuarioDTO> resultado = useCase.execute(EstadoUsuario.PENDIENTE_DE_VERIFICACION);
+    List<UsuarioResult> resultado = useCase.execute(EstadoUsuario.PENDIENTE_DE_VERIFICACION);
 
     // Assert
     assertThat(resultado)
@@ -164,7 +164,7 @@ class BuscarUsuariosPorEstadoUseCaseTest {
     when(repositorio.findByStatus(any(EstadoUsuario.class))).thenReturn(Collections.emptyList());
 
     // Act
-    List<UsuarioDTO> resultado = useCase.execute(EstadoUsuario.SUSPENDIDO);
+    List<UsuarioResult> resultado = useCase.execute(EstadoUsuario.SUSPENDIDO);
 
     // Assert
     assertThat(resultado).isEmpty();
@@ -198,7 +198,7 @@ class BuscarUsuariosPorEstadoUseCaseTest {
         .thenReturn(Collections.singletonList(usuario1));
 
     // Act
-    List<UsuarioDTO> resultado = useCase.execute(EstadoUsuario.ACTIVO);
+    List<UsuarioResult> resultado = useCase.execute(EstadoUsuario.ACTIVO);
 
     // Assert
     assertThat(resultado).hasSize(1).noneMatch(dto -> dto.status().equals("ELIMINADO"));
@@ -234,11 +234,11 @@ class BuscarUsuariosPorEstadoUseCaseTest {
         .thenReturn(Collections.singletonList(usuario));
 
     // Act
-    List<UsuarioDTO> resultado = useCase.execute(EstadoUsuario.ACTIVO);
+    List<UsuarioResult> resultado = useCase.execute(EstadoUsuario.ACTIVO);
 
     // Assert
     assertThat(resultado).hasSize(1);
-    UsuarioDTO dto = resultado.get(0);
+    UsuarioResult dto = resultado.get(0);
 
     assertThat(dto.id()).isEqualTo(usuarioIdString);
     assertThat(dto.username()).isEqualTo("testuser");
@@ -295,7 +295,7 @@ class BuscarUsuariosPorEstadoUseCaseTest {
         .thenReturn(Arrays.asList(usuario1, usuario2));
 
     // Act
-    List<UsuarioDTO> resultado = useCase.execute(EstadoUsuario.ACTIVO);
+    List<UsuarioResult> resultado = useCase.execute(EstadoUsuario.ACTIVO);
 
     // Assert
     assertThat(resultado)

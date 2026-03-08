@@ -6,25 +6,21 @@ import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.PasswordHash;
 import com.gamelisto.usuarios.domain.usuario.Usuario;
 import com.gamelisto.usuarios.domain.usuario.UsuarioId;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class CambiarContrasenaUseCase {
+@RequiredArgsConstructor
+public class CambiarContrasenaUseCase implements CambiarContrasenaHandle {
 
   private final RepositorioUsuarios repositorioUsuarios;
   private final PasswordEncoder passwordEncoder;
 
-  public CambiarContrasenaUseCase(
-      RepositorioUsuarios repositorioUsuarios, PasswordEncoder passwordEncoder) {
-    this.repositorioUsuarios = repositorioUsuarios;
-    this.passwordEncoder = passwordEncoder;
-  }
-
   @Transactional
   public void execute(CambiarContrasenaCommand command) {
-    UsuarioId usuarioId = UsuarioId.fromString(command.usuarioId());
+    UsuarioId usuarioId = UsuarioId.of(command.usuarioId());
 
     Usuario usuario =
         repositorioUsuarios

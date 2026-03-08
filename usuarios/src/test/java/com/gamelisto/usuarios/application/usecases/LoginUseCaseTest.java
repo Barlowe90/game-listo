@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-import com.gamelisto.usuarios.application.dto.AuthResponseDTO;
+import com.gamelisto.usuarios.application.dto.AuthResponseResult;
 import com.gamelisto.usuarios.application.dto.LoginCommand;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.refreshtoken.TokenHash;
@@ -82,7 +82,7 @@ class LoginUseCaseTest {
     when(passwordEncoder.matches(passwordPlain, passwordHash)).thenReturn(true);
 
     // Act
-    AuthResponseDTO response = loginUseCase.execute(command);
+    AuthResponseResult response = loginUseCase.execute(command);
 
     // Assert
     assertNotNull(response);
@@ -107,7 +107,7 @@ class LoginUseCaseTest {
 
     // Act
     Instant antesDeLogin = Instant.now();
-    AuthResponseDTO response = loginUseCase.execute(command);
+    AuthResponseResult response = loginUseCase.execute(command);
     Instant despuesDeLogin = Instant.now();
 
     // Assert
@@ -131,7 +131,7 @@ class LoginUseCaseTest {
 
     // Act
     Instant antesDeLogin = Instant.now();
-    AuthResponseDTO response = loginUseCase.execute(command);
+    AuthResponseResult response = loginUseCase.execute(command);
     Instant despuesDeLogin = Instant.now();
 
     // Assert

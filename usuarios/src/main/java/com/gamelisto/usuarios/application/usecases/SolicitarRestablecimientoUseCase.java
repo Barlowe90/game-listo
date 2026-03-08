@@ -6,20 +6,17 @@ import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.Email;
 import com.gamelisto.usuarios.domain.usuario.Usuario;
 import java.util.Optional;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class SolicitarRestablecimientoUseCase {
+@RequiredArgsConstructor
+public class SolicitarRestablecimientoUseCase implements SolicitarRestablecimientoHandle {
 
   private final RepositorioUsuarios repositorioUsuarios;
   private final IEmailService emailService;
-
-  public SolicitarRestablecimientoUseCase(
-      RepositorioUsuarios repositorioUsuarios, IEmailService emailService) {
-    this.repositorioUsuarios = repositorioUsuarios;
-    this.emailService = emailService;
-  }
 
   @Transactional
   public void execute(SolicitarRestablecimientoCommand command) {

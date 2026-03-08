@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
@@ -54,7 +54,7 @@ class BuscarUsuariosPorNombreUseCaseTest {
     when(repositorio.findByUsername(any(Username.class))).thenReturn(Optional.of(usuario));
 
     // Act
-    UsuarioDTO resultado = useCase.execute(username);
+    UsuarioResult resultado = useCase.execute(username);
 
     // Assert
     assertThat(resultado)
@@ -114,7 +114,7 @@ class BuscarUsuariosPorNombreUseCaseTest {
     when(repositorio.findByUsername(any(Username.class))).thenReturn(Optional.of(usuario));
 
     // Act
-    UsuarioDTO resultado = useCase.execute(username);
+    UsuarioResult resultado = useCase.execute(username);
 
     // Assert
     assertThat(resultado.id()).isEqualTo(usuarioIdString);
@@ -158,7 +158,7 @@ class BuscarUsuariosPorNombreUseCaseTest {
     when(repositorio.findByUsername(any(Username.class))).thenReturn(Optional.of(usuario));
 
     // Act
-    UsuarioDTO resultado = useCase.execute(username);
+    UsuarioResult resultado = useCase.execute(username);
 
     // Assert
     assertThat(resultado.username()).isEqualTo(username);
@@ -207,7 +207,7 @@ class BuscarUsuariosPorNombreUseCaseTest {
     when(repositorio.findByUsername(any(Username.class))).thenReturn(Optional.of(usuario));
 
     // Act
-    UsuarioDTO resultado = useCase.execute(username);
+    UsuarioResult resultado = useCase.execute(username);
 
     // Assert
     assertThat(resultado.username()).isEqualTo(username);

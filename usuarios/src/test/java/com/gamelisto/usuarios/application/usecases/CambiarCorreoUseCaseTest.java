@@ -31,11 +31,11 @@ class CambiarCorreoUseCaseTest {
   @DisplayName("Debe cambiar correo exitosamente cuando el nuevo email no está registrado")
   void debeCambiarCorreoExitosamente() {
     // Arrange
-    String usuarioId = UUID.randomUUID().toString();
+    UUID usuarioId = UUID.randomUUID();
     String emailActual = "usuario@ejemplo.com";
     String emailNuevo = "nuevo@ejemplo.com";
 
-    Usuario usuario = crearUsuarioActivo(usuarioId, emailActual);
+    Usuario usuario = crearUsuarioActivo(usuarioId.toString(), emailActual);
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.findByEmail(any(Email.class))).thenReturn(Optional.empty());
@@ -64,10 +64,10 @@ class CambiarCorreoUseCaseTest {
   @DisplayName("No debe guardar cambios si el nuevo email es igual al actual")
   void noDebeGuardarCambiosSiEmailEsIgual() {
     // Arrange
-    String usuarioId = UUID.randomUUID().toString();
+    UUID usuarioId = UUID.randomUUID();
     String emailActual = "mismo@ejemplo.com";
 
-    Usuario usuario = crearUsuarioActivo(usuarioId, emailActual);
+    Usuario usuario = crearUsuarioActivo(usuarioId.toString(), emailActual);
     EstadoUsuario estadoOriginal = usuario.getStatus();
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
@@ -90,7 +90,7 @@ class CambiarCorreoUseCaseTest {
   @DisplayName("Debe lanzar excepción si el usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
-    String usuarioIdInexistente = UUID.randomUUID().toString();
+    UUID usuarioIdInexistente = UUID.randomUUID();
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.empty());
 
@@ -101,7 +101,7 @@ class CambiarCorreoUseCaseTest {
     ApplicationException exception =
         assertThrows(ApplicationException.class, () -> cambiarCorreoUseCase.execute(command));
 
-    assertTrue(exception.getMessage().contains(usuarioIdInexistente));
+    assertTrue(exception.getMessage().contains(usuarioIdInexistente.toString()));
     verify(repositorioUsuarios, never()).save(any(Usuario.class));
   }
 
@@ -109,12 +109,12 @@ class CambiarCorreoUseCaseTest {
   @DisplayName("Debe lanzar excepción si el email ya está registrado por otro usuario")
   void debeLanzarExcepcionSiEmailYaRegistrado() {
     // Arrange
-    String usuarioId = UUID.randomUUID().toString();
-    String otroUsuarioId = UUID.randomUUID().toString();
+    UUID usuarioId = UUID.randomUUID();
+    UUID otroUsuarioId = UUID.randomUUID();
     String emailDuplicado = "duplicado@ejemplo.com";
 
-    Usuario usuario = crearUsuarioActivo(usuarioId, "original@ejemplo.com");
-    Usuario otroUsuario = crearUsuarioActivo(otroUsuarioId, emailDuplicado);
+    Usuario usuario = crearUsuarioActivo(usuarioId.toString(), "original@ejemplo.com");
+    Usuario otroUsuario = crearUsuarioActivo(otroUsuarioId.toString(), emailDuplicado);
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.findByEmail(any(Email.class))).thenReturn(Optional.of(otroUsuario));
@@ -133,7 +133,7 @@ class CambiarCorreoUseCaseTest {
   @DisplayName("Debe lanzar excepción con formato de email inválido")
   void debeLanzarExcepcionConEmailInvalido() {
     // Arrange
-    String usuarioId = UUID.randomUUID().toString();
+    UUID usuarioId = UUID.randomUUID();
 
     CambiarCorreoCommand command = new CambiarCorreoCommand(usuarioId, "email-invalido");
 

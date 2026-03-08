@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.CambiarRolUsuarioCommand;
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
@@ -62,7 +62,7 @@ class CambiarRolUsuarioUseCaseTest {
     when(repositorio.save(any(Usuario.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
-    UsuarioDTO resultado = useCase.execute(command);
+    UsuarioResult resultado = useCase.execute(command);
 
     // Assert
     assertThat(resultado).isNotNull();
@@ -100,7 +100,7 @@ class CambiarRolUsuarioUseCaseTest {
     when(repositorio.save(any(Usuario.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
-    UsuarioDTO resultado = useCase.execute(command);
+    UsuarioResult resultado = useCase.execute(command);
 
     // Assert
     assertThat(resultado).isNotNull();
@@ -160,7 +160,7 @@ class CambiarRolUsuarioUseCaseTest {
     // Por ahora, simplemente verificamos que el cambio se realiza
     when(repositorio.save(any(Usuario.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-    UsuarioDTO resultado = useCase.execute(command);
+    UsuarioResult resultado = useCase.execute(command);
     assertThat(resultado).isNotNull();
     assertThat(resultado.status()).isEqualTo("ELIMINADO");
   }
@@ -191,7 +191,7 @@ class CambiarRolUsuarioUseCaseTest {
     when(repositorio.save(any(Usuario.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
-    UsuarioDTO resultado = useCase.execute(command);
+    UsuarioResult resultado = useCase.execute(command);
 
     // Assert
     assertThat(resultado.role()).isEqualTo("ADMIN");
@@ -208,7 +208,7 @@ class CambiarRolUsuarioUseCaseTest {
     when(repositorio.save(any(Usuario.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
-    UsuarioDTO resultado = useCase.execute(command);
+    UsuarioResult resultado = useCase.execute(command);
 
     // Assert
     assertThat(resultado.role()).isEqualTo("USER");

@@ -1,3 +1,5 @@
 package com.gamelisto.usuarios.application.dto;
 
-public record CambiarCorreoCommand(String usuarioId, String email) {}
+import java.util.UUID;
+
+public record CambiarCorreoCommand(UUID usuarioId, String email) {}

@@ -62,10 +62,15 @@ class AuthorizationIntegrationTest {
     // Crear usuario ADMIN usando reconstitute para establecer el rol
     UsuarioId adminId = UsuarioId.generate();
     Instant now = Instant.now();
+    // Generar usernames únicos para evitar constraints en la BD
+    String adminUsername = "admin-" + UsuarioId.generate().value().toString().substring(0, 8);
+    String regularUsername = "user-" + UsuarioId.generate().value().toString().substring(0, 8);
+    String otherUsername = "otheruser-" + UsuarioId.generate().value().toString().substring(0, 8);
+
     adminUser =
         Usuario.reconstitute(
             adminId,
-            Username.of("admin"),
+            Username.of(adminUsername),
             Email.of("admin@test.com"),
             PasswordHash.of(passwordEncoder.encode("Admin123!")),
             Avatar.empty(),
@@ -83,7 +88,7 @@ class AuthorizationIntegrationTest {
     // Crear usuario USER regular
     regularUser =
         Usuario.create(
-            Username.of("user"),
+            Username.of(regularUsername),
             Email.of("user@test.com"),
             PasswordHash.of(passwordEncoder.encode("User123!")));
     regularUser = repositorioUsuarios.save(regularUser);
@@ -91,7 +96,7 @@ class AuthorizationIntegrationTest {
     // Crear otro usuario USER para tests de propiedad
     otherUser =
         Usuario.create(
-            Username.of("otheruser"),
+            Username.of(otherUsername),
             Email.of("other@test.com"),
             PasswordHash.of(passwordEncoder.encode("Other123!")));
     otherUser = repositorioUsuarios.save(otherUser);
@@ -144,7 +149,7 @@ class AuthorizationIntegrationTest {
 
   @Nested
   @DisplayName("GET /v1/usuarios/{id} - Obtener usuario por ID (Solo ADMIN)")
-  class ObtenerUsuarioPorIdTests {
+  class ObtenerUsuarioPorIdUseCaseTests {
 
     @Test
     @DisplayName("ADMIN puede obtener cualquier usuario por ID")
@@ -158,7 +163,7 @@ class AuthorizationIntegrationTest {
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$.id").exists())
-          .andExpect(jsonPath("$.username").value("user"));
+          .andExpect(jsonPath("$.username").value(regularUser.getUsername().value()));
     }
 
     @Test
@@ -285,26 +290,8 @@ class AuthorizationIntegrationTest {
   // ============================================================================
 
   @Nested
-  @DisplayName("PATCH /v1/usuarios/{id} - Editar perfil (ADMIN o propio usuario)")
+  @DisplayName("PATCH /v1/usuarios - Editar perfil (propio usuario)")
   class EditarPerfilTests {
-
-    @Test
-    @DisplayName("ADMIN puede editar cualquier perfil")
-    void adminPuedeEditarCualquierPerfil() throws Exception {
-      EditarPerfilUsuarioRequest request =
-          new EditarPerfilUsuarioRequest("https://i.imgur.com/admin-edit.png", "ENG");
-
-      mockMvc
-          .perform(
-              patch("/v1/usuarios/{id}", regularUser.getId().value())
-                  .header("X-User-Id", adminUser.getId().value())
-                  .header("X-User-Username", adminUser.getUsername().value())
-                  .header("X-User-Roles", "ADMIN")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(request)))
-          .andExpect(status().isOk())
-          .andExpect(jsonPath("$.avatar").value("https://i.imgur.com/admin-edit.png"));
-    }
 
     @Test
     @DisplayName("USER puede editar su propio perfil")
@@ -314,7 +301,7 @@ class AuthorizationIntegrationTest {
 
       mockMvc
           .perform(
-              patch("/v1/usuarios/{id}", regularUser.getId().value())
+              patch("/v1/usuarios")
                   .header("X-User-Id", regularUser.getId().value())
                   .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
@@ -323,45 +310,11 @@ class AuthorizationIntegrationTest {
           .andExpect(status().isOk())
           .andExpect(jsonPath("$.avatar").value("https://i.imgur.com/my-avatar.png"));
     }
-
-    @Test
-    @DisplayName("USER no puede editar perfil de otro usuario (403 Forbidden)")
-    void userNoPuedeEditarPerfilAjeno() throws Exception {
-      EditarPerfilUsuarioRequest request =
-          new EditarPerfilUsuarioRequest("https://i.imgur.com/hacked.png", "ENG");
-
-      mockMvc
-          .perform(
-              patch("/v1/usuarios/{id}", otherUser.getId().value())
-                  .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
-                  .header("X-User-Roles", "USER")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(request)))
-          .andExpect(status().isForbidden());
-    }
   }
 
   @Nested
-  @DisplayName("PUT /v1/usuarios/{id}/password - Cambiar contraseña (ADMIN o propio usuario)")
+  @DisplayName("PUT /v1/usuarios/{id}/password - Cambiar contraseña (propio usuario)")
   class CambiarContrasenaTests {
-
-    @Test
-    @DisplayName("ADMIN puede cambiar contraseña de cualquier usuario")
-    void adminPuedeCambiarCualquierContrasena() throws Exception {
-      CambiarContrasenaRequest request =
-          new CambiarContrasenaRequest("User123!", "NewPassword456!");
-
-      mockMvc
-          .perform(
-              put("/v1/usuarios/{id}/password", regularUser.getId().value())
-                  .header("X-User-Id", adminUser.getId().value())
-                  .header("X-User-Username", adminUser.getUsername().value())
-                  .header("X-User-Roles", "ADMIN")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(request)))
-          .andExpect(status().isOk());
-    }
 
     @Test
     @DisplayName("USER puede cambiar su propia contraseña")
@@ -371,52 +324,19 @@ class AuthorizationIntegrationTest {
 
       mockMvc
           .perform(
-              put("/v1/usuarios/{id}/password", regularUser.getId().value())
+              put("/v1/usuarios/password")
                   .header("X-User-Id", regularUser.getId().value())
                   .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(objectMapper.writeValueAsString(request)))
           .andExpect(status().isOk());
-    }
-
-    @Test
-    @DisplayName("USER no puede cambiar contraseña de otro usuario (403 Forbidden)")
-    void userNoPuedeCambiarContrasenaAjena() throws Exception {
-      CambiarContrasenaRequest request =
-          new CambiarContrasenaRequest("Other123!", "HackedPassword!");
-
-      mockMvc
-          .perform(
-              put("/v1/usuarios/{id}/password", otherUser.getId().value())
-                  .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
-                  .header("X-User-Roles", "USER")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(request)))
-          .andExpect(status().isForbidden());
     }
   }
 
   @Nested
-  @DisplayName("PUT /v1/usuarios/{id}/email - Cambiar email (ADMIN o propio usuario)")
+  @DisplayName("PUT /v1/usuarios/{id}/email - Cambiar email (propio usuario)")
   class CambiarEmailTests {
-
-    @Test
-    @DisplayName("ADMIN puede cambiar email de cualquier usuario")
-    void adminPuedeCambiarCualquierEmail() throws Exception {
-      CambiarCorreoRequest request = new CambiarCorreoRequest("newemail@admin.com");
-
-      mockMvc
-          .perform(
-              put("/v1/usuarios/{id}/email", regularUser.getId().value())
-                  .header("X-User-Id", adminUser.getId().value())
-                  .header("X-User-Username", adminUser.getUsername().value())
-                  .header("X-User-Roles", "ADMIN")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(request)))
-          .andExpect(status().isOk());
-    }
 
     @Test
     @DisplayName("USER puede cambiar su propio email")
@@ -425,7 +345,7 @@ class AuthorizationIntegrationTest {
 
       mockMvc
           .perform(
-              put("/v1/usuarios/{id}/email", regularUser.getId().value())
+              put("/v1/usuarios/email")
                   .header("X-User-Id", regularUser.getId().value())
                   .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
@@ -433,44 +353,11 @@ class AuthorizationIntegrationTest {
                   .content(objectMapper.writeValueAsString(request)))
           .andExpect(status().isOk());
     }
-
-    @Test
-    @DisplayName("USER no puede cambiar email de otro usuario (403 Forbidden)")
-    void userNoPuedeCambiarEmailAjeno() throws Exception {
-      CambiarCorreoRequest request = new CambiarCorreoRequest("hacked@email.com");
-
-      mockMvc
-          .perform(
-              put("/v1/usuarios/{id}/email", otherUser.getId().value())
-                  .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
-                  .header("X-User-Roles", "USER")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(request)))
-          .andExpect(status().isForbidden());
-    }
   }
 
   @Nested
-  @DisplayName("PUT /v1/usuarios/{id}/discord - Vincular Discord (ADMIN o propio usuario)")
+  @DisplayName("PUT /v1/usuarios/{id}/discord - Vincular Discord (propio usuario)")
   class VincularDiscordTests {
-
-    @Test
-    @DisplayName("ADMIN puede vincular Discord a cualquier usuario")
-    void adminPuedeVincularDiscordACualquierUsuario() throws Exception {
-      VincularDiscordRequest request = new VincularDiscordRequest("123456789", "AdminDiscord#1234");
-
-      mockMvc
-          .perform(
-              put("/v1/usuarios/{id}/discord", regularUser.getId().value())
-                  .header("X-User-Id", adminUser.getId().value())
-                  .header("X-User-Username", adminUser.getUsername().value())
-                  .header("X-User-Roles", "ADMIN")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(request)))
-          .andExpect(status().isOk())
-          .andExpect(jsonPath("$.discordUsername").value("AdminDiscord#1234"));
-    }
 
     @Test
     @DisplayName("USER puede vincular Discord a su propia cuenta")
@@ -479,7 +366,7 @@ class AuthorizationIntegrationTest {
 
       mockMvc
           .perform(
-              put("/v1/usuarios/{id}/discord", regularUser.getId().value())
+              put("/v1/usuarios/discord")
                   .header("X-User-Id", regularUser.getId().value())
                   .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
@@ -488,47 +375,11 @@ class AuthorizationIntegrationTest {
           .andExpect(status().isOk())
           .andExpect(jsonPath("$.discordUsername").value("UserDiscord#5678"));
     }
-
-    @Test
-    @DisplayName("USER no puede vincular Discord a otra cuenta (403 Forbidden)")
-    void userNoPuedeVincularDiscordACuentaAjena() throws Exception {
-      VincularDiscordRequest request =
-          new VincularDiscordRequest("111111111", "HackedDiscord#9999");
-
-      mockMvc
-          .perform(
-              put("/v1/usuarios/{id}/discord", otherUser.getId().value())
-                  .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
-                  .header("X-User-Roles", "USER")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(request)))
-          .andExpect(status().isForbidden());
-    }
   }
 
   @Nested
-  @DisplayName("DELETE /v1/usuarios/{id}/discord - Desvincular Discord (ADMIN o propio usuario)")
+  @DisplayName("DELETE /v1/usuarios/{id}/discord - Desvincular Discord (propio usuario)")
   class DesvincularDiscordTests {
-
-    @Test
-    @DisplayName("ADMIN puede desvincular Discord de cualquier usuario")
-    void adminPuedeDesvincularDiscordDeCualquierUsuario() throws Exception {
-      // Primero vincular Discord
-      regularUser.linkDiscord(
-          DiscordUserId.of("123456789"), DiscordUsername.of("TestDiscord#1234"));
-      repositorioUsuarios.save(regularUser);
-
-      mockMvc
-          .perform(
-              delete("/v1/usuarios/{id}/discord", regularUser.getId().value())
-                  .header("X-User-Id", adminUser.getId().value())
-                  .header("X-User-Username", adminUser.getUsername().value())
-                  .header("X-User-Roles", "ADMIN")
-                  .contentType(MediaType.APPLICATION_JSON))
-          .andExpect(status().isOk())
-          .andExpect(jsonPath("$.discordUsername").doesNotExist());
-    }
 
     @Test
     @DisplayName("USER puede desvincular Discord de su propia cuenta")
@@ -539,30 +390,13 @@ class AuthorizationIntegrationTest {
 
       mockMvc
           .perform(
-              delete("/v1/usuarios/{id}/discord", regularUser.getId().value())
+              delete("/v1/usuarios/discord")
                   .header("X-User-Id", regularUser.getId().value())
                   .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
           .andExpect(jsonPath("$.discordUsername").doesNotExist());
-    }
-
-    @Test
-    @DisplayName("USER no puede desvincular Discord de otra cuenta (403 Forbidden)")
-    void userNoPuedeDesvincularDiscordDeCuentaAjena() throws Exception {
-      // Primero vincular Discord al otro usuario
-      otherUser.linkDiscord(DiscordUserId.of("111111111"), DiscordUsername.of("OtherDiscord#9999"));
-      repositorioUsuarios.save(otherUser);
-
-      mockMvc
-          .perform(
-              delete("/v1/usuarios/{id}/discord", otherUser.getId().value())
-                  .header("X-User-Id", regularUser.getId().value())
-                  .header("X-User-Username", regularUser.getUsername().value())
-                  .header("X-User-Roles", "USER")
-                  .contentType(MediaType.APPLICATION_JSON))
-          .andExpect(status().isForbidden());
     }
   }
 
@@ -580,13 +414,13 @@ class AuthorizationIntegrationTest {
       mockMvc
           .perform(
               get("/v1/usuarios/users")
-                  .param("username", "user")
+                  .param("username", adminUser.getUsername().value())
                   .header("X-User-Id", adminUser.getId().value())
                   .header("X-User-Username", adminUser.getUsername().value())
                   .header("X-User-Roles", "ADMIN")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
-          .andExpect(jsonPath("$.username").value("user"));
+          .andExpect(jsonPath("$.username").value(adminUser.getUsername().value()));
     }
 
     @Test
@@ -595,13 +429,13 @@ class AuthorizationIntegrationTest {
       mockMvc
           .perform(
               get("/v1/usuarios/users")
-                  .param("username", "admin")
+                  .param("username", adminUser.getUsername().value())
                   .header("X-User-Id", regularUser.getId().value())
                   .header("X-User-Username", regularUser.getUsername().value())
                   .header("X-User-Roles", "USER")
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk())
-          .andExpect(jsonPath("$.username").value("admin"));
+          .andExpect(jsonPath("$.username").value(adminUser.getUsername().value()));
     }
 
     @Test
@@ -610,7 +444,7 @@ class AuthorizationIntegrationTest {
       mockMvc
           .perform(
               get("/v1/usuarios/users")
-                  .param("username", "admin")
+                  .param("username", adminUser.getUsername().value())
                   .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isForbidden());
     }

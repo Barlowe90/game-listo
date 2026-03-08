@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.EditarPerfilUsuarioCommand;
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
@@ -32,18 +32,18 @@ class EditarPerfilUsuarioUseCaseTest {
   @DisplayName("Debe editar múltiples campos a la vez")
   void debeEditarMultiplesCamposALaVez() {
     // Arrange
-    String usuarioIdString = UUID.randomUUID().toString();
+    UUID usuarioId = UUID.randomUUID();
     EditarPerfilUsuarioCommand command =
-        new EditarPerfilUsuarioCommand(usuarioIdString, "https://example.com/avatar.jpg", "ENG");
+        new EditarPerfilUsuarioCommand(usuarioId, "https://example.com/avatar.jpg", "ENG");
 
-    Usuario usuario = crearUsuarioDefault(UsuarioId.fromString(usuarioIdString));
+    Usuario usuario = crearUsuarioDefault(UsuarioId.of(usuarioId));
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.save(any(Usuario.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
-    UsuarioDTO resultado = editarPerfilUsuarioUseCase.execute(command);
+    UsuarioResult resultado = editarPerfilUsuarioUseCase.execute(command);
 
     // Assert
     assertEquals("https://example.com/avatar.jpg", resultado.avatar());
@@ -54,11 +54,10 @@ class EditarPerfilUsuarioUseCaseTest {
   @DisplayName("Debe ignorar campos nulos sin modificar el usuario")
   void debeIgnorarCamposNulosSinModificarUsuario() {
     // Arrange
-    String usuarioIdString = UUID.randomUUID().toString();
-    EditarPerfilUsuarioCommand command =
-        new EditarPerfilUsuarioCommand(usuarioIdString, null, null);
+    UUID usuarioId = UUID.randomUUID();
+    EditarPerfilUsuarioCommand command = new EditarPerfilUsuarioCommand(usuarioId, null, null);
 
-    Usuario usuario = crearUsuarioDefault(UsuarioId.fromString(usuarioIdString));
+    Usuario usuario = crearUsuarioDefault(UsuarioId.of(usuarioId));
     String avatarOriginal = usuario.getAvatar().url();
     Idioma idiomaOriginal = usuario.getLanguage();
 
@@ -67,7 +66,7 @@ class EditarPerfilUsuarioUseCaseTest {
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
-    UsuarioDTO resultado = editarPerfilUsuarioUseCase.execute(command);
+    UsuarioResult resultado = editarPerfilUsuarioUseCase.execute(command);
 
     // Assert
     assertEquals(avatarOriginal, resultado.avatar());
@@ -78,9 +77,9 @@ class EditarPerfilUsuarioUseCaseTest {
   @DisplayName("Debe lanzar excepción si usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
-    String usuarioIdString = UUID.randomUUID().toString();
+    UUID usuarioId = UUID.randomUUID();
     EditarPerfilUsuarioCommand command =
-        new EditarPerfilUsuarioCommand(usuarioIdString, "https://example.com/avatar.jpg", null);
+        new EditarPerfilUsuarioCommand(usuarioId, "https://example.com/avatar.jpg", null);
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.empty());
 
@@ -98,14 +97,15 @@ class EditarPerfilUsuarioUseCaseTest {
   void debeLanzarExcepcionSiIdTieneFormatoInvalido() {
     // Arrange
     EditarPerfilUsuarioCommand command =
-        new EditarPerfilUsuarioCommand("id-invalido", "https://example.com/avatar.jpg", null);
+        new EditarPerfilUsuarioCommand(
+            (java.util.UUID) null, "https://example.com/avatar.jpg", null);
 
     // Act & Assert
     IllegalArgumentException exception =
         assertThrows(
             IllegalArgumentException.class, () -> editarPerfilUsuarioUseCase.execute(command));
 
-    assertTrue(exception.getMessage().contains("Formato de UUID inválido"));
+    assertTrue(exception.getMessage().contains("nulo"));
     verify(repositorioUsuarios, never()).findById(any(UsuarioId.class));
   }
 
@@ -113,12 +113,11 @@ class EditarPerfilUsuarioUseCaseTest {
   @DisplayName("Debe validar URL del avatar")
   void debeValidarUrlDelAvatar() {
     // Arrange
-    String usuarioIdString = UUID.randomUUID().toString();
+    UUID usuarioId = UUID.randomUUID();
     String urlLarga = "https://example.com/" + "a".repeat(500);
-    EditarPerfilUsuarioCommand command =
-        new EditarPerfilUsuarioCommand(usuarioIdString, urlLarga, null);
+    EditarPerfilUsuarioCommand command = new EditarPerfilUsuarioCommand(usuarioId, urlLarga, null);
 
-    Usuario usuario = crearUsuarioDefault(UsuarioId.fromString(usuarioIdString));
+    Usuario usuario = crearUsuarioDefault(UsuarioId.of(usuarioId));
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
 
@@ -134,11 +133,11 @@ class EditarPerfilUsuarioUseCaseTest {
   @DisplayName("Debe lanzar excepción si idioma es inválido")
   void debeLanzarExcepcionSiIdiomaEsInvalido() {
     // Arrange
-    String usuarioIdString = UUID.randomUUID().toString();
+    UUID usuarioId = UUID.randomUUID();
     EditarPerfilUsuarioCommand command =
-        new EditarPerfilUsuarioCommand(usuarioIdString, null, "IDIOMA_INVALIDO");
+        new EditarPerfilUsuarioCommand(usuarioId, null, "IDIOMA_INVALIDO");
 
-    Usuario usuario = crearUsuarioDefault(UsuarioId.fromString(usuarioIdString));
+    Usuario usuario = crearUsuarioDefault(UsuarioId.of(usuarioId));
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
 

@@ -7,6 +7,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,7 +55,8 @@ class GatewayAuthenticationFilterTest {
     // Assert
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     assertThat(auth).isNotNull();
-    assertThat(auth.getPrincipal()).isEqualTo("123e4567-e89b-12d3-a456-426614174000");
+    assertThat(auth.getPrincipal())
+        .isEqualTo(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
     verify(filterChain, times(1)).doFilter(request, response);
   }
 
@@ -130,7 +132,8 @@ class GatewayAuthenticationFilterTest {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     assertThat(auth).isNotNull();
     assertThat(auth.isAuthenticated()).isTrue();
-    assertThat(auth.getPrincipal()).isEqualTo("123e4567-e89b-12d3-a456-426614174000");
+    assertThat(auth.getPrincipal())
+        .isEqualTo(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
     assertThat(auth.getCredentials()).isNull();
     verify(filterChain, times(1)).doFilter(request, response);
   }
@@ -153,7 +156,7 @@ class GatewayAuthenticationFilterTest {
   @DisplayName("Debe validar formato de headers correctamente")
   void debeValidarFormatoHeaders() throws ServletException, IOException {
     // Arrange
-    request.addHeader("X-User-Id", "valid-uuid");
+    request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
     request.addHeader("X-User-Username", "validUsername123");
     request.addHeader("X-User-Roles", "USER");
 
@@ -163,7 +166,8 @@ class GatewayAuthenticationFilterTest {
     // Assert
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     assertThat(auth).isNotNull();
-    assertThat(auth.getPrincipal()).isEqualTo("valid-uuid");
+    assertThat(auth.getPrincipal())
+        .isEqualTo(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
     verify(filterChain, times(1)).doFilter(request, response);
   }
 

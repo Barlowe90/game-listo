@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
@@ -18,11 +18,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class ObtenerUsuarioPorIdTest {
+class ObtenerUsuarioPorIdUseCaseTest {
 
   @Mock private RepositorioUsuarios repositorioUsuarios;
 
-  @InjectMocks private ObtenerUsuarioPorId obtenerUsuarioPorId;
+  @InjectMocks private ObtenerUsuarioPorIdUseCase obtenerUsuarioPorIdUseCase;
 
   @Test
   @DisplayName("Debe obtener usuario por ID exitosamente")
@@ -51,7 +51,7 @@ class ObtenerUsuarioPorIdTest {
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
 
     // Act
-    UsuarioDTO resultado = obtenerUsuarioPorId.execute(usuarioIdString);
+    UsuarioResult resultado = obtenerUsuarioPorIdUseCase.execute(usuarioIdString);
 
     // Assert
     assertNotNull(resultado);
@@ -74,7 +74,7 @@ class ObtenerUsuarioPorIdTest {
     // Act & Assert
     ApplicationException exception =
         assertThrows(
-            ApplicationException.class, () -> obtenerUsuarioPorId.execute(usuarioIdString));
+            ApplicationException.class, () -> obtenerUsuarioPorIdUseCase.execute(usuarioIdString));
 
     assertNotNull(exception);
     verify(repositorioUsuarios).findById(any(UsuarioId.class));
@@ -88,7 +88,8 @@ class ObtenerUsuarioPorIdTest {
 
     // Act & Assert
     IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> obtenerUsuarioPorId.execute(idInvalido));
+        assertThrows(
+            IllegalArgumentException.class, () -> obtenerUsuarioPorIdUseCase.execute(idInvalido));
 
     assertTrue(exception.getMessage().contains("Formato de UUID inválido"));
     verify(repositorioUsuarios, never()).findById(any(UsuarioId.class));
@@ -121,7 +122,7 @@ class ObtenerUsuarioPorIdTest {
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
 
     // Act
-    UsuarioDTO resultado = obtenerUsuarioPorId.execute(usuarioIdString);
+    UsuarioResult resultado = obtenerUsuarioPorIdUseCase.execute(usuarioIdString);
 
     // Assert
     assertEquals(usuarioIdString, resultado.id());
@@ -148,7 +149,7 @@ class ObtenerUsuarioPorIdTest {
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
 
     // Act
-    obtenerUsuarioPorId.execute(usuarioIdString);
+    obtenerUsuarioPorIdUseCase.execute(usuarioIdString);
 
     // Assert
     verify(repositorioUsuarios).findById(argThat(id -> id.value().equals(uuid)));
@@ -165,7 +166,7 @@ class ObtenerUsuarioPorIdTest {
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
 
     // Act
-    UsuarioDTO resultado = obtenerUsuarioPorId.execute(usuarioIdUpper);
+    UsuarioResult resultado = obtenerUsuarioPorIdUseCase.execute(usuarioIdUpper);
 
     // Assert
     assertNotNull(resultado);

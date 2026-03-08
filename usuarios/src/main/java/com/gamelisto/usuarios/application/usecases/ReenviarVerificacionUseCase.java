@@ -7,20 +7,16 @@ import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.Email;
 import com.gamelisto.usuarios.domain.usuario.EstadoUsuario;
 import com.gamelisto.usuarios.domain.usuario.Usuario;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class ReenviarVerificacionUseCase {
+@RequiredArgsConstructor
+public class ReenviarVerificacionUseCase implements ReenviarVerificacionHandle {
 
   private final RepositorioUsuarios repositorioUsuarios;
   private final IEmailService emailService;
-
-  public ReenviarVerificacionUseCase(
-      RepositorioUsuarios repositorioUsuarios, IEmailService emailService) {
-    this.repositorioUsuarios = repositorioUsuarios;
-    this.emailService = emailService;
-  }
 
   @Transactional
   public void execute(ReenviarVerificacionCommand command) {
