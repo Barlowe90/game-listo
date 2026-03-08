@@ -1,3 +1,5 @@
 package com.gamelisto.biblioteca.application.usecase;
 
-public record CrearListaGameCommand(String userId, String nombre, String tipo) {}
+import java.util.UUID;
+
+public record CrearListaGameCommand(UUID userId, String nombre, String tipo) {}

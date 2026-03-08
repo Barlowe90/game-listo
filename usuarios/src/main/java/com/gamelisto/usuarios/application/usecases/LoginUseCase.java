@@ -16,7 +16,6 @@ import com.gamelisto.usuarios.domain.usuario.Usuario;
 import com.gamelisto.usuarios.shared.auth.JwtProperties;
 import com.gamelisto.usuarios.shared.auth.JwtUtils;
 import java.time.Instant;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

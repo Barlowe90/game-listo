@@ -34,18 +34,13 @@ public class SecurityConfig {
   private final GatewayAuthenticationFilter gatewayAuthenticationFilter;
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) {
     http.csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        // Agregar filtro que procesa headers del Gateway
         .addFilterBefore(gatewayAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-        .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers("/actuator/health")
-                    .permitAll()
-                    // aqui hay 2 opciones, o hago un permitAll() y añado security en endpoints
-                    // o protejo ahora excepto el health y no se me olvida añadir nada
-                    .anyRequest()
-                    .authenticated());
+        // Permitir todas las peticiones - la autorización se maneja con @PreAuthorize
+        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+
     return http.build();
   }
 }

@@ -4,7 +4,6 @@ public enum Estado {
   DESEADO,
   PENDIENTE,
   JUGANDO,
-  PLATINANDO,
   COMPLETADO,
   ABANDONADO
 }

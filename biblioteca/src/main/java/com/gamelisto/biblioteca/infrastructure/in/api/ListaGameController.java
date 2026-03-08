@@ -39,8 +39,7 @@ public class ListaGameController {
 
   @PostMapping("/lists")
   public ResponseEntity<ListaGameResponse> crearLista(
-      @Valid @RequestBody CrearListaGameRequest request, Authentication authentication) {
-    String userId = (String) authentication.getPrincipal();
+      @Valid @RequestBody CrearListaGameRequest request, @AuthenticationPrincipal UUID userId) {
 
     logger.info("Crear nueva lista para el usuario {}", userId);
 

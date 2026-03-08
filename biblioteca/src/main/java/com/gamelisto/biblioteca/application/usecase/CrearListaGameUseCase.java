@@ -47,7 +47,7 @@ public class CrearListaGameUseCase implements CrearListaGameHandler {
   }
 
   private static @NonNull MapearCommandToLista mapperCommandToLista(CrearListaGameCommand command) {
-    UsuarioId usuarioRefId = UsuarioId.fromString(command.userId());
+    UsuarioId usuarioRefId = UsuarioId.of(command.userId());
     NombreListaGame nombreListaGame = NombreListaGame.of(command.nombre());
     Tipo tipo = Tipo.valueOf(command.tipo());
     return new MapearCommandToLista(usuarioRefId, nombreListaGame, tipo);
