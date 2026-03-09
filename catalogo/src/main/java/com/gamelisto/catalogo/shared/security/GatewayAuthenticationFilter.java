@@ -8,8 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.UUID;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -30,8 +30,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class GatewayAuthenticationFilter extends OncePerRequestFilter {
 
-  private static final Logger log = LoggerFactory.getLogger(GatewayAuthenticationFilter.class);
-
   private static final String HEADER_USER_ID = "X-User-Id";
   private static final String HEADER_USER_ROLES = "X-User-Roles";
 
@@ -42,33 +40,62 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
       @Nonnull FilterChain filterChain)
       throws ServletException, IOException {
 
-    String userId = request.getHeader(HEADER_USER_ID);
+    if (siYaHayAuthNoLaPises(request, response, filterChain)) return;
+
+    String userIdHeader = request.getHeader(HEADER_USER_ID);
     String rolesHeader = request.getHeader(HEADER_USER_ROLES);
 
-    // Si el Gateway envió los headers, crear el Authentication
-    if (userId != null && rolesHeader != null) {
+    if (siFaltaHeaderNoAutentiques(request, response, filterChain, userIdHeader, rolesHeader))
+      return;
+
+    try {
+
+      UUID userId = UUID.fromString(userIdHeader);
+
       List<SimpleGrantedAuthority> authorities =
           Arrays.stream(rolesHeader.split(","))
               .map(String::trim)
-              .filter(s -> !s.isBlank())
-              .map(role -> "ROLE_" + role) // Spring Security requiere prefijo "ROLE_"
+              .filter(r -> !r.isBlank())
+              .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
               .map(SimpleGrantedAuthority::new)
               .toList();
 
-      // El principal es el userId (necesario para @PreAuthorize comparar con #id)
       Authentication authentication =
           new UsernamePasswordAuthenticationToken(userId, null, authorities);
 
       SecurityContextHolder.getContext().setAuthentication(authentication);
 
-      log.debug(
-          "Authentication creado desde headers del Gateway - UserId: {}, Roles: {}",
-          userId,
-          rolesHeader);
-    } else {
-      log.debug("Headers del Gateway no presentes - Petición pública o directa al servicio");
+    } catch (IllegalArgumentException ex) {
+      SecurityContextHolder.clearContext();
     }
 
     filterChain.doFilter(request, response);
+  }
+
+  private static boolean siFaltaHeaderNoAutentiques(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      FilterChain filterChain,
+      String userIdHeader,
+      String rolesHeader)
+      throws IOException, ServletException {
+    if (userIdHeader == null
+        || userIdHeader.isBlank()
+        || rolesHeader == null
+        || rolesHeader.isBlank()) {
+      filterChain.doFilter(request, response);
+      return true;
+    }
+    return false;
+  }
+
+  private static boolean siYaHayAuthNoLaPises(
+      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      throws IOException, ServletException {
+    if (SecurityContextHolder.getContext().getAuthentication() != null) {
+      filterChain.doFilter(request, response);
+      return true;
+    }
+    return false;
   }
 }

@@ -24,10 +24,11 @@ Contratos HTTP
 
 Endpoint de sugerencias
 
-GET /v1/games/suggest?q={texto}&size={n}
+GET `/v1/busquedas/sugerencia?q={texto}&size={n}`
 
 - Parámetros
     - `q` (required): texto del usuario. Si es vacío o inferior a `busquedas.suggest.min-chars` => devolver `[]`.
+    - `size` (optional): número máximo de resultados. Valor por defecto en el controlador: `5`.
 
 - Respuesta mínima (JSON):
 

@@ -67,42 +67,59 @@ Listas
     - Request: `CrearListaGameRequest` — { "nombre": "string", "tipo": "string" }
     - Response: `ListaGameResponse` — { "id": "uuid", "usuarioRefId": "uuid", "nombre": "string", "tipo": "string" }
     - Código: 201 Created
+    - Nota: El `userId` se obtiene vía `@AuthenticationPrincipal` (sesión/token). Este endpoint crea una nueva lista
+      para el usuario autenticado.
 
-- PATCH `/lists/{listId}`
+- PATCH `/lists/{listaId}`
     - Request: `EditarListaGameRequest` — { "nombre": "string" }
     - Response: `ListaGameResponse`
     - Código: 200 OK
+    - Autorización: protegido con `@PreAuthorize` (solo el propietario puede modificar).
 
-- DELETE `/lists/{listId}`
+- DELETE `/lists/{listaId}`
     - Código: 204 No Content
+    - Autorización: protegido con `@PreAuthorize` (solo el propietario puede eliminar).
 
-- GET `/lists/{listId}`
+- GET `/lists/{listaId}`
     - Response: `ListaGameResponse`
     - Código: 200 OK
+    - Autorización: protegido con `@PreAuthorize` (solo el propietario puede leer esta lista privada).
 
 - GET `/lists`
     - Response: lista de `ListaGameResponse`
     - Código: 200 OK
+    - Autorización: protegido con `@PreAuthorize` (devuelve todas las listas del usuario autenticado).
 
 Gestión de juegos en listas
 
 - POST `/lists/{listaId}/games/{gameRefId}`
     - Añade una referencia de juego a la lista.
-    - Código: 200 (No Content)
+    - Código: 204 No Content
+    - Autorización: protegido con `@PreAuthorize` (solo el propietario puede modificar su lista).
+    - Nota: en el controlador `listaId` y `gameRefId` se tratan como `String`.
 
 - DELETE `/lists/{listaId}/games/{gameRefId}`
     - Elimina una referencia de juego de la lista.
-    - Código: 200 (No Content)
+    - Código: 204 No Content
+    - Autorización: protegido con `@PreAuthorize` (solo el propietario puede modificar su lista).
 
 Estado y valoración de juegos
 
 - POST `/games/{gameRefId}/state`
     - Request: `CrearGameEstadoRequest` — { "estado": "string" }
     - Código: 200 OK
+    - Autorización: protegido con `@PreAuthorize` (el `userId` se extrae via `@AuthenticationPrincipal`).
 
 - POST `/games/{gameRefId}/rate`
     - Request: `RateGameEstadoRequest` — { "rating": number }
     - Código: 200 OK
+    - Autorización: protegido con `@PreAuthorize` (el `userId` se extrae via `@AuthenticationPrincipal`).
+
+- GET `/games/{gameRefId}`
+    - Response: lista de `GameEstadoResponse`
+    - Código: 200 OK
+    - Nota: este endpoint es público en el controlador (no tiene `@PreAuthorize`). En el controlador `gameRefId` se
+      recibe como `Long`.
 
 Seguridad
 

@@ -30,32 +30,45 @@ Contenido del README
 
 - POST /v1/social/users/{userId}/friends/{friendId}
     - Descripción: Crear una amistad (inserta relación entre `userId` y `friendId`).
-    - Autorización: requiere usuario autenticado (el gateway gestiona la validación JWT). En desarrollo la seguridad
-      puede estar relajada.
-    - Respuesta: 200 OK si se creó o ya existe.
+    - Autorización: requiere usuario autenticado (`@PreAuthorize("isAuthenticated()")`). Además el controlador comprueba
+      que `userId` coincida con el principal autenticado (no se permite operar en nombre de otro usuario).
+    - Path params: `userId` (String — debe ser igual a `authentication.principal`), `friendId` (String)
+    - Respuesta: 200 OK (o 200 OK si ya existe)
 
 - DELETE /v1/social/users/{userId}/friends/{friendId}
     - Descripción: Eliminar la relación de amistad.
+    - Autorización: requiere usuario autenticado y `userId` debe coincidir con el principal.
     - Respuesta: 204 No Content
 
 - GET /v1/social/users/{userId}/friends
     - Descripción: Listar amigos de `userId`.
-    - Respuesta: 200 OK con una lista de objetos { id, username, avatar }
+    - Autorización: requiere usuario autenticado y `userId` debe coincidir con el principal.
+    - Response: 200 OK con una lista de `UsuarioRefResponse` — objetos con `{ id, username, avatar }`
 
 - GET /v1/social/users/{userAId}/friends/common/{userBId}
     - Descripción: Listar amigos en común entre `userAId` y `userBId`.
-    - Respuesta: 200 OK
+    - Autorización: requiere usuario autenticado; el controlador permite la consulta si al menos uno de `userAId` o
+      `userBId` coincide con el principal autenticado.
+    - Response: 200 OK con una lista de `UsuarioRefResponse`
 
 Ejemplo cURL (suponiendo gateway y JWT si procede):
 
 ```bash
-# Añadir amistad
+# Añadir amistad (userId debe ser el usuario autenticado)
 curl -X POST \
-  http://localhost:8085/v1/social/users/123/friends/456 \
+  http://localhost:8085/v1/social/users/alice/friends/bob \
   -H "Authorization: Bearer <ACCESS_TOKEN>"
 
-# Listar amigos
-curl http://localhost:8085/v1/social/users/123/friends -H "Authorization: Bearer <ACCESS_TOKEN>"
+# Eliminar amistad
+curl -X DELETE \
+  http://localhost:8085/v1/social/users/alice/friends/bob \
+  -H "Authorization: Bearer <ACCESS_TOKEN>"
+
+# Listar amigos (alice debe ser el usuario autenticado)
+curl http://localhost:8085/v1/social/users/alice/friends -H "Authorization: Bearer <ACCESS_TOKEN>"
+
+# Amigos en común (al menos uno de los ids debe coincidir con el principal autenticado)
+curl http://localhost:8085/v1/social/users/alice/friends/common/charlie -H "Authorization: Bearer <ACCESS_TOKEN>"
 ```
 
 2) Eventos consumidos (RabbitMQ)

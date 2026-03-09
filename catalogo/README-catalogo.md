@@ -30,21 +30,21 @@ Arquitectura Hexagonal y DDD: dominio puro, casos de uso y adaptadores de infrae
 ## Modelo de dominio (visión compacta)
 
 - Game (aggregate root)
-  - id (UUID/Long según implementación), name, summary, coverUrl, alternativeNames, platforms, genres, releaseDate,
-    relaciones (dlcs, expansions, similares), flags de estado, metadatos transaccionales.
+    - id (UUID/Long según implementación), name, summary, coverUrl, alternativeNames, platforms, genres, releaseDate,
+      relaciones (dlcs, expansions, similares), flags de estado, metadatos transaccionales.
 - GameDetail
-  - Referencia a `gameId`, screenshots (List<String>), videos (List<String>), descripción larga y campos grandes.
+    - Referencia a `gameId`, screenshots (List<String>), videos (List<String>), descripción larga y campos grandes.
 - Proyección/DTOs
-  - `GameResponse` (para consultas rápidas) y `GameDetailResponse` (contenido multimedia).
+    - `GameResponse` (para consultas rápidas) y `GameDetailResponse` (contenido multimedia).
 
 ## Persistencia y decisiones operativas
 
 - PostgreSQL
-  - Guarda la estructura canónica de `Game`: esquemas relacionales, colecciones elementales y relaciones.
-  - Buen candidato para consultas transaccionales y joins.
+    - Guarda la estructura canónica de `Game`: esquemas relacionales, colecciones elementales y relaciones.
+    - Buen candidato para consultas transaccionales y joins.
 - MongoDB
-  - Almacena `GameDetail` cuando el payload es voluminoso o flexible.
-  - Reduce el peso de las consultas a Postgres cuando se requieren solo metadatos.
+    - Almacena `GameDetail` cuando el payload es voluminoso o flexible.
+    - Reduce el peso de las consultas a Postgres cuando se requieren solo metadatos.
 
 ## Flujo de ingestión (alto nivel)
 
@@ -58,26 +58,62 @@ Arquitectura Hexagonal y DDD: dominio puro, casos de uso y adaptadores de infrae
 
 Base path: `/v1/catalogo`
 
+- GET `/games`
+    - Descripción: Devuelve un listado paginado (controlador usa parámetros `page` y `size`, aunque la implementación
+      actual retorna todos los juegos).
+    - Query params: `page` (default = 0), `size` (default = 20)
+    - Response: `List<GameResponse>` — cada `GameResponse` contiene campos ligeros como
+      `{ id, name, summary, coverUrl, alternativeNames, platforms, releaseDate }`
+    - Código: 200 OK
+
 - GET `/games/{id}`
-  - Descripción: Devuelve `GameResponse` (campos ligeros y metadatos). Usar para listados y fichas rápidas.
-  - Response (ejemplo): `{ id, name, summary, coverUrl, alternativeNames, platforms, releaseDate }`
+    - Descripción: Devuelve `GameResponse` con metadatos canónicos del juego (Postgres).
+    - Path params: `id` (Long)
+    - Response: `GameResponse` — `{ id, name, summary, coverUrl, alternativeNames, platforms, releaseDate }`
+    - Código: 200 OK
 
 - GET `/games/{id}/detail`
-  - Descripción: Devuelve `GameDetailResponse` con screenshots y videos.
-  - Uso: cargarse bajo demanda desde el BFF o cliente que necesita multimedia.
+    - Descripción: Devuelve `GameDetailResponse` con contenido enriquecido (p. ej. screenshots, videos) almacenado en
+      MongoDB.
+    - Path params: `id` (Long)
+    - Response: `GameDetailResponse` — { `gameId`, `screenshots: ["url"...]`, `videos: ["url"...]`, `longDescription` }
+    - Código: 200 OK
+
+- GET `/platforms`
+    - Descripción: Devuelve el listado de plataformas soportadas (`PlatformResponse`).
+    - Response: `List<PlatformResponse>` — `{ id, name, abbreviation, ... }`
+    - Código: 200 OK
 
 - POST `/sync/games`
-  - Descripción: Endpoint para disparar sincronizaciones desde una fuente externa (IGDB) o forzar reindexación.
-  - Payload: filtro/params para la ingesta (opcional).
-  - Comportamiento: realiza ingestión parcial/incremental y publica eventos de dominio.
+    - Descripción: Endpoint para disparar la sincronización de juegos desde IGDB. La implementación usa
+      `IgdbProperties.batchSize` para el tamaño del lote.
+    - Autorización: en el código hay un comentario `@PreAuthorize("hasRole('ADMIN')")` — actualmente deshabilitado; en
+      producción debería protegerse para administradores.
+    - Response: `SyncStatusResponse` — resumen del resultado (cantidad procesada, mensajes, etc.)
+    - Código: 200 OK
+
+- POST `/sync/platforms`
+    - Descripción: Endpoint para sincronizar plataformas desde IGDB.
+    - Autorización: similar a `/sync/games` (comentario de `@PreAuthorize` en el controlador).
+    - Response: `SyncStatusResponse`
+    - Código: 200 OK
+
+Notas adicionales
+
+- Paginación: aunque el controlador expone `page` y `size` como parámetros, la implementación actual (
+  `obtenerTodosLosJuegos.execute()`) devuelve todos los juegos; revisar si se desea soportar paginación real en el
+  futuro.
+- DTOs: las clases `GameResponse`, `GameDetailResponse`, `PlatformResponse`, `SyncStatusResponse` están en
+  `infrastructure/in/api/dto` (ver archivos adjuntos) y deben usarse como contrato de salida.
+- Seguridad: los endpoints de sincronización deberían protegerse (ADMIN) en entornos no de desarrollo.
 
 ## Contratos de eventos (resumen)
 
 - Exchange/Topic: `catalog.events`
 - Eventos relevantes:
-  - `catalog.game.created`
-  - `catalog.game.updated`
-  - `catalog.game.deleted`
+    - `catalog.game.created`
+    - `catalog.game.updated`
+    - `catalog.game.deleted`
 - Payload mínimo recomendado: `{ eventId, gameId, type, timestamp, payload: { ...game fields... } }`
 
 ## Serialización y compatibilidad
@@ -126,7 +162,8 @@ Base path: `/v1/catalogo`
 
 - Separación Postgres/Mongo: reduce tamaño de filas transaccionales, mejora latencias en consultas ligeras.
 - Normalización temprana: validar y mapear DTOs de IGDB a VOs del dominio para evitar lógica de negocio en adaptadores.
-- Event-driven: favor consistencia eventual entre catálogo e índices/caches downstream; documentar SLAs de sincronización.
+- Event-driven: favor consistencia eventual entre catálogo e índices/caches downstream; documentar SLAs de
+  sincronización.
 
 ## Buenas prácticas para contribuciones
 

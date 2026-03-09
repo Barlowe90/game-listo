@@ -129,25 +129,37 @@ Relaciones orientativas:
 
 ### 5.2 Endpoints (resumen)
 
-| Método | Ruta                                 | Descripción                                   | Quién puede            |
-|--------|--------------------------------------|-----------------------------------------------|------------------------|
-| POST   | `/`                                  | Crear publicación                             | Autenticado            |
-| PUT    | `/{publicacionId}`                   | Actualizar publicación                        | **Autor**              |
-| GET    | `/{publicacionId}`                   | Obtener detalle de una publicación            | Público                |
-| GET    | `/`                                  | Obtener todas las publicaciones               | Público                |
-| GET    | `/user`                              | Obtener publicaciones por usuario             | Público                |
-| GET    | `/game/{gameId}`                     | Listar publicaciones de un juego              | Público                |
-| DELETE | `/{publicacionId}`                   | Eliminar publicación                          | **Autor                |
-| POST   | `/{publicacionId}/solicitud-union`   | Crear solicitud de unión                      | Autenticado (no autor) |
-| PATCH  | `/solicitudes-union/{peticionId}`    | Aceptar/Rechazar solicitud                    | **Autor**              |
-| GET    | `/solicitudes-union/enviadas`        | Listar solicitudes de unión enviadas          | Autenticado            |
-| GET    | `/solicitudes-union/recibidas`       | Listar solicitudes de unión recibidas         | Autenticado            |
-| GET    | `/{publicacionId}/solicitudes-union` | Listar solicitudes de unión de la publicacion | **Autor**              |
-| POST   | `/{publicacionId}/abandonar-grupo`   | Abandonar grupo                               | Autenticado            |
-| GET    | `/grupos/{grupoId}`                  | Obtener datos grupo juego                     | Autenticado            |
+A continuación se listan los endpoints tal como están implementados en los controladores (`PublicacionesController`,
+`SolicitudesUnionController`, `GrupoJuegoController`). Todas las rutas parten de la base `/v1/publicaciones`.
 
-> Nota: en `PATCH .../{userId}` se asume que hay **una solicitud por usuario** para esa publicación. Si en tu diseño hay
-`solicitudId`, es más robusto usarlo en la ruta.
+| Método | Ruta                                 | Descripción / DTOs de entrada y salida                                                                                                     | Código HTTP    |
+|--------|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|----------------|
+| POST   | `/`                                  | Crear publicación. Request: `CrearPublicacionRequest`. Response: `PublicacionResponse`.                                                    | 201 Created    |
+| PUT    | `/{publicacionId}`                   | Actualizar publicación. Request: `EditarPublicacionRequest`. Response: `PublicacionResponse`.                                              | 200 OK         |
+| GET    | `/{publicacionId}`                   | Obtener detalle de una publicación. Response: `PublicacionDetalleResponse`. (Path param: `publicacionId` como String)                      | 200 OK         |
+| GET    | `/`                                  | Obtener todas las publicaciones. Response: `List<PublicacionResponse>`                                                                     | 200 OK         |
+| GET    | `/user`                              | Obtener publicaciones creadas por el usuario autenticado. Response: `List<PublicacionResponse>`. (Requiere Authentication)                 | 200 OK         |
+| GET    | `/game/{gameId}`                     | Listar publicaciones por juego. Path param: `gameId` (Long). Response: `List<PublicacionResponse>`                                         | 200 OK         |
+| DELETE | `/{publicacionId}`                   | Eliminar publicación. Requiere Authentication (se valida usuario). Response: void                                                          | 204 No Content |
+| POST   | `/{publicacionId}/solicitud-union`   | Crear solicitud de unión a la publicación. Response: `SolicitudUnionResponse`. (Path param: `publicacionId` UUID, Authentication required) | 201 Created    |
+| PATCH  | `/solicitudes-union/{solicitudId}`   | Aceptar o rechazar una solicitud. Request: `SolicitudUnionRequest`. Response: `SolicitudUnionResponse`. (Path param: `solicitudId` UUID)   | 200 OK         |
+| GET    | `/solicitudes-union/enviadas`        | Listar solicitudes de unión enviadas por el usuario autenticado. Response: `List<SolicitudUnionResponse>`                                  | 200 OK         |
+| GET    | `/solicitudes-union/recibidas`       | Listar solicitudes de unión recibidas por el usuario autenticado. Response: `List<SolicitudUnionResponse>`                                 | 200 OK         |
+| GET    | `/{publicacionId}/solicitudes-union` | Listar solicitudes de unión asociadas a una publicación. Path param: `publicacionId` UUID. Response: `List<SolicitudUnionResponse>`        | 200 OK         |
+| POST   | `/{publicacionId}/abandonar-grupo`   | Abandonar el grupo asociado a la publicación por el usuario autenticado. Response: void                                                    | 204 No Content |
+| GET    | `/grupos/{grupoId}`                  | Obtener datos del grupo de juego. Path param: `grupoId` UUID. Response: `GrupoJuegoResponse`                                               | 200 OK         |
+
+Notas importantes:
+
+- Autenticación: la mayoría de endpoints de creación/edición/acciones requieren `Authentication` (token JWT); los
+  controladores obtienen `userId` desde `Authentication.getPrincipal()` o reciben `Authentication` cuando es necesario.
+- IDs: los controladores usan `UUID` para `publicacionId`, `solicitudId` y `grupoId` salvo `gameId` que se maneja como
+  `Long`.
+- Códigos HTTP: los controladores devuelven 201 para creaciones (`crearSolicitudUnion`, `crearPublicacion`), 200 para
+  respuestas con payload y 204 No Content cuando el método devuelve `ResponseEntity.noContent()` (p. ej.
+  `eliminarPublicacion`, `abandonarGrupo`).
+- Autorización de negocio: las comprobaciones (autor de la publicación, miembro del grupo, etc.) se realizan en la capa
+  de aplicación / casos de uso; algunos endpoints asumirán ejecución autenticada y validaciones en el handler.
 
 ### 5.3 Ejemplos de flujo (alto nivel)
 

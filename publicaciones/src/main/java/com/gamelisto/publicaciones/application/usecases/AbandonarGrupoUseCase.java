@@ -1,5 +1,6 @@
 package com.gamelisto.publicaciones.application.usecases;
 
+import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.*;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
 import com.gamelisto.publicaciones.domain.vo.UsuarioId;
@@ -24,7 +25,7 @@ public class AbandonarGrupoUseCase implements AbandonarGrupoHandler {
             .orElseThrow(() -> new RuntimeException("Publicación no encontrada"));
 
     if (pub.getAutorId().equals(userId)) {
-      throw new RuntimeException("El autor no puede abandonar su propio grupo");
+      throw new ApplicationException("El autor no puede abandonar su propio grupo");
     }
 
     GrupoJuego grupo =

@@ -41,7 +41,7 @@ public class CrearPublicacionUseCase implements CrearPublicacionHandler {
 
     agregarAutorComoMiembroDelGrupo(grupoGuardado, autorUuid);
 
-    return PublicacionResult.from(publicacionGuardada);
+    return PublicacionResult.from(publicacionGuardada, grupoGuardado);
   }
 
   private void agregarAutorComoMiembroDelGrupo(GrupoJuego grupoGuardado, UUID autorUuid) {

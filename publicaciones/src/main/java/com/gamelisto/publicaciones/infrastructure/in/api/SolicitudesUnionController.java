@@ -10,7 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,9 +28,9 @@ public class SolicitudesUnionController {
   private final AceptarORechazarPeticionHandle aceptarORechazarPeticionHandle;
 
   @PostMapping("/{publicacionId}/solicitud-union")
+  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<SolicitudUnionResponse> crearSolicitudUnion(
-      @PathVariable UUID publicacionId, Authentication authentication) {
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
+      @PathVariable UUID publicacionId, @AuthenticationPrincipal UUID userId) {
 
     logger.info(
         "Crear nueva solicitud por el usuario {} para la publicacion {}", userId, publicacionId);
@@ -40,11 +41,11 @@ public class SolicitudesUnionController {
   }
 
   @PatchMapping("/solicitudes-union/{solicitudId}")
+  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<SolicitudUnionResponse> aceptarORechazarSolicitud(
       @PathVariable UUID solicitudId,
       @Valid @RequestBody SolicitudUnionRequest request,
-      Authentication authentication) {
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
+      @AuthenticationPrincipal UUID userId) {
     logger.info(
         "{} solicitud con id {} por el usuario {} ",
         request.estadoSolicitud(),
@@ -58,9 +59,9 @@ public class SolicitudesUnionController {
   }
 
   @GetMapping("/solicitudes-union/enviadas")
+  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<List<SolicitudUnionResponse>> obtenerSolicitudesUnionEnviadas(
-      Authentication authentication) {
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
+      @AuthenticationPrincipal UUID userId) {
     logger.info("Listar solicitudes de union enviadas por el usuario {}", userId);
 
     List<SolicitudUnionResult> result = buscarSolicitudesEnviadas.execute(userId);
@@ -72,9 +73,9 @@ public class SolicitudesUnionController {
   }
 
   @GetMapping("/solicitudes-union/recibidas")
+  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<List<SolicitudUnionResponse>> obtenerSolicitudesUnionRecibidas(
-      Authentication authentication) {
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
+      @AuthenticationPrincipal UUID userId) {
     logger.info("Listar solicitudes de union recibidas por el usuario {}", userId);
 
     List<SolicitudUnionResult> result = buscarSolicitudesRecibidas.execute(userId);
@@ -86,9 +87,9 @@ public class SolicitudesUnionController {
   }
 
   @GetMapping("/{publicacionId}/solicitudes-union")
+  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<List<SolicitudUnionResponse>> obtenerSolicitudesUnion(
-      @PathVariable UUID publicacionId, Authentication authentication) {
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
+      @PathVariable UUID publicacionId, @AuthenticationPrincipal UUID userId) {
     logger.info("Listar solicitudes recibidas a la publicacion {}", publicacionId);
 
     List<SolicitudUnionResult> result =

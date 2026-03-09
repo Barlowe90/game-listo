@@ -89,10 +89,11 @@ toda la información del usuario.
 
 #### Gestión de contraseña
 
-- **Cambio de contraseña** (`POST /v1/usuarios/user/{id}/password`)
+- **Cambio de contraseña** (`PUT /v1/usuarios/password`)
     - Validación de contraseña actual
     - Hashing de nueva contraseña
-    - Usuario autenticado puede cambiar su propia contraseña
+    - Usuario autenticado puede cambiar su propia contraseña (se valida
+      `@PreAuthorize("#userId == authentication.principal")`)
 
 - **Restablecimiento de contraseña** (`POST /v1/usuarios/auth/reset-password`)
     - Solicitud de reset genera token temporal
@@ -101,10 +102,10 @@ toda la información del usuario.
 
 #### Gestión de perfil
 
-- **Consulta de perfil** (`GET /v1/usuarios/user/{id}`)
+- **Consulta de perfil** (`GET /v1/usuarios/{id}`)
     - Datos públicos del usuario
 
-- **Edición de perfil** (`PATCH /v1/usuarios/user/{id}`)
+- **Edición de perfil** (`PATCH /v1/usuarios`)
     - Actualización de `username` (validación de unicidad)
     - Actualización de `email` (requiere nueva verificación)
     - Cambio de `avatar` (URL)
@@ -151,12 +152,12 @@ toda la información del usuario.
 
 #### Administración
 
-- **Cambio de estado** (`PATCH /v1/usuarios/user/{id}/state`)
+- **Cambio de estado** (`PATCH /v1/usuarios/{id}/estado`)
     - Suspender/reactivar usuarios
     - Eliminación lógica (soft delete)
     - Solo administradores
 
-- **Eliminación de usuario** (`DELETE /v1/usuarios/user/{id}`)
+- **Eliminación de usuario** (`DELETE /v1/usuarios/{id}`)
     - Soft delete (estado → `ELIMINADO`)
     - Preserva datos para auditoría
 
@@ -300,27 +301,21 @@ Gestiona los tokens de refresco para autenticación JWT.
 
 #### EstadoUsuario
 
-```java
-PENDIENTE_DE_VERIFICACION  // Usuario registrado, email no verificado
-        ACTIVO                     // Usuario verificado y operativo
-SUSPENDIDO                 // Usuario temporalmente deshabilitado
-        ELIMINADO                  // Soft delete (auditoría)
-```
+- PENDIENTE_DE_VERIFICACION — Usuario registrado, email no verificado
+- ACTIVO — Usuario verificado y operativo
+- SUSPENDIDO — Usuario temporalmente deshabilitado
+- ELIMINADO — Soft delete (auditoría)
 
 #### Rol
 
-```java
-USER       // Usuario estándar (default)
-        ADMIN      // Administrador del sistema
-MODERATOR  // Moderador de contenido
-```
+- USER — Usuario estándar (default)
+- ADMIN — Administrador del sistema
+- MODERATOR — Moderador de contenido
 
 #### Idioma
 
-```java
-ESP  // Español
-        ENG  // Inglés
-```
+- ESP — Español
+- ENG — Inglés
 
 ### Value Objects del dominio
 
@@ -348,85 +343,166 @@ Todos los VOs implementan validación en construcción y son inmutables:
 
 **Base path:** `/v1/usuarios`
 
+A continuación se documentan los endpoints tal y como están implementados en los controladores `AuthController`,
+`DiscordController` y `UsuariosController`.
+
 ### Health Check
 
-| Método | Endpoint  | Descripción              | Auth |
-|--------|-----------|--------------------------|------|
-| GET    | `/health` | Estado del microservicio | No   |
+- GET `/health`
+    - Descripción: Estado del microservicio
+    - Auth: No
+    - Código: 200 OK
 
-### Autenticación JWT
+### Autenticación / Auth (base: `/v1/usuarios/auth`)
 
-| Método | Endpoint        | Request Body          | Response                | Descripción                                   |
-|--------|-----------------|-----------------------|-------------------------|-----------------------------------------------|
-| POST   | `/auth/login`   | `LoginRequest`        | `AuthResponse` (200)    | Login, genera access token + refresh token    |
-| POST   | `/auth/refresh` | `RefreshTokenRequest` | `AuthResponse` (200)    | Rota refresh token, genera nuevo access token |
-| POST   | `/auth/logout`  | `LogoutRequest`       | `200 OK`                | Revoca refresh token activo                   |
-| GET    | `/auth/me`      | -                     | `UsuarioResponse` (200) | Obtiene perfil del usuario autenticado        |
+- POST `/auth/register`
+    - Request: `CrearUsuarioRequest`
+    - Response: `UsuarioResponse`
+    - Código: 201 Created
+    - Descripción: Registro de nuevo usuario (genera token de verificación).
 
-**Estructura de `AuthResponse`:**
+- POST `/auth/verify-email`
+    - Request: `VerificarEmailRequest` (token)
+    - Response: void
+    - Código: 200 OK
+    - Descripción: Verifica el email con token de verificación.
 
-```json
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "550e8400-e29b-41d4-a716-446655440000",
-  "expiresIn": 900,
-  "tokenType": "Bearer"
-}
-```
+- POST `/auth/resend-verification`
+    - Request: `ReenviarVerificacionRequest` (email)
+    - Response: void
+    - Código: 200 OK
+    - Descripción: Reenvía token de verificación si procede.
 
-**Claims del Access Token (JWT):**
+- POST `/auth/forgot-password`
+    - Request: `SolicitarRestablecimientoRequest` (email)
+    - Response: void
+    - Código: 200 OK
+    - Descripción: Inicia flujo de restablecimiento de contraseña (envía token).
 
-- `sub`: UsuarioId (UUID)
-- `username`: Username del usuario
-- `email`: Email del usuario
-- `roles`: Array de roles [`USER`, `ADMIN`, `MODERATOR`]
-- `iat`: Timestamp de emisión
-- `exp`: Timestamp de expiración
+- POST `/auth/reset-password`
+    - Request: `RestablecerContrasenaRequest` (token + nueva contraseña)
+    - Response: void
+    - Código: 200 OK
+    - Descripción: Restablece contraseña usando token.
 
-### Registro y Verificación
+- POST `/auth/login`
+    - Request: `LoginRequest` (email/username + password)
+    - Response: `AuthResponse` (accessToken + refreshToken)
+    - Código: 200 OK
+    - Descripción: Autentica credenciales y genera tokens.
 
-| Método | Endpoint                    | Request Body                       | Response                | Descripción                             |
-|--------|-----------------------------|------------------------------------|-------------------------|-----------------------------------------|
-| POST   | `/auth/register`            | `CrearUsuarioRequest`              | `UsuarioResponse` (201) | Registra nuevo usuario                  |
-| POST   | `/auth/verify-email`        | `VerificarEmailRequest`            | `200 OK`                | Verifica email con token                |
-| POST   | `/auth/resend-verification` | `ReenviarVerificacionRequest`      | `200 OK`                | Reenvía token de verificación           |
-| POST   | `/auth/forgot-password`     | `SolicitarRestablecimientoRequest` | `200 OK`                | Solicita restablecimiento de contraseña |
-| POST   | `/auth/reset-password`      | `RestablecerContrasenaRequest`     | `200 OK`                | Restablece contraseña con token         |
+- POST `/auth/refresh`
+    - Request: `RefreshTokenRequest` (refreshToken)
+    - Response: `AuthResponse` (nuevo access + refresh token)
+    - Código: 200 OK
+    - Descripción: Rota el refresh token y emite nuevos tokens.
 
-### Gestión de Usuarios
+- POST `/auth/logout`
+    - Request: `LogoutRequest` (refreshToken, accessToken)
+    - Response: void
+    - Código: 204 No Content
+    - Descripción: Revoca el refresh token y cierra sesión.
 
-| Método | Endpoint                     | Request Body                  | Response                | Descripción                   | Auth       |
-|--------|------------------------------|-------------------------------|-------------------------|-------------------------------|------------|
-| GET    | `/users`                     | -                             | `List<UsuarioResponse>` | Lista todos los usuarios      | Sí         |
-| GET    | `/users?username={username}` | -                             | `UsuarioResponse`       | Busca usuario por username    | Sí         |
-| GET    | `/users?estado={estado}`     | -                             | `List<UsuarioResponse>` | Busca usuarios por estado     | Sí         |
-| GET    | `/{id}`                      | -                             | `UsuarioResponse`       | Obtiene usuario por ID        | Sí         |
-| PATCH  | `/{id}`                      | `EditarPerfilUsuarioRequest`  | `UsuarioResponse`       | Edita perfil del usuario      | Sí (owner) |
-| PATCH  | `/{id}/estado`               | `CambiarEstadoUsuarioRequest` | `UsuarioResponse`       | Cambia estado del usuario     | Sí (admin) |
-| PUT    | `/{id}/password`             | `CambiarContrasenaRequest`    | `200 OK`                | Cambia contraseña             | Sí (owner) |
-| PUT    | `/{id}/email`                | `CambiarCorreoRequest`        | `200 OK`                | Cambia email del usuario      | Sí (owner) |
-| DELETE | `/{id}`                      | -                             | `204 No Content`        | Elimina usuario (hard delete) | Sí (admin) |
+- GET `/auth/me`
+    - Auth: requiere autenticación (token validado por el Gateway); el `userId` se extrae por
+      `@AuthenticationPrincipal`.
+    - Response: `UsuarioResponse`
+    - Código: 200 OK
+    - Descripción: Devuelve el perfil del usuario autenticado.
 
-### Discord
+### Gestión de perfil y cuenta (base: `/v1/usuarios`)
 
-| Método | Endpoint        | Request Body             | Response          | Descripción                         |
-|--------|-----------------|--------------------------|-------------------|-------------------------------------|
-| PUT    | `/{id}/discord` | `VincularDiscordRequest` | `UsuarioResponse` | Añade datos de Discord al perfil    |
-| DELETE | `/{id}/discord` | -                        | `UsuarioResponse` | Elimina datos de Discord del perfil |
+- PUT `/password`
+    - Auth: requiere que `userId` (principal) coincida con el usuario que realiza la petición (
+      `@PreAuthorize("#userId == authentication.principal")`).
+    - Request: `CambiarContrasenaRequest`
+    - Response: void
+    - Código: 200 OK
+    - Descripción: Cambiar la contraseña del usuario autenticado.
 
-### Códigos de respuesta HTTP
+- PUT `/email`
+    - Auth: requiere que `userId` coincida con el principal.
+    - Request: `CambiarCorreoRequest`
+    - Response: void
+    - Código: 200 OK
+    - Descripción: Cambiar el email del usuario autenticado (puede disparar verificación).
 
-| Código                    | Significado                          |
-|---------------------------|--------------------------------------|
-| 200 OK                    | Operación exitosa                    |
-| 201 Created               | Usuario creado correctamente         |
-| 204 No Content            | Eliminación exitosa                  |
-| 400 Bad Request           | Validación fallida o datos inválidos |
-| 401 Unauthorized          | Token JWT ausente o inválido         |
-| 403 Forbidden             | Sin permisos para la operación       |
-| 404 Not Found             | Usuario no encontrado                |
-| 409 Conflict              | Username o email ya registrado       |
-| 500 Internal Server Error | Error inesperado del servidor        |
+- PATCH `/` (sin path)
+    - Auth: requiere que `userId` coincida con el principal.
+    - Request: `EditarPerfilUsuarioRequest`
+    - Response: `UsuarioResponse`
+    - Código: 200 OK
+    - Descripción: Editar campos del perfil (username, avatar, language, etc.) para el usuario autenticado.
+
+- PUT/DELETE `/discord` (Discord binding)
+    - PUT `/discord`
+        - Auth: `@PreAuthorize("#userId == authentication.principal")` — `userId` inyectado por
+          `@AuthenticationPrincipal`.
+        - Request: `VincularDiscordRequest`
+        - Response: `UsuarioResponse`
+        - Código: 200 OK
+        - Descripción: Vincular datos de Discord al perfil del usuario autenticado.
+
+    - DELETE `/discord`
+        - Auth: `@PreAuthorize("#userId == authentication.principal")`.
+        - Response: `UsuarioResponse`
+        - Código: 200 OK
+        - Descripción: Desvincular la cuenta de Discord del usuario autenticado.
+
+### Endpoints de administración y búsqueda
+
+- PATCH `/{id}/estado`
+    - Auth: `hasRole('ADMIN')`
+    - Path param: `id` (String/UUID)
+    - Request: `CambiarEstadoUsuarioRequest`
+    - Response: `UsuarioResponse`
+    - Código: 200 OK
+    - Descripción: Cambiar el estado de un usuario (suspender, reactivar, eliminar lógicamente).
+
+- PATCH `/{id}/rol`
+    - Auth: `hasRole('ADMIN')`
+    - Request: `CambiarRolUsuarioRequest`
+    - Response: `UsuarioResponse`
+    - Código: 200 OK
+    - Descripción: Cambiar rol del usuario (ADMIN/USER/MODERATOR).
+
+- GET `/{id}`
+    - Auth: `hasRole('ADMIN')`
+    - Path param: `id` (String/UUID)
+    - Response: `UsuarioResponse`
+    - Código: 200 OK
+    - Descripción: Obtener usuario por id (sólo administradores).
+
+- GET `/users`
+    - Query params:
+        - `username` (optional): si está presente y autenticación válida, devuelve un único `UsuarioResponse` (búsqueda
+          por nombre).
+        - `estado` (optional): si se especifica, requiere que el caller tenga rol ADMIN y devuelve
+          `List<UsuarioResponse>` filtrado por estado.
+    - Comportamiento:
+        - Si `username` no es nulo/blank, se ejecuta `buscarUsuariosPorNombre` y devuelve `UsuarioResponse` (requiere
+          autenticación).
+        - Si `estado` está presente, se valida que el caller sea ADMIN y devuelve lista por estado.
+        - Sin parámetros: se requiere rol ADMIN para listar todos los usuarios; devuelve `List<UsuarioResponse>`.
+    - Código: 200 OK (o 403 si no autorizado según la lógica del controlador)
+
+- DELETE `/{id}`
+    - Auth: `hasRole('ADMIN')`
+    - Path param: `id` (String/UUID)
+    - Response: void
+    - Código: 204 No Content
+    - Descripción: Eliminar usuario (soft/hard según implementación del caso de uso).
+
+### Notas generales
+
+- Validación de tokens: este servicio **genera** access tokens y refresh tokens, pero la **validación** de JWT en
+  peticiones entrantes es responsabilidad del API Gateway; el servicio confía en `@AuthenticationPrincipal` y en los
+  headers que el Gateway pueda propagar.
+- `@AuthenticationPrincipal` se usa en endpoints que requieren operar sobre el usuario autenticado (cambio de
+  password/email, editar perfil, vincular/desvincular Discord, `auth/me`). Asegúrate de que el Gateway inyecta el
+  principal correctamente.
+- Códigos de respuesta: se reflejan según los controladores: 201 para creaciones, 200 para respuestas con payload, 204
+  para no-content.
 
 ---
 
