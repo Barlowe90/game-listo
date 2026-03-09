@@ -25,7 +25,6 @@ public class DiscordController {
   private final DesvincularDiscordHandle desvincularDiscordUseCase;
   private static final Logger logger = LoggerFactory.getLogger(DiscordController.class);
 
-  @PreAuthorize("#userId == authentication.principal")
   @PutMapping(value = "/discord", consumes = "application/json")
   public ResponseEntity<UsuarioResponse> vincularDiscord(
       @AuthenticationPrincipal UUID userId, @Valid @RequestBody VincularDiscordRequest request) {
@@ -46,7 +45,6 @@ public class DiscordController {
   }
 
   @DeleteMapping(value = "/discord")
-  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<UsuarioResponse> desvincularDiscord(@AuthenticationPrincipal UUID userId) {
     logger.info(
         "DELETE /v1/usuarios/discord - Desvinculando cuenta de Discord para usuario con ID: {}",

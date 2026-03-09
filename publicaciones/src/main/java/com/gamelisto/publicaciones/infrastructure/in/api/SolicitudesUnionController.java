@@ -28,7 +28,6 @@ public class SolicitudesUnionController {
   private final AceptarORechazarPeticionHandle aceptarORechazarPeticionHandle;
 
   @PostMapping("/{publicacionId}/solicitud-union")
-  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<SolicitudUnionResponse> crearSolicitudUnion(
       @PathVariable UUID publicacionId, @AuthenticationPrincipal UUID userId) {
 
@@ -41,7 +40,6 @@ public class SolicitudesUnionController {
   }
 
   @PatchMapping("/solicitudes-union/{solicitudId}")
-  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<SolicitudUnionResponse> aceptarORechazarSolicitud(
       @PathVariable UUID solicitudId,
       @Valid @RequestBody SolicitudUnionRequest request,
@@ -59,7 +57,6 @@ public class SolicitudesUnionController {
   }
 
   @GetMapping("/solicitudes-union/enviadas")
-  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<List<SolicitudUnionResponse>> obtenerSolicitudesUnionEnviadas(
       @AuthenticationPrincipal UUID userId) {
     logger.info("Listar solicitudes de union enviadas por el usuario {}", userId);
@@ -73,7 +70,6 @@ public class SolicitudesUnionController {
   }
 
   @GetMapping("/solicitudes-union/recibidas")
-  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<List<SolicitudUnionResponse>> obtenerSolicitudesUnionRecibidas(
       @AuthenticationPrincipal UUID userId) {
     logger.info("Listar solicitudes de union recibidas por el usuario {}", userId);
@@ -87,7 +83,6 @@ public class SolicitudesUnionController {
   }
 
   @GetMapping("/{publicacionId}/solicitudes-union")
-  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<List<SolicitudUnionResponse>> obtenerSolicitudesUnion(
       @PathVariable UUID publicacionId, @AuthenticationPrincipal UUID userId) {
     logger.info("Listar solicitudes recibidas a la publicacion {}", publicacionId);

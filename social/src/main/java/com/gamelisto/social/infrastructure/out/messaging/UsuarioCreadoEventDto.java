@@ -1,4 +1,4 @@
-package com.gamelisto.social.infrastructure.in.messaging;
+package com.gamelisto.social.infrastructure.out.messaging;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

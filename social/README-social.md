@@ -45,12 +45,6 @@ Contenido del README
     - Autorización: requiere usuario autenticado y `userId` debe coincidir con el principal.
     - Response: 200 OK con una lista de `UsuarioRefResponse` — objetos con `{ id, username, avatar }`
 
-- GET /v1/social/users/{userAId}/friends/common/{userBId}
-    - Descripción: Listar amigos en común entre `userAId` y `userBId`.
-    - Autorización: requiere usuario autenticado; el controlador permite la consulta si al menos uno de `userAId` o
-      `userBId` coincide con el principal autenticado.
-    - Response: 200 OK con una lista de `UsuarioRefResponse`
-
 Ejemplo cURL (suponiendo gateway y JWT si procede):
 
 ```bash
@@ -66,9 +60,6 @@ curl -X DELETE \
 
 # Listar amigos (alice debe ser el usuario autenticado)
 curl http://localhost:8085/v1/social/users/alice/friends -H "Authorization: Bearer <ACCESS_TOKEN>"
-
-# Amigos en común (al menos uno de los ids debe coincidir con el principal autenticado)
-curl http://localhost:8085/v1/social/users/alice/friends/common/charlie -H "Authorization: Bearer <ACCESS_TOKEN>"
 ```
 
 2) Eventos consumidos (RabbitMQ)

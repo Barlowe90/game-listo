@@ -9,6 +9,4 @@ public interface AmistadRepositorio {
   void removeFriendship(String userId, String friendId);
 
   List<UserRef> getFriends(String userId);
-
-  List<UserRef> getCommonFriends(String userAId, String userBId);
 }

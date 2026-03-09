@@ -2,6 +2,7 @@ package com.gamelisto.social.infrastructure.in.messaging;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamelisto.social.application.usecases.EntradaEventosHandle;
+import com.gamelisto.social.infrastructure.out.messaging.SocialListener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,9 @@ class SocialListenerTest {
   private SocialListener listener;
 
   @BeforeEach
-  void setUp() { listener = new SocialListener(entradaEventos, new ObjectMapper()); }
+  void setUp() {
+    listener = new SocialListener(entradaEventos, new ObjectMapper());
+  }
 
   @Test
   @DisplayName("debe procesar UsuarioCreado")

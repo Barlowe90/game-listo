@@ -1,4 +1,5 @@
-package com.gamelisto.social.infrastructure.in.security;
+package com.gamelisto.publicaciones.shared.security;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,18 +10,33 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+/**
+ * Configuración de seguridad para el microservicio de publicaciones.
+ *
+ * <p>Este servicio confía en la validación JWT realizada por el API Gateway. El Gateway envía
+ * información del usuario autenticado en headers (X-User-Id, X-User-Roles, etc.), que son
+ * procesados por GatewayAuthenticationFilter para construir el Authentication de Spring Security.
+ *
+ * <p>Esto permite usar @PreAuthorize en los controladores para control de acceso basado en roles.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 @Profile("!test")
 public class SecurityConfig {
+
   private final GatewayAuthenticationFilter gatewayAuthenticationFilter;
+
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) {
     http.csrf(AbstractHttpConfigurer::disable)
         .addFilterBefore(gatewayAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers("/actuator/health").permitAll().anyRequest().authenticated());
+
     return http.build();
   }
 }

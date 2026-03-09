@@ -81,26 +81,4 @@ public class AmistadRepositorioNeo4j implements AmistadRepositorio, GrafoUsuario
         .stream()
         .toList();
   }
-
-  @Override
-  public List<UserRef> getCommonFriends(String userAId, String userBId) {
-    return neo4jClient
-        .query(
-            "MATCH (a:User {id: $userAId})-[:FRIEND]-(c:User)-[:FRIEND]-(b:User {id: $userBId}) "
-                + "RETURN DISTINCT c.id AS id, c.username AS username, c.avatar AS avatar")
-        .bindAll(
-            Map.of(
-                "userAId", userAId,
-                "userBId", userBId))
-        .fetchAs(UserRef.class)
-        .mappedBy(
-            (typeSystem, record) ->
-                new UserRef(
-                    record.get("id").asString(),
-                    record.get("username").asString(""),
-                    record.get("avatar").asString("")))
-        .all()
-        .stream()
-        .toList();
-  }
 }

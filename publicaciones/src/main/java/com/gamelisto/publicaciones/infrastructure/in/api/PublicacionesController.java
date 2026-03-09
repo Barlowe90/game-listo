@@ -30,7 +30,6 @@ public class PublicacionesController {
   private final BuscarPublicacionesPorJuegoHandler buscarPublicacionesPorJuego;
 
   @PostMapping
-  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<PublicacionResponse> crearPublicacion(
       @Valid @RequestBody CrearPublicacionRequest request, @AuthenticationPrincipal UUID userId) {
 
@@ -42,7 +41,6 @@ public class PublicacionesController {
   }
 
   @PutMapping("/{publicacionId}")
-  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<PublicacionResponse> editarPublicacion(
       @PathVariable UUID publicacionId,
       @Valid @RequestBody EditarPublicacionRequest request,
@@ -98,7 +96,6 @@ public class PublicacionesController {
   }
 
   @DeleteMapping("/{publicacionId}")
-  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<Void> eliminarPublicacion(
       @PathVariable UUID publicacionId, @AuthenticationPrincipal UUID userId) {
     logger.info("Eliminar la publicacion {}", publicacionId);

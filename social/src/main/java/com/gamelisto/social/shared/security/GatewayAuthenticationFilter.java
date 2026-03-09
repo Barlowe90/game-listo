@@ -1,4 +1,4 @@
-package com.gamelisto.social.infrastructure.in.security;
+package com.gamelisto.social.shared.security;
 
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.FilterChain;
@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,19 +31,63 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
       @Nonnull HttpServletResponse response,
       @Nonnull FilterChain filterChain)
       throws ServletException, IOException {
-    String userId = request.getHeader(HEADER_USER_ID);
+
+    if (siYaHayAuthNoLaPises(request, response, filterChain)) return;
+
+    String userIdHeader = request.getHeader(HEADER_USER_ID);
     String rolesHeader = request.getHeader(HEADER_USER_ROLES);
-    if (userId != null && rolesHeader != null) {
+
+    if (siFaltaHeaderNoAutentiques(request, response, filterChain, userIdHeader, rolesHeader))
+      return;
+
+    try {
+
+      UUID userId = UUID.fromString(userIdHeader);
+
       List<SimpleGrantedAuthority> authorities =
           Arrays.stream(rolesHeader.split(","))
               .map(String::trim)
-              .map(role -> "ROLE_" + role)
+              .filter(r -> !r.isBlank())
+              .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
               .map(SimpleGrantedAuthority::new)
               .toList();
-      Authentication auth = new UsernamePasswordAuthenticationToken(userId, null, authorities);
-      SecurityContextHolder.getContext().setAuthentication(auth);
-      log.debug("Usuario autenticado via Gateway headers: id={}, roles={}", userId, rolesHeader);
+
+      Authentication authentication =
+          new UsernamePasswordAuthenticationToken(userId, null, authorities);
+
+      SecurityContextHolder.getContext().setAuthentication(authentication);
+
+    } catch (IllegalArgumentException ex) {
+      SecurityContextHolder.clearContext();
     }
+
     filterChain.doFilter(request, response);
+  }
+
+  private static boolean siFaltaHeaderNoAutentiques(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      FilterChain filterChain,
+      String userIdHeader,
+      String rolesHeader)
+      throws IOException, ServletException {
+    if (userIdHeader == null
+        || userIdHeader.isBlank()
+        || rolesHeader == null
+        || rolesHeader.isBlank()) {
+      filterChain.doFilter(request, response);
+      return true;
+    }
+    return false;
+  }
+
+  private static boolean siYaHayAuthNoLaPises(
+      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      throws IOException, ServletException {
+    if (SecurityContextHolder.getContext().getAuthentication() != null) {
+      filterChain.doFilter(request, response);
+      return true;
+    }
+    return false;
   }
 }

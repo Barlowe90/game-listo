@@ -29,7 +29,6 @@ class SocialControllerTest {
   @MockitoBean private AgregarAmigoHandle agregarAmigo;
   @MockitoBean private EliminarAmigoHandle eliminarAmigo;
   @MockitoBean private ListarAmigosHandle listarAmigos;
-  @MockitoBean private ListarAmigosEnComunHandle listarAmigosEnComun;
 
   @Test
   @DisplayName("GET /friends debe retornar 200 con lista")

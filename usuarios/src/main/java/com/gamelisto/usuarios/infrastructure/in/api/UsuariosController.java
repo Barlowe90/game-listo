@@ -48,7 +48,6 @@ public class UsuariosController {
   private final BuscarUsuariosPorNombreHandle buscarUsuariosPorNombreUseCase;
 
   @PutMapping(value = "/password", consumes = "application/json")
-  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<Void> cambiarContrasena(
       @AuthenticationPrincipal UUID userId, @Valid @RequestBody CambiarContrasenaRequest request) {
 
@@ -61,7 +60,6 @@ public class UsuariosController {
   }
 
   @PutMapping(value = "/email", consumes = "application/json")
-  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<Void> cambiarCorreo(
       @AuthenticationPrincipal UUID userId, @Valid @RequestBody CambiarCorreoRequest request) {
 
@@ -73,7 +71,6 @@ public class UsuariosController {
   }
 
   @PatchMapping(consumes = "application/json")
-  @PreAuthorize("#userId == authentication.principal")
   public ResponseEntity<UsuarioResponse> editarPerfilUsuario(
       @AuthenticationPrincipal UUID userId,
       @Valid @RequestBody EditarPerfilUsuarioRequest request) {
@@ -92,7 +89,6 @@ public class UsuariosController {
   }
 
   @PatchMapping(value = "/{id}/estado", consumes = "application/json")
-  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UsuarioResponse> cambiarEstadoUsuario(
       @PathVariable String id, @Valid @RequestBody CambiarEstadoUsuarioRequest request) {
     logger.info("PATCH /v1/usuarios/{}/estado - Cambiando el estado de usuario con ID: {}", id, id);
@@ -110,7 +106,6 @@ public class UsuariosController {
   }
 
   @PatchMapping(value = "/{id}/rol", consumes = "application/json")
-  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UsuarioResponse> cambiarRolUsuario(
       @PathVariable String id, @Valid @RequestBody CambiarRolUsuarioRequest request) {
     logger.info("PATCH /v1/usuarios/{}/rol - Cambiando el rol de usuario con ID: {}", id, id);
@@ -129,7 +124,6 @@ public class UsuariosController {
   }
 
   @GetMapping(value = "/{id}", produces = "application/json")
-  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UsuarioResponse> obtenerUsuarioPorIdEndpoint(@PathVariable String id) {
     logger.info("GET /v1/usuarios/{} - Obteniendo usuario con ID: {}", id, id);
 

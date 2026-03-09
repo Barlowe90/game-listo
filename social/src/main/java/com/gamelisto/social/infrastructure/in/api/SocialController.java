@@ -3,9 +3,7 @@ package com.gamelisto.social.infrastructure.in.api;
 import com.gamelisto.social.application.usecases.UserRefResult;
 import com.gamelisto.social.application.usecases.AgregarAmigoHandle;
 import com.gamelisto.social.application.usecases.EliminarAmigoHandle;
-import com.gamelisto.social.application.usecases.ListarAmigosEnComunHandle;
 import com.gamelisto.social.application.usecases.ListarAmigosHandle;
-import com.gamelisto.social.infrastructure.exceptions.InfrastructureException;
 import com.gamelisto.social.infrastructure.in.api.dto.UsuarioRefResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -30,7 +28,6 @@ public class SocialController {
   private final AgregarAmigoHandle agregarAmigo;
   private final EliminarAmigoHandle eliminarAmigo;
   private final ListarAmigosHandle listarAmigos;
-  private final ListarAmigosEnComunHandle listarAmigosEnComun;
 
   @PostMapping("/{userId}/friends/{friendId}")
   @PreAuthorize("isAuthenticated()")
@@ -66,20 +63,6 @@ public class SocialController {
     return ResponseEntity.ok(response);
   }
 
-  @GetMapping("/{userAId}/friends/common/{userBId}")
-  @PreAuthorize("isAuthenticated()")
-  public ResponseEntity<List<UsuarioRefResponse>> listCommonFriends(
-      @PathVariable String userAId, @PathVariable String userBId, Authentication authentication) {
-    assertOneIsPrincipal(userAId, userBId, authentication);
-    log.info("Listar amigos en común entre {} y {}", userAId, userBId);
-    List<UserRefResult> commons = listarAmigosEnComun.execute(userAId, userBId);
-    List<UsuarioRefResponse> response =
-        commons.stream()
-            .map(f -> new UsuarioRefResponse(f.id(), f.username(), f.avatar()))
-            .toList();
-    return ResponseEntity.ok(response);
-  }
-
   private String principalAsString(Authentication authentication) {
     if (authentication == null || authentication.getPrincipal() == null) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing authentication");
@@ -91,20 +74,13 @@ public class SocialController {
       return userDetails.getUsername();
     }
 
-    return principal.toString();
+    return String.valueOf(principal);
   }
 
   private void assertSameUser(String userId, Authentication authentication) {
     String principal = principalAsString(authentication);
     if (!principal.equals(userId)) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot operate on another user");
-    }
-  }
-
-  private void assertOneIsPrincipal(String userAId, String userBId, Authentication authentication) {
-    String principal = principalAsString(authentication);
-    if (!principal.equals(userAId) && !principal.equals(userBId)) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
     }
   }
 }

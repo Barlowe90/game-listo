@@ -1,6 +1,6 @@
 package com.gamelisto.social.config;
 
-import com.gamelisto.social.infrastructure.in.security.GatewayAuthenticationFilter;
+import com.gamelisto.social.shared.security.GatewayAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
