@@ -31,9 +31,7 @@ public class TestSecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
-        // Agregar filtro que procesa headers del Gateway (simulados en tests)
         .addFilterBefore(gatewayAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-        // Permitir todas las peticiones - la autorización se maneja con @PreAuthorize
         .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
     return http.build();

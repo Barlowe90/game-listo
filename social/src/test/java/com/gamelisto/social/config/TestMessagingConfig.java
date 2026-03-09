@@ -1,6 +1,5 @@
 package com.gamelisto.social.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -16,17 +15,11 @@ import org.springframework.web.context.WebApplicationContext;
  */
 @TestConfiguration
 @EnableMethodSecurity
-@Import({})
+@Import(TestContainersConfig.class)
 public class TestMessagingConfig {
 
   @Bean
   public MockMvc mockMvc(@Autowired WebApplicationContext webApplicationContext) {
-    // No aplicamos springSecurity() aquí para evitar forzar la creación del filter chain
     return MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-  }
-
-  @Bean
-  public ObjectMapper objectMapper() {
-    return new ObjectMapper();
   }
 }
