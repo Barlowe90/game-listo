@@ -1,9 +1,10 @@
-package com.gamelisto.busquedas.infrastructure.exceptions;
+package com.gamelisto.busquedas.shared;
 
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.gamelisto.busquedas.infrastructure.exceptions.InfrastructureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
