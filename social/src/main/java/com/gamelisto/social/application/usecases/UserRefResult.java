@@ -1,3 +1,5 @@
 package com.gamelisto.social.application.usecases;
 
-public record UserRefResult(String id, String username, String avatar) {}
+import java.util.UUID;
+
+public record UserRefResult(UUID id, String username, String avatar) {}

@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AgregarAmigoUseCase implements AgregarAmigoHandle {
@@ -13,7 +15,7 @@ public class AgregarAmigoUseCase implements AgregarAmigoHandle {
   private final AmistadRepositorio amistadRepositorio;
 
   @Transactional
-  public void execute(String userId, String friendId) {
+  public void execute(UUID userId, UUID friendId) {
     Amistad.of(userId, friendId);
     amistadRepositorio.addFriendship(userId, friendId);
   }

@@ -3,12 +3,13 @@ package com.gamelisto.social.dominio;
 import com.gamelisto.social.dominio.exceptions.DomainException;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public final class Amistad {
-  private final String userAId;
-  private final String userBId;
+  private final UUID userAId;
+  private final UUID userBId;
 
-  private Amistad(String userAId, String userBId) {
+  private Amistad(UUID userAId, UUID userBId) {
     this.userAId = Objects.requireNonNull(userAId, "userAId no puede ser null");
     this.userBId = Objects.requireNonNull(userBId, "userBId no puede ser null");
     if (this.userAId.equals(this.userBId)) {
@@ -16,30 +17,27 @@ public final class Amistad {
     }
   }
 
-  public static Amistad of(String id1, String id2) {
+  public static Amistad of(UUID id1, UUID id2) {
     if (id1 == null || id2 == null) {
       throw new DomainException("Los ids de usuario no pueden ser null");
     }
-    String a = id1.trim();
-    String b = id2.trim();
-    if (a.isEmpty() || b.isEmpty()) {
-      throw new DomainException("Los ids de usuario no pueden estar vacíos");
-    }
-    if (a.equals(b)) {
+    if (id1.equals(id2)) {
       throw new DomainException("No se puede crear amistad con uno mismo");
     }
-    if (a.compareTo(b) <= 0) {
-      return new Amistad(a, b);
+
+    // Order ids deterministically to avoid duplicate edges (smaller UUID first by compareTo)
+    if (id1.toString().compareTo(id2.toString()) <= 0) {
+      return new Amistad(id1, id2);
     } else {
-      return new Amistad(b, a);
+      return new Amistad(id2, id1);
     }
   }
 
-  public String userAId() {
+  public UUID userAId() {
     return userAId;
   }
 
-  public String userBId() {
+  public UUID userBId() {
     return userBId;
   }
 }

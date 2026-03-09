@@ -1,3 +1,5 @@
 package com.gamelisto.social.infrastructure.out.messaging;
 
-public record UsuarioEliminadoEventDto(String usuarioId) {}
+import java.util.UUID;
+
+public record UsuarioEliminadoEventDto(UUID usuarioId) {}

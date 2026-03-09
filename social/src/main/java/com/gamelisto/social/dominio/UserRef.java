@@ -1,24 +1,25 @@
 package com.gamelisto.social.dominio;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public final class UserRef {
 
-  private final String id;
+  private final UUID id;
   private final String username;
   private final String avatar;
 
-  public UserRef(String id, String username, String avatar) {
+  public UserRef(UUID id, String username, String avatar) {
     this.id = Objects.requireNonNull(id, "id no puede ser null");
     this.username = username;
     this.avatar = avatar;
   }
 
-  public static UserRef of(String id, String username, String avatar) {
+  public static UserRef of(UUID id, String username, String avatar) {
     return new UserRef(id, username, avatar);
   }
 
-  public String id() {
+  public UUID id() {
     return id;
   }
 

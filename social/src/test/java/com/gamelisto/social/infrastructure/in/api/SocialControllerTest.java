@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.gamelisto.social.application.usecases.*;
 import org.junit.jupiter.api.DisplayName;
@@ -33,38 +34,46 @@ class SocialControllerTest {
   @Test
   @DisplayName("GET /friends debe retornar 200 con lista")
   void debeRetornarListaDeAmigos() throws Exception {
-    when(listarAmigos.execute("user1"))
-        .thenReturn(List.of(new UserRefResult("user2", "bob", null)));
+    UUID user1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    UUID user2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
+    when(listarAmigos.execute(user1)).thenReturn(List.of(new UserRefResult(user2, "bob", null)));
 
     mockMvc
-        .perform(get("/v1/social/users/user1/friends").with(gatewayHeaders()))
+        .perform(get("/v1/social/users/friends").with(gatewayHeaders(user1)))
         .andExpect(status().isOk());
   }
 
   @Test
   @DisplayName("POST /friends debe retornar 200")
   void debeAgregarAmistad() throws Exception {
-    doNothing().when(agregarAmigo).execute("user1", "user2");
+    UUID user1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    UUID user2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
+    doNothing().when(agregarAmigo).execute(user1, user2);
 
     mockMvc
-        .perform(post("/v1/social/users/user1/friends/user2").with(gatewayHeaders()))
+        .perform(post("/v1/social/users/friends/" + user2.toString()).with(gatewayHeaders(user1)))
         .andExpect(status().isOk());
   }
 
   @Test
   @DisplayName("DELETE /friends debe retornar 204")
   void debeEliminarAmistad() throws Exception {
-    doNothing().when(eliminarAmigo).execute("user1", "user2");
+    UUID user1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    UUID user2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
+    doNothing().when(eliminarAmigo).execute(user1, user2);
 
     mockMvc
-        .perform(delete("/v1/social/users/user1/friends/user2").with(gatewayHeaders()))
+        .perform(delete("/v1/social/users/friends/" + user2.toString()).with(gatewayHeaders(user1)))
         .andExpect(status().isNoContent());
   }
 
-  private static RequestPostProcessor gatewayHeaders() {
-    final String userId = "user1";
+  private static RequestPostProcessor gatewayHeaders(UUID userId) {
+    final String userIdStr = userId.toString();
     return request -> {
-      request.addHeader("X-User-Id", userId);
+      request.addHeader("X-User-Id", userIdStr);
       request.addHeader("X-User-Roles", "ROLE_USER");
       return request;
     };

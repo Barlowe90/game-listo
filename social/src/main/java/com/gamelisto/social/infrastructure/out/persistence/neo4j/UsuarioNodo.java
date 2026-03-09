@@ -6,12 +6,14 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 
+import java.util.UUID;
+
 @Node("User")
 @Getter
 @Setter
 public class UsuarioNodo {
 
-  @Id private String id;
+  @Id private UUID id;
 
   @Property("username")
   private String username;

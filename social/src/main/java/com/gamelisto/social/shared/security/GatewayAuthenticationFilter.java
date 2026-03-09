@@ -10,8 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,7 +19,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 public class GatewayAuthenticationFilter extends OncePerRequestFilter {
-  private static final Logger log = LoggerFactory.getLogger(GatewayAuthenticationFilter.class);
   private static final String HEADER_USER_ID = "X-User-Id";
   private static final String HEADER_USER_ROLES = "X-User-Roles";
 

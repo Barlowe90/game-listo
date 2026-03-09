@@ -5,19 +5,21 @@ import com.gamelisto.social.dominio.UserRef;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class EntradaEventosUseCase implements EntradaEventosHandle {
   private final GrafoUsuarioRepositorio grafoUsuarioRepositorio;
 
   @Override
-  public void procesarUsuarioCreado(String usuarioId, String username, String avatar) {
+  public void procesarUsuarioCreado(UUID usuarioId, String username, String avatar) {
     UserRef user = UserRef.of(usuarioId, username, avatar);
     grafoUsuarioRepositorio.upsertUser(user);
   }
 
   @Override
-  public void procesarUsuarioEliminado(String usuarioId) {
+  public void procesarUsuarioEliminado(UUID usuarioId) {
     grafoUsuarioRepositorio.deleteUser(usuarioId);
   }
 }
