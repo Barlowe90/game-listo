@@ -8,8 +8,6 @@ import com.gamelisto.biblioteca.domain.UsuarioId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class CrearListaGameUseCase implements CrearListaGameHandler {
@@ -28,6 +26,8 @@ public class CrearListaGameUseCase implements CrearListaGameHandler {
 
     comprobarPersonalizadaOrThrow(result);
 
+    comprobarNoNombreOficialOrThrow(result);
+
     ListaGame listaGame =
         ListaGame.create(result.usuarioRefId(), result.nombreListaGame(), result.tipo());
 
@@ -43,6 +43,16 @@ public class CrearListaGameUseCase implements CrearListaGameHandler {
   private static void comprobarPersonalizadaOrThrow(MapearCommandToLista result) {
     if (result.tipo != Tipo.PERSONALIZADA) {
       throw new ApplicationException("Solo se puede crear listas personalizadas");
+    }
+  }
+
+  private static void comprobarNoNombreOficialOrThrow(MapearCommandToLista result) {
+    String nombre = result.nombreListaGame().value();
+    for (Estado estado : Estado.values()) {
+      if (estado.name().equalsIgnoreCase(nombre)) {
+        throw new ApplicationException(
+            "El nombre solicitado está reservado por una lista oficial: " + estado.name());
+      }
     }
   }
 

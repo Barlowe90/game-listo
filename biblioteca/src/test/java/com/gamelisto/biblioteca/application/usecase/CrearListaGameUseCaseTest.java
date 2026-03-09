@@ -67,4 +67,20 @@ class CrearListaGameUseCaseTest {
     assertEquals("Completados 2026", out.nombre());
     assertEquals("PERSONALIZADA", out.tipo());
   }
+
+  @Test
+  void debe_rechazar_si_nombre_es_estado_oficial() {
+    java.util.UUID userUuid = UUID.randomUUID();
+    UsuarioId userId = UsuarioId.of(userUuid);
+    // usar uno de los valores de Estado, por ejemplo 'JUGANDO'
+    CrearListaGameCommand cmd =
+        new CrearListaGameCommand(userId.value(), "JUGANDO", "PERSONALIZADA");
+
+    // mock usuario presente
+    when(usuariosRepo.findById(userId))
+        .thenReturn(Optional.of(UsuarioRef.reconstitute(userId, "u", "a")));
+
+    assertThrows(ApplicationException.class, () -> uc.execute(cmd));
+    verifyNoInteractions(listaRepo);
+  }
 }

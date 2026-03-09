@@ -18,9 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * tokens JWT. Las peticiones llegan ya autenticadas con headers X-User-* enriquecidos por el
  * gateway.
  *
- * <p>Rutas protegidas por rol: - Sync endpoints (/v1/catalogo/sync/**) → solo ADMIN (validado via
- * X-User-Role header) - Read endpoints (/v1/catalogo/games/**, /v1/catalogo/platforms/**) →
- * públicas (cualquier usuario autenticado)
+ * <p>Esto permite usar @PreAuthorize en los controladores para control de acceso basado en roles.
  */
 @Configuration
 @EnableWebSecurity
@@ -32,7 +30,7 @@ public class SecurityConfig {
   private final GatewayAuthenticationFilter gatewayAuthenticationFilter;
 
   @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) {
     http.csrf(AbstractHttpConfigurer::disable)
         .addFilterBefore(gatewayAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());

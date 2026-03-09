@@ -18,8 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CrearGameEstadoUseCaseTest {
 
   @Mock private GameEstadoRepositorio repo;
-  @Mock private ListaGameItemRepositorio listaGameItemRepositorio;
   @Mock private ListaGameRepositorio listaGameRepositorio;
+  @Mock private ListaGameItemRepositorio listaGameItemRepositorio;
+  @Mock private GameRefRepositorio gameRefRepositorio;
 
   @InjectMocks private CrearGameEstadoUseCase uc;
 
@@ -35,6 +36,12 @@ class CrearGameEstadoUseCaseTest {
         ListaGame.reconstitute(
             ListaGameId.generate(), userId, NombreListaGame.of("COMPLETADO"), Tipo.OFICIAL);
     when(listaGameRepositorio.findByUsuarioRefId(userId)).thenReturn(List.of(listaOficial));
+
+    // mock existente de GameRef requerido por el use case
+    when(gameRefRepositorio.findById(10L))
+        .thenReturn(Optional.of(GameRef.reconstitute(10L, "Some Game", "cover")));
+
+    // minimal behavior for listaGameItemRepositorio.add (void method) -> do nothing is default
 
     uc.execute(new CrearGameEstadoCommand(userId.value(), "10", "COMPLETADO"));
 
@@ -65,6 +72,12 @@ class CrearGameEstadoUseCaseTest {
             ListaGameId.generate(), userId, NombreListaGame.of("COMPLETADO"), Tipo.OFICIAL);
     when(listaGameRepositorio.findByUsuarioRefId(userId))
         .thenReturn(List.of(listaOficialPrev, listaOficialNew));
+
+    // mock existente de GameRef requerido por el use case
+    when(gameRefRepositorio.findById(10L))
+        .thenReturn(Optional.of(GameRef.reconstitute(10L, "Some Game", "cover")));
+
+    // minimal behavior: listaGameItemRepositorio.remove is void; default is do nothing
 
     uc.execute(new CrearGameEstadoCommand(userId.value(), "10", "COMPLETADO"));
 

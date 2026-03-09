@@ -8,6 +8,9 @@ import com.gamelisto.biblioteca.domain.NombreListaGame;
 import com.gamelisto.biblioteca.domain.Tipo;
 import com.gamelisto.biblioteca.domain.ListaGameRepositorio;
 import com.gamelisto.biblioteca.domain.UsuarioId;
+import com.gamelisto.biblioteca.domain.ListaGameItemRepositorio;
+import com.gamelisto.biblioteca.domain.GameRefRepositorio;
+import com.gamelisto.biblioteca.domain.GameEstadoRepositorio;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +25,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class BuscarTodasLasListasUseCaseTest {
 
   @Mock private ListaGameRepositorio listaGameRepositorio;
+  @Mock private ListaGameItemRepositorio listaGameItemRepositorio;
+  @Mock private GameRefRepositorio gameRefRepositorio;
+  @Mock private GameEstadoRepositorio gameEstadoRepositorio;
 
   @InjectMocks private BuscarTodasLasListasUseCase useCase;
 

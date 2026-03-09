@@ -32,9 +32,7 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) {
     http.csrf(AbstractHttpConfigurer::disable)
-        // Agregar filtro que procesa headers del Gateway
         .addFilterBefore(gatewayAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-        // Permitir todas las peticiones - la autorización se maneja con @PreAuthorize
         .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
     return http.build();
