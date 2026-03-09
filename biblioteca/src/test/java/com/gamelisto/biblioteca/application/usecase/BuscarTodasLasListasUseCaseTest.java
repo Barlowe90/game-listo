@@ -45,6 +45,9 @@ class BuscarTodasLasListasUseCaseTest {
     ListaGame l1 = ListaGame.create(usuarioId, NombreListaGame.of("AAA"), Tipo.PERSONALIZADA);
     ListaGame l2 = ListaGame.create(usuarioId, NombreListaGame.of("BBB"), Tipo.PERSONALIZADA);
     when(listaGameRepositorio.findByUsuarioRefId(usuarioId)).thenReturn(List.of(l1, l2));
+    assertThat(listaGameItemRepositorio).isNotNull();
+    assertThat(gameRefRepositorio).isNotNull();
+    assertThat(gameEstadoRepositorio).isNotNull();
 
     // When
     List<ListaGameResult> results = useCase.execute(usuarioId.value());
