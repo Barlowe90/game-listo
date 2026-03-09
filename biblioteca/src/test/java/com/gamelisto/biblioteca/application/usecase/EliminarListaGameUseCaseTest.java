@@ -9,16 +9,19 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class EliminarListaGameUseCaseTest {
 
+  @Mock private ListaGameRepositorio listaRepo;
+
+  @InjectMocks private EliminarListaGameUseCase uc;
+
   @Test
   void should_delete_personalizada_list_when_owner() {
-    ListaGameRepositorio listaRepo = mock(ListaGameRepositorio.class);
-    EliminarListaGameUseCase uc = new EliminarListaGameUseCase(listaRepo);
-
     java.util.UUID userUuid = UUID.randomUUID();
     UsuarioId userId = UsuarioId.of(userUuid);
     UUID listUuid = UUID.randomUUID();
@@ -36,9 +39,6 @@ class EliminarListaGameUseCaseTest {
 
   @Test
   void should_throw_when_delete_oficial() {
-    ListaGameRepositorio listaRepo = mock(ListaGameRepositorio.class);
-    EliminarListaGameUseCase uc = new EliminarListaGameUseCase(listaRepo);
-
     java.util.UUID userUuid = UUID.randomUUID();
     UsuarioId userId = UsuarioId.of(userUuid);
     UUID listUuid = UUID.randomUUID();

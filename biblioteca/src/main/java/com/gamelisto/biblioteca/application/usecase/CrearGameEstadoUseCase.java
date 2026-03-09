@@ -1,38 +1,75 @@
 package com.gamelisto.biblioteca.application.usecase;
 
-import com.gamelisto.biblioteca.domain.Estado;
-import com.gamelisto.biblioteca.domain.GameEstado;
-import com.gamelisto.biblioteca.domain.GameEstadoRepositorio;
-import com.gamelisto.biblioteca.domain.UsuarioId;
-import com.gamelisto.biblioteca.domain.GameId;
-import com.gamelisto.biblioteca.domain.Rating;
+import com.gamelisto.biblioteca.application.exceptions.ApplicationException;
+import com.gamelisto.biblioteca.domain.*;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CrearGameEstadoUseCase implements CrearGameEstadoHandler {
 
-  private final GameEstadoRepositorio repositorioGameEstado;
+  private final GameEstadoRepositorio gameEstadoRepositorio;
+  private final ListaGameItemRepositorio listaGameItemRepositorio;
+  private final ListaGameRepositorio listaGameRepositorio;
 
   @Transactional
   public void execute(CrearGameEstadoCommand command) {
     UsuarioId userId = UsuarioId.of(command.userId());
     GameId gameId = GameId.of(Long.parseLong(command.gameId()));
-    Estado estado = Estado.valueOf(command.estado());
+    Estado estadoNuevo = Estado.valueOf(command.estado());
+
+    Optional<GameEstado> juegoActual = gameEstadoRepositorio.findByUsuarioYGame(userId, gameId);
+    Estado estadoAnterior = juegoActual.map(GameEstado::getEstado).orElse(null);
+
+    if (estadoAnterior == estadoNuevo) {
+      return;
+    }
+
+    List<ListaGame> listasUsuario = listaGameRepositorio.findByUsuarioRefId(userId);
+
+    tieneEstadoAnteriorAndEliminarListaAnterior(estadoAnterior, listasUsuario, gameId);
 
     GameEstado actualizado =
-        repositorioGameEstado
-            .findByUsuarioYGame(userId, gameId)
+        actualizarJuegoConNuevoEstado(juegoActual, userId, gameId, estadoNuevo);
+
+    ListaGame listaJuegoNuevo = buscarListaOficialPorEstado(listasUsuario, estadoNuevo);
+
+    listaGameItemRepositorio.add(listaJuegoNuevo.getId(), actualizado.getGameRefId());
+  }
+
+  private static @NonNull ListaGame buscarListaOficialPorEstado(
+      List<ListaGame> listasUsuario, Estado estadoNuevo) {
+    return listasUsuario.stream()
+        .filter(lista -> lista.getTipo() == Tipo.OFICIAL)
+        .filter(lista -> lista.getNombreLista().value().equals(estadoNuevo.name()))
+        .findFirst()
+        .orElseThrow(() -> new ApplicationException("No hay listas con el nombre " + estadoNuevo));
+  }
+
+  private @NonNull GameEstado actualizarJuegoConNuevoEstado(
+      Optional<GameEstado> juegoActual, UsuarioId userId, GameId gameId, Estado estadoNuevo) {
+    GameEstado actualizado =
+        juegoActual
             .map(
                 existente ->
                     GameEstado.reconstitute(
-                        existente.getId(), userId, gameId, estado, existente.getRating()))
-            .orElse(GameEstado.create(userId, gameId, estado, Rating.of(0.0)));
+                        existente.getId(), userId, gameId, estadoNuevo, existente.getRating()))
+            .orElse(GameEstado.create(userId, gameId, estadoNuevo, Rating.of(0.0)));
+    gameEstadoRepositorio.save(actualizado);
+    return actualizado;
+  }
 
-    repositorioGameEstado.save(actualizado);
+  private void tieneEstadoAnteriorAndEliminarListaAnterior(
+      Estado estadoAnterior, List<ListaGame> listasUsuario, GameId gameId) {
+    if (estadoAnterior != null) {
+      ListaGame listaDelJuegoAnterior = buscarListaOficialPorEstado(listasUsuario, estadoAnterior);
+      listaGameItemRepositorio.remove(listaDelJuegoAnterior.getId(), gameId);
+    }
   }
 }

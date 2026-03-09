@@ -9,16 +9,19 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class EditarListaGameUseCaseTest {
 
+  @Mock private ListaGameRepositorio listaRepo;
+
+  @InjectMocks private EditarListaGameUseCase uc;
+
   @Test
   void should_rename_personalizada_list_when_owner() {
-    ListaGameRepositorio listaRepo = mock(ListaGameRepositorio.class);
-    EditarListaGameUseCase uc = new EditarListaGameUseCase(listaRepo);
-
     java.util.UUID userUuid = UUID.randomUUID();
     UsuarioId userId = UsuarioId.of(userUuid);
     UUID listUuid = UUID.randomUUID();
@@ -41,9 +44,6 @@ class EditarListaGameUseCaseTest {
 
   @Test
   void should_throw_when_try_rename_oficial() {
-    ListaGameRepositorio listaRepo = mock(ListaGameRepositorio.class);
-    EditarListaGameUseCase uc = new EditarListaGameUseCase(listaRepo);
-
     java.util.UUID userUuid = UUID.randomUUID();
     UsuarioId userId = UsuarioId.of(userUuid);
     UUID listUuid = UUID.randomUUID();
