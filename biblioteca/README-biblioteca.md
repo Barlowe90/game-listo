@@ -68,39 +68,39 @@ Listas
     - Response: `ListaGameResponse` — { "id": "uuid", "usuarioRefId": "uuid", "nombre": "string", "tipo": "string" }
     - Código: 201 Created
 
-- PATCH `/user/{userId}/lists/{listId}`
+- PATCH `/lists/{listId}`
     - Request: `EditarListaGameRequest` — { "nombre": "string" }
     - Response: `ListaGameResponse`
     - Código: 200 OK
 
-- DELETE `/user/{userId}/lists/{listId}`
+- DELETE `/lists/{listId}`
     - Código: 204 No Content
 
-- GET `/user/{userId}/lists/{listId}`
+- GET `/lists/{listId}`
     - Response: `ListaGameResponse`
     - Código: 200 OK
 
-- GET `/user/{userId}/lists`
+- GET `/lists`
     - Response: lista de `ListaGameResponse`
     - Código: 200 OK
 
 Gestión de juegos en listas
 
-- POST `/user/{userId}/lists/{listaId}/games/{gameRefId}`
+- POST `/lists/{listaId}/games/{gameRefId}`
     - Añade una referencia de juego a la lista.
     - Código: 200 (No Content)
 
-- DELETE `/user/{userId}/lists/{listaId}/games/{gameRefId}`
+- DELETE `/lists/{listaId}/games/{gameRefId}`
     - Elimina una referencia de juego de la lista.
     - Código: 200 (No Content)
 
 Estado y valoración de juegos
 
-- POST `/user/{userId}/games/{gameRefId}/state`
+- POST `/games/{gameRefId}/state`
     - Request: `CrearGameEstadoRequest` — { "estado": "string" }
     - Código: 200 OK
 
-- POST `/user/{userId}/games/{gameRefId}/rate`
+- POST `/games/{gameRefId}/rate`
     - Request: `RateGameEstadoRequest` — { "rating": number }
     - Código: 200 OK
 

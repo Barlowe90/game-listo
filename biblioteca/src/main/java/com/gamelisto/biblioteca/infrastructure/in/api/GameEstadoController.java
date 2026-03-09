@@ -1,8 +1,10 @@
 package com.gamelisto.biblioteca.infrastructure.in.api;
 
+import com.gamelisto.biblioteca.application.usecase.BuscarGameEstadosPorGameIdHandler;
 import com.gamelisto.biblioteca.application.usecase.CrearGameEstadoHandler;
 import com.gamelisto.biblioteca.application.usecase.RateGameEstadoHandler;
 import com.gamelisto.biblioteca.infrastructure.in.api.dto.CrearGameEstadoRequest;
+import com.gamelisto.biblioteca.infrastructure.in.api.dto.GameEstadoResponse;
 import com.gamelisto.biblioteca.infrastructure.in.api.dto.RateGameEstadoRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,6 +27,7 @@ public class GameEstadoController {
   private static final Logger logger = LoggerFactory.getLogger(GameEstadoController.class);
   private final RateGameEstadoHandler rateGameEstado;
   private final CrearGameEstadoHandler crearGameEstado;
+  private final BuscarGameEstadosPorGameIdHandler buscarGameEstadosPorGameId;
 
   @PreAuthorize("#userId == authentication.principal")
   @PostMapping("/games/{gameRefId}/state")
@@ -51,5 +55,18 @@ public class GameEstadoController {
     rateGameEstado.execute(request.toCommand(userId, gameRefId));
 
     return ResponseEntity.status(HttpStatus.OK).build();
+  }
+
+  @GetMapping("/games/{gameRefId}")
+  public ResponseEntity<List<GameEstadoResponse>> getGameEstadosByGameRefId(
+      @PathVariable Long gameRefId) {
+    logger.info("Obtener todos los GameEstado para el gameRefId {}", gameRefId);
+
+    List<GameEstadoResponse> response =
+        buscarGameEstadosPorGameId.execute(gameRefId).stream()
+            .map(GameEstadoResponse::from)
+            .toList();
+
+    return ResponseEntity.ok(response);
   }
 }

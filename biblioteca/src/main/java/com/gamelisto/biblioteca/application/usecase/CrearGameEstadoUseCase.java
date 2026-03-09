@@ -17,12 +17,15 @@ public class CrearGameEstadoUseCase implements CrearGameEstadoHandler {
   private final GameEstadoRepositorio gameEstadoRepositorio;
   private final ListaGameItemRepositorio listaGameItemRepositorio;
   private final ListaGameRepositorio listaGameRepositorio;
+  private final GameRefRepositorio gameRefRepositorio;
 
   @Transactional
   public void execute(CrearGameEstadoCommand command) {
     UsuarioId userId = UsuarioId.of(command.userId());
     GameId gameId = GameId.of(Long.parseLong(command.gameId()));
     Estado estadoNuevo = Estado.valueOf(command.estado());
+
+    comprobarSiExisteElGameRef(gameId);
 
     Optional<GameEstado> juegoActual = gameEstadoRepositorio.findByUsuarioYGame(userId, gameId);
     Estado estadoAnterior = juegoActual.map(GameEstado::getEstado).orElse(null);
@@ -41,6 +44,12 @@ public class CrearGameEstadoUseCase implements CrearGameEstadoHandler {
     ListaGame listaJuegoNuevo = buscarListaOficialPorEstado(listasUsuario, estadoNuevo);
 
     listaGameItemRepositorio.add(listaJuegoNuevo.getId(), actualizado.getGameRefId());
+  }
+
+  private void comprobarSiExisteElGameRef(GameId gameId) {
+    gameRefRepositorio
+        .findById(gameId.value())
+        .orElseThrow(() -> new ApplicationException("No existe el game"));
   }
 
   private static @NonNull ListaGame buscarListaOficialPorEstado(

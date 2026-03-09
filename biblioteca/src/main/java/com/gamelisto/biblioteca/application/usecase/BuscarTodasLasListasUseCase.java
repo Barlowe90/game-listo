@@ -1,5 +1,9 @@
 package com.gamelisto.biblioteca.application.usecase;
 
+import com.gamelisto.biblioteca.domain.GameEstadoRepositorio;
+import com.gamelisto.biblioteca.domain.GameId;
+import com.gamelisto.biblioteca.domain.GameRefRepositorio;
+import com.gamelisto.biblioteca.domain.ListaGameItemRepositorio;
 import com.gamelisto.biblioteca.domain.ListaGameRepositorio;
 
 import java.util.List;
@@ -15,13 +19,41 @@ import org.springframework.transaction.annotation.Transactional;
 public class BuscarTodasLasListasUseCase implements BuscarTodasLasListasGameHandler {
 
   private final ListaGameRepositorio listaGameRepositorio;
+  private final ListaGameItemRepositorio listaGameItemRepositorio;
+  private final GameRefRepositorio gameRefRepositorio;
+  private final GameEstadoRepositorio gameEstadoRepositorio;
 
   @Transactional
   public List<ListaGameResult> execute(UUID userId) {
     EntradaBuscarListaGame result = mapearCommandAEntrada(userId);
 
     return listaGameRepositorio.findByUsuarioRefId(result.userUuid).stream()
-        .map(ListaGameResult::from)
+        .map(
+            lista -> {
+              List<GameId> gameIds = listaGameItemRepositorio.findGameIdsByListaId(lista.getId());
+
+              List<ListaGameItemResult> juegos =
+                  gameIds.stream()
+                      .map(GameId::value)
+                      .map(Long::valueOf)
+                      .map(
+                          gameIdLong -> {
+                            var gameRef = gameRefRepositorio.findById(gameIdLong).orElse(null);
+                            var estado =
+                                gameEstadoRepositorio
+                                    .findByUsuarioYGame(result.userUuid, GameId.of(gameIdLong))
+                                    .orElse(null);
+
+                            String estadoStr = estado != null ? estado.getEstado().name() : null;
+                            String nombre = gameRef != null ? gameRef.getNombre() : null;
+                            String cover = gameRef != null ? gameRef.getCover() : null;
+
+                            return ListaGameItemResult.of(gameIdLong, nombre, cover, estadoStr);
+                          })
+                      .toList();
+
+              return ListaGameResult.from(lista, juegos);
+            })
         .toList();
   }
 
