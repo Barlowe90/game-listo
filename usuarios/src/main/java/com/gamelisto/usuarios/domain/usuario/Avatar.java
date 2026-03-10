@@ -1,5 +1,7 @@
 package com.gamelisto.usuarios.domain.usuario;
 
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
+
 public final class Avatar {
 
   private final String url;
@@ -9,7 +11,7 @@ public final class Avatar {
     if (url != null && !url.trim().isEmpty()) {
       String trimmedUrl = url.trim();
       if (trimmedUrl.length() > MAX_URL_LENGTH) {
-        throw new IllegalArgumentException(
+        throw new DomainException(
             "La URL del avatar no puede exceder " + MAX_URL_LENGTH + " caracteres");
       }
       this.url = trimmedUrl;

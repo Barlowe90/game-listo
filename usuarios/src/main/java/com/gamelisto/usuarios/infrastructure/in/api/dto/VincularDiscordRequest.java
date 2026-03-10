@@ -4,10 +4,13 @@ import com.gamelisto.usuarios.application.dto.VincularDiscordCommand;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.lang.NonNull;
 
+import java.util.UUID;
+
 public record VincularDiscordRequest(
     @NotBlank(message = "El ID de usuario de Discord es obligatorio") @NonNull String discordUserId,
-    @NotBlank(message = "El nombre de usuario de Discord es obligatorio") @NonNull String discordUsername) {
-  public VincularDiscordCommand toCommand(@NonNull String usuarioId) {
+    @NotBlank(message = "El nombre de usuario de Discord es obligatorio") @NonNull
+        String discordUsername) {
+  public VincularDiscordCommand toCommand(UUID usuarioId) {
     return new VincularDiscordCommand(usuarioId, discordUserId, discordUsername);
   }
 }

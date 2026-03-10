@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.gamelisto.usuarios.infrastructure.exceptions.InfrastructureException;
+import com.gamelisto.usuarios.infrastructure.out.email.ResendEmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,9 +36,9 @@ class ResendEmailServiceTest {
   @Test
   @DisplayName("Debe tener método sendVerificationEmail implementado")
   void debeTenerMetodoSendVerificationEmailImplementado() {
-    // When & Then - El método debe existir y ser invocable
+    // When & Then - La funcion debe existir y ser invocable
     // Nota: Este test fallará con ResendException porque no hay API key válido,
-    // pero verifica que el método está implementado correctamente
+    // pero verifica que la funcion está implementado correctamente
     assertThatThrownBy(
             () -> emailService.sendVerificationEmail("user@example.com", "testuser", "token123"))
         .isInstanceOf(InfrastructureException.class);
@@ -180,7 +181,7 @@ class ResendEmailServiceTest {
       "https://gamelisto.com",
       "https://staging.gamelisto.com",
       "https://dev.gamelisto.com",
-      "http://localhost:3000"
+      "http://localhost:8080"
     };
 
     // When & Then

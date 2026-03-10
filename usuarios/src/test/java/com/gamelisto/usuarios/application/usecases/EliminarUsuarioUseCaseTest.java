@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
@@ -192,8 +193,7 @@ class EliminarUsuarioUseCaseTest {
     String usuarioIdInvalido = "id-invalido";
 
     // Act & Assert
-    assertThrows(
-        IllegalArgumentException.class, () -> eliminarUsuarioUseCase.execute(usuarioIdInvalido));
+    assertThrows(DomainException.class, () -> eliminarUsuarioUseCase.execute(usuarioIdInvalido));
 
     verify(repositorioUsuarios, never()).findById(any(UsuarioId.class));
     verify(repositorioUsuarios, never()).save(any(Usuario.class));

@@ -49,7 +49,7 @@ class LogoutUseCaseTest {
     secret = "test-secret-key-for-testing-purposes-must-be-long-enough-for-hs256-algorithm";
     long expirationMs = 900000L; // 15 minutos
 
-    // Crear usuario de prueba usando el método create que solo requiere 3 parámetros
+    // Crear usuario de prueba usando la funcion create que solo requiere 3 parámetros
     testUsuario =
         Usuario.create(
             Username.of("testuser"),

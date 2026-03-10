@@ -1,7 +1,7 @@
 package com.gamelisto.catalogo.infrastructure.in.igdb;
 
-import com.gamelisto.catalogo.application.dto.in.IgdbGameDTO;
-import com.gamelisto.catalogo.application.dto.in.IgdbPlatformDTO;
+import com.gamelisto.catalogo.application.usecases.IgdbGameDTO;
+import com.gamelisto.catalogo.application.usecases.IgdbPlatformDTO;
 import com.gamelisto.catalogo.domain.IgdbClientPortRepositorio;
 import com.gamelisto.catalogo.infrastructure.in.igdb.dto.PlatformFromIGDBResponse;
 import com.gamelisto.catalogo.shared.config.IgdbProperties;

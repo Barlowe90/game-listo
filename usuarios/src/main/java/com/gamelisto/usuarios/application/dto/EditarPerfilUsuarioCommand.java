@@ -1,3 +1,5 @@
 package com.gamelisto.usuarios.application.dto;
 
-public record EditarPerfilUsuarioCommand(String usuarioId, String avatar, String language) {}
+import java.util.UUID;
+
+public record EditarPerfilUsuarioCommand(UUID usuarioId, String avatar, String language) {}

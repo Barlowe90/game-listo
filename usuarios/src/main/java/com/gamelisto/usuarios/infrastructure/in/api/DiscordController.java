@@ -1,40 +1,39 @@
 package com.gamelisto.usuarios.infrastructure.in.api;
 
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
-import com.gamelisto.usuarios.application.usecases.DesvincularDiscordUseCase;
-import com.gamelisto.usuarios.application.usecases.VincularDiscordUseCase;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
+import com.gamelisto.usuarios.application.usecases.DesvincularDiscordHandle;
+import com.gamelisto.usuarios.application.usecases.VincularDiscordHandle;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.VincularDiscordRequest;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.UsuarioResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/usuarios")
 @RequiredArgsConstructor
 public class DiscordController {
 
-  private final VincularDiscordUseCase vincularDiscordUseCase;
-  private final DesvincularDiscordUseCase desvincularDiscordUseCase;
+  private final VincularDiscordHandle vincularDiscordUseCase;
+  private final DesvincularDiscordHandle desvincularDiscordUseCase;
   private static final Logger logger = LoggerFactory.getLogger(DiscordController.class);
 
-  @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
-  @PutMapping(value = "/{id}/discord", consumes = "application/json")
+  @PutMapping(value = "/discord", consumes = "application/json")
   public ResponseEntity<UsuarioResponse> vincularDiscord(
-      @PathVariable @NonNull String id, @Valid @RequestBody VincularDiscordRequest request) {
+      @AuthenticationPrincipal UUID userId, @Valid @RequestBody VincularDiscordRequest request) {
     logger.info(
-        "PUT /v1/usuarios/{}/discord - Vinculando cuenta de Discord para usuario con ID: {}",
-        id,
-        id);
+        "PUT /v1/usuarios/discord - Vinculando cuenta de Discord para usuario con ID: {}", userId);
 
-    UsuarioDTO usuarioDTO = vincularDiscordUseCase.execute(request.toCommand(id));
+    UsuarioResult usuarioResult = vincularDiscordUseCase.execute(request.toCommand(userId));
 
-    UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
+    UsuarioResponse response = UsuarioResponse.from(usuarioResult);
 
     logger.info(
         "Cuenta de Discord vinculada exitosamente - ID: {}, Username: {}, Discord: {}",
@@ -45,17 +44,15 @@ public class DiscordController {
     return ResponseEntity.ok(response);
   }
 
-  @DeleteMapping(value = "/{id}/discord")
-  @PreAuthorize("hasRole('ADMIN') or #id.toString() == authentication.principal")
-  public ResponseEntity<UsuarioResponse> desvincularDiscord(@PathVariable String id) {
+  @DeleteMapping(value = "/discord")
+  public ResponseEntity<UsuarioResponse> desvincularDiscord(@AuthenticationPrincipal UUID userId) {
     logger.info(
-        "DELETE /v1/usuarios/{}/discord - Desvinculando cuenta de Discord para usuario con ID: {}",
-        id,
-        id);
+        "DELETE /v1/usuarios/discord - Desvinculando cuenta de Discord para usuario con ID: {}",
+        userId);
 
-    UsuarioDTO usuarioDTO = desvincularDiscordUseCase.execute(id);
+    UsuarioResult usuarioResult = desvincularDiscordUseCase.execute(userId);
 
-    UsuarioResponse response = UsuarioResponse.from(usuarioDTO);
+    UsuarioResponse response = UsuarioResponse.from(usuarioResult);
 
     logger.info(
         "Cuenta de Discord desvinculada exitosamente - ID: {}, Username: {}",

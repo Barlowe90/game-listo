@@ -25,9 +25,9 @@ public class SugerenciasController {
 
   @GetMapping("/sugerencia")
   public ResponseEntity<SugerenciasResponse> suggest(
-      @RequestParam(required = true) String q, @RequestParam(required = false) Integer size) {
+      @RequestParam String q, @RequestParam(defaultValue = "5") int size) {
 
-    logger.debug("Buscando sugerencias para query='{}', size={}", q, size);
+    logger.info("Buscando sugerencias para q='{}', size={}", q, size);
 
     List<BuscarJuegoDoc> docs = sugerirJuegos.execute(q, size);
     List<SugerirItemResponse> items =

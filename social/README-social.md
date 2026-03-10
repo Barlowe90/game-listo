@@ -26,37 +26,18 @@ Contenido del README
 6. Debugging y notas operativas
 
 1) Endpoints HTTP
-   Base path: `/v1/social/users`
+   Base path: `/v1/social`
 
-- POST /v1/social/users/{userId}/friends/{friendId}
-    - Descripción: Crear una amistad (inserta relación entre `userId` y `friendId`).
-    - Autorización: requiere usuario autenticado (el gateway gestiona la validación JWT). En desarrollo la seguridad
-      puede estar relajada.
-    - Respuesta: 200 OK si se creó o ya existe.
+| Método | Ruta                                | Auth / Rol    | Request | Response                              | Descripción / Notas                                                                                           |
+|--------|-------------------------------------|---------------|---------|---------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| POST   | `/v1/social/friends/{friendId}`     | Authenticated | —       | void (200 OK)                         | Añadir amigo: crea relación entre usuario autenticado (`userId` via `@AuthenticationPrincipal`) y `friendId`. |
+| DELETE | `/v1/social/friends/{friendId}`     | Authenticated | —       | void (204 No Content)                 | Eliminar amistad entre usuario autenticado y `friendId`.                                                      |
+| GET    | `/v1/social/friends`                | Authenticated | —       | `List<UsuarioRefResponse>` (200 OK)   | Listar amigos del usuario autenticado.                                                                        |
+| GET    | `/v1/social/games/{gameId}/summary` | Authenticated | —       | `ResumenSocialJuegoResponse` (200 OK) | Obtener resumen social de un juego (amigos que lo juegan, estadísticas).                                      |
 
-- DELETE /v1/social/users/{userId}/friends/{friendId}
-    - Descripción: Eliminar la relación de amistad.
-    - Respuesta: 204 No Content
-
-- GET /v1/social/users/{userId}/friends
-    - Descripción: Listar amigos de `userId`.
-    - Respuesta: 200 OK con una lista de objetos { id, username, avatar }
-
-- GET /v1/social/users/{userAId}/friends/common/{userBId}
-    - Descripción: Listar amigos en común entre `userAId` y `userBId`.
-    - Respuesta: 200 OK
-
-Ejemplo cURL (suponiendo gateway y JWT si procede):
-
-```bash
-# Añadir amistad
-curl -X POST \
-  http://localhost:8085/v1/social/users/123/friends/456 \
-  -H "Authorization: Bearer <ACCESS_TOKEN>"
-
-# Listar amigos
-curl http://localhost:8085/v1/social/users/123/friends -H "Authorization: Bearer <ACCESS_TOKEN>"
-```
+- Notas: en el controlador `userId` se extrae mediante `@AuthenticationPrincipal` (no se pasa como path param). El
+  servicio
+  espera que la autenticación se realice en el gateway o en configuración local de Spring Security.
 
 2) Eventos consumidos (RabbitMQ)
 
@@ -69,9 +50,6 @@ Eventos gestionados por `SocialListener`:
     - Acción: crear un nodo liviano en el grafo para el nuevo usuario.
 - `UsuarioEliminado` → payload: { usuarioId }
     - Acción: eliminar el nodo y sus relaciones asociadas.
-
-Configuración de la cola/exchange: ver `RabbitMQConfig` (Queue `social`, Exchange `gamelisto.eventos`, binding
-`usuarios.#`).
 
 3) Configuración y variables de entorno
    Revisa `src/main/resources/application*.properties` y `src/main/resources/application-docker.properties`.
@@ -140,19 +118,5 @@ cd social
 - Prueba que al publicar `UsuarioCreado` con header `eventType=UsuarioCreado` en exchange `gamelisto.eventos`, el
   servicio reciba y cree el nodo.
 - Prueba endpoints REST con usuarios ya creados en Neo4j.
-
-8) Código relevante (ubicaciones rápidas)
-
-- Controlador REST: `infrastructure/in/api/SocialController.java`
-- Listeners: `infrastructure/in/messaging/SocialListener.java`
-- Rabbit config: `infrastructure/in/messaging/RabbitMQConfig.java`
-- Use cases: `application/usecases/*` (AgregarAmigoUseCase, EliminarAmigoUseCase, ListarAmigosUseCase...)
-- Domínio (puertos): `dominio/AmistadRepositorio.java`, `dominio/UserRef.java`
-
-Notas finales
-
-- Este microservicio es intencionalmente pequeño y enfocado. Si quieres, puedo generar ejemplos de pruebas de
-  integración (test que publica un evento en RabbitMQ y verifica el contenido en Neo4j) y añadirlos al directorio
-  `src/test/integration`.
 
 ---

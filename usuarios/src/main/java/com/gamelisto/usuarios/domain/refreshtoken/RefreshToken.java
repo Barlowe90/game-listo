@@ -1,6 +1,7 @@
 package com.gamelisto.usuarios.domain.refreshtoken;
 
 import com.gamelisto.usuarios.domain.usuario.UsuarioId;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
@@ -35,7 +36,7 @@ public class RefreshToken {
 
   private static void comprobarFechaExpiracion(Instant createdAt, Instant expiresAt) {
     if (expiresAt.isBefore(createdAt)) {
-      throw new IllegalArgumentException(
+      throw new DomainException(
           "La fecha de expiración no puede ser anterior a la fecha de creación");
     }
   }

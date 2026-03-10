@@ -1,7 +1,5 @@
 package com.gamelisto.catalogo.application.usecases;
 
-import com.gamelisto.catalogo.application.dto.in.IgdbPlatformDTO;
-import com.gamelisto.catalogo.application.dto.out.SyncResultDTO;
 import com.gamelisto.catalogo.domain.IgdbClientPortRepositorio;
 import com.gamelisto.catalogo.domain.Platform;
 import com.gamelisto.catalogo.domain.PlataformaRepositorio;
@@ -24,19 +22,19 @@ public class SyncPlatformsFromIGDBUseCase implements SyncPlatformsFromIGDBHandle
   private final PlataformaRepositorio platformRepository;
 
   @Override
-  public SyncResultDTO execute() {
+  public SyncResultResult execute() {
     logger.info("Iniciando sincronización de plataformas desde IGDB");
 
     List<IgdbPlatformDTO> igdbPlatforms = igdbClient.fetchPlatforms();
     if (igdbPlatforms == null || igdbPlatforms.isEmpty()) {
       logger.info("No se recibieron plataformas de IGDB");
-      return new SyncResultDTO(0, null);
+      return new SyncResultResult(0, null);
     }
 
     List<Platform> platforms = igdbPlatforms.stream().map(IgdbPlatformDTO::toDomain).toList();
     platformRepository.saveAll(platforms);
 
     logger.info("Sincronización completada: {} plataformas guardadas", platforms.size());
-    return new SyncResultDTO(platforms.size(), null);
+    return new SyncResultResult(platforms.size(), null);
   }
 }

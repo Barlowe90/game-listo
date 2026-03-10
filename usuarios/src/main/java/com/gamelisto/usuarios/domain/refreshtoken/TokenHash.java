@@ -12,14 +12,14 @@ public final class TokenHash {
 
   private TokenHash(String value) {
     if (value == null || value.isBlank()) {
-      throw new IllegalArgumentException("El hash del token no pueder ser nulo o vacío");
+      throw new DomainException("El hash del token no puede ser nulo o vacío");
     }
     this.value = value;
   }
 
   public static TokenHash from(TokenValue tokenValue) {
     if (tokenValue == null) {
-      throw new IllegalArgumentException("El tokenValue no puede ser nulo");
+      throw new DomainException("El tokenValue no puede ser nulo");
     }
     try {
       MessageDigest digest = MessageDigest.getInstance("SHA-256");

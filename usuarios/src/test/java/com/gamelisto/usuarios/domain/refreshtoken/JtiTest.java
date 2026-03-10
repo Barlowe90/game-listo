@@ -2,6 +2,7 @@ package com.gamelisto.usuarios.domain.refreshtoken;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -39,23 +40,23 @@ class JtiTest {
   @DisplayName("Debe lanzar excepción si el JTI es null")
   void debeLanzarExcepcionSiJtiEsNull() {
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> Jti.of(null));
+    assertThrows(DomainException.class, () -> Jti.of(null));
   }
 
   @Test
   @DisplayName("Debe lanzar excepción si el JTI es vacío")
   void debeLanzarExcepcionSiJtiEsVacio() {
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> Jti.of(""));
-    assertThrows(IllegalArgumentException.class, () -> Jti.of("   "));
+    assertThrows(DomainException.class, () -> Jti.of(""));
+    assertThrows(DomainException.class, () -> Jti.of("   "));
   }
 
   @Test
   @DisplayName("Debe lanzar excepción si el JTI no es un UUID válido")
   void debeLanzarExcepcionSiJtiNoEsUuidValido() {
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> Jti.of("invalid-uuid"));
-    assertThrows(IllegalArgumentException.class, () -> Jti.of("12345"));
+    assertThrows(DomainException.class, () -> Jti.of("invalid-uuid"));
+    assertThrows(DomainException.class, () -> Jti.of("12345"));
   }
 
   @Test

@@ -2,6 +2,8 @@ package com.gamelisto.usuarios.domain.usuario;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
+import com.resend.services.domains.model.Domain;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -55,8 +57,7 @@ class EmailTest {
   @DisplayName("Debe lanzar excepción si el email es nulo")
   void debeLanzarExcepcionSiEmailEsNulo() {
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> Email.of(null));
+    DomainException exception = assertThrows(DomainException.class, () -> Email.of(null));
 
     assertTrue(exception.getMessage().contains("no puede ser nulo"));
   }
@@ -65,16 +66,15 @@ class EmailTest {
   @DisplayName("Debe lanzar excepción si el email es vacío")
   void debeLanzarExcepcionSiEmailEsVacio() {
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> Email.of(""));
-    assertThrows(IllegalArgumentException.class, () -> Email.of("   "));
+    assertThrows(DomainException.class, () -> Email.of(""));
+    assertThrows(DomainException.class, () -> Email.of("   "));
   }
 
   @Test
   @DisplayName("Debe lanzar excepción si el formato es inválido - sin arroba")
   void debeLanzarExcepcionSiFormatoEsInvalidoSinArroba() {
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> Email.of("no-es-email"));
+    DomainException exception = assertThrows(DomainException.class, () -> Email.of("no-es-email"));
 
     assertTrue(exception.getMessage().contains("formato del email es inválido"));
   }
@@ -83,21 +83,21 @@ class EmailTest {
   @DisplayName("Debe lanzar excepción si el formato es inválido - solo arroba")
   void debeLanzarExcepcionSiFormatoEsInvalidoSoloArroba() {
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> Email.of("@ejemplo.com"));
+    assertThrows(DomainException.class, () -> Email.of("@ejemplo.com"));
   }
 
   @Test
   @DisplayName("Debe lanzar excepción si el formato es inválido - sin domain")
   void debeLanzarExcepcionSiFormatoEsInvalidoSinDominio() {
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> Email.of("usuario@"));
+    assertThrows(DomainException.class, () -> Email.of("usuario@"));
   }
 
   @Test
   @DisplayName("Debe lanzar excepción si el formato es inválido - sin extensión")
   void debeLanzarExcepcionSiFormatoEsInvalidoSinExtension() {
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> Email.of("usuario@domain"));
+    assertThrows(DomainException.class, () -> Email.of("usuario@domain"));
   }
 
   @Test
@@ -107,8 +107,7 @@ class EmailTest {
     String emailLargo = "a".repeat(250) + "@test.com";
 
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> Email.of(emailLargo));
+    DomainException exception = assertThrows(DomainException.class, () -> Email.of(emailLargo));
 
     assertTrue(exception.getMessage().contains("no puede exceder 255 caracteres"));
   }

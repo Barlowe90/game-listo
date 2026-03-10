@@ -35,7 +35,7 @@ class CambiarContrasenaUseCaseTest {
   @DisplayName("Debe cambiar contraseña exitosamente cuando la actual es correcta")
   void debeCambiarContrasenaExitosamente() {
     // Arrange
-    String usuarioId = UUID.randomUUID().toString();
+    UUID usuarioId = UUID.randomUUID();
     String contrasenaActual = "password123";
     String contrasenaNueva = "newPassword456";
     String hashActual = "$2a$10$hashActual";
@@ -68,7 +68,7 @@ class CambiarContrasenaUseCaseTest {
   @DisplayName("Debe lanzar excepción si el usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
-    String usuarioIdInexistente = UUID.randomUUID().toString();
+    UUID usuarioIdInexistente = UUID.randomUUID();
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.empty());
 
@@ -86,7 +86,7 @@ class CambiarContrasenaUseCaseTest {
   @DisplayName("Debe lanzar excepción si la contraseña actual es incorrecta")
   void debeLanzarExcepcionSiContrasenaActualEsIncorrecta() {
     // Arrange
-    String usuarioId = UUID.randomUUID().toString();
+    UUID usuarioId = UUID.randomUUID();
     String hashActual = "$2a$10$hashActual";
 
     Usuario usuario = crearUsuarioConPassword(usuarioId, hashActual);
@@ -108,9 +108,9 @@ class CambiarContrasenaUseCaseTest {
 
   // ========== MÉTODOS AUXILIARES ==========
 
-  private Usuario crearUsuarioConPassword(String id, String passwordHash) {
+  private Usuario crearUsuarioConPassword(UUID id, String passwordHash) {
     return Usuario.reconstitute(
-        UsuarioId.fromString(id),
+        UsuarioId.of(id),
         Username.of("testuser"),
         Email.of("test@test.com"),
         PasswordHash.of(passwordHash),

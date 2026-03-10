@@ -2,6 +2,7 @@ package com.gamelisto.usuarios.domain.usuario;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -83,8 +84,8 @@ class DiscordUsernameTest {
     String valorLargo = "a".repeat(101);
 
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> DiscordUsername.of(valorLargo));
+    DomainException exception =
+        assertThrows(DomainException.class, () -> DiscordUsername.of(valorLargo));
 
     assertTrue(exception.getMessage().contains("100 caracteres"));
   }

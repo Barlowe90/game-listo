@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,8 +31,7 @@ public class PublicacionesController {
 
   @PostMapping
   public ResponseEntity<PublicacionResponse> crearPublicacion(
-      @Valid @RequestBody CrearPublicacionRequest request, Authentication authentication) {
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
+      @Valid @RequestBody CrearPublicacionRequest request, @AuthenticationPrincipal UUID userId) {
 
     logger.info("Crear nueva publicacion para el usuario {}", userId);
 
@@ -45,9 +44,8 @@ public class PublicacionesController {
   public ResponseEntity<PublicacionResponse> editarPublicacion(
       @PathVariable UUID publicacionId,
       @Valid @RequestBody EditarPublicacionRequest request,
-      Authentication authentication) {
+      @AuthenticationPrincipal UUID userId) {
     logger.info("Editar la publicacion {}", publicacionId);
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
 
     PublicacionResult result = editarPublicacion.execute(request.toCommand(publicacionId, userId));
 
@@ -75,12 +73,9 @@ public class PublicacionesController {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
-  @GetMapping("/user")
+  @GetMapping("/user/{userId}")
   public ResponseEntity<List<PublicacionResponse>> obtenerPublicacionesCreadasPorUsuario(
-      Authentication authentication) {
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
-    logger.info("Buscar las publicaciones del usuario {}", userId);
-
+      @PathVariable UUID userId) {
     List<PublicacionResult> result = buscarPublicacionesUsuario.execute(userId);
 
     List<PublicacionResponse> response = result.stream().map(PublicacionResponse::from).toList();
@@ -102,9 +97,8 @@ public class PublicacionesController {
 
   @DeleteMapping("/{publicacionId}")
   public ResponseEntity<Void> eliminarPublicacion(
-      @PathVariable UUID publicacionId, Authentication authentication) {
+      @PathVariable UUID publicacionId, @AuthenticationPrincipal UUID userId) {
     logger.info("Eliminar la publicacion {}", publicacionId);
-    UUID userId = UUID.fromString(authentication.getPrincipal().toString());
 
     eliminarPublicacion.execute(publicacionId, userId);
 

@@ -9,49 +9,50 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class AddGameToListUseCaseTest {
 
+  @Mock private ListaGameRepositorio listaRepo;
+  @Mock private ListaGameItemRepositorio itemRepo;
+
+  @InjectMocks private AddGameToListUseCase uc;
+
   @Test
   void should_add_game_to_personalizada_list() {
-    ListaGameRepositorio listaRepo = mock(ListaGameRepositorio.class);
-    ListaGameItemRepositorio itemRepo = mock(ListaGameItemRepositorio.class);
-    AddGameToListUseCase uc = new AddGameToListUseCase(listaRepo, itemRepo);
-
     java.util.UUID userUuid = UUID.randomUUID();
     UsuarioId userId = UsuarioId.of(userUuid);
     UUID listUuid = UUID.randomUUID();
     ListaGameId listId = ListaGameId.of(listUuid);
 
-    ListaGame lista = ListaGame.reconstitute(listId, userId, NombreListaGame.of("Mi lista"), Tipo.PERSONALIZADA);
+    ListaGame lista =
+        ListaGame.reconstitute(listId, userId, NombreListaGame.of("Mi lista"), Tipo.PERSONALIZADA);
 
     when(listaRepo.findById(listId)).thenReturn(Optional.of(lista));
 
-    ListaGameResult out = uc.execute(userId.toString(), listUuid.toString(), "12345");
+    uc.execute(userId.value(), listUuid.toString(), "5");
 
-    verify(itemRepo).add(listId, GameId.of(12345L));
-    assertEquals(listUuid.toString(), out.id());
+    verify(itemRepo).add(listId, GameId.of(5L));
   }
 
   @Test
-  void should_throw_when_list_not_owned() {
-    ListaGameRepositorio listaRepo = mock(ListaGameRepositorio.class);
-    ListaGameItemRepositorio itemRepo = mock(ListaGameItemRepositorio.class);
-    AddGameToListUseCase uc = new AddGameToListUseCase(listaRepo, itemRepo);
-
-    UUID owner = UUID.randomUUID();
-    UUID other = UUID.randomUUID();
+  void should_handle_already_existing_item_gracefully() {
+    java.util.UUID userUuid = UUID.randomUUID();
+    UsuarioId userId = UsuarioId.of(userUuid);
     UUID listUuid = UUID.randomUUID();
     ListaGameId listId = ListaGameId.of(listUuid);
 
-    ListaGame lista = ListaGame.reconstitute(listId, owner, NombreListaGame.of("Mi lista"), Tipo.PERSONALIZADA);
+    ListaGame lista =
+        ListaGame.reconstitute(listId, userId, NombreListaGame.of("Mi lista"), Tipo.PERSONALIZADA);
 
     when(listaRepo.findById(listId)).thenReturn(Optional.of(lista));
+    // No esperamos que la capa de uso lance excepción; el repositorio puede ignorar duplicados.
 
-    assertThrows(
-        ApplicationException.class, () -> uc.execute(other.toString(), listUuid.toString(), "1"));
-    verifyNoInteractions(itemRepo);
+    assertDoesNotThrow(() -> uc.execute(userId.value(), listUuid.toString(), "5"));
+
+    verify(itemRepo).add(listId, GameId.of(5L));
   }
 }

@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.SolicitarRestablecimientoCommand;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.repositories.IEmailService;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
@@ -115,7 +116,7 @@ class SolicitarRestablecimientoUseCaseTest {
     // Act - Ejecutar sin excepción
     solicitarRestablecimientoUseCase.execute(command);
 
-    // Assert - El método termina normalmente sin revelar información
+    // Assert - La funcion termina normalmente sin revelar información
     verify(repositorioUsuarios).findByEmail(any(Email.class));
   }
 
@@ -129,8 +130,7 @@ class SolicitarRestablecimientoUseCaseTest {
     SolicitarRestablecimientoCommand command = new SolicitarRestablecimientoCommand(emailInvalido);
 
     // Act & Assert
-    assertThrows(
-        IllegalArgumentException.class, () -> solicitarRestablecimientoUseCase.execute(command));
+    assertThrows(DomainException.class, () -> solicitarRestablecimientoUseCase.execute(command));
 
     verify(repositorioUsuarios, never()).findByEmail(any());
   }
@@ -142,8 +142,7 @@ class SolicitarRestablecimientoUseCaseTest {
     SolicitarRestablecimientoCommand command = new SolicitarRestablecimientoCommand(null);
 
     // Act & Assert
-    assertThrows(
-        IllegalArgumentException.class, () -> solicitarRestablecimientoUseCase.execute(command));
+    assertThrows(DomainException.class, () -> solicitarRestablecimientoUseCase.execute(command));
 
     verify(repositorioUsuarios, never()).findByEmail(any());
   }
@@ -155,8 +154,7 @@ class SolicitarRestablecimientoUseCaseTest {
     SolicitarRestablecimientoCommand command = new SolicitarRestablecimientoCommand("");
 
     // Act & Assert
-    assertThrows(
-        IllegalArgumentException.class, () -> solicitarRestablecimientoUseCase.execute(command));
+    assertThrows(DomainException.class, () -> solicitarRestablecimientoUseCase.execute(command));
 
     verify(repositorioUsuarios, never()).findByEmail(any());
   }

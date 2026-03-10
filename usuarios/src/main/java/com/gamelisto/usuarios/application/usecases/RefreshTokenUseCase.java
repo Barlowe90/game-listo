@@ -1,9 +1,9 @@
 package com.gamelisto.usuarios.application.usecases;
 
-import com.gamelisto.usuarios.application.dto.AuthResponseDTO;
+import com.gamelisto.usuarios.application.dto.AuthResponseResult;
 import com.gamelisto.usuarios.application.dto.RefreshTokenCommand;
 import com.gamelisto.usuarios.application.dto.TokenDTO;
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.refreshtoken.Jti;
 import com.gamelisto.usuarios.domain.refreshtoken.RefreshToken;
@@ -16,27 +16,21 @@ import com.gamelisto.usuarios.shared.auth.JwtProperties;
 import com.gamelisto.usuarios.shared.auth.JwtUtils;
 import java.time.Duration;
 import java.time.Instant;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class RefreshTokenUseCase {
+@RequiredArgsConstructor
+public class RefreshTokenUseCase implements RefreshTokenHandle {
 
   private final RepositorioUsuarios repositorioUsuarios;
   private final RepositorioRefreshTokens repositorioRefreshTokens;
   private final JwtProperties jwtProperties;
 
-  public RefreshTokenUseCase(
-      RepositorioUsuarios repositorioUsuarios,
-      RepositorioRefreshTokens repositorioRefreshTokens,
-      JwtProperties jwtProperties) {
-    this.repositorioUsuarios = repositorioUsuarios;
-    this.repositorioRefreshTokens = repositorioRefreshTokens;
-    this.jwtProperties = jwtProperties;
-  }
-
   @Transactional
-  public AuthResponseDTO execute(RefreshTokenCommand command) {
+  public AuthResponseResult execute(RefreshTokenCommand command) {
 
     TokenValue tokenValue = TokenValue.of(command.refreshToken());
     TokenHash tokenHash = TokenHash.from(tokenValue);
@@ -79,8 +73,8 @@ public class RefreshTokenUseCase {
 
     TokenDTO accessToken = new TokenDTO(accessTokenString, accessTokenExpiresAt);
     TokenDTO refreshTokenDto = new TokenDTO(newRefreshTokenString, newRefreshTokenExpiresAt);
-    UsuarioDTO usuarioDto = UsuarioDTO.from(usuario);
+    UsuarioResult usuarioResult = UsuarioResult.from(usuario);
 
-    return new AuthResponseDTO(accessToken, refreshTokenDto, usuarioDto);
+    return new AuthResponseResult(accessToken, refreshTokenDto, usuarioResult);
   }
 }

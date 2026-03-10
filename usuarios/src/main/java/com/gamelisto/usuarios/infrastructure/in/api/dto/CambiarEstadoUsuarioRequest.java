@@ -6,7 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public record CambiarEstadoUsuarioRequest(
-    @NotNull(message = "El estado del usuario es obligatorio") @Pattern(
+    @NotNull(message = "El estado del usuario es obligatorio")
+        @Pattern(
             regexp = "ACTIVO|SUSPENDIDO",
             message = "El estado del usuario debe ser ACTIVO o SUSPENDIDO")
         String estadoUsuario) {

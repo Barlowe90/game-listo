@@ -2,6 +2,7 @@ package com.gamelisto.usuarios.domain.usuario;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -67,8 +68,8 @@ class TokenVerificacionTest {
   @DisplayName("Debe lanzar excepción si el token es nulo en of()")
   void debeLanzarExcepcionSiTokenEsNulo() {
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> TokenVerificacion.of(null));
+    DomainException exception =
+        assertThrows(DomainException.class, () -> TokenVerificacion.of(null));
 
     assertTrue(exception.getMessage().contains("nulo o vacío"));
   }
@@ -77,8 +78,8 @@ class TokenVerificacionTest {
   @DisplayName("Debe lanzar excepción si el token es vacío en of()")
   void debeLanzarExcepcionSiTokenEsVacio() {
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> TokenVerificacion.of(""));
-    assertThrows(IllegalArgumentException.class, () -> TokenVerificacion.of("   "));
+    assertThrows(DomainException.class, () -> TokenVerificacion.of(""));
+    assertThrows(DomainException.class, () -> TokenVerificacion.of("   "));
   }
 
   // ========== TESTS DE IGUALDAD ==========

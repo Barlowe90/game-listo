@@ -1,6 +1,7 @@
 package com.gamelisto.usuarios.domain.usuario;
 
 import java.util.UUID;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 
 public final class UsuarioId {
 
@@ -8,7 +9,7 @@ public final class UsuarioId {
 
   private UsuarioId(UUID value) {
     if (value == null) {
-      throw new IllegalArgumentException("El ID del usuario no puede ser nulo");
+      throw new DomainException("El ID del usuario no puede ser nulo");
     }
     this.value = value;
   }
@@ -23,12 +24,12 @@ public final class UsuarioId {
 
   public static UsuarioId fromString(String value) {
     if (value == null || value.trim().isEmpty()) {
-      throw new IllegalArgumentException("El ID del usuario no puede ser nulo o vacío");
+      throw new DomainException("El ID del usuario no puede ser nulo o vacío");
     }
     try {
       return new UsuarioId(UUID.fromString(value));
     } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException("Formato de UUID inválido: " + value);
+      throw new DomainException("Formato de UUID inválido: " + value, e);
     }
   }
 

@@ -4,7 +4,7 @@ import com.gamelisto.biblioteca.application.exceptions.ApplicationException;
 
 public interface EntradaEventosHandle {
 
-  void procesarUsuarioCreado(String usuarioId, String username, String rol, String avatar);
+  void procesarUsuarioCreado(String usuarioId, String username, String avatar);
 
   void procesarUsuarioEliminado(String usuarioId) throws ApplicationException;
 

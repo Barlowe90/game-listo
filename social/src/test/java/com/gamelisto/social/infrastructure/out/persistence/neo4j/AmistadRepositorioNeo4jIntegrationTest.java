@@ -12,6 +12,7 @@ import org.testcontainers.containers.Neo4jContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.List;
+import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataNeo4jTest
@@ -35,31 +36,38 @@ class AmistadRepositorioNeo4jIntegrationTest {
   @Test
   @DisplayName("debe agregar y recuperar una amistad")
   void debeAgregarYRecuperarAmistad() {
-    repositorio.upsertUser(UserRef.of("u1", "alice", null));
-    repositorio.upsertUser(UserRef.of("u2", "bob", null));
-    repositorio.addFriendship("u1", "u2");
-    List<UserRef> amigos = repositorio.getFriends("u1");
+    UUID u1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    UUID u2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
+    repositorio.upsertUser(UserRef.of(u1, "alice", null));
+    repositorio.upsertUser(UserRef.of(u2, "bob", null));
+    repositorio.addFriendship(u1, u2);
+    List<UserRef> amigos = repositorio.getFriends(u1);
     assertEquals(1, amigos.size());
-    assertEquals("u2", amigos.get(0).id());
+    assertEquals(u2, amigos.get(0).id());
   }
 
   @Test
   @DisplayName("addFriendship debe ser idempotente")
   void debeSerIdempotente() {
-    repositorio.upsertUser(UserRef.of("u3", "charlie", null));
-    repositorio.upsertUser(UserRef.of("u4", "diana", null));
-    repositorio.addFriendship("u3", "u4");
-    repositorio.addFriendship("u3", "u4");
-    assertEquals(1, repositorio.getFriends("u3").size());
+    UUID u3 = UUID.fromString("00000000-0000-0000-0000-000000000003");
+    UUID u4 = UUID.fromString("00000000-0000-0000-0000-000000000004");
+    repositorio.upsertUser(UserRef.of(u3, "charlie", null));
+    repositorio.upsertUser(UserRef.of(u4, "diana", null));
+    repositorio.addFriendship(u3, u4);
+    repositorio.addFriendship(u3, u4);
+    assertEquals(1, repositorio.getFriends(u3).size());
   }
 
   @Test
   @DisplayName("debe eliminar una amistad")
   void debeEliminarAmistad() {
-    repositorio.upsertUser(UserRef.of("u5", "eve", null));
-    repositorio.upsertUser(UserRef.of("u6", "frank", null));
-    repositorio.addFriendship("u5", "u6");
-    repositorio.removeFriendship("u5", "u6");
-    assertTrue(repositorio.getFriends("u5").isEmpty());
+    UUID u5 = UUID.fromString("00000000-0000-0000-0000-000000000005");
+    UUID u6 = UUID.fromString("00000000-0000-0000-0000-000000000006");
+    repositorio.upsertUser(UserRef.of(u5, "eve", null));
+    repositorio.upsertUser(UserRef.of(u6, "frank", null));
+    repositorio.addFriendship(u5, u6);
+    repositorio.removeFriendship(u5, u6);
+    assertTrue(repositorio.getFriends(u5).isEmpty());
   }
 }

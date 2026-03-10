@@ -1,14 +1,12 @@
 package com.gamelisto.catalogo.infrastructure.in.api;
 
-import com.gamelisto.catalogo.application.dto.out.SyncResultDTO;
+import com.gamelisto.catalogo.application.usecases.SyncResultResult;
 import com.gamelisto.catalogo.application.usecases.SyncGamesFromIGDBHandle;
 import com.gamelisto.catalogo.application.usecases.SyncPlatformsFromIGDBHandle;
-import com.gamelisto.catalogo.infrastructure.in.api.dto.SyncGamesRequest;
-import com.gamelisto.catalogo.infrastructure.out.dto.SyncStatusResponse;
+import com.gamelisto.catalogo.infrastructure.in.api.dto.SyncStatusResponse;
 import com.gamelisto.catalogo.shared.config.IgdbProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,16 +18,13 @@ public class IGDBController {
   private final SyncPlatformsFromIGDBHandle syncPlatforms;
   private final IgdbProperties igdbProperties;
 
-  @PreAuthorize("hasRole('ADMIN')")
+  //  @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/sync/games")
-  public ResponseEntity<SyncStatusResponse> syncGames(
-      @RequestBody(required = false) SyncGamesRequest request) {
+  public ResponseEntity<SyncStatusResponse> syncGames() {
 
-    int limit =
-        (request != null && request.limit() != null)
-            ? request.limit()
-            : igdbProperties.getBatchSize();
-    SyncResultDTO result = syncGames.execute(limit);
+    int cantidadJuegosSync = igdbProperties.getBatchSize();
+
+    SyncResultResult result = syncGames.execute(cantidadJuegosSync);
 
     SyncStatusResponse response =
         SyncStatusResponse.from(result, "Sincronización de juegos completada");
@@ -37,11 +32,11 @@ public class IGDBController {
     return ResponseEntity.ok(response);
   }
 
-  @PreAuthorize("hasRole('ADMIN')")
+  //  @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/sync/platforms")
   public ResponseEntity<SyncStatusResponse> syncPlatforms() {
 
-    SyncResultDTO result = syncPlatforms.execute();
+    SyncResultResult result = syncPlatforms.execute();
 
     SyncStatusResponse response =
         SyncStatusResponse.from(result, "Sincronización de plataformas completada");

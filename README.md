@@ -97,7 +97,6 @@ GameListo está construido con **microservicios desacoplados** basados en:
 |                | Almacenar datos estructurados (PostgreSQL) y multimedia (MongoDB) |
 | **search**     | Indexar juegos en OpenSearch (escucha eventos)                    |
 |                | Búsqueda full-text, autocomplete                                  |
-|                | Filtrado facetado (plataforma, género, año)                       |
 |                | NO accede directamente a BD (event-driven)                        |
 | **graphqlBFF** | Agregar datos de múltiples servicios en una query                 |
 |                | Resolver queries GraphQL llamando APIs REST internas              |
@@ -138,7 +137,6 @@ Stack utilizado:
 - **PostgreSQL**
 - **MongoDB / OpenSearch / Neo4j**
 - **CI/CD con GitHub Actions**
-- **Despliegue en AWS (S3, EC2, ECR, RDS, etc.)**
 
 ## 🐳 Inicio Rápido con Docker Compose
 
@@ -161,6 +159,27 @@ cp .env.example .env
 
 # 3. Levantar todos los servicios
 docker-compose up -d
+# alternativa
+docker-compose up --build
+# eliminar bbdd
+docker-compose down -v
+```
+
+### Comando para poder ver tablas de Postgresql en docker desktop
+
+```bash
+# acceder a los comandos postgres
+psql -U gamelisto_user -d postgres
+# listar bbdd
+postgres=# \l 
+# conectarse a la bbdd
+postgres=# \c usuarios_db
+# ver tablas
+postgres=# \dt
+# ver info tabla
+postgres=# \d+ public.usuarios
+# listar filas
+postgres=# SELECT * FROM public.usuaruios LIMIT 20;
 ```
 
 ## 👨‍💻 Autor

@@ -1,5 +1,6 @@
 package com.gamelisto.biblioteca.domain;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface GameEstadoRepositorio {
@@ -9,4 +10,6 @@ public interface GameEstadoRepositorio {
   Optional<GameEstado> findByUsuarioYGame(UsuarioId userId, GameId gameId);
 
   void deleteById(GameEstadoId id);
+
+  List<GameEstado> findByGameRefId(GameId gameId);
 }

@@ -3,6 +3,7 @@ package com.gamelisto.usuarios.domain.usuario;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Objects;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 
 public final class TokenVerificacion {
 
@@ -24,7 +25,7 @@ public final class TokenVerificacion {
 
   public static TokenVerificacion of(String value) {
     if (value == null || value.isBlank()) {
-      throw new IllegalArgumentException("El token de verificación no puede ser nulo o vacío");
+      throw new DomainException("El token de verificación no puede ser nulo o vacío");
     }
     return new TokenVerificacion(value);
   }

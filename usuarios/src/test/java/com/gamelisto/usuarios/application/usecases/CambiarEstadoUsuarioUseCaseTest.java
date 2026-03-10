@@ -5,8 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.CambiarEstadoUsuarioCommand;
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import java.util.Optional;
@@ -43,7 +44,7 @@ class CambiarEstadoUsuarioUseCaseTest {
         new CambiarEstadoUsuarioCommand(usuarioId, EstadoUsuario.SUSPENDIDO);
 
     // Act
-    UsuarioDTO resultado = cambiarEstadoUsuarioUseCase.execute(command);
+    UsuarioResult resultado = cambiarEstadoUsuarioUseCase.execute(command);
 
     // Assert
     assertNotNull(resultado);
@@ -66,7 +67,7 @@ class CambiarEstadoUsuarioUseCaseTest {
         new CambiarEstadoUsuarioCommand(usuarioId, EstadoUsuario.ACTIVO);
 
     // Act
-    UsuarioDTO resultado = cambiarEstadoUsuarioUseCase.execute(command);
+    UsuarioResult resultado = cambiarEstadoUsuarioUseCase.execute(command);
 
     // Assert
     assertNotNull(resultado);
@@ -89,7 +90,7 @@ class CambiarEstadoUsuarioUseCaseTest {
         new CambiarEstadoUsuarioCommand(usuarioId, EstadoUsuario.SUSPENDIDO);
 
     // Act
-    UsuarioDTO resultado = cambiarEstadoUsuarioUseCase.execute(command);
+    UsuarioResult resultado = cambiarEstadoUsuarioUseCase.execute(command);
 
     // Assert
     assertNotNull(resultado);
@@ -130,7 +131,7 @@ class CambiarEstadoUsuarioUseCaseTest {
         new CambiarEstadoUsuarioCommand(usuarioId, EstadoUsuario.ACTIVO);
 
     // Act & Assert
-    assertThrows(IllegalStateException.class, () -> cambiarEstadoUsuarioUseCase.execute(command));
+    assertThrows(DomainException.class, () -> cambiarEstadoUsuarioUseCase.execute(command));
 
     verify(repositorioUsuarios, never()).save(any());
   }

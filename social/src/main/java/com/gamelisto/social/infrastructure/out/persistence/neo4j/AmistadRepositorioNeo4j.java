@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -24,7 +25,7 @@ public class AmistadRepositorioNeo4j implements AmistadRepositorio, GrafoUsuario
         .query("MERGE (u:User {id: $id}) SET u.username = $username, u.avatar = $avatar")
         .bindAll(
             Map.of(
-                "id", user.id(),
+                "id", user.id().toString(),
                 "username", user.username() != null ? user.username() : "",
                 "avatar", user.avatar() != null ? user.avatar() : ""))
         .run();
@@ -32,13 +33,17 @@ public class AmistadRepositorioNeo4j implements AmistadRepositorio, GrafoUsuario
 
   @Override
   @Transactional
-  public void deleteUser(String userId) {
-    neo4jClient.query("MATCH (u:User {id: $id}) DETACH DELETE u").bind(userId).to("id").run();
+  public void deleteUser(UUID userId) {
+    neo4jClient
+        .query("MATCH (u:User {id: $id}) DETACH DELETE u")
+        .bind(userId.toString())
+        .to("id")
+        .run();
   }
 
   @Override
   @Transactional
-  public void addFriendship(String userId, String friendId) {
+  public void addFriendship(UUID userId, UUID friendId) {
     neo4jClient
         .query(
             "MERGE (a:User {id: $userId}) "
@@ -46,57 +51,35 @@ public class AmistadRepositorioNeo4j implements AmistadRepositorio, GrafoUsuario
                 + "MERGE (a)-[:FRIEND]-(b)")
         .bindAll(
             Map.of(
-                "userId", userId,
-                "friendId", friendId))
+                "userId", userId.toString(),
+                "friendId", friendId.toString()))
         .run();
   }
 
   @Override
   @Transactional
-  public void removeFriendship(String userId, String friendId) {
+  public void removeFriendship(UUID userId, UUID friendId) {
     neo4jClient
         .query("MATCH (a:User {id: $userId})-[r:FRIEND]-(b:User {id: $friendId}) DELETE r")
         .bindAll(
             Map.of(
-                "userId", userId,
-                "friendId", friendId))
+                "userId", userId.toString(),
+                "friendId", friendId.toString()))
         .run();
   }
 
   @Override
-  public List<UserRef> getFriends(String userId) {
+  public List<UserRef> getFriends(UUID userId) {
     return neo4jClient
         .query(
             "MATCH (a:User {id: $userId})-[:FRIEND]-(b:User) RETURN b.id AS id, b.username AS username, b.avatar AS avatar")
-        .bind(userId)
+        .bind(userId.toString())
         .to("userId")
         .fetchAs(UserRef.class)
         .mappedBy(
             (typeSystem, record) ->
                 new UserRef(
-                    record.get("id").asString(),
-                    record.get("username").asString(""),
-                    record.get("avatar").asString("")))
-        .all()
-        .stream()
-        .toList();
-  }
-
-  @Override
-  public List<UserRef> getCommonFriends(String userAId, String userBId) {
-    return neo4jClient
-        .query(
-            "MATCH (a:User {id: $userAId})-[:FRIEND]-(c:User)-[:FRIEND]-(b:User {id: $userBId}) "
-                + "RETURN DISTINCT c.id AS id, c.username AS username, c.avatar AS avatar")
-        .bindAll(
-            Map.of(
-                "userAId", userAId,
-                "userBId", userBId))
-        .fetchAs(UserRef.class)
-        .mappedBy(
-            (typeSystem, record) ->
-                new UserRef(
-                    record.get("id").asString(),
+                    UUID.fromString(record.get("id").asString()),
                     record.get("username").asString(""),
                     record.get("avatar").asString("")))
         .all()

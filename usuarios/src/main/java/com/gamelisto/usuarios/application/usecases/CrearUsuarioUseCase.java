@@ -1,7 +1,7 @@
 package com.gamelisto.usuarios.application.usecases;
 
 import com.gamelisto.usuarios.application.dto.CrearUsuarioCommand;
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.repositories.IEmailService;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
@@ -17,14 +17,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CrearUsuarioUseCase {
+public class CrearUsuarioUseCase implements CrearUsuarioHandle {
 
   private final RepositorioUsuarios repositorioUsuarios;
   private final PasswordEncoder passwordEncoder;
   private final IEmailService emailService;
 
   @Transactional
-  public UsuarioDTO execute(CrearUsuarioCommand command) {
+  public UsuarioResult execute(CrearUsuarioCommand command) {
 
     Username username = Username.of(command.username());
     Email email = Email.of(command.email());
@@ -37,7 +37,7 @@ public class CrearUsuarioUseCase {
 
     enviarUsuarioEmailVerificacion(usuarioGuardado);
 
-    return UsuarioDTO.from(usuarioGuardado);
+    return UsuarioResult.from(usuarioGuardado);
   }
 
   private @NonNull PasswordHash hashearPassword(CrearUsuarioCommand command) {

@@ -3,7 +3,7 @@ package com.gamelisto.usuarios.application.usecases;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import java.util.Collections;
@@ -32,7 +32,7 @@ class ObtenerTodosLosUsuariosUseCaseTest {
     when(repositorioUsuarios.findAll()).thenReturn(Collections.emptyList());
 
     // Act
-    List<UsuarioDTO> resultado = obtenerTodosLosUsuariosUseCase.execute();
+    List<UsuarioResult> resultado = obtenerTodosLosUsuariosUseCase.execute();
 
     // Assert
     assertNotNull(resultado);
@@ -48,7 +48,7 @@ class ObtenerTodosLosUsuariosUseCaseTest {
     when(repositorioUsuarios.findAll()).thenReturn(List.of(usuario));
 
     // Act
-    List<UsuarioDTO> resultado = obtenerTodosLosUsuariosUseCase.execute();
+    List<UsuarioResult> resultado = obtenerTodosLosUsuariosUseCase.execute();
 
     // Assert
     assertNotNull(resultado);
@@ -68,7 +68,7 @@ class ObtenerTodosLosUsuariosUseCaseTest {
     when(repositorioUsuarios.findAll()).thenReturn(List.of(usuario1, usuario2, usuario3));
 
     // Act
-    List<UsuarioDTO> resultado = obtenerTodosLosUsuariosUseCase.execute();
+    List<UsuarioResult> resultado = obtenerTodosLosUsuariosUseCase.execute();
 
     // Assert
     assertNotNull(resultado);
@@ -87,13 +87,13 @@ class ObtenerTodosLosUsuariosUseCaseTest {
     when(repositorioUsuarios.findAll()).thenReturn(List.of(usuario));
 
     // Act
-    List<UsuarioDTO> resultado = obtenerTodosLosUsuariosUseCase.execute();
+    List<UsuarioResult> resultado = obtenerTodosLosUsuariosUseCase.execute();
 
     // Assert
     assertNotNull(resultado);
     assertEquals(1, resultado.size());
 
-    UsuarioDTO dto = resultado.get(0);
+    UsuarioResult dto = resultado.get(0);
     assertEquals("completeuser", dto.username());
     assertEquals("complete@test.com", dto.email());
     assertEquals("ACTIVO", dto.status());

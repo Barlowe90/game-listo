@@ -4,6 +4,7 @@ import com.gamelisto.busquedas.domain.BuscarJuegoDoc;
 import com.gamelisto.busquedas.domain.BuscarJuegoRepositorio;
 import com.gamelisto.busquedas.infrastructure.exceptions.InfrastructureException;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.OpenSearchException;
 import org.opensearch.client.opensearch.core.IndexRequest;
@@ -42,33 +43,15 @@ public class BuscarJuegoRepositorioOpenSearch implements BuscarJuegoRepositorio 
   @Override
   public void upsert(BuscarJuegoDoc doc) {
     try {
-      // Construir los inputs para el completion suggester
-      List<String> inputs = new ArrayList<>();
-      inputs.add(doc.getTitle().trim());
-      for (String alt : doc.getAlternativeNames()) {
-        if (alt != null && !alt.isBlank()) {
-          inputs.add(alt.trim());
-        }
-      }
-      // Deduplicar manteniendo orden (case-insensitive)
-      List<String> deduplicated = deduplicateInputs(inputs);
+      List<String> inputs = construirInputParaSuggester(doc);
 
-      // Construir el documento como Map
-      Map<String, Object> document = new LinkedHashMap<>();
-      document.put("gameId", doc.getGameId());
-      document.put("title", doc.getTitle());
-      document.put("alternativeNames", doc.getAlternativeNames());
+      List<String> deduplicated = eliminarDuplicados(inputs);
 
-      Map<String, Object> nameSuggest = new HashMap<>();
-      nameSuggest.put("input", deduplicated);
-      document.put("nameSuggest", nameSuggest);
+      Map<String, Object> paqueteOpenSearch = prepararPaqueteParaOpenSerach(doc, deduplicated);
 
-      IndexRequest<Map<String, Object>> request =
-          IndexRequest.of(
-              b -> b.index(writeIndex).id(String.valueOf(doc.getGameId())).document(document));
+      IndexRequest<Map<String, Object>> request = guardarEnOpenSearch(doc, paqueteOpenSearch);
 
       client.index(request);
-      logger.info("Upsert en OpenSearch: gameId={}, title={}", doc.getGameId(), doc.getTitle());
 
     } catch (OpenSearchException | IOException e) {
       logger.error(
@@ -79,16 +62,34 @@ public class BuscarJuegoRepositorioOpenSearch implements BuscarJuegoRepositorio 
     }
   }
 
-  @Override
-  public void delete(long gameId) {
-    try {
-      client.delete(d -> d.index(writeIndex).id(String.valueOf(gameId)));
-      logger.info("Documento eliminado de OpenSearch: gameId={}", gameId);
-    } catch (OpenSearchException | IOException e) {
-      logger.error(
-          "Error al eliminar documento en OpenSearch para gameId={}: {}", gameId, e.getMessage());
-      throw new InfrastructureException("OpenSearch no disponible para delete", e);
+  private IndexRequest<Map<String, Object>> guardarEnOpenSearch(
+      BuscarJuegoDoc doc, Map<String, Object> paqueteOpenSearch) {
+    return IndexRequest.of(
+        b -> b.index(writeIndex).id(String.valueOf(doc.getGameId())).document(paqueteOpenSearch));
+  }
+
+  private static @NonNull Map<String, Object> prepararPaqueteParaOpenSerach(
+      BuscarJuegoDoc doc, List<String> deduplicated) {
+    Map<String, Object> document = new LinkedHashMap<>();
+    document.put("gameId", doc.getGameId());
+    document.put("title", doc.getTitle());
+    document.put("alternativeNames", doc.getAlternativeNames());
+
+    Map<String, Object> nameSuggest = new HashMap<>();
+    nameSuggest.put("input", deduplicated);
+    document.put("nameSuggest", nameSuggest);
+    return document;
+  }
+
+  private static @NonNull List<String> construirInputParaSuggester(BuscarJuegoDoc doc) {
+    List<String> inputs = new ArrayList<>();
+    inputs.add(doc.getTitle().trim());
+    for (String alt : doc.getAlternativeNames()) {
+      if (alt != null && !alt.isBlank()) {
+        inputs.add(alt.trim());
+      }
     }
+    return inputs;
   }
 
   @Override
@@ -99,7 +100,6 @@ public class BuscarJuegoRepositorioOpenSearch implements BuscarJuegoRepositorio 
               b ->
                   b.index(readIndex)
                       .source(s -> s.filter(f -> f.includes("gameId", "title")))
-                      .size(0)
                       .suggest(
                           sg ->
                               sg.suggesters(
@@ -148,7 +148,7 @@ public class BuscarJuegoRepositorioOpenSearch implements BuscarJuegoRepositorio 
     }
   }
 
-  private List<String> deduplicateInputs(List<String> inputs) {
+  private List<String> eliminarDuplicados(List<String> inputs) {
     List<String> result = new ArrayList<>();
     List<String> lowerSeen = new ArrayList<>();
     for (String input : inputs) {

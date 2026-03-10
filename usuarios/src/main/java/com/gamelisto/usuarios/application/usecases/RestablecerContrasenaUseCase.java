@@ -7,20 +7,17 @@ import com.gamelisto.usuarios.domain.usuario.Email;
 import com.gamelisto.usuarios.domain.usuario.PasswordHash;
 import com.gamelisto.usuarios.domain.usuario.TokenVerificacion;
 import com.gamelisto.usuarios.domain.usuario.Usuario;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class RestablecerContrasenaUseCase {
+@RequiredArgsConstructor
+public class RestablecerContrasenaUseCase implements RestablecerContrasenaHandle {
+
   private final RepositorioUsuarios repositorioUsuarios;
   private final PasswordEncoder passwordEncoder;
-
-  public RestablecerContrasenaUseCase(
-      RepositorioUsuarios repositorioUsuarios, PasswordEncoder passwordEncoder) {
-    this.repositorioUsuarios = repositorioUsuarios;
-    this.passwordEncoder = passwordEncoder;
-  }
 
   @Transactional
   public void execute(RestablecerContrasenaCommand command) {

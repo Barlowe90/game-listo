@@ -2,6 +2,7 @@ package com.gamelisto.usuarios.domain.usuario;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -48,8 +49,7 @@ class PasswordHashTest {
   @DisplayName("Debe lanzar excepción si el hash es nulo")
   void debeLanzarExcepcionSiHashEsNulo() {
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> PasswordHash.of(null));
+    DomainException exception = assertThrows(DomainException.class, () -> PasswordHash.of(null));
 
     assertTrue(exception.getMessage().contains("no puede ser nulo"));
   }
@@ -58,8 +58,8 @@ class PasswordHashTest {
   @DisplayName("Debe lanzar excepción si el hash es vacío")
   void debeLanzarExcepcionSiHashEsVacio() {
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> PasswordHash.of(""));
-    assertThrows(IllegalArgumentException.class, () -> PasswordHash.of("   "));
+    assertThrows(DomainException.class, () -> PasswordHash.of(""));
+    assertThrows(DomainException.class, () -> PasswordHash.of("   "));
   }
 
   @Test

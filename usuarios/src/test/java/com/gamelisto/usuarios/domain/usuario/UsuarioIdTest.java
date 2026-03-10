@@ -2,6 +2,7 @@ package com.gamelisto.usuarios.domain.usuario;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -67,8 +68,7 @@ class UsuarioIdTest {
   @DisplayName("Debe lanzar excepción si UUID es nulo")
   void debeLanzarExcepcionSiUUIDEsNulo() {
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> UsuarioId.of(null));
+    DomainException exception = assertThrows(DomainException.class, () -> UsuarioId.of(null));
 
     assertTrue(exception.getMessage().contains("no puede ser nulo"));
   }
@@ -77,8 +77,8 @@ class UsuarioIdTest {
   @DisplayName("Debe lanzar excepción si String es nulo")
   void debeLanzarExcepcionSiStringEsNulo() {
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> UsuarioId.fromString(null));
+    DomainException exception =
+        assertThrows(DomainException.class, () -> UsuarioId.fromString(null));
 
     assertTrue(exception.getMessage().contains("no puede ser nulo"));
   }
@@ -87,16 +87,16 @@ class UsuarioIdTest {
   @DisplayName("Debe lanzar excepción si String es vacío")
   void debeLanzarExcepcionSiStringEsVacio() {
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> UsuarioId.fromString(""));
-    assertThrows(IllegalArgumentException.class, () -> UsuarioId.fromString("   "));
+    assertThrows(DomainException.class, () -> UsuarioId.fromString(""));
+    assertThrows(DomainException.class, () -> UsuarioId.fromString("   "));
   }
 
   @Test
   @DisplayName("Debe lanzar excepción si formato de UUID es inválido")
   void debeLanzarExcepcionSiFormatoUUIDEsInvalido() {
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> UsuarioId.fromString("no-es-un-uuid"));
+    DomainException exception =
+        assertThrows(DomainException.class, () -> UsuarioId.fromString("no-es-un-uuid"));
 
     assertTrue(exception.getMessage().contains("Formato de UUID inválido"));
   }
@@ -105,7 +105,7 @@ class UsuarioIdTest {
   @DisplayName("Debe lanzar excepción si UUID tiene formato incompleto")
   void debeLanzarExcepcionSiUUIDIncompleto() {
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> UsuarioId.fromString("550e8400-e29b-41d4"));
+    assertThrows(DomainException.class, () -> UsuarioId.fromString("550e8400-e29b-41d4"));
   }
 
   @Test
@@ -113,8 +113,7 @@ class UsuarioIdTest {
   void debeLanzarExcepcionSiUUIDConCaracteresInvalidos() {
     // Act & Assert
     assertThrows(
-        IllegalArgumentException.class,
-        () -> UsuarioId.fromString("550e8400-ZZZZ-41d4-a716-446655440000"));
+        DomainException.class, () -> UsuarioId.fromString("550e8400-ZZZZ-41d4-a716-446655440000"));
   }
 
   @Test

@@ -11,6 +11,9 @@ import com.gamelisto.biblioteca.domain.NombreListaGame;
 import com.gamelisto.biblioteca.domain.Tipo;
 import com.gamelisto.biblioteca.domain.ListaGameRepositorio;
 import com.gamelisto.biblioteca.domain.UsuarioId;
+import com.gamelisto.biblioteca.domain.ListaGameItemRepositorio;
+import com.gamelisto.biblioteca.domain.GameRefRepositorio;
+import com.gamelisto.biblioteca.domain.GameEstadoRepositorio;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,11 +27,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class BuscarListaGameUseCaseTest {
 
-  @Mock
-  private ListaGameRepositorio listaGameRepositorio;
+  @Mock private ListaGameRepositorio listaGameRepositorio;
+  @Mock private ListaGameItemRepositorio listaGameItemRepositorio;
+  @Mock private GameRefRepositorio gameRefRepositorio;
+  @Mock private GameEstadoRepositorio gameEstadoRepositorio;
 
-  @InjectMocks
-  private BuscarListaGameUseCase useCase;
+  @InjectMocks private BuscarListaGameUseCase useCase;
 
   private UsuarioId usuarioId;
   private UUID listaId;
@@ -43,7 +47,6 @@ class BuscarListaGameUseCaseTest {
   @DisplayName("debeRetornarListaCuandoEsPropietario")
   void debeRetornarListaCuandoEsPropietario() {
     // Given
-    ListaGame lista = ListaGame.create(usuarioId, NombreListaGame.of("Mis juegos"), Tipo.PERSONALIZADA);
     when(listaGameRepositorio.findById(ListaGameId.of(listaId)))
         .thenReturn(
             Optional.of(
@@ -53,8 +56,13 @@ class BuscarListaGameUseCaseTest {
                     NombreListaGame.of("Mis juegos"),
                     Tipo.PERSONALIZADA)));
 
+    // small assertions to reference mocks and avoid static analyzer warnings about unused fields
+    assertThat(listaGameItemRepositorio).isNotNull();
+    assertThat(gameRefRepositorio).isNotNull();
+    assertThat(gameEstadoRepositorio).isNotNull();
+
     // When
-    ListaGameResult result = useCase.execute(usuarioId.toString(), listaId.toString());
+    ListaGameResult result = useCase.execute(usuarioId.value(), listaId.toString());
 
     // Then
     assertThat(result).isNotNull();
@@ -75,8 +83,11 @@ class BuscarListaGameUseCaseTest {
                     NombreListaGame.of("Mis juegos"),
                     Tipo.PERSONALIZADA)));
 
+    // reference mock to avoid unused field warning
+    assertThat(listaGameItemRepositorio).isNotNull();
+
     // When & Then
-    assertThatThrownBy(() -> useCase.execute(usuarioId.toString(), listaId.toString()))
+    assertThatThrownBy(() -> useCase.execute(usuarioId.value(), listaId.toString()))
         .isInstanceOf(ApplicationException.class)
         .hasMessageContaining("Usario no propietario de la lista");
   }
@@ -87,8 +98,11 @@ class BuscarListaGameUseCaseTest {
     // Given
     when(listaGameRepositorio.findById(ListaGameId.of(listaId))).thenReturn(Optional.empty());
 
+    // reference mock to avoid unused field warning
+    assertThat(listaGameItemRepositorio).isNotNull();
+
     // When & Then
-    assertThatThrownBy(() -> useCase.execute(usuarioId.toString(), listaId.toString()))
+    assertThatThrownBy(() -> useCase.execute(usuarioId.value(), listaId.toString()))
         .isInstanceOf(ApplicationException.class)
         .hasMessageContaining("No se encuentra la lista");
   }

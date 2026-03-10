@@ -1,6 +1,6 @@
 package com.gamelisto.usuarios.infrastructure.in.api.dto;
 
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 
 public record UsuarioResponse(
     String id,
@@ -12,7 +12,7 @@ public record UsuarioResponse(
     String status,
     String discordUserId,
     String discordUsername) {
-  public static UsuarioResponse from(UsuarioDTO dto) {
+  public static UsuarioResponse from(UsuarioResult dto) {
     return new UsuarioResponse(
         dto.id(),
         dto.username(),

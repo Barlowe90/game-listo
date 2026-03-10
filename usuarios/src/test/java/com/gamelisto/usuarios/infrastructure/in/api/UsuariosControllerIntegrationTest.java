@@ -113,7 +113,7 @@ class UsuariosControllerIntegrationTest {
             post("/v1/usuarios/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isUnprocessableEntity())
+        .andExpect(status().is(422))
         .andExpect(jsonPath("$.error").value(containsString("existinguser")));
   }
 
@@ -133,7 +133,7 @@ class UsuariosControllerIntegrationTest {
             post("/v1/usuarios/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isUnprocessableEntity())
+        .andExpect(status().is(422))
         .andExpect(jsonPath("$.error").value(containsString("existing@example.com")));
   }
 
@@ -164,7 +164,6 @@ class UsuariosControllerIntegrationTest {
         .perform(
             get("/v1/usuarios/{id}", usuarioExistente.getId().value())
                 .header("X-User-Id", adminUser.getId().value())
-                .header("X-User-Username", adminUser.getUsername().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -181,21 +180,19 @@ class UsuariosControllerIntegrationTest {
         .perform(
             get("/v1/usuarios/{id}", "00000000-0000-0000-0000-000000000000")
                 .header("X-User-Id", adminUser.getId().value())
-                .header("X-User-Username", adminUser.getUsername().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isUnprocessableEntity());
+        .andExpect(status().is(422));
   }
 
   @Test
-  @DisplayName("GET /v1/usuarios/users - Debe listar todos los usuarios")
+  @DisplayName("GET /v1/usuarios/admin/users - Debe listar todos los usuarios")
   void debeListarTodosLosUsuarios() throws Exception {
     // Act & Assert
     mockMvc
         .perform(
-            get("/v1/usuarios/users")
+            get("/v1/usuarios/admin/users")
                 .header("X-User-Id", adminUser.getId().value())
-                .header("X-User-Username", adminUser.getUsername().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -205,7 +202,7 @@ class UsuariosControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("PATCH /v1/usuarios/{id} - Debe editar el perfil de un usuario")
+  @DisplayName("PATCH /v1/usuarios - Debe editar el perfil de un usuario")
   void debeEditarPerfilUsuario() throws Exception {
     // Arrange
     EditarPerfilUsuarioRequest request =
@@ -214,9 +211,8 @@ class UsuariosControllerIntegrationTest {
     // Act & Assert - Usuario edita su propio perfil
     mockMvc
         .perform(
-            patch("/v1/usuarios/{id}", usuarioExistente.getId().value())
+            patch("/v1/usuarios", usuarioExistente.getId().value())
                 .header("X-User-Id", usuarioExistente.getId().value())
-                .header("X-User-Username", usuarioExistente.getUsername().value())
                 .header("X-User-Roles", "USER")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
@@ -231,9 +227,8 @@ class UsuariosControllerIntegrationTest {
     // Act & Assert - ADMIN elimina usuario
     mockMvc
         .perform(
-            delete("/v1/usuarios/{id}", usuarioExistente.getId().value())
+            delete("/v1/usuarios/admin/{id}", usuarioExistente.getId().value())
                 .header("X-User-Id", adminUser.getId().value())
-                .header("X-User-Username", adminUser.getUsername().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNoContent());
@@ -243,7 +238,6 @@ class UsuariosControllerIntegrationTest {
         .perform(
             get("/v1/usuarios/{id}", usuarioExistente.getId().value())
                 .header("X-User-Id", adminUser.getId().value())
-                .header("X-User-Username", adminUser.getUsername().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -260,9 +254,8 @@ class UsuariosControllerIntegrationTest {
     // Act & Assert - ADMIN cambia estado
     mockMvc
         .perform(
-            patch("/v1/usuarios/{id}/estado", usuarioExistente.getId().value())
+            patch("/v1/usuarios/admin/{id}/estado", usuarioExistente.getId().value())
                 .header("X-User-Id", adminUser.getId().value())
-                .header("X-User-Username", adminUser.getUsername().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
@@ -271,7 +264,7 @@ class UsuariosControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("PUT /v1/usuarios/{id}/password - Debe cambiar la contraseña")
+  @DisplayName("PUT /v1/usuarios/password - Debe cambiar la contraseña")
   void debeCambiarContrasena() throws Exception {
     // Arrange - Crear usuario con contraseña conocida
     Usuario usuario =
@@ -287,9 +280,8 @@ class UsuariosControllerIntegrationTest {
     // Act & Assert - Usuario cambia su propia contraseña
     mockMvc
         .perform(
-            put("/v1/usuarios/{id}/password", usuario.getId().value())
+            put("/v1/usuarios/password", usuario.getId().value())
                 .header("X-User-Id", usuario.getId().value())
-                .header("X-User-Username", usuario.getUsername().value())
                 .header("X-User-Roles", "USER")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
@@ -324,19 +316,18 @@ class UsuariosControllerIntegrationTest {
             post("/v1/usuarios/auth/verify-email")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isUnprocessableEntity());
+        .andExpect(status().is(422));
   }
 
   @Test
-  @DisplayName("GET /v1/usuarios/users?estado=... - Debe filtrar usuarios por estado")
+  @DisplayName("GET /v1/usuarios/admin/users?estado=... - Debe filtrar usuarios por estado")
   void debeFiltrarPorEstado() throws Exception {
     // Act & Assert - ADMIN puede filtrar
     mockMvc
         .perform(
-            get("/v1/usuarios/users")
+            get("/v1/usuarios/admin/users")
                 .param("estado", "PENDIENTE_DE_VERIFICACION")
                 .header("X-User-Id", adminUser.getId().value())
-                .header("X-User-Username", adminUser.getUsername().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())

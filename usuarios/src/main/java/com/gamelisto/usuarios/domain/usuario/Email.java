@@ -1,6 +1,7 @@
 package com.gamelisto.usuarios.domain.usuario;
 
 import java.util.regex.Pattern;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 
 public final class Email {
 
@@ -12,17 +13,17 @@ public final class Email {
 
   private Email(String value) {
     if (value == null || value.trim().isEmpty()) {
-      throw new IllegalArgumentException("El email no puede ser nulo o vacío");
+      throw new DomainException("El email no puede ser nulo o vacío");
     }
 
     String normalizedEmail = value.trim().toLowerCase();
 
     if (!cumplePatronEmail(normalizedEmail)) {
-      throw new IllegalArgumentException("El formato del email es inválido: " + value);
+      throw new DomainException("El formato del email es inválido: " + value);
     }
 
     if (normalizedEmail.length() > MAX_LENGTH) {
-      throw new IllegalArgumentException("El email no puede exceder " + MAX_LENGTH + " caracteres");
+      throw new DomainException("El email no puede exceder " + MAX_LENGTH + " caracteres");
     }
 
     this.value = normalizedEmail;

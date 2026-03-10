@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.dto.VincularDiscordCommand;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
@@ -39,7 +39,7 @@ class VincularDiscordUseCaseTest {
   void debeVincularDiscordExitosamente() {
     // Arrange
     VincularDiscordCommand command =
-        new VincularDiscordCommand(usuario.getId().value().toString(), "123456789", "player#1234");
+        new VincularDiscordCommand(usuario.getId().value(), "123456789", "player#1234");
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.findByDiscordUserId(any(DiscordUserId.class)))
@@ -48,7 +48,7 @@ class VincularDiscordUseCaseTest {
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
-    UsuarioDTO resultado = vincularDiscordUseCase.execute(command);
+    UsuarioResult resultado = vincularDiscordUseCase.execute(command);
 
     // Assert
     assertNotNull(resultado);
@@ -66,7 +66,9 @@ class VincularDiscordUseCaseTest {
     // Arrange
     VincularDiscordCommand command =
         new VincularDiscordCommand(
-            "00000000-0000-0000-0000-000000000000", "123456789", "player#1234");
+            java.util.UUID.fromString("00000000-0000-0000-0000-000000000000"),
+            "123456789",
+            "player#1234");
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.empty());
 
@@ -86,7 +88,7 @@ class VincularDiscordUseCaseTest {
             Username.of("otheruser"), Email.of("other@test.com"), PasswordHash.of("$2a$10$hash"));
 
     VincularDiscordCommand command =
-        new VincularDiscordCommand(usuario.getId().value().toString(), "123456789", "player#1234");
+        new VincularDiscordCommand(usuario.getId().value(), "123456789", "player#1234");
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.findByDiscordUserId(any(DiscordUserId.class)))
@@ -107,7 +109,7 @@ class VincularDiscordUseCaseTest {
     usuario.linkDiscord(DiscordUserId.of("123456789"), DiscordUsername.of("player#1234"));
 
     VincularDiscordCommand command =
-        new VincularDiscordCommand(usuario.getId().value().toString(), "123456789", "player#1234");
+        new VincularDiscordCommand(usuario.getId().value(), "123456789", "player#1234");
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.findByDiscordUserId(any(DiscordUserId.class)))
@@ -116,7 +118,7 @@ class VincularDiscordUseCaseTest {
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
-    UsuarioDTO resultado = vincularDiscordUseCase.execute(command);
+    UsuarioResult resultado = vincularDiscordUseCase.execute(command);
 
     // Assert
     assertNotNull(resultado);
@@ -133,7 +135,7 @@ class VincularDiscordUseCaseTest {
     usuario.linkDiscord(DiscordUserId.of("111111111"), DiscordUsername.of("oldname#0001"));
 
     VincularDiscordCommand command =
-        new VincularDiscordCommand(usuario.getId().value().toString(), "222222222", "newname#9999");
+        new VincularDiscordCommand(usuario.getId().value(), "222222222", "newname#9999");
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.findByDiscordUserId(any(DiscordUserId.class)))
@@ -142,7 +144,7 @@ class VincularDiscordUseCaseTest {
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
-    UsuarioDTO resultado = vincularDiscordUseCase.execute(command);
+    UsuarioResult resultado = vincularDiscordUseCase.execute(command);
 
     // Assert
     assertNotNull(resultado);

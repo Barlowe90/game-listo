@@ -24,9 +24,6 @@ public class UsuarioRefEntity {
   @Column(name = "avatar", length = 500)
   private String avatar;
 
-  @Column(name = "rol")
-  private String rol;
-
   @OneToMany(mappedBy = "usuarioRef", fetch = FetchType.LAZY)
   private List<ListaGameEntity> listas = new ArrayList<>();
 

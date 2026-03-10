@@ -244,7 +244,7 @@ class UsuarioTest {
 package com.gamelisto.usuarios.application.usecases;
 
 import com.gamelisto.usuarios.application.dto.CrearUsuarioCommand;
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import org.junit.jupiter.api.BeforeEach;

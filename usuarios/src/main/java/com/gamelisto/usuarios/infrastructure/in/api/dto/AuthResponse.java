@@ -1,15 +1,15 @@
 package com.gamelisto.usuarios.infrastructure.in.api.dto;
 
-import com.gamelisto.usuarios.application.dto.AuthResponseDTO;
+import com.gamelisto.usuarios.application.dto.AuthResponseResult;
 
 // Respuesta de autenticación exitosa con tokens y datos del usuario
 public record AuthResponse(
     TokenResponse accessToken, TokenResponse refreshToken, UsuarioResponse usuario) {
 
-  public static AuthResponse from(AuthResponseDTO authResponseDTO) {
+  public static AuthResponse from(AuthResponseResult authResponseResult) {
     return new AuthResponse(
-        TokenResponse.from(authResponseDTO.accessToken()),
-        TokenResponse.from(authResponseDTO.refreshToken()),
-        UsuarioResponse.from(authResponseDTO.usuario()));
+        TokenResponse.from(authResponseResult.accessToken()),
+        TokenResponse.from(authResponseResult.refreshToken()),
+        UsuarioResponse.from(authResponseResult.usuario()));
   }
 }

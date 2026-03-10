@@ -39,8 +39,12 @@ public class BusquedasListener {
       if ("GameCreado".equals(eventType)) {
         GameCreadoEventDto dto =
             objectMapper.readValue(message.getBody(), GameCreadoEventDto.class);
-        logger.info("Procesando GameCreado: gameId={}, nombre={}", dto.id(), dto.name());
         List<String> alt = dto.alternativeNames() != null ? dto.alternativeNames() : List.of();
+        logger.info(
+            "Procesando GameCreado: gameId={}, nombre={}, nombres alternativos={}",
+            dto.id(),
+            dto.name(),
+            alt);
         entradaEventos.procesarGameCreado(dto.id(), dto.name(), alt);
       } else {
         logger.debug("Evento '{}' no gestionado por busquedas, ignorando", eventType);

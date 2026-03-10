@@ -1,14 +1,13 @@
 package com.gamelisto.social.dominio;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface AmistadRepositorio {
 
-  void addFriendship(String userId, String friendId);
+  void addFriendship(UUID userId, UUID friendId);
 
-  void removeFriendship(String userId, String friendId);
+  void removeFriendship(UUID userId, UUID friendId);
 
-  List<UserRef> getFriends(String userId);
-
-  List<UserRef> getCommonFriends(String userAId, String userBId);
+  List<UserRef> getFriends(UUID userId);
 }

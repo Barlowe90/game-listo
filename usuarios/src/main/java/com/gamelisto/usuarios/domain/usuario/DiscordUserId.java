@@ -1,5 +1,7 @@
 package com.gamelisto.usuarios.domain.usuario;
 
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
+
 public final class DiscordUserId {
 
   private final String value;
@@ -9,7 +11,7 @@ public final class DiscordUserId {
     if (value != null && !value.trim().isEmpty()) {
       String trimmedValue = value.trim();
       if (trimmedValue.length() > MAX_ID_LENGTH) {
-        throw new IllegalArgumentException(
+        throw new DomainException(
             "El ID de Discord no puede exceder " + MAX_ID_LENGTH + " caracteres");
       }
       this.value = trimmedValue;

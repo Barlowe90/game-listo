@@ -1,3 +1,5 @@
 package com.gamelisto.biblioteca.application.usecase;
 
-public record RateGameEstadoCommand(String userId, String gameId, Double rating) {}
+import java.util.UUID;
+
+public record RateGameEstadoCommand(UUID userId, String gameId, Double rating) {}

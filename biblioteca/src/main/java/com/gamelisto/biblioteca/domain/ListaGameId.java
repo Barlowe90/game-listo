@@ -1,6 +1,7 @@
 package com.gamelisto.biblioteca.domain;
 
 import java.util.UUID;
+import com.gamelisto.biblioteca.domain.exceptions.DomainException;
 
 public final class ListaGameId {
 
@@ -8,7 +9,7 @@ public final class ListaGameId {
 
   private ListaGameId(UUID value) {
     if (value == null) {
-      throw new IllegalArgumentException("El ID de la lista de juegos no puede ser nulo");
+      throw new DomainException("El ID de la lista de juegos no puede ser nulo");
     }
     this.value = value;
   }
@@ -23,12 +24,12 @@ public final class ListaGameId {
 
   public static ListaGameId fromString(String value) {
     if (value == null || value.trim().isEmpty()) {
-      throw new IllegalArgumentException("El ID de la lista de juegos no puede ser nulo o vacío");
+      throw new DomainException("El ID de la lista de juegos no puede ser nulo o vacío");
     }
     try {
       return new ListaGameId(UUID.fromString(value));
     } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException("Formato de UUID inválido: " + value);
+      throw new DomainException("Formato de UUID inválido: " + value);
     }
   }
 

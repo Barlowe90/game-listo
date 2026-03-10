@@ -1,7 +1,7 @@
 package com.gamelisto.catalogo.domain;
 
-import com.gamelisto.catalogo.application.dto.in.IgdbGameDTO;
-import com.gamelisto.catalogo.application.dto.in.IgdbPlatformDTO;
+import com.gamelisto.catalogo.application.usecases.IgdbGameDTO;
+import com.gamelisto.catalogo.application.usecases.IgdbPlatformDTO;
 
 import java.util.List;
 

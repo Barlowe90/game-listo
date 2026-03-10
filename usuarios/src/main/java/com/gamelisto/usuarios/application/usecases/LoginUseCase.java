@@ -1,9 +1,9 @@
 package com.gamelisto.usuarios.application.usecases;
 
-import com.gamelisto.usuarios.application.dto.AuthResponseDTO;
+import com.gamelisto.usuarios.application.dto.AuthResponseResult;
 import com.gamelisto.usuarios.application.dto.LoginCommand;
 import com.gamelisto.usuarios.application.dto.TokenDTO;
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.domain.refreshtoken.Jti;
 import com.gamelisto.usuarios.domain.refreshtoken.TokenHash;
@@ -16,31 +16,22 @@ import com.gamelisto.usuarios.domain.usuario.Usuario;
 import com.gamelisto.usuarios.shared.auth.JwtProperties;
 import com.gamelisto.usuarios.shared.auth.JwtUtils;
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class LoginUseCase {
+@RequiredArgsConstructor
+public class LoginUseCase implements LoginUseHandle {
 
   private final RepositorioUsuarios repositorioUsuarios;
   private final RepositorioRefreshTokens repositorioRefreshTokens;
   private final PasswordEncoder passwordEncoder;
   private final JwtProperties jwtProperties;
 
-  public LoginUseCase(
-      RepositorioUsuarios repositorioUsuarios,
-      RepositorioRefreshTokens repositorioRefreshTokens,
-      PasswordEncoder passwordEncoder,
-      JwtProperties jwtProperties) {
-    this.repositorioUsuarios = repositorioUsuarios;
-    this.repositorioRefreshTokens = repositorioRefreshTokens;
-    this.passwordEncoder = passwordEncoder;
-    this.jwtProperties = jwtProperties;
-  }
-
   @Transactional
-  public AuthResponseDTO execute(LoginCommand command) {
+  public AuthResponseResult execute(LoginCommand command) {
 
     Email email = Email.of(command.email());
     Usuario usuario =
@@ -77,8 +68,8 @@ public class LoginUseCase {
     // 7. Construir respuesta
     TokenDTO accessToken = new TokenDTO(accessTokenString, accessTokenExpiresAt);
     TokenDTO refreshTokenDto = new TokenDTO(refreshTokenString, refreshTokenExpiresAt);
-    UsuarioDTO usuarioDto = UsuarioDTO.from(usuario);
+    UsuarioResult usuarioResult = UsuarioResult.from(usuario);
 
-    return new AuthResponseDTO(accessToken, refreshTokenDto, usuarioDto);
+    return new AuthResponseResult(accessToken, refreshTokenDto, usuarioResult);
   }
 }

@@ -4,8 +4,8 @@ import com.gamelisto.biblioteca.domain.GameEstado;
 import com.gamelisto.biblioteca.domain.GameEstadoRepositorio;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public class GameEstadoRepositorioPostgres implements GameEstadoRepositorio {
@@ -38,13 +38,21 @@ public class GameEstadoRepositorioPostgres implements GameEstadoRepositorio {
   }
 
   @Override
-  public Optional<GameEstado> findByUsuarioYGame(com.gamelisto.biblioteca.domain.UsuarioId userId,
+  public Optional<GameEstado> findByUsuarioYGame(
+      com.gamelisto.biblioteca.domain.UsuarioId userId,
       com.gamelisto.biblioteca.domain.GameId gameId) {
-    return estadoJpa.findByUsuarioRef_IdAndGameRef_Id(userId.value(), gameId.value()).map(mapper::toDomain);
+    return estadoJpa
+        .findByUsuarioRef_IdAndGameRef_Id(userId.value(), gameId.value())
+        .map(mapper::toDomain);
   }
 
   @Override
   public void deleteById(com.gamelisto.biblioteca.domain.GameEstadoId id) {
     estadoJpa.deleteById(id.value());
+  }
+
+  @Override
+  public List<GameEstado> findByGameRefId(com.gamelisto.biblioteca.domain.GameId gameId) {
+    return estadoJpa.findByGameRef_Id(gameId.value()).stream().map(mapper::toDomain).toList();
   }
 }

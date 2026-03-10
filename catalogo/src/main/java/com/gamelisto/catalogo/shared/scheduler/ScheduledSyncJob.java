@@ -1,6 +1,6 @@
 package com.gamelisto.catalogo.shared.scheduler;
 
-import com.gamelisto.catalogo.application.dto.out.SyncResultDTO;
+import com.gamelisto.catalogo.application.usecases.SyncResultResult;
 import com.gamelisto.catalogo.application.usecases.SyncGamesFromIGDBUseCase;
 import com.gamelisto.catalogo.application.usecases.SyncPlatformsFromIGDBUseCase;
 import com.gamelisto.catalogo.shared.config.IgdbProperties;
@@ -22,12 +22,12 @@ public class ScheduledSyncJob {
   private final SyncPlatformsFromIGDBUseCase syncPlatformsUseCase;
   private final IgdbProperties igdbProperties;
 
-  @Scheduled(cron = "0 0 */12 * * *") // Cada 12 horas (a las 00:00, 12:00, 00:00)
+  @Scheduled(cron = "0 */5 * * * *") // Cada 12 horas (a las 00:00, 12:00, 00:00)
   public void syncGamesIncremental() {
     logger.info("===== Iniciando sincronización automática de juegos =====");
 
     try {
-      SyncResultDTO result = syncGamesUseCase.execute(igdbProperties.getBatchSize());
+      SyncResultResult result = syncGamesUseCase.execute(igdbProperties.getBatchSize());
 
       logger.info(
           "===== Sincronización automática completada: {} juegos, último ID: {} =====",
@@ -45,7 +45,7 @@ public class ScheduledSyncJob {
     logger.info("===== Iniciando sincronización diaria de plataformas =====");
 
     try {
-      SyncResultDTO result = syncPlatformsUseCase.execute();
+      SyncResultResult result = syncPlatformsUseCase.execute();
 
       logger.info(
           "===== Sincronización de plataformas completada: {} plataformas =====",

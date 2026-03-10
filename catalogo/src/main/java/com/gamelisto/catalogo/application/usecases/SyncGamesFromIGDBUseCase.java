@@ -1,7 +1,5 @@
 package com.gamelisto.catalogo.application.usecases;
 
-import com.gamelisto.catalogo.application.dto.in.IgdbGameDTO;
-import com.gamelisto.catalogo.application.dto.out.SyncResultDTO;
 import com.gamelisto.catalogo.domain.events.GameCreado;
 import com.gamelisto.catalogo.domain.Game;
 import com.gamelisto.catalogo.domain.GameDetail;
@@ -10,14 +8,14 @@ import com.gamelisto.catalogo.domain.GamePublisherRepositorio;
 import com.gamelisto.catalogo.domain.GameRepositorio;
 import com.gamelisto.catalogo.domain.IgdbClientPortRepositorio;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /** Accede a IGDB para persistir en bbdd la info de los videojuegos */
 @Service
@@ -32,23 +30,35 @@ public class SyncGamesFromIGDBUseCase implements SyncGamesFromIGDBHandle {
   private final GamePublisherRepositorio eventosPublisher;
 
   @Override
-  public SyncResultDTO execute(int limit) {
-    logger.info("Iniciando sincronización de juegos desde IGDB");
+  public SyncResultResult execute(int limit) {
+    Long afterId = determinarQueIdContinuar();
 
-    // 1. Determinar desde qué ID continuar (siempre desde el último guardado)
-    Long afterId = gameRepository.findMaxId();
-    logger.info("Sincronizando juegos después del ID: {}", afterId);
+    List<IgdbGameDTO> igdbGames = fetchBatchIGDB(limit, afterId);
 
-    // 2. Fetch batch IGDB
-    List<IgdbGameDTO> igdbGames = igdbClient.fetchGamesBatch(afterId, limit);
-    logger.info("Obtenidos {} juegos desde IGDB", igdbGames.size());
+    SyncResultResult afterId1 = comprobarSiSeHanSincronizadoJuegos(igdbGames, afterId);
+    if (afterId1 != null) return afterId1;
 
+    convertirAndPersistir(igdbGames);
+
+    Long maxId = obtenerUltimoIdSincronizado(igdbGames, afterId);
+    logger.info("Sincronización completada: {} juegos, último ID: {}", igdbGames.size(), maxId);
+    return new SyncResultResult(igdbGames.size(), maxId);
+  }
+
+  private static @Nullable SyncResultResult comprobarSiSeHanSincronizadoJuegos(
+      List<IgdbGameDTO> igdbGames, Long afterId) {
     if (igdbGames.isEmpty()) {
       logger.info("No hay juegos para sincronizar");
-      return new SyncResultDTO(0, afterId);
+      return new SyncResultResult(0, afterId);
     }
+    return null;
+  }
 
-    // 3. Convertir y persistir
+  private static Long obtenerUltimoIdSincronizado(List<IgdbGameDTO> igdbGames, Long afterId) {
+    return igdbGames.stream().map(IgdbGameDTO::id).max(Long::compareTo).orElse(afterId);
+  }
+
+  private void convertirAndPersistir(List<IgdbGameDTO> igdbGames) {
     for (IgdbGameDTO dto : igdbGames) {
       try {
         Game game = dto.toDomain();
@@ -57,27 +67,29 @@ public class SyncGamesFromIGDBUseCase implements SyncGamesFromIGDBHandle {
         GameDetail gameDetail = GameDetail.create(game.getId(), dto.screenshots(), dto.videos());
         gameDetailRepository.save(gameDetail); // mongoDB
 
-        publicarAfterCommit(() -> publicarEventoGameCreado(game));
+        publicarEventoGameCreado(game);
 
-        logger.debug(
-            "Juego guardado en PostgreSQL y MongoDB: ID={}, Name={}", dto.id(), dto.name());
       } catch (Exception e) {
         logger.error("Error al guardar juego: ID={}, Name={}, Error=", dto.id(), dto.name(), e);
       }
     }
+  }
 
-    Long maxId = igdbGames.stream().map(IgdbGameDTO::id).max(Long::compareTo).orElse(afterId);
-    logger.info("Sincronización completada: {} juegos, último ID: {}", igdbGames.size(), maxId);
-    return new SyncResultDTO(igdbGames.size(), maxId);
+  private List<IgdbGameDTO> fetchBatchIGDB(int limit, Long afterId) {
+    return igdbClient.fetchGamesBatch(afterId, limit);
+  }
+
+  private @NonNull Long determinarQueIdContinuar() {
+    return gameRepository.findMaxId();
   }
 
   private void publicarEventoGameCreado(Game game) {
     GameCreado evento =
         GameCreado.of(
-            game.getId() != null ? game.getId().toString() : null,
-            game.getName() != null ? game.getName().toString() : null,
-            game.getSummary() != null ? game.getSummary().toString() : null,
-            game.getCoverUrl() != null ? game.getCoverUrl().toString() : null,
+            game.getId() != null ? game.getId().value() : null,
+            game.getName() != null ? game.getName().value() : null,
+            game.getSummary() != null ? game.getSummary().value() : null,
+            game.getCoverUrl() != null ? game.getCoverUrl().value() : null,
             game.getPlatforms(),
             game.getGameType(),
             game.getGameStatus(),
@@ -100,19 +112,5 @@ public class SyncGamesFromIGDBUseCase implements SyncGamesFromIGDBHandle {
             game.getThemes());
 
     eventosPublisher.publicarGameCreado(evento);
-  }
-
-  private static void publicarAfterCommit(Runnable action) {
-    if (TransactionSynchronizationManager.isSynchronizationActive()) {
-      TransactionSynchronizationManager.registerSynchronization(
-          new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-              action.run();
-            }
-          });
-    } else {
-      action.run();
-    }
   }
 }

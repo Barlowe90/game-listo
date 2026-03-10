@@ -3,6 +3,7 @@ package com.gamelisto.biblioteca.infrastructure.out.persistence;
 import com.gamelisto.biblioteca.domain.ListaGame;
 import com.gamelisto.biblioteca.domain.ListaGameId;
 import com.gamelisto.biblioteca.domain.ListaGameRepositorio;
+import com.gamelisto.biblioteca.domain.NombreListaGame;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,7 +30,8 @@ public class ListaGameRepositorioPostgres implements ListaGameRepositorio {
   public ListaGame save(ListaGame listaGame) {
     ListaGameEntity entity = mapper.toEntity(listaGame);
 
-    UsuarioRefEntity usuarioRefProxy = usuarioRefJpa.getReferenceById(listaGame.getUsuarioRefId().value());
+    UsuarioRefEntity usuarioRefProxy =
+        usuarioRefJpa.getReferenceById(listaGame.getUsuarioRefId().value());
     entity.setUsuarioRef(usuarioRefProxy);
 
     ListaGameEntity savedEntity = listaJpa.save(entity);
@@ -42,8 +44,11 @@ public class ListaGameRepositorioPostgres implements ListaGameRepositorio {
   }
 
   @Override
-  public List<ListaGame> findByUsuarioRefId(com.gamelisto.biblioteca.domain.UsuarioId usuarioRefId) {
-    return listaJpa.findByUsuarioRef_Id(usuarioRefId.value()).stream().map(mapper::toDomain).toList();
+  public List<ListaGame> findByUsuarioRefId(
+      com.gamelisto.biblioteca.domain.UsuarioId usuarioRefId) {
+    return listaJpa.findByUsuarioRef_Id(usuarioRefId.value()).stream()
+        .map(mapper::toDomain)
+        .toList();
   }
 
   @Override

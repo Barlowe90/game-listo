@@ -4,8 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.gamelisto.usuarios.application.dto.UsuarioDTO;
+import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import java.util.Optional;
@@ -40,14 +41,14 @@ class DesvincularDiscordUseCaseTest {
   @DisplayName("Debe desvincular cuenta de Discord exitosamente")
   void debeDesvincularDiscordExitosamente() {
     // Arrange
-    String usuarioId = usuario.getId().value().toString();
+    java.util.UUID usuarioId = usuario.getId().value();
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.save(any(Usuario.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
-    UsuarioDTO resultado = desvincularDiscordUseCase.execute(usuarioId);
+    UsuarioResult resultado = desvincularDiscordUseCase.execute(usuarioId);
 
     // Assert
     assertNotNull(resultado);
@@ -62,7 +63,7 @@ class DesvincularDiscordUseCaseTest {
   @DisplayName("Debe lanzar excepción si usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
-    String usuarioId = "00000000-0000-0000-0000-000000000000";
+    java.util.UUID usuarioId = java.util.UUID.fromString("00000000-0000-0000-0000-000000000000");
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.empty());
 
@@ -83,7 +84,7 @@ class DesvincularDiscordUseCaseTest {
             Email.of("sindiscord@test.com"),
             PasswordHash.of("$2a$10$hash"));
 
-    String usuarioId = usuarioSinDiscord.getId().value().toString();
+    java.util.UUID usuarioId = usuarioSinDiscord.getId().value();
 
     when(repositorioUsuarios.findById(any(UsuarioId.class)))
         .thenReturn(Optional.of(usuarioSinDiscord));
@@ -91,7 +92,7 @@ class DesvincularDiscordUseCaseTest {
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
-    UsuarioDTO resultado = desvincularDiscordUseCase.execute(usuarioId);
+    UsuarioResult resultado = desvincularDiscordUseCase.execute(usuarioId);
 
     // Assert
     assertNotNull(resultado);
@@ -105,7 +106,7 @@ class DesvincularDiscordUseCaseTest {
   @DisplayName("Debe eliminar todos los datos de Discord al desvincular")
   void debeEliminarTodosDatosDiscord() {
     // Arrange
-    String usuarioId = usuario.getId().value().toString();
+    java.util.UUID usuarioId = usuario.getId().value();
 
     // Verificar que Discord está vinculado antes
     assertFalse(usuario.getDiscordUserId().isEmpty());
@@ -123,7 +124,7 @@ class DesvincularDiscordUseCaseTest {
             });
 
     // Act
-    UsuarioDTO resultado = desvincularDiscordUseCase.execute(usuarioId);
+    UsuarioResult resultado = desvincularDiscordUseCase.execute(usuarioId);
 
     // Assert
     assertNull(resultado.discordUserId());
@@ -136,7 +137,7 @@ class DesvincularDiscordUseCaseTest {
   @DisplayName("Debe preservar otros datos del usuario al desvincular Discord")
   void debePreservarOtrosDatosAlDesvincular() {
     // Arrange
-    String usuarioId = usuario.getId().value().toString();
+    java.util.UUID usuarioId = usuario.getId().value();
     String usernameOriginal = usuario.getUsername().value();
     String emailOriginal = usuario.getEmail().value();
 
@@ -145,7 +146,7 @@ class DesvincularDiscordUseCaseTest {
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act
-    UsuarioDTO resultado = desvincularDiscordUseCase.execute(usuarioId);
+    UsuarioResult resultado = desvincularDiscordUseCase.execute(usuarioId);
 
     // Assert
     assertEquals(usernameOriginal, resultado.username());
@@ -158,12 +159,9 @@ class DesvincularDiscordUseCaseTest {
   @Test
   @DisplayName("Debe lanzar excepción si ID de usuario es inválido")
   void debeLanzarExcepcionSiIdInvalido() {
-    // Arrange
-    String usuarioIdInvalido = "id-invalido";
-
     // Act & Assert
-    assertThrows(
-        IllegalArgumentException.class, () -> desvincularDiscordUseCase.execute(usuarioIdInvalido));
+    // Pasar null para simular ID inválido a la funcion que ahora espera UUID
+    assertThrows(DomainException.class, () -> desvincularDiscordUseCase.execute(null));
 
     verify(repositorioUsuarios, never()).findById(any(UsuarioId.class));
     verify(repositorioUsuarios, never()).save(any(Usuario.class));
@@ -173,14 +171,14 @@ class DesvincularDiscordUseCaseTest {
   @DisplayName("Debe permitir re-vincular Discord después de desvincularlo")
   void debePermitirReVincularDespuesDeDesvincular() {
     // Arrange
-    String usuarioId = usuario.getId().value().toString();
+    java.util.UUID usuarioId = usuario.getId().value();
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.save(any(Usuario.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     // Act - Desvincular
-    UsuarioDTO resultadoDesvinculado = desvincularDiscordUseCase.execute(usuarioId);
+    UsuarioResult resultadoDesvinculado = desvincularDiscordUseCase.execute(usuarioId);
 
     // Assert - Discord desvinculado
     assertNull(resultadoDesvinculado.discordUserId());

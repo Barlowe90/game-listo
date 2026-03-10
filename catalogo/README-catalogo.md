@@ -1,126 +1,149 @@
-# Microservicio Catálogo
+# Microservicio Catálogo — GameListo
 
 ## Resumen
 
-El microservicio *Catálogo* gestiona la información canónica de videojuegos. Está diseñado siguiendo principios de
-arquitectura hexagonal y DDD: la lógica de dominio está separada de adaptadores de persistencia y de la capa de
-exposición.
+`catalogo` es el servicio canónico de videojuegos del monorepo GameListo. Gestiona la información estructurada
+de juegos (datos de consulta) y el contenido enriquecido (multimedia). Está diseñado siguiendo principios de
+Arquitectura Hexagonal y DDD: dominio puro, casos de uso y adaptadores de infraestructura claramente separados.
+
+## Contexto técnico
 
 - Lenguaje: Java 21
-- Framework: Spring Boot (módulo catalogo)
-- Patrón: Hexagonal (domain / application / infrastructure)
+- Framework: Spring Boot
+- Organización: `domain` / `application` / `infrastructure`
+- Persistencia: PostgreSQL (datos estructurados) + MongoDB (contenido enriquecido)
+- Integración externa: IGDB (ingestión programada) y mensajería (RabbitMQ) para publicar eventos de dominio
 
-## Modelo de dominio
+## Objetivos del servicio
 
-Se mantiene una separación clara entre los datos estructurados de un juego (consultas frecuentes) y su contenido
-enriquecido (multimedia):
+- Ofrecer una fuente de verdad para metadatos de videojuegos (titulo, resumen, plataformas, relaciones).
+- Almacenar contenido multimedia (screenshots, videos) de forma desacoplada.
+- Publicar eventos de dominio para que otros servicios (search, bff, biblioteca) consuman cambios.
+- Mantener contratos REST estables para lectura de datos y operaciones de sincronización.
 
-### Game (núcleo estructurado)
+## Contratos HTTP (endpoints principales)
 
-`Game` es la entidad raíz (aggregate root) con la información estructurada y de consulta habitual. Contiene, entre
-otros, los siguientes campos:
+Base path: `/v1/catalogo`
 
-- id
-- name
-- summary
-- coverUrl
-- alternativeNames
-- platforms
-- gameType
-- gameStatus
-- dlcs
-- expandedGames
-- expansionIds
-- externalGames
-- franchises
-- gameModes
-- genres
-- involvedCompanies
-- keywords
-- multiplayerModeIds
-- parentGameId
-- playerPerspectives
-- remakeIds
-- remasterIds
-- similarGames
-- themes
+| Método | Ruta                             | Auth / Rol          | Request                     | Response                          | Descripción / Notas                                                                                          |
+|--------|----------------------------------|---------------------|-----------------------------|-----------------------------------|--------------------------------------------------------------------------------------------------------------|
+| GET    | `/v1/catalogo/games`             | Public              | query params `page`, `size` | `List<GameResponse>` (200 OK)     | Listado de juegos (controlador acepta page/size; implementación actual devuelve todos).                      |
+| GET    | `/v1/catalogo/games/{id}`        | Public              | path `id` (Long)            | `GameResponse` (200 OK)           | Metadatos canónicos del juego (Postgres).                                                                    |
+| GET    | `/v1/catalogo/games/{id}/detail` | Public              | path `id` (Long)            | `GameDetailResponse` (200 OK)     | Contenido enriquecido (MongoDB): screenshots, videos, descripción larga.                                     |
+| GET    | `/v1/catalogo/platforms`         | Public              | —                           | `List<PlatformResponse>` (200 OK) | Listado de plataformas soportadas.                                                                           |
+| POST   | `/v1/catalogo/sync/games`        | Admin (recomendado) | —                           | `SyncStatusResponse` (200 OK)     | Dispara sincronización (IGDB) de juegos; en código hay un comentario `@PreAuthorize('ADMIN')` deshabilitado. |
+| POST   | `/v1/catalogo/sync/platforms`    | Admin (recomendado) | —                           | `SyncStatusResponse` (200 OK)     | Dispara sincronización de plataformas desde IGDB.                                                            |
 
-`Game` es la fuente de verdad para `coverUrl` y `alternativeNames`.
+Notas adicionales
 
-### GameDetail (contenido enriquecido)
+- Aunque los endpoints de sincronización no requieren autenticación en el código actual, en entornos de producción
+  deberían protegerse para administradores.
+- DTOs: `GameResponse`, `GameDetailResponse`, `PlatformResponse`, `SyncStatusResponse` se encuentran en
+  `infrastructure/in/api/dto`.
 
-`GameDetail` contiene los datos voluminosos o enriquecidos que no forman parte del núcleo estructurado:
+## Consejos rápidos de lectura
 
-- screenshots (List<String>)
-- videos (List<String>)
+- `Game` (Postgres) → datos canónicos y ligeros, indexables.
+- `GameDetail` (Mongo) → contenido rico (screenshots, videos) que cambia con menos frecuencia.
+- Ingestión desde IGDB → normalización → persistencia en Postgres/Mongo → publicación de eventos.
 
-`GameDetail` se refiere a `Game` mediante el identificador del juego y sirve para almacenar y consultar el contenido
-multimedia de forma desacoplada.
+## Modelo de dominio (visión compacta)
 
-## Persistencia
+- Game (aggregate root)
+    - id (UUID/Long según implementación), name, summary, coverUrl, alternativeNames, platforms, genres, releaseDate,
+      relaciones (dlcs, expansions, similares), flags de estado, metadatos transaccionales.
+- GameDetail
+    - Referencia a `gameId`, screenshots (List<String>), videos (List<String>), descripción larga y campos grandes.
+- Proyección/DTOs
+    - `GameResponse` (para consultas rápidas) y `GameDetailResponse` (contenido multimedia).
 
-- PostgreSQL: almacena la entidad `Game` y sus colecciones estructuradas (tablas y element collections). Se usa para
-  datos transaccionales y estructurados.
-- MongoDB: almacena `GameDetail` (documentos con screenshots y videos). Se usa para contenido flexible y de alto
-  volumen.
+## Persistencia y decisiones operativas
 
-## Flujo de ingestión y sincronización
+- PostgreSQL
+    - Guarda la estructura canónica de `Game`: esquemas relacionales, colecciones elementales y relaciones.
+    - Buen candidato para consultas transaccionales y joins.
+- MongoDB
+    - Almacena `GameDetail` cuando el payload es voluminoso o flexible.
+    - Reduce el peso de las consultas a Postgres cuando se requieren solo metadatos.
 
-La sincronización desde proveedores externos (p. ej. IGDB) sigue este flujo:
+## Flujo de ingestión (alto nivel)
 
-1. Se obtienen los datos externos en un DTO (`IgdbGameDTO`).
-2. Se crea/actualiza la entidad `Game` (Postgres) con los campos estructurados y con `alternativeNames` y `coverUrl`.
-3. Se crea/actualiza el `GameDetail` (Mongo) con `screenshots` y `videos`.
-4. Se publican eventos de dominio cuando procede (por ejemplo `GameCreado`) para notificar a otros servicios.
+1. Scheduler o proceso manual solicita datos a IGDB (DTOs desde cliente IGDB).
+2. Se normalizan y validan los datos (VOs del dominio).
+3. Se persiste/actualiza `Game` en Postgres y `GameDetail` en MongoDB según sea necesario.
+4. Se publican eventos de dominio (p. ej. `GameCreated`, `GameUpdated`) en RabbitMQ para downstream consumers.
+5. Los consumidores (search, busquedas, bff) actualizan índices o caches a partir de estos eventos.
 
-## API pública del servicio
+## Contratos de eventos (resumen)
 
-El contrato público del microservicio expone endpoints REST (puerta de entrada bajo `/v1/catalogo`):
+- Exchange/Topic: `catalog.events`
+- Eventos relevantes:
+    - `catalog.game.created`
+    - `catalog.game.updated`
+    - `catalog.game.deleted`
+- Payload mínimo recomendado: `{ eventId, gameId, type, timestamp, payload: { ...game fields... } }`
 
-- GET /v1/catalogo/games/{id}
-    - Devuelve los datos estructurados del juego (`GameResponse`) almacenados en PostgreSQL.
-    - Contiene, entre otros, `id`, `name`, `summary`, `coverUrl`, `alternativeNames`, `platforms`, y metadatos.
+## Serialización y compatibilidad
 
-- GET /v1/catalogo/games/{id}/detail
-    - Devuelve los datos enriquecidos (`GameDetailResponse`) almacenados en MongoDB: `screenshots` y `videos`.
+- Usar JSON con propiedades conocidas (evitar breaking changes). Ser tolerante a campos adicionales
+  (`@JsonIgnoreProperties(ignoreUnknown = true)` en DTOs consumidores).
+- Versionar el contrato de eventos si se cambia el esquema de payload de forma no compatible.
 
-- POST /v1/catalogo/sync/games
-    - Endpoint para disparar sincronizaciones/integraciones con la fuente externa (por ejemplo IGDB). El proceso
-      persiste `Game` y `GameDetail` y publica eventos.
+## Mappers y anti-corruption layer
 
-La capa BFF o la fachada compone la vista final para el cliente (por ejemplo `GameView`) consultando ambos endpoints y
-unificando la información en una única respuesta para el frontend.
+- Mappers en `infrastructure` traducen entre JPA/Mongo entities y VOs/domain entities.
+- Mantener un ACL limpio para proteger el dominio de formatos externos (IGDB) y de detalles de persistencia.
 
-## Contratos de datos (visión rápida)
+## Testing
 
-- `GameResponse` (Postgres): incluye `alternativeNames` y `coverUrl` entre sus campos.
-- `GameDetailResponse` (Mongo): incluye `screenshots` y `videos`.
-- El BFF compone ambos para devolver al cliente un único objeto agregado.
+- Unit tests: lógica de dominio y validaciones (sin Spring).
+- Integration tests: `@SpringBootTest` con perfiles que usan Testcontainers o H2; pruebas de repositorios con
+  contenedores para Postgres y Mongo cuando es necesario.
+- Recomendar ejecutar: `.\mvnw.cmd test` desde la carpeta `catalogo` (PowerShell).
 
-## Consideraciones operativas
+## Comandos útiles (PowerShell)
 
-- Mantener Postgres para datos transaccionales y con esquema y Mongo para contenido flexible reduce el tamaño de payload
-  en consultas frecuentes.
-- Evitar duplicación: cada dato tiene una única fuente de verdad (`Game` o `GameDetail`).
-- Eventos de dominio (RabbitMQ/Spring AMQP) permiten notificar a servicios consumidores tras cambios en `Game` o
-  `GameDetail`.
+```powershell
+# Ejecutar tests
+.\mvnw.cmd test;
 
-## Tests y calidad
+# Ejecutar la aplicación en local
+.\mvnw.cmd spring-boot:run;
+```
 
-El proyecto incluye pruebas unitarias e integración (Testcontainers para Postgres y Mongo en tests de integración). Las
-pruebas cubren comportamiento del dominio (`Game`, `GameDetail`) y adaptadores de persistencia.
+## Configuración y variables importantes
 
-## Buenas prácticas
+- `spring.datasource.*` — datos para Postgres
+- `spring.data.mongodb.*` — conexión a MongoDB
+- Propiedades de IGDB (client id, token) — gestionadas fuera del repo (env vars / secrets)
+- RabbitMQ config: host, user, pass, exchange/queue names
+- `catalog.sync.*` — parámetros de la ingesta (batch size, rate limits)
 
-- El BFF debe consumir los endpoints internos y componer la vista agregada; el frontend no debe necesitar conocer la
-  división interna.
-- Mantener los VOs y las fábricas de dominio en la capa `domain`.
-- No exponer entidades de persistencia fuera de la capa de infraestructura.
+## Observabilidad y operaciones
 
----
+- Exponer métricas (Micrometer + Prometheus): latencia de ingestión, tiempos de persistencia, errores por tipo.
+- Logs estructurados con traceId y eventId para correlación.
+- Health checks para Postgres y MongoDB; readiness/liveness endpoints para orquestadores.
 
-Para más detalles sobre la implementación, revisa los paquetes:
+## Decisiones de diseño y trade-offs
 
-- `com.gamelisto.catalogo.domain` (entidades y VOs)
-- `com.gamelisto.catalogo.application` (use cases y DTOs)
-- `com.gamelisto.catalogo.infrastructure` (adaptadores: REST, persistencia, mappers)
+- Separación Postgres/Mongo: reduce tamaño de filas transaccionales, mejora latencias en consultas ligeras.
+- Normalización temprana: validar y mapear DTOs de IGDB a VOs del dominio para evitar lógica de negocio en adaptadores.
+- Event-driven: favor consistencia eventual entre catálogo e índices/caches downstream; documentar SLAs de
+  sincronización.
+
+## Buenas prácticas para contribuciones
+
+- Mantener PRs pequeños y con tests que cubran el comportamiento nuevo.
+- Documentar cualquier cambio en contratos REST o en el esquema de eventos.
+- Actualizar mappers cuando cambien las fuentes externas; preferir migraciones que no rompan consumidores.
+
+## Referencias y ubicación del código
+
+- Código fuente: `catalogo/src/main/java/com/gamelisto/catalogo`
+- Tests: `catalogo/src/test/java`
+- Configs y properties: `catalogo/src/main/resources`
+
+## Licencia
+
+El módulo se rige por la licencia del repositorio raíz.

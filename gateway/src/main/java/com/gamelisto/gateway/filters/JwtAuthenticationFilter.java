@@ -17,6 +17,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Filtro global que valida tokens JWT en todas las peticiones. Se ejecuta antes de enrutar la
@@ -35,21 +37,24 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
   private static final String BEARER_PREFIX = "Bearer ";
   private static final int BEARER_PREFIX_LENGTH = 7;
 
-  // Rutas que NO requieren autenticación
-  private static final List<String> PUBLIC_PATHS =
-      List.of(
-          // AuthController - Endpoints públicos de autenticación
+  // Rutas públicas (exactas) bajo /v1/usuarios/auth que deben permitirse SOLO con POST
+  private static final Set<String> AUTH_PUBLIC_POST_PATHS =
+      Set.of(
           "/v1/usuarios/auth/register",
           "/v1/usuarios/auth/verify-email",
           "/v1/usuarios/auth/resend-verification",
           "/v1/usuarios/auth/forgot-password",
           "/v1/usuarios/auth/reset-password",
           "/v1/usuarios/auth/login",
-          "/v1/usuarios/auth/logout",
-          "/v1/usuarios/auth/refresh",
-          "/actuator/health",
-          "/v1/catalogo",
-          "/v1/busquedas");
+          "/v1/usuarios/auth/refresh");
+
+  // Rutas públicas que no dependen de la funcion
+  private static final List<String> PUBLIC_PATHS =
+      List.of("/actuator/health", "/v1/catalogo", "/v1/busquedas");
+
+  // Patrón UUID para /v1/usuarios/{uuid}
+  private static final Pattern USER_BY_ID_PATTERN =
+      Pattern.compile("^/v1/usuarios/[0-9a-fA-F\\-]{36}$");
 
   private final JwtValidator jwtValidator;
   private final TokenRevocationService tokenRevocationService;
@@ -69,9 +74,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
       return chain.filter(exchange);
     }
 
-    // Permitir rutas públicas sin validación
-    if (isPublicPath(path)) {
-      logger.debug("Ruta pública detectada: {}", path);
+    // Permitir rutas públicas sin validación (considerando funcion HTTP)
+    if (isPublicPath(path, exchange.getRequest().getMethod())) {
+      logger.debug("Ruta pública detectada: {} {}", exchange.getRequest().getMethod(), path);
       return chain.filter(exchange);
     }
 
@@ -112,8 +117,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                             h -> {
                               // Usar "set" para sobrescribir y evitar duplicados
                               h.set("X-User-Id", jwtValidator.getUserId(claims));
-                              h.set("X-User-Username", jwtValidator.getUsername(claims));
-                              h.set("X-User-Email", jwtValidator.getEmail(claims));
                               h.set(
                                   "X-User-Roles", String.join(",", jwtValidator.getRoles(claims)));
                             })
@@ -133,8 +136,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     }
   }
 
-  private boolean isPublicPath(String path) {
-    // Catálogo: publico EXCEPTO sincronización
+  private boolean isPublicPath(String path, HttpMethod method) {
+    // Catálogo: público excepto sincronización
     if (path.startsWith("/v1/catalogo/sync")) {
       return false;
     }
@@ -144,6 +147,17 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
       return true;
     }
 
+    // Permitir GET público a /v1/usuarios/{uuid} según SecurityConfig de usuarios
+    if (method == HttpMethod.GET && USER_BY_ID_PATTERN.matcher(path).matches()) {
+      return true;
+    }
+
+    // Rutas de autenticación: solo las listadas y solo con POST
+    if (AUTH_PUBLIC_POST_PATHS.contains(path)) {
+      return method == HttpMethod.POST;
+    }
+
+    // Otros paths públicos independientemente de la funcion
     return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
   }
 

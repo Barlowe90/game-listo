@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class VerificarEmailUseCase {
+public class VerificarEmailUseCase implements VerificarEmailHandle {
 
   private final RepositorioUsuarios repositorioUsuarios;
   private final IUsuarioPublisher eventosPublisher;

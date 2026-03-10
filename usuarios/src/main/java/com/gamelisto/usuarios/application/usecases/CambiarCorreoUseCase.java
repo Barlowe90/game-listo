@@ -6,22 +6,20 @@ import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.Email;
 import com.gamelisto.usuarios.domain.usuario.Usuario;
 import com.gamelisto.usuarios.domain.usuario.UsuarioId;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class CambiarCorreoUseCase {
+@RequiredArgsConstructor
+public class CambiarCorreoUseCase implements CambiarCorreoHandle {
 
   private final RepositorioUsuarios repositorioUsuarios;
-
-  public CambiarCorreoUseCase(RepositorioUsuarios repositorioUsuarios) {
-    this.repositorioUsuarios = repositorioUsuarios;
-  }
 
   @Transactional
   public void execute(CambiarCorreoCommand command) {
     Email nuevoEmail = Email.of(command.email());
-    UsuarioId id = UsuarioId.fromString(command.usuarioId());
+    UsuarioId id = UsuarioId.of(command.usuarioId());
 
     Usuario usuario =
         repositorioUsuarios
