@@ -43,6 +43,16 @@ public class SocialListener {
           log.info("Procesando UsuarioEliminado: usuarioId={}", dto.usuarioId());
           entradaEventos.procesarUsuarioEliminado(dto.usuarioId());
         }
+        case "EstadoActualizado" -> {
+          EstadoActualizadoEventDto dto =
+              objectMapper.readValue(message.getBody(), EstadoActualizadoEventDto.class);
+          log.info(
+              "Procesando EstadoActualizado: usuarioId={}, gameRefId={}, estado={}",
+              dto.usuarioId(),
+              dto.gameRef(),
+              dto.estado());
+          entradaEventos.procesarEstadoActualizado(dto.usuarioId(), dto.gameRef(), dto.estado());
+        }
         default -> log.debug("Evento '{}' no gestionado por social, ignorando", eventType);
       }
     } catch (Exception e) {

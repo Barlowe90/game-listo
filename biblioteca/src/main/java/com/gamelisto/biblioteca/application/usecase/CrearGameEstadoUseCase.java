@@ -2,6 +2,8 @@ package com.gamelisto.biblioteca.application.usecase;
 
 import com.gamelisto.biblioteca.application.exceptions.ApplicationException;
 import com.gamelisto.biblioteca.domain.*;
+import com.gamelisto.biblioteca.domain.eventos.EstadoActualizado;
+import com.gamelisto.biblioteca.domain.eventos.IBibliotecaPublisher;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ public class CrearGameEstadoUseCase implements CrearGameEstadoHandler {
   private final ListaGameItemRepositorio listaGameItemRepositorio;
   private final ListaGameRepositorio listaGameRepositorio;
   private final GameRefRepositorio gameRefRepositorio;
+  private final IBibliotecaPublisher bibliotecaPublisher;
 
   @Transactional
   public void execute(CrearGameEstadoCommand command) {
@@ -44,6 +47,8 @@ public class CrearGameEstadoUseCase implements CrearGameEstadoHandler {
     ListaGame listaJuegoNuevo = buscarListaOficialPorEstado(listasUsuario, estadoNuevo);
 
     listaGameItemRepositorio.add(listaJuegoNuevo.getId(), actualizado.getGameRefId());
+
+    publicarEventoEstadoActualizado(actualizado);
   }
 
   private void comprobarSiExisteElGameRef(GameId gameId) {
@@ -80,5 +85,14 @@ public class CrearGameEstadoUseCase implements CrearGameEstadoHandler {
       ListaGame listaDelJuegoAnterior = buscarListaOficialPorEstado(listasUsuario, estadoAnterior);
       listaGameItemRepositorio.remove(listaDelJuegoAnterior.getId(), gameId);
     }
+  }
+
+  private void publicarEventoEstadoActualizado(GameEstado actualizado) {
+    EstadoActualizado evento =
+        EstadoActualizado.of(
+            actualizado.getUsuarioRefId().value().toString(),
+            actualizado.getGameRefId().value(),
+            actualizado.getEstado().toString());
+    bibliotecaPublisher.publicarEstadoActualizado(evento);
   }
 }

@@ -1,9 +1,7 @@
 package com.gamelisto.social.infrastructure.in.api;
 
-import com.gamelisto.social.application.usecases.UserRefResult;
-import com.gamelisto.social.application.usecases.AgregarAmigoHandle;
-import com.gamelisto.social.application.usecases.EliminarAmigoHandle;
-import com.gamelisto.social.application.usecases.ListarAmigosHandle;
+import com.gamelisto.social.application.usecases.*;
+import com.gamelisto.social.infrastructure.in.api.dto.ResumenSocialJuegoResponse;
 import com.gamelisto.social.infrastructure.in.api.dto.UsuarioRefResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -25,6 +23,7 @@ public class SocialController {
   private final AgregarAmigoHandle agregarAmigo;
   private final EliminarAmigoHandle eliminarAmigo;
   private final ListarAmigosHandle listarAmigos;
+  private final ConsultarResumenSocialJuegoHandle consultarResumenSocialJuego;
 
   @PostMapping("/friends/{friendId}")
   public ResponseEntity<Void> addFriend(
@@ -52,5 +51,12 @@ public class SocialController {
             .map(f -> new UsuarioRefResponse(f.id(), f.username(), f.avatar()))
             .toList();
     return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/games/{gameId}/summary")
+  public ResponseEntity<ResumenSocialJuegoResponse> getGameSocialSummary(
+      @AuthenticationPrincipal UUID userId, @PathVariable Long gameId) {
+    ResumenSocialJuegoResult result = consultarResumenSocialJuego.execute(userId, gameId);
+    return ResponseEntity.ok(ResumenSocialJuegoResponse.from(result));
   }
 }
