@@ -1,5 +1,6 @@
 package com.gamelisto.usuarios.domain.refreshtoken;
 
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -16,13 +17,13 @@ public class Jti {
 
   public static Jti of(String value) {
     if (value == null || value.isBlank()) {
-      throw new IllegalArgumentException("El jti no puede ser nulo o vacío");
+      throw new DomainException("El jti no puede ser nulo o vacío");
     }
 
     try {
       UUID.fromString(value);
     } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException("El jti debe ser un UUID válido: " + value);
+      throw new DomainException("El jti debe ser un UUID válido: " + value, e);
     }
     return new Jti(value);
   }

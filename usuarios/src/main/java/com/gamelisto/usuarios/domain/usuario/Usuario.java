@@ -1,5 +1,6 @@
 package com.gamelisto.usuarios.domain.usuario;
 
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import java.time.Instant;
 import lombok.Getter;
 
@@ -203,26 +204,26 @@ public class Usuario {
   private void validarArgumentosCreacion(
       Username username, Email email, PasswordHash passwordHash) {
     if (username == null) {
-      throw new IllegalArgumentException("El username es obligatorio");
+      throw new DomainException("El username es obligatorio");
     }
     if (email == null) {
-      throw new IllegalArgumentException("El email es obligatorio");
+      throw new DomainException("El email es obligatorio");
     }
     if (passwordHash == null) {
-      throw new IllegalArgumentException("El password hash es obligatorio");
+      throw new DomainException("El password hash es obligatorio");
     }
   }
 
   public void changeEmail(Email newEmail) {
     if (newEmail == null) {
-      throw new IllegalArgumentException("El email no puede ser nulo");
+      throw new DomainException("El email no puede ser nulo");
     }
     this.email = newEmail;
   }
 
   public void changePasswordHash(PasswordHash newPasswordHash) {
     if (newPasswordHash == null) {
-      throw new IllegalArgumentException("El password hash no puede ser nulo");
+      throw new DomainException("El password hash no puede ser nulo");
     }
     this.passwordHash = newPasswordHash;
   }
@@ -241,7 +242,7 @@ public class Usuario {
 
   public void activate() {
     if (this.status == EstadoUsuario.ELIMINADO) {
-      throw new IllegalStateException("No se puede activar un usuario eliminado");
+      throw new DomainException("No se puede activar un usuario eliminado");
     }
     this.status = EstadoUsuario.ACTIVO;
   }
@@ -288,29 +289,12 @@ public class Usuario {
     this.tokenVerificacionExpiracion = null;
   }
 
-  // TODO mover al CdU
-  private void comprobarEstadoNuloTokenYTokenVExpiracion(TokenVerificacion token) {
-    if (this.status != EstadoUsuario.PENDIENTE_DE_VERIFICACION) {
-      throw new IllegalStateException("El usuario ya ha sido verificado");
-    }
-    if (this.tokenVerificacion == null || this.tokenVerificacion.isEmpty()) {
-      throw new IllegalArgumentException("No hay token de verificación pendiente");
-    }
-    if (!this.tokenVerificacion.equals(token)) {
-      throw new IllegalArgumentException("El token de verificación no es válido");
-    }
-    if (this.tokenVerificacionExpiracion == null
-        || Instant.now().isAfter(this.tokenVerificacionExpiracion)) {
-      throw new IllegalArgumentException("El token de verificación ha expirado");
-    }
-  }
-
   public void linkDiscord(DiscordUserId discordUserId, DiscordUsername discordUsername) {
     if (discordUserId == null || discordUserId.isEmpty()) {
-      throw new IllegalArgumentException("El ID de Discord no puede ser nulo o vacío");
+      throw new DomainException("El ID de Discord no puede ser nulo o vacío");
     }
     if (discordUsername == null || discordUsername.isEmpty()) {
-      throw new IllegalArgumentException("El username de Discord no puede ser nulo o vacío");
+      throw new DomainException("El username de Discord no puede ser nulo o vacío");
     }
     this.discordUserId = discordUserId;
     this.discordUsername = discordUsername;
@@ -323,7 +307,7 @@ public class Usuario {
 
   public void changeRole(Rol newRole) {
     if (newRole == null) {
-      throw new IllegalArgumentException("El rol no puede ser nulo");
+      throw new DomainException("El rol no puede ser nulo");
     }
     this.role = newRole;
   }

@@ -35,7 +35,11 @@ public class EditarPerfilUsuarioUseCase implements EditarPerfilUsuarioHandle {
     }
 
     if (command.language() != null) {
-      usuario.changeLanguage(Idioma.valueOf(command.language()));
+      try {
+        usuario.changeLanguage(Idioma.valueOf(command.language()));
+      } catch (IllegalArgumentException e) {
+        throw new ApplicationException("Idioma inválido: " + command.language());
+      }
     }
 
     Usuario usuarioEditado = repositorioUsuarios.save(usuario);

@@ -87,10 +87,10 @@ class SecurityConfigTest {
   @Test
   @DisplayName("Debe crear SecurityFilterChain correctamente")
   void debeCrearSecurityFilterChainCorrectamente() throws Exception {
-    // When - Este test verifica que el método existe y es invocable
+    // When - Este test verifica que la funcion existe y es invocable
     // La verificación real de la configuración se hace con Spring Boot Test
 
-    // Then - El método debe existir y retornar SecurityFilterChain
+    // Then - La funcion debe existir y retornar SecurityFilterChain
     var method =
         SecurityConfig.class.getMethod(
             "securityFilterChain",
@@ -190,7 +190,7 @@ class SecurityConfigTest {
     // En un entorno real, se usaría @SpringBootTest
 
     // Given - La configuración actual permite todas las peticiones
-    // When & Then - Verificamos que el método existe y es correcto
+    // When & Then - Verificamos que la funcion existe y es correcto
     var methods = SecurityConfig.class.getDeclaredMethods();
     var securityFilterChainMethod =
         java.util.Arrays.stream(methods)

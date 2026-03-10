@@ -8,6 +8,7 @@ import static org.mockito.Mockito.*;
 import com.gamelisto.usuarios.application.dto.CambiarRolUsuarioCommand;
 import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import java.util.Optional;
@@ -174,7 +175,7 @@ class CambiarRolUsuarioUseCaseTest {
 
     // Act & Assert
     assertThatThrownBy(() -> useCase.execute(command))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("El rol no puede ser nulo");
 
     verify(repositorio, times(1)).findById(usuarioId);

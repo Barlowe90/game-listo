@@ -8,9 +8,9 @@ import static org.mockito.Mockito.*;
 import com.gamelisto.usuarios.application.dto.CrearUsuarioCommand;
 import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
-import com.gamelisto.usuarios.domain.repositories.IEmailService;
-import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
+import com.gamelisto.usuarios.domain.repositories.IEmailService;
 import com.gamelisto.usuarios.domain.usuario.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,8 +27,6 @@ class CrearUsuarioUseCaseTest {
   @Mock private RepositorioUsuarios repositorioUsuarios;
 
   @Mock private PasswordEncoder passwordEncoder;
-
-  @Mock private IUsuarioPublisher usuarioPublisher;
 
   @Mock private IEmailService emailService;
 
@@ -118,8 +116,8 @@ class CrearUsuarioUseCaseTest {
         new CrearUsuarioCommand("usuario", "email-invalido", "password123");
 
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> crearUsuarioUseCase.execute(command));
+    DomainException exception =
+        assertThrows(DomainException.class, () -> crearUsuarioUseCase.execute(command));
 
     assertTrue(exception.getMessage().contains("formato del email es inválido"));
     verify(repositorioUsuarios, never()).existsByUsername(any(Username.class));
@@ -137,8 +135,8 @@ class CrearUsuarioUseCaseTest {
             "password123");
 
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> crearUsuarioUseCase.execute(command));
+    DomainException exception =
+        assertThrows(DomainException.class, () -> crearUsuarioUseCase.execute(command));
 
     assertTrue(exception.getMessage().contains("debe tener entre 3 y 30 caracteres"));
     verify(repositorioUsuarios, never()).existsByUsername(any(Username.class));

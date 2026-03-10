@@ -2,6 +2,7 @@ package com.gamelisto.usuarios.domain.refreshtoken;
 
 import java.util.Objects;
 import java.util.UUID;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 
 public final class TokenValue {
 
@@ -17,13 +18,13 @@ public final class TokenValue {
 
   public static TokenValue of(String value) {
     if (value == null || value.isBlank()) {
-      throw new IllegalArgumentException("El refresh token no puede ser nulo o vacío");
+      throw new DomainException("El refresh token no puede ser nulo o vacío");
     }
 
     try {
       UUID.fromString(value);
     } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException("El refresh token debe ser un UUID válido: " + value, e);
+      throw new DomainException("El refresh token debe ser un UUID válido: " + value, e);
     }
     return new TokenValue(value);
   }

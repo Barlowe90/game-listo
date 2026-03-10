@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import com.gamelisto.usuarios.application.dto.EditarPerfilUsuarioCommand;
 import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
@@ -101,9 +102,8 @@ class EditarPerfilUsuarioUseCaseTest {
             (java.util.UUID) null, "https://example.com/avatar.jpg", null);
 
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(
-            IllegalArgumentException.class, () -> editarPerfilUsuarioUseCase.execute(command));
+    DomainException exception =
+        assertThrows(DomainException.class, () -> editarPerfilUsuarioUseCase.execute(command));
 
     assertTrue(exception.getMessage().contains("nulo"));
     verify(repositorioUsuarios, never()).findById(any(UsuarioId.class));
@@ -122,9 +122,8 @@ class EditarPerfilUsuarioUseCaseTest {
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
 
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(
-            IllegalArgumentException.class, () -> editarPerfilUsuarioUseCase.execute(command));
+    DomainException exception =
+        assertThrows(DomainException.class, () -> editarPerfilUsuarioUseCase.execute(command));
 
     assertTrue(exception.getMessage().contains("no puede exceder 500 caracteres"));
   }
@@ -142,7 +141,7 @@ class EditarPerfilUsuarioUseCaseTest {
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
 
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> editarPerfilUsuarioUseCase.execute(command));
+    assertThrows(ApplicationException.class, () -> editarPerfilUsuarioUseCase.execute(command));
   }
 
   // Helper method

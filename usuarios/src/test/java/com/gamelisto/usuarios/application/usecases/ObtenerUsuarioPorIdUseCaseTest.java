@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import java.util.Optional;
@@ -87,9 +88,8 @@ class ObtenerUsuarioPorIdUseCaseTest {
     String idInvalido = "no-es-uuid";
 
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(
-            IllegalArgumentException.class, () -> obtenerUsuarioPorIdUseCase.execute(idInvalido));
+    DomainException exception =
+        assertThrows(DomainException.class, () -> obtenerUsuarioPorIdUseCase.execute(idInvalido));
 
     assertTrue(exception.getMessage().contains("Formato de UUID inválido"));
     verify(repositorioUsuarios, never()).findById(any(UsuarioId.class));

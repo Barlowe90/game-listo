@@ -4,6 +4,7 @@ import com.gamelisto.usuarios.shared.security.GatewayAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -32,7 +33,23 @@ public class TestSecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) {
     http.csrf(AbstractHttpConfigurer::disable)
         .addFilterBefore(gatewayAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers("/actuator/health")
+                    .permitAll()
+                    .requestMatchers(
+                        HttpMethod.POST,
+                        "/v1/usuarios/auth/register",
+                        "/v1/usuarios/auth/verify-email",
+                        "/v1/usuarios/auth/resend-verification",
+                        "/v1/usuarios/auth/forgot-password",
+                        "/v1/usuarios/auth/reset-password",
+                        "/v1/usuarios/auth/login",
+                        "/v1/usuarios/auth/refresh",
+                        "/v1/usuarios/auth/logout")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated());
 
     return http.build();
   }

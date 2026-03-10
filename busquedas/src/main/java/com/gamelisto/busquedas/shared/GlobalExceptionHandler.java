@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.gamelisto.busquedas.infrastructure.exceptions.InfrastructureException;
+import com.gamelisto.busquedas.domain.exceptions.DomainException;
+import com.gamelisto.busquedas.application.exceptions.ApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,20 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
   private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+  // ============ Capa de Dominio - 400 Bad Request ============
+  @ExceptionHandler(DomainException.class)
+  public ResponseEntity<Map<String, Object>> handleDomainException(DomainException ex) {
+    logger.warn("Error de domain: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+  }
+
+  // ============ Capa de Aplicación - 422 Unprocessable Entity ============
+  @ExceptionHandler(ApplicationException.class)
+  public ResponseEntity<Map<String, Object>> handleApplicationException(ApplicationException ex) {
+    logger.warn("Error de aplicación: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+  }
 
   @ExceptionHandler(InfrastructureException.class)
   public ResponseEntity<Map<String, Object>> handleInfrastructureException(

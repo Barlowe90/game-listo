@@ -2,6 +2,7 @@ package com.gamelisto.usuarios.domain.usuario;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -85,8 +86,7 @@ class AvatarTest {
     assertTrue(urlLarga.length() > 500);
 
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> Avatar.of(urlLarga));
+    DomainException exception = assertThrows(DomainException.class, () -> Avatar.of(urlLarga));
 
     assertTrue(exception.getMessage().contains("500 caracteres"));
   }

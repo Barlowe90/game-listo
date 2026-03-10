@@ -83,7 +83,7 @@ class RestablecerContrasenaUseCaseTest {
     verify(repositorioUsuarios, never()).save(any());
   }
 
-  // ========== MÉTODO AUXILIAR ==========
+  // ========== FUNCION AUXILIAR ==========
 
   private Usuario crearUsuarioConToken(TokenVerificacion token, Instant expiracion) {
     return Usuario.reconstitute(

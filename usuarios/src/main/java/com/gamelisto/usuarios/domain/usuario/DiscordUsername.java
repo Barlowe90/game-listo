@@ -1,5 +1,7 @@
 package com.gamelisto.usuarios.domain.usuario;
 
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
+
 public final class DiscordUsername {
 
   private final String value;
@@ -9,7 +11,7 @@ public final class DiscordUsername {
     if (value != null && !value.trim().isEmpty()) {
       String trimmedValue = value.trim();
       if (trimmedValue.length() > MAX_USERNAME_LENGTH) {
-        throw new IllegalArgumentException(
+        throw new DomainException(
             "El username de Discord no puede exceder " + MAX_USERNAME_LENGTH + " caracteres");
       }
       this.value = trimmedValue;

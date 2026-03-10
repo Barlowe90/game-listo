@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.CambiarCorreoCommand;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import java.util.Optional;
@@ -138,7 +139,7 @@ class CambiarCorreoUseCaseTest {
     CambiarCorreoCommand command = new CambiarCorreoCommand(usuarioId, "email-invalido");
 
     // Act & Assert - La excepción se lanza al crear el Email Value Object
-    assertThrows(IllegalArgumentException.class, () -> cambiarCorreoUseCase.execute(command));
+    assertThrows(DomainException.class, () -> cambiarCorreoUseCase.execute(command));
 
     verify(repositorioUsuarios, never()).findById(any(UsuarioId.class));
     verify(repositorioUsuarios, never()).save(any(Usuario.class));

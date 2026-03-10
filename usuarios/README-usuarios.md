@@ -111,19 +111,19 @@ toda la información del usuario.
     - Cambio de `avatar` (URL)
     - Configuración de `language` (`ESP`, `ENG`)
 
-- **Listado de usuarios** (`GET /v1/usuarios/users`)
+- **Listado de usuarios** (`GET /v1/usuarios/admin/users`)
     - Paginación y filtrado
-    - Solo usuarios activos visibles
+    - Solo administradores (o según la lógica del controlador) pueden listar todos; hay soporte para búsqueda por
+      `username` y filtrado por `estado`
 
 #### Enlazar Discord
 
-- **Añadir datos de Discord** (`PUT /v1/usuarios/{id}/discord`)
-    - Almacenamiento manual de `discordUserId` y `discordUsername`
-    - Usuario puede agregar su información de Discord al perfil
+- **Añadir datos de Discord** (`PUT /v1/usuarios/discord`)
+    - Almacenamiento manual de `discordUserId` y `discordUsername` para el usuario autenticado
     - Registro de fecha de vinculación
 
-- **Eliminar datos de Discord** (`DELETE /v1/usuarios/{id}/discord`)
-    - Eliminación de datos de Discord del perfil
+- **Eliminar datos de Discord** (`DELETE /v1/usuarios/discord`)
+    - Eliminación de datos de Discord del perfil del usuario autenticado
 
 #### Autenticación JWT
 
@@ -152,14 +152,18 @@ toda la información del usuario.
 
 #### Administración
 
-- **Cambio de estado** (`PATCH /v1/usuarios/{id}/estado`)
+- **Cambio de estado** (`PATCH /v1/usuarios/admin/{id}/estado`)
     - Suspender/reactivar usuarios
     - Eliminación lógica (soft delete)
-    - Solo administradores
+    - Solo administradores (endpoint con prefijo `/admin`)
 
-- **Eliminación de usuario** (`DELETE /v1/usuarios/{id}`)
+- **Eliminación de usuario** (`DELETE /v1/usuarios/admin/{id}`)
     - Soft delete (estado → `ELIMINADO`)
     - Preserva datos para auditoría
+
+> Nota: en el código de pruebas y en documentación previa hay referencias a `GET /v1/usuarios/users` (sin `/admin`). El
+> controlador actual expone `GET /v1/usuarios/admin/users`. Si se desea compatibilidad con la ruta sin `/admin`, hay que
+> añadir un alias en el controlador o actualizar los tests/documentación según convenga.
 
 ### Funcionalidades que NO gestiona
 
@@ -341,168 +345,41 @@ Todos los VOs implementan validación en construcción y son inmutables:
 
 ## Endpoints
 
-**Base path:** `/v1/usuarios`
+A continuación se listan los endpoints implementados por los controladores actuales (`AuthController`,
+`UsuariosController`, `DiscordController`, `AdminController`). La tabla incluye método HTTP, ruta completa, tipo de
+autenticación/rol requerido, DTO de request (si aplica), DTO de response y una descripción corta.
 
-A continuación se documentan los endpoints tal y como están implementados en los controladores `AuthController`,
-`DiscordController` y `UsuariosController`.
+| Método | Ruta                                  | Auth / Rol    | Request                                       | Response                                      | Descripción / Notas                                                                                                                                                                             |
+|--------|---------------------------------------|---------------|-----------------------------------------------|-----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| POST   | /v1/usuarios/auth/register            | Public        | CrearUsuarioRequest                           | UsuarioResponse (201)                         | Registro de nuevo usuario; genera token de verificación.                                                                                                                                        |
+| POST   | /v1/usuarios/auth/verify-email        | Public        | VerificarEmailRequest                         | void (200)                                    | Verifica email usando token de verificación.                                                                                                                                                    |
+| POST   | /v1/usuarios/auth/resend-verification | Public        | ReenviarVerificacionRequest                   | void (200)                                    | Reenvía token de verificación si procede.                                                                                                                                                       |
+| POST   | /v1/usuarios/auth/forgot-password     | Public        | SolicitarRestablecimientoRequest              | void (200)                                    | Inicia flujo de restablecimiento de contraseña (envía token si existe el email).                                                                                                                |
+| POST   | /v1/usuarios/auth/reset-password      | Public        | RestablecerContrasenaRequest                  | void (200)                                    | Restablece contraseña usando token temporal.                                                                                                                                                    |
+| POST   | /v1/usuarios/auth/login               | Public        | LoginRequest                                  | AuthResponse (200)                            | Autentica credenciales; devuelve accessToken y refreshToken.                                                                                                                                    |
+| POST   | /v1/usuarios/auth/refresh             | Public        | RefreshTokenRequest                           | AuthResponse (200)                            | Rota refresh token y emite nuevos tokens.                                                                                                                                                       |
+| POST   | /v1/usuarios/auth/logout              | Authenticated | LogoutRequest                                 | void (204)                                    | Revoca refresh token; logout del usuario autenticado.                                                                                                                                           |
+| GET    | /v1/usuarios/auth/me                  | Authenticated | —                                             | UsuarioResponse (200)                         | Devuelve el perfil del usuario autenticado (userId inyectado por `@AuthenticationPrincipal`).                                                                                                   |
+| PUT    | /v1/usuarios/password                 | Authenticated | CambiarContrasenaRequest                      | void (200)                                    | Cambiar la contraseña del usuario autenticado.                                                                                                                                                  |
+| PUT    | /v1/usuarios/email                    | Authenticated | CambiarCorreoRequest                          | void (200)                                    | Cambiar el email del usuario autenticado (puede requerir nueva verificación).                                                                                                                   |
+| PATCH  | /v1/usuarios                          | Authenticated | EditarPerfilUsuarioRequest                    | UsuarioResponse (200)                         | Editar perfil del usuario autenticado (username, avatar, language, etc.).                                                                                                                       |
+| GET    | /v1/usuarios/{id}                     | Public        | —                                             | UsuarioResponse (200)                         | Obtener datos públicos del usuario por ID.                                                                                                                                                      |
+| PUT    | /v1/usuarios/discord                  | Authenticated | VincularDiscordRequest                        | UsuarioResponse (200)                         | Vincular cuenta de Discord al perfil del usuario autenticado.                                                                                                                                   |
+| DELETE | /v1/usuarios/discord                  | Authenticated | —                                             | UsuarioResponse (200)                         | Desvincular la cuenta de Discord del usuario autenticado.                                                                                                                                       |
+| PATCH  | /v1/usuarios/admin/{id}/rol           | ADMIN         | CambiarRolUsuarioRequest                      | UsuarioResponse (200)                         | Cambiar el rol de un usuario (ADMIN/USER/MODERATOR). Endpoint de administración.                                                                                                                |
+| PATCH  | /v1/usuarios/admin/{id}/estado        | ADMIN         | CambiarEstadoUsuarioRequest                   | UsuarioResponse (200)                         | Cambiar  estado de un usuario (SUSPENDER, REACTIVAR, ELIMINAR lógicamente). Endpoint de administración.                                                                                         |
+| GET    | /v1/usuarios/admin/users              | ADMIN         | query: username (optional), estado (optional) | UsuarioResponse / List<UsuarioResponse> (200) | Búsqueda/listado de usuarios. Si `username` está presente devuelve un único UsuarioResponse; si `estado` está presente devuelve lista filtrada; sin parámetros devuelve todos (administración). |
+| DELETE | /v1/usuarios/admin/{id}               | ADMIN         | —                                             | void (204)                                    | Eliminar usuario                                                                                                                                                                                |
 
-### Health Check
-
-- GET `/health`
-    - Descripción: Estado del microservicio
-    - Auth: No
-    - Código: 200 OK
-
-### Autenticación / Auth (base: `/v1/usuarios/auth`)
-
-- POST `/auth/register`
-    - Request: `CrearUsuarioRequest`
-    - Response: `UsuarioResponse`
-    - Código: 201 Created
-    - Descripción: Registro de nuevo usuario (genera token de verificación).
-
-- POST `/auth/verify-email`
-    - Request: `VerificarEmailRequest` (token)
-    - Response: void
-    - Código: 200 OK
-    - Descripción: Verifica el email con token de verificación.
-
-- POST `/auth/resend-verification`
-    - Request: `ReenviarVerificacionRequest` (email)
-    - Response: void
-    - Código: 200 OK
-    - Descripción: Reenvía token de verificación si procede.
-
-- POST `/auth/forgot-password`
-    - Request: `SolicitarRestablecimientoRequest` (email)
-    - Response: void
-    - Código: 200 OK
-    - Descripción: Inicia flujo de restablecimiento de contraseña (envía token).
-
-- POST `/auth/reset-password`
-    - Request: `RestablecerContrasenaRequest` (token + nueva contraseña)
-    - Response: void
-    - Código: 200 OK
-    - Descripción: Restablece contraseña usando token.
-
-- POST `/auth/login`
-    - Request: `LoginRequest` (email/username + password)
-    - Response: `AuthResponse` (accessToken + refreshToken)
-    - Código: 200 OK
-    - Descripción: Autentica credenciales y genera tokens.
-
-- POST `/auth/refresh`
-    - Request: `RefreshTokenRequest` (refreshToken)
-    - Response: `AuthResponse` (nuevo access + refresh token)
-    - Código: 200 OK
-    - Descripción: Rota el refresh token y emite nuevos tokens.
-
-- POST `/auth/logout`
-    - Request: `LogoutRequest` (refreshToken, accessToken)
-    - Response: void
-    - Código: 204 No Content
-    - Descripción: Revoca el refresh token y cierra sesión.
-
-- GET `/auth/me`
-    - Auth: requiere autenticación (token validado por el Gateway); el `userId` se extrae por
-      `@AuthenticationPrincipal`.
-    - Response: `UsuarioResponse`
-    - Código: 200 OK
-    - Descripción: Devuelve el perfil del usuario autenticado.
-
-### Gestión de perfil y cuenta (base: `/v1/usuarios`)
-
-- PUT `/password`
-    - Auth: requiere que `userId` (principal) coincida con el usuario que realiza la petición (
-      `@PreAuthorize("#userId == authentication.principal")`).
-    - Request: `CambiarContrasenaRequest`
-    - Response: void
-    - Código: 200 OK
-    - Descripción: Cambiar la contraseña del usuario autenticado.
-
-- PUT `/email`
-    - Auth: requiere que `userId` coincida con el principal.
-    - Request: `CambiarCorreoRequest`
-    - Response: void
-    - Código: 200 OK
-    - Descripción: Cambiar el email del usuario autenticado (puede disparar verificación).
-
-- PATCH `/` (sin path)
-    - Auth: requiere que `userId` coincida con el principal.
-    - Request: `EditarPerfilUsuarioRequest`
-    - Response: `UsuarioResponse`
-    - Código: 200 OK
-    - Descripción: Editar campos del perfil (username, avatar, language, etc.) para el usuario autenticado.
-
-- PUT/DELETE `/discord` (Discord binding)
-    - PUT `/discord`
-        - Auth: `@PreAuthorize("#userId == authentication.principal")` — `userId` inyectado por
-          `@AuthenticationPrincipal`.
-        - Request: `VincularDiscordRequest`
-        - Response: `UsuarioResponse`
-        - Código: 200 OK
-        - Descripción: Vincular datos de Discord al perfil del usuario autenticado.
-
-    - DELETE `/discord`
-        - Auth: `@PreAuthorize("#userId == authentication.principal")`.
-        - Response: `UsuarioResponse`
-        - Código: 200 OK
-        - Descripción: Desvincular la cuenta de Discord del usuario autenticado.
-
-### Endpoints de administración y búsqueda
-
-- PATCH `/{id}/estado`
-    - Auth: `hasRole('ADMIN')`
-    - Path param: `id` (String/UUID)
-    - Request: `CambiarEstadoUsuarioRequest`
-    - Response: `UsuarioResponse`
-    - Código: 200 OK
-    - Descripción: Cambiar el estado de un usuario (suspender, reactivar, eliminar lógicamente).
-
-- PATCH `/{id}/rol`
-    - Auth: `hasRole('ADMIN')`
-    - Request: `CambiarRolUsuarioRequest`
-    - Response: `UsuarioResponse`
-    - Código: 200 OK
-    - Descripción: Cambiar rol del usuario (ADMIN/USER/MODERATOR).
-
-- GET `/{id}`
-    - Auth: `hasRole('ADMIN')`
-    - Path param: `id` (String/UUID)
-    - Response: `UsuarioResponse`
-    - Código: 200 OK
-    - Descripción: Obtener usuario por id (sólo administradores).
-
-- GET `/users`
-    - Query params:
-        - `username` (optional): si está presente y autenticación válida, devuelve un único `UsuarioResponse` (búsqueda
-          por nombre).
-        - `estado` (optional): si se especifica, requiere que el caller tenga rol ADMIN y devuelve
-          `List<UsuarioResponse>` filtrado por estado.
-    - Comportamiento:
-        - Si `username` no es nulo/blank, se ejecuta `buscarUsuariosPorNombre` y devuelve `UsuarioResponse` (requiere
-          autenticación).
-        - Si `estado` está presente, se valida que el caller sea ADMIN y devuelve lista por estado.
-        - Sin parámetros: se requiere rol ADMIN para listar todos los usuarios; devuelve `List<UsuarioResponse>`.
-    - Código: 200 OK (o 403 si no autorizado según la lógica del controlador)
-
-- DELETE `/{id}`
-    - Auth: `hasRole('ADMIN')`
-    - Path param: `id` (String/UUID)
-    - Response: void
-    - Código: 204 No Content
-    - Descripción: Eliminar usuario (soft/hard según implementación del caso de uso).
-
-### Notas generales
-
-- Validación de tokens: este servicio **genera** access tokens y refresh tokens, pero la **validación** de JWT en
-  peticiones entrantes es responsabilidad del API Gateway; el servicio confía en `@AuthenticationPrincipal` y en los
-  headers que el Gateway pueda propagar.
-- `@AuthenticationPrincipal` se usa en endpoints que requieren operar sobre el usuario autenticado (cambio de
-  password/email, editar perfil, vincular/desvincular Discord, `auth/me`). Asegúrate de que el Gateway inyecta el
-  principal correctamente.
-- Códigos de respuesta: se reflejan según los controladores: 201 para creaciones, 200 para respuestas con payload, 204
-  para no-content.
+> Notas:
+> - "Public" indica endpoints que no requieren token (según controladores actuales); el API Gateway puede exponerlos
+    como públicos.
+> - "Authenticated" indica endpoints que usan `@AuthenticationPrincipal` y requieren que el Gateway haya validado el JWT
+    y haya inyectado el principal.
+> - Para endpoints administrativos se recomienda `hasRole('ADMIN')` en la configuración de seguridad del servicio o del
+    Gateway.
+> - Los request/response DTOs mencionados corresponden a los nombres usados en los controladores. Consulta
+    `infrastructure/in/api/dto/` para detalles de cada DTO.
 
 ---
 
@@ -555,26 +432,25 @@ A continuación se documentan los endpoints tal y como están implementados en l
 
 - `GET /v1/usuarios/auth/me` → Usuario autenticado
 - `POST /v1/usuarios/auth/logout` → Usuario autenticado
-- `GET /v1/usuarios/users` → Cualquier usuario autenticado
-- `GET /v1/usuarios/users?username={username}` → Cualquier usuario autenticado
-- `GET /v1/usuarios/users?estado={estado}` → Cualquier usuario autenticado
-- `GET /v1/usuarios/{id}` → Cualquier usuario autenticado
-- `PATCH /v1/usuarios/{id}` → Solo el propietario del perfil
-- `PATCH /v1/usuarios/{id}/estado` → Solo ADMIN/MODERATOR
-- `PUT /v1/usuarios/{id}/password` → Solo el propietario
-- `PUT /v1/usuarios/{id}/email` → Solo el propietario
-- `PUT /v1/usuarios/{id}/discord` → Solo el propietario
-- `DELETE /v1/usuarios/{id}/discord` → Solo el propietario
-- `DELETE /v1/usuarios/{id}` → Solo ADMIN
+- `PUT /v1/usuarios/password` → Usuario autenticado (cambiar propia contraseña)
+- `PUT /v1/usuarios/email` → Usuario autenticado (cambiar propio email)
+- `PATCH /v1/usuarios` → Usuario autenticado (editar perfil propio)
+- `GET /v1/usuarios/{id}` → Cualquier usuario autenticado (obtener datos públicos por id)
+- `PUT /v1/usuarios/discord` → Usuario autenticado (vincular Discord)
+- `DELETE /v1/usuarios/discord` → Usuario autenticado (desvincular Discord)
 
-### Validaciones de seguridad
+**Administración (requerir rol ADMIN en Gateway o en la aplicación):**
 
-- **Contraseñas**: Mínimo 8 caracteres (configurable)
-- **Username**: Alfanumérico, 3-30 caracteres, único
-- **Email**: Formato válido, único, verificación obligatoria
-- **Tokens**: UUID aleatorio, expiración 24h, uso único
-- **SQL Injection**: Protección mediante JPA + Prepared Statements
-- **XSS**: Sanitización automática de inputs en Value Objects
+- `PATCH /v1/usuarios/admin/{id}/estado` → ADMIN (cambiar estado del usuario)
+- `PATCH /v1/usuarios/admin/{id}/rol` → ADMIN (cambiar rol del usuario)
+- `GET /v1/usuarios/admin/users` → ADMIN (listar/filtrar usuarios; admite `username` y `estado` como query params)
+- `DELETE /v1/usuarios/admin/{id}` → ADMIN (eliminar usuario / soft delete)
+
+> Nota: la tabla de endpoints y la sección anterior se han alineado con las rutas actuales que aparecen en los
+> controladores `AuthController`, `UsuariosController`, `DiscordController` y `AdminController`. Si prefieres mantener
+> un
+> endpoint público de búsqueda `/v1/usuarios/users` (sin prefijo `admin`), indícamelo y lo añado/modifico en los
+> controladores y en la documentación.
 
 ---
 

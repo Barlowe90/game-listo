@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import java.util.Optional;
@@ -158,12 +159,9 @@ class DesvincularDiscordUseCaseTest {
   @Test
   @DisplayName("Debe lanzar excepción si ID de usuario es inválido")
   void debeLanzarExcepcionSiIdInvalido() {
-    // Arrange
-    String usuarioIdInvalido = "id-invalido";
-
     // Act & Assert
-    // Pasar null para simular ID inválido al método que ahora espera UUID
-    assertThrows(IllegalArgumentException.class, () -> desvincularDiscordUseCase.execute(null));
+    // Pasar null para simular ID inválido a la funcion que ahora espera UUID
+    assertThrows(DomainException.class, () -> desvincularDiscordUseCase.execute(null));
 
     verify(repositorioUsuarios, never()).findById(any(UsuarioId.class));
     verify(repositorioUsuarios, never()).save(any(Usuario.class));

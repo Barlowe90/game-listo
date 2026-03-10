@@ -186,12 +186,12 @@ class UsuariosControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("GET /v1/usuarios/users - Debe listar todos los usuarios")
+  @DisplayName("GET /v1/usuarios/admin/users - Debe listar todos los usuarios")
   void debeListarTodosLosUsuarios() throws Exception {
     // Act & Assert
     mockMvc
         .perform(
-            get("/v1/usuarios/users")
+            get("/v1/usuarios/admin/users")
                 .header("X-User-Id", adminUser.getId().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -227,7 +227,7 @@ class UsuariosControllerIntegrationTest {
     // Act & Assert - ADMIN elimina usuario
     mockMvc
         .perform(
-            delete("/v1/usuarios/{id}", usuarioExistente.getId().value())
+            delete("/v1/usuarios/admin/{id}", usuarioExistente.getId().value())
                 .header("X-User-Id", adminUser.getId().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -254,7 +254,7 @@ class UsuariosControllerIntegrationTest {
     // Act & Assert - ADMIN cambia estado
     mockMvc
         .perform(
-            patch("/v1/usuarios/{id}/estado", usuarioExistente.getId().value())
+            patch("/v1/usuarios/admin/{id}/estado", usuarioExistente.getId().value())
                 .header("X-User-Id", adminUser.getId().value())
                 .header("X-User-Roles", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -320,12 +320,12 @@ class UsuariosControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("GET /v1/usuarios/users?estado=... - Debe filtrar usuarios por estado")
+  @DisplayName("GET /v1/usuarios/admin/users?estado=... - Debe filtrar usuarios por estado")
   void debeFiltrarPorEstado() throws Exception {
     // Act & Assert - ADMIN puede filtrar
     mockMvc
         .perform(
-            get("/v1/usuarios/users")
+            get("/v1/usuarios/admin/users")
                 .param("estado", "PENDIENTE_DE_VERIFICACION")
                 .header("X-User-Id", adminUser.getId().value())
                 .header("X-User-Roles", "ADMIN")

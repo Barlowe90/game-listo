@@ -47,7 +47,6 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.CREATED).body(ListaGameResponse.from(result));
   }
 
-  @PreAuthorize("#userId == authentication.principal")
   @PatchMapping("/lists/{listaId}")
   public ResponseEntity<ListaGameResponse> modificarLista(
       @AuthenticationPrincipal UUID userId,
@@ -61,7 +60,6 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.OK).body(ListaGameResponse.from(result));
   }
 
-  @PreAuthorize("#userId == authentication.principal")
   @DeleteMapping("/lists/{listaId}")
   public ResponseEntity<Void> eliminarLista(
       @AuthenticationPrincipal UUID userId, @PathVariable String listaId) {
@@ -73,7 +71,6 @@ public class ListaGameController {
     return ResponseEntity.noContent().build();
   }
 
-  @PreAuthorize("#userId == authentication.principal")
   @GetMapping("/lists/{listaId}")
   public ResponseEntity<ListaGameResponse> buscarLista(
       @AuthenticationPrincipal UUID userId, @PathVariable String listaId) {
@@ -85,7 +82,6 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.OK).body(ListaGameResponse.from(result));
   }
 
-  @PreAuthorize("#userId == authentication.principal")
   @GetMapping("/lists")
   public ResponseEntity<List<ListaGameResponse>> buscarTodasLasListas(
       @AuthenticationPrincipal UUID userId) {
@@ -99,7 +95,6 @@ public class ListaGameController {
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
-  @PreAuthorize("#userId == authentication.principal")
   @PostMapping("/lists/{listaId}/games/{gameRefId}")
   public ResponseEntity<Void> addGameToList(
       @AuthenticationPrincipal UUID userId,
@@ -113,7 +108,6 @@ public class ListaGameController {
     return ResponseEntity.noContent().build();
   }
 
-  @PreAuthorize("#userId == authentication.principal")
   @DeleteMapping("/lists/{listaId}/games/{gameRefId}")
   public ResponseEntity<Void> eliminarGameFromList(
       @AuthenticationPrincipal UUID userId,

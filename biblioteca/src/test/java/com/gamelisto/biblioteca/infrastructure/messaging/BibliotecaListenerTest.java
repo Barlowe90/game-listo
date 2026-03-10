@@ -104,7 +104,7 @@ class BibliotecaListenerTest {
     // Act
     listener.handleEvent(message);
 
-    // Assert - no se debe llamar a ningún método del handle
+    // Assert - no se debe llamar a ninguna funcion del handle
     verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any());
     verify(entradaEventos, never()).procesarGameCreado(any(), any(), any());
     verify(entradaEventos, never()).procesarUsuarioEliminado(any());

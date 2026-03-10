@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/v1/usuarios/auth")
+@RequestMapping("/v1/usuarios")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -33,8 +33,7 @@ public class AuthController {
   private final SolicitarRestablecimientoHandle solicitarRestablecimientoUseCase;
   private final RestablecerContrasenaHandle restablecerContrasenaUseCase;
 
-  // TODO mover a usuarios (Create CRUD)
-  @PostMapping("/register")
+  @PostMapping("/auth/register")
   public ResponseEntity<UsuarioResponse> registrar(
       @Valid @RequestBody CrearUsuarioRequest request) {
 
@@ -45,12 +44,10 @@ public class AuthController {
     UsuarioResponse response = UsuarioResponse.from(usuarioResult);
 
     logger.info("Usuario registrado exitosamente: {}", usuarioResult.username());
-    // TODO que pueda entrar a su perfil, con el aviso de que tiene que verificar email.
-    // TODO permisos para cambiar correo por si se ha equivocado
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
-  @PostMapping("/verify-email")
+  @PostMapping("/auth/verify-email")
   public ResponseEntity<Void> verificarEmail(@Valid @RequestBody VerificarEmailRequest request) {
 
     logger.info("Request de verificación de email con token: {}", request.token());
@@ -62,7 +59,7 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
-  @PostMapping("/resend-verification")
+  @PostMapping("/auth/resend-verification")
   public ResponseEntity<Void> reenviarVerificacion(
       @Valid @RequestBody ReenviarVerificacionRequest request) {
 
@@ -74,7 +71,7 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
-  @PostMapping("/forgot-password")
+  @PostMapping("/auth/forgot-password")
   public ResponseEntity<Void> solicitarRestablecimiento(
       @Valid @RequestBody SolicitarRestablecimientoRequest request) {
 
@@ -86,7 +83,7 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
-  @PostMapping("/reset-password")
+  @PostMapping("/auth/reset-password")
   public ResponseEntity<Void> restablecerContrasena(
       @Valid @RequestBody RestablecerContrasenaRequest request) {
 
@@ -99,7 +96,7 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
-  @PostMapping("/login")
+  @PostMapping("/auth/login")
   public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
 
     logger.info("Request de login para email: {}", request.email());
@@ -113,7 +110,7 @@ public class AuthController {
     return ResponseEntity.ok(response);
   }
 
-  @PostMapping("/refresh")
+  @PostMapping("/auth/refresh")
   public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
 
     logger.info("Request de refresh token");
@@ -127,10 +124,11 @@ public class AuthController {
     return ResponseEntity.ok(response);
   }
 
-  @PostMapping("/logout")
-  public ResponseEntity<Void> logout(@Valid @RequestBody LogoutRequest request) {
-
-    logger.info("Request de logout");
+  @PostMapping("/auth/logout")
+  public ResponseEntity<Void> logout(
+      @Valid @RequestBody LogoutRequest request, @AuthenticationPrincipal UUID userId) {
+    // TODO comprobar que es el user que hace logout
+    logger.info("Request de logout userId {}", userId);
 
     LogoutCommand command = new LogoutCommand(request.refreshToken(), request.accessToken());
     logoutUseCase.execute(command);
@@ -139,7 +137,7 @@ public class AuthController {
     return ResponseEntity.noContent().build();
   }
 
-  @GetMapping("/me")
+  @GetMapping("/auth/me")
   public ResponseEntity<UsuarioResponse> getAuthenticatedProfile(
       @AuthenticationPrincipal UUID userId) {
 

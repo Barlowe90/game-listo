@@ -3,6 +3,7 @@ package com.gamelisto.usuarios.domain.refreshtoken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.usuario.UsuarioId;
 import java.time.Duration;
 import java.time.Instant;
@@ -212,7 +213,7 @@ class RefreshTokenTest {
     // Act & Assert
     assertThatThrownBy(
             () -> RefreshToken.reconstitute(tokenHash, usuarioId, createdAt, expiresAt, false))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining(
             "La fecha de expiración no puede ser anterior a la fecha de creación");
   }

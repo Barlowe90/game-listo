@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import java.time.Instant;
@@ -251,7 +252,7 @@ class ObtenerPerfilAutenticadoUseCaseTest {
     // Act & Assert - ahora el use case recibe UUID, por tanto pasar null debe lanzar
     // IllegalArgumentException
     assertThatThrownBy(() -> useCase.execute(null))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(DomainException.class)
         .hasMessageContaining("nulo");
 
     verify(repositorio, never()).findById(any(UsuarioId.class));

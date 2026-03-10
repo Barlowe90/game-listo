@@ -3,8 +3,8 @@ package com.gamelisto.usuarios.domain.usuario;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import java.time.Duration;
-import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -90,9 +90,8 @@ class UsuarioTest {
     PasswordHash passwordHash = PasswordHash.of("$2a$10$hash");
 
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(
-            IllegalArgumentException.class, () -> Usuario.create(null, email, passwordHash));
+    DomainException exception =
+        assertThrows(DomainException.class, () -> Usuario.create(null, email, passwordHash));
 
     assertTrue(exception.getMessage().contains("username es obligatorio"));
   }
@@ -105,9 +104,8 @@ class UsuarioTest {
     PasswordHash passwordHash = PasswordHash.of("$2a$10$hash");
 
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(
-            IllegalArgumentException.class, () -> Usuario.create(username, null, passwordHash));
+    DomainException exception =
+        assertThrows(DomainException.class, () -> Usuario.create(username, null, passwordHash));
 
     assertTrue(exception.getMessage().contains("email es obligatorio"));
   }
@@ -120,8 +118,8 @@ class UsuarioTest {
     Email email = Email.of("test@test.com");
 
     // Act & Assert
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> Usuario.create(username, email, null));
+    DomainException exception =
+        assertThrows(DomainException.class, () -> Usuario.create(username, email, null));
 
     assertTrue(exception.getMessage().contains("password hash es obligatorio"));
   }
@@ -169,7 +167,7 @@ class UsuarioTest {
     Usuario usuario = crearUsuarioDefault();
 
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> usuario.changePasswordHash(null));
+    assertThrows(DomainException.class, () -> usuario.changePasswordHash(null));
   }
 
   // ========== CAMBIO DE AVATAR ==========
@@ -290,7 +288,7 @@ class UsuarioTest {
     usuario.delete();
 
     // Act & Assert
-    IllegalStateException exception = assertThrows(IllegalStateException.class, usuario::activate);
+    DomainException exception = assertThrows(DomainException.class, usuario::activate);
 
     assertTrue(exception.getMessage().contains("No se puede activar un usuario eliminado"));
   }
@@ -304,7 +302,6 @@ class UsuarioTest {
     Usuario usuario = crearUsuarioDefault();
     DiscordUserId discordId = DiscordUserId.of("123456789");
     DiscordUsername discordUsername = DiscordUsername.of("player#1234");
-    Instant beforeLink = Instant.now();
     await().pollDelay(Duration.ofMillis(10)).until(() -> true);
 
     // Act
@@ -324,7 +321,7 @@ class UsuarioTest {
     DiscordUsername discordUsername = DiscordUsername.of("player#1234");
 
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> usuario.linkDiscord(null, discordUsername));
+    assertThrows(DomainException.class, () -> usuario.linkDiscord(null, discordUsername));
   }
 
   @Test
@@ -336,8 +333,7 @@ class UsuarioTest {
     DiscordUsername discordUsername = DiscordUsername.of("player#1234");
 
     // Act & Assert
-    assertThrows(
-        IllegalArgumentException.class, () -> usuario.linkDiscord(discordId, discordUsername));
+    assertThrows(DomainException.class, () -> usuario.linkDiscord(discordId, discordUsername));
   }
 
   @Test
@@ -348,7 +344,7 @@ class UsuarioTest {
     DiscordUserId discordId = DiscordUserId.of("123456789");
 
     // Act & Assert
-    assertThrows(IllegalArgumentException.class, () -> usuario.linkDiscord(discordId, null));
+    assertThrows(DomainException.class, () -> usuario.linkDiscord(discordId, null));
   }
 
   @Test
@@ -360,8 +356,7 @@ class UsuarioTest {
     DiscordUsername discordUsername = DiscordUsername.empty();
 
     // Act & Assert
-    assertThrows(
-        IllegalArgumentException.class, () -> usuario.linkDiscord(discordId, discordUsername));
+    assertThrows(DomainException.class, () -> usuario.linkDiscord(discordId, discordUsername));
   }
 
   @Test

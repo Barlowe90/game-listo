@@ -29,7 +29,6 @@ public class GameEstadoController {
   private final CrearGameEstadoHandler crearGameEstado;
   private final BuscarGameEstadosPorGameIdHandler buscarGameEstadosPorGameId;
 
-  @PreAuthorize("#userId == authentication.principal")
   @PostMapping("/games/{gameRefId}/state")
   public ResponseEntity<Void> crearGameEstado(
       @AuthenticationPrincipal UUID userId,
@@ -43,7 +42,6 @@ public class GameEstadoController {
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 
-  @PreAuthorize("#userId == authentication.principal")
   @PostMapping("/games/{gameRefId}/rate")
   public ResponseEntity<Void> rateGameEstado(
       @AuthenticationPrincipal UUID userId,

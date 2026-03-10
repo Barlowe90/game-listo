@@ -11,8 +11,6 @@ import com.gamelisto.usuarios.domain.usuario.Username;
 import com.gamelisto.usuarios.domain.usuario.Usuario;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +22,6 @@ public class CrearUsuarioUseCase implements CrearUsuarioHandle {
   private final RepositorioUsuarios repositorioUsuarios;
   private final PasswordEncoder passwordEncoder;
   private final IEmailService emailService;
-  private static final Logger logger = LoggerFactory.getLogger(CrearUsuarioUseCase.class);
 
   @Transactional
   public UsuarioResult execute(CrearUsuarioCommand command) {
@@ -63,13 +60,10 @@ public class CrearUsuarioUseCase implements CrearUsuarioHandle {
   private void enviarUsuarioEmailVerificacion(Usuario usuarioGuardado) {
     String verificationToken = usuarioGuardado.getTokenVerificacion().value();
 
-    logger.info("token verificacion: {}", verificationToken);
-
-    // TODO descomentar cuando me respondan los de resend
-    //    emailService.sendVerificationEmail(
-    //        usuarioGuardado.getEmail().value(),
-    //        usuarioGuardado.getUsername().value(),
-    //        verificationToken);
+    emailService.sendVerificationEmail(
+        usuarioGuardado.getEmail().value(),
+        usuarioGuardado.getUsername().value(),
+        verificationToken);
   }
 
   private void comprobarSiExisteUsuarioParaLanzarExcepcion(

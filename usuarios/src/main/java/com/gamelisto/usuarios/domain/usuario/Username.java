@@ -1,6 +1,7 @@
 package com.gamelisto.usuarios.domain.usuario;
 
 import java.util.regex.Pattern;
+import com.gamelisto.usuarios.domain.exceptions.DomainException;
 
 public final class Username {
 
@@ -10,13 +11,13 @@ public final class Username {
 
   private Username(String value) {
     if (value == null || value.trim().isEmpty()) {
-      throw new IllegalArgumentException("El username no puede ser nulo o vacío");
+      throw new DomainException("El username no puede ser nulo o vacío");
     }
 
     String usernameNormalized = value.trim();
 
     if (!cumplePatronUsername(usernameNormalized)) {
-      throw new IllegalArgumentException(
+      throw new DomainException(
           "El username debe tener entre 3 y 30 caracteres y solo puede contener letras, números, guiones y guiones bajos");
     }
 

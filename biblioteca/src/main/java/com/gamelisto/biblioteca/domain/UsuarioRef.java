@@ -5,6 +5,7 @@ import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.gamelisto.biblioteca.domain.exceptions.DomainException;
 
 @Getter
 @ToString
@@ -36,10 +37,10 @@ public class UsuarioRef {
 
   private static void comprobarIdUsernameVacios(UsuarioId id, String username) {
     if (id == null) {
-      throw new IllegalArgumentException("UsuarioId no puede ser nulo");
+      throw new DomainException("UsuarioId no puede ser nulo");
     }
     if (username == null || username.isBlank()) {
-      throw new IllegalArgumentException("username no puede ser nulo o vacío");
+      throw new DomainException("username no puede ser nulo o vacío");
     }
   }
 
