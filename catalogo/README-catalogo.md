@@ -21,6 +21,26 @@ Arquitectura Hexagonal y DDD: dominio puro, casos de uso y adaptadores de infrae
 - Publicar eventos de dominio para que otros servicios (search, bff, biblioteca) consuman cambios.
 - Mantener contratos REST estables para lectura de datos y operaciones de sincronización.
 
+## Contratos HTTP (endpoints principales)
+
+Base path: `/v1/catalogo`
+
+| Método | Ruta                             | Auth / Rol          | Request                     | Response                          | Descripción / Notas                                                                                          |
+|--------|----------------------------------|---------------------|-----------------------------|-----------------------------------|--------------------------------------------------------------------------------------------------------------|
+| GET    | `/v1/catalogo/games`             | Public              | query params `page`, `size` | `List<GameResponse>` (200 OK)     | Listado de juegos (controlador acepta page/size; implementación actual devuelve todos).                      |
+| GET    | `/v1/catalogo/games/{id}`        | Public              | path `id` (Long)            | `GameResponse` (200 OK)           | Metadatos canónicos del juego (Postgres).                                                                    |
+| GET    | `/v1/catalogo/games/{id}/detail` | Public              | path `id` (Long)            | `GameDetailResponse` (200 OK)     | Contenido enriquecido (MongoDB): screenshots, videos, descripción larga.                                     |
+| GET    | `/v1/catalogo/platforms`         | Public              | —                           | `List<PlatformResponse>` (200 OK) | Listado de plataformas soportadas.                                                                           |
+| POST   | `/v1/catalogo/sync/games`        | Admin (recomendado) | —                           | `SyncStatusResponse` (200 OK)     | Dispara sincronización (IGDB) de juegos; en código hay un comentario `@PreAuthorize('ADMIN')` deshabilitado. |
+| POST   | `/v1/catalogo/sync/platforms`    | Admin (recomendado) | —                           | `SyncStatusResponse` (200 OK)     | Dispara sincronización de plataformas desde IGDB.                                                            |
+
+Notas adicionales
+
+- Aunque los endpoints de sincronización no requieren autenticación en el código actual, en entornos de producción
+  deberían protegerse para administradores.
+- DTOs: `GameResponse`, `GameDetailResponse`, `PlatformResponse`, `SyncStatusResponse` se encuentran en
+  `infrastructure/in/api/dto`.
+
 ## Consejos rápidos de lectura
 
 - `Game` (Postgres) → datos canónicos y ligeros, indexables.
@@ -53,59 +73,6 @@ Arquitectura Hexagonal y DDD: dominio puro, casos de uso y adaptadores de infrae
 3. Se persiste/actualiza `Game` en Postgres y `GameDetail` en MongoDB según sea necesario.
 4. Se publican eventos de dominio (p. ej. `GameCreated`, `GameUpdated`) en RabbitMQ para downstream consumers.
 5. Los consumidores (search, busquedas, bff) actualizan índices o caches a partir de estos eventos.
-
-## Contratos HTTP (endpoints principales)
-
-Base path: `/v1/catalogo`
-
-- GET `/games`
-    - Descripción: Devuelve un listado paginado (controlador usa parámetros `page` y `size`, aunque la implementación
-      actual retorna todos los juegos).
-    - Query params: `page` (default = 0), `size` (default = 20)
-    - Response: `List<GameResponse>` — cada `GameResponse` contiene campos ligeros como
-      `{ id, name, summary, coverUrl, alternativeNames, platforms, releaseDate }`
-    - Código: 200 OK
-
-- GET `/games/{id}`
-    - Descripción: Devuelve `GameResponse` con metadatos canónicos del juego (Postgres).
-    - Path params: `id` (Long)
-    - Response: `GameResponse` — `{ id, name, summary, coverUrl, alternativeNames, platforms, releaseDate }`
-    - Código: 200 OK
-
-- GET `/games/{id}/detail`
-    - Descripción: Devuelve `GameDetailResponse` con contenido enriquecido (p. ej. screenshots, videos) almacenado en
-      MongoDB.
-    - Path params: `id` (Long)
-    - Response: `GameDetailResponse` — { `gameId`, `screenshots: ["url"...]`, `videos: ["url"...]`, `longDescription` }
-    - Código: 200 OK
-
-- GET `/platforms`
-    - Descripción: Devuelve el listado de plataformas soportadas (`PlatformResponse`).
-    - Response: `List<PlatformResponse>` — `{ id, name, abbreviation, ... }`
-    - Código: 200 OK
-
-- POST `/sync/games`
-    - Descripción: Endpoint para disparar la sincronización de juegos desde IGDB. La implementación usa
-      `IgdbProperties.batchSize` para el tamaño del lote.
-    - Autorización: en el código hay un comentario `@PreAuthorize("hasRole('ADMIN')")` — actualmente deshabilitado; en
-      producción debería protegerse para administradores.
-    - Response: `SyncStatusResponse` — resumen del resultado (cantidad procesada, mensajes, etc.)
-    - Código: 200 OK
-
-- POST `/sync/platforms`
-    - Descripción: Endpoint para sincronizar plataformas desde IGDB.
-    - Autorización: similar a `/sync/games` (comentario de `@PreAuthorize` en el controlador).
-    - Response: `SyncStatusResponse`
-    - Código: 200 OK
-
-Notas adicionales
-
-- Paginación: aunque el controlador expone `page` y `size` como parámetros, la implementación actual (
-  `obtenerTodosLosJuegos.execute()`) devuelve todos los juegos; revisar si se desea soportar paginación real en el
-  futuro.
-- DTOs: las clases `GameResponse`, `GameDetailResponse`, `PlatformResponse`, `SyncStatusResponse` están en
-  `infrastructure/in/api/dto` (ver archivos adjuntos) y deben usarse como contrato de salida.
-- Seguridad: los endpoints de sincronización deberían protegerse (ADMIN) en entornos no de desarrollo.
 
 ## Contratos de eventos (resumen)
 

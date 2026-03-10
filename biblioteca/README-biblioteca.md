@@ -61,65 +61,18 @@ Contratos HTTP (endpoints)
 
 Base path: `/v1/biblioteca`
 
-Listas
-
-- POST `/lists`
-    - Request: `CrearListaGameRequest` — { "nombre": "string", "tipo": "string" }
-    - Response: `ListaGameResponse` — { "id": "uuid", "usuarioRefId": "uuid", "nombre": "string", "tipo": "string" }
-    - Código: 201 Created
-    - Nota: El `userId` se obtiene vía `@AuthenticationPrincipal` (sesión/token). Este endpoint crea una nueva lista
-      para el usuario autenticado.
-
-- PATCH `/lists/{listaId}`
-    - Request: `EditarListaGameRequest` — { "nombre": "string" }
-    - Response: `ListaGameResponse`
-    - Código: 200 OK
-    - Autorización: protegido con `@PreAuthorize` (solo el propietario puede modificar).
-
-- DELETE `/lists/{listaId}`
-    - Código: 204 No Content
-    - Autorización: protegido con `@PreAuthorize` (solo el propietario puede eliminar).
-
-- GET `/lists/{listaId}`
-    - Response: `ListaGameResponse`
-    - Código: 200 OK
-    - Autorización: protegido con `@PreAuthorize` (solo el propietario puede leer esta lista privada).
-
-- GET `/lists`
-    - Response: lista de `ListaGameResponse`
-    - Código: 200 OK
-    - Autorización: protegido con `@PreAuthorize` (devuelve todas las listas del usuario autenticado).
-
-Gestión de juegos en listas
-
-- POST `/lists/{listaId}/games/{gameRefId}`
-    - Añade una referencia de juego a la lista.
-    - Código: 204 No Content
-    - Autorización: protegido con `@PreAuthorize` (solo el propietario puede modificar su lista).
-    - Nota: en el controlador `listaId` y `gameRefId` se tratan como `String`.
-
-- DELETE `/lists/{listaId}/games/{gameRefId}`
-    - Elimina una referencia de juego de la lista.
-    - Código: 204 No Content
-    - Autorización: protegido con `@PreAuthorize` (solo el propietario puede modificar su lista).
-
-Estado y valoración de juegos
-
-- POST `/games/{gameRefId}/state`
-    - Request: `CrearGameEstadoRequest` — { "estado": "string" }
-    - Código: 200 OK
-    - Autorización: protegido con `@PreAuthorize` (el `userId` se extrae via `@AuthenticationPrincipal`).
-
-- POST `/games/{gameRefId}/rate`
-    - Request: `RateGameEstadoRequest` — { "rating": number }
-    - Código: 200 OK
-    - Autorización: protegido con `@PreAuthorize` (el `userId` se extrae via `@AuthenticationPrincipal`).
-
-- GET `/games/{gameRefId}`
-    - Response: lista de `GameEstadoResponse`
-    - Código: 200 OK
-    - Nota: este endpoint es público en el controlador (no tiene `@PreAuthorize`). En el controlador `gameRefId` se
-      recibe como `Long`.
+| Método | Ruta                                               | Auth / Rol                  | Request                  | Response                            | Descripción / Notas                                                                                          |
+|--------|----------------------------------------------------|-----------------------------|--------------------------|-------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| POST   | `/v1/biblioteca/lists`                             | Authenticated               | `CrearListaGameRequest`  | `ListaGameResponse` (201 Created)   | Crea una nueva lista para el usuario autenticado (`userId` via `@AuthenticationPrincipal`).                  |
+| PATCH  | `/v1/biblioteca/lists/{listaId}`                   | Authenticated (propietario) | `EditarListaGameRequest` | `ListaGameResponse` (200 OK)        | Modifica metadatos de la lista (nombre). El handler valida propiedad.                                        |
+| DELETE | `/v1/biblioteca/lists/{listaId}`                   | Authenticated (propietario) | —                        | void (204 No Content)               | Elimina la lista del usuario autenticado.                                                                    |
+| GET    | `/v1/biblioteca/lists/{listaId}`                   | Authenticated (propietario) | —                        | `ListaGameResponse` (200 OK)        | Obtiene la lista privada del usuario.                                                                        |
+| GET    | `/v1/biblioteca/lists`                             | Authenticated               | —                        | `List<ListaGameResponse>` (200 OK)  | Devuelve todas las listas del usuario autenticado.                                                           |
+| POST   | `/v1/biblioteca/lists/{listaId}/games/{gameRefId}` | Authenticated (propietario) | —                        | void (204 No Content)               | Añade una referencia de juego a la lista; `listaId` y `gameRefId` se tratan como `String`.                   |
+| DELETE | `/v1/biblioteca/lists/{listaId}/games/{gameRefId}` | Authenticated (propietario) | —                        | void (204 No Content)               | Elimina una referencia de juego de la lista.                                                                 |
+| POST   | `/v1/biblioteca/games/{gameRefId}/state`           | Authenticated               | `CrearGameEstadoRequest` | void (200 OK)                       | Registra o actualiza el estado del juego para el usuario (`userId` extraído por `@AuthenticationPrincipal`). |
+| POST   | `/v1/biblioteca/games/{gameRefId}/rate`            | Authenticated               | `RateGameEstadoRequest`  | void (200 OK)                       | Asigna o actualiza la puntuación (rating) del juego por el usuario.                                          |
+| GET    | `/v1/biblioteca/games/{gameRefId}`                 | Public                      | —                        | `List<GameEstadoResponse>` (200 OK) | Devuelve los estados/valoraciones de un juego (controlador recibe `gameRefId` como `Long`).                  |
 
 Seguridad
 

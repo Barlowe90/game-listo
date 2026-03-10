@@ -22,6 +22,12 @@ Contenido de este README
 
 Contratos HTTP
 
+Base path: `/v1/busquedas`
+
+| Método | Ruta                                          | Auth / Rol | Request                  | Response                       | Descripción / Notas                                                                            |
+|--------|-----------------------------------------------|------------|--------------------------|--------------------------------|------------------------------------------------------------------------------------------------|
+| GET    | `/v1/busquedas/sugerencia?q={texto}&size={n}` | Public     | query params `q`, `size` | `SugerenciasResponse` (200 OK) | Devuelve sugerencias (autocompletado). Parámetros: `q` requerido, `size` opcional (default 5). |
+
 Endpoint de sugerencias
 
 GET `/v1/busquedas/sugerencia?q={texto}&size={n}`
@@ -71,7 +77,7 @@ Procesamiento del evento
 
 - `created` / `updated`: realizar upsert en OpenSearch con id = `gameId`. Construir `nameSuggest.input` a partir de
   `[title] + alternativeNames` (limpiar, deduplicar, trim).
-- `deleted`: eliminar documento por id = `gameId`.
+- `deleted`: eliminar documento por id cuando llegue evento de borrado.
 - Guardar `eventId` en logs para trazabilidad.
 
 Documento indexado en OpenSearch (GameSearchDoc)
