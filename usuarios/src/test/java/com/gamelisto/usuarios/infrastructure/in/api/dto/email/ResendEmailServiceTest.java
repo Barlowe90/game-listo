@@ -181,7 +181,7 @@ class ResendEmailServiceTest {
       "https://gamelisto.com",
       "https://staging.gamelisto.com",
       "https://dev.gamelisto.com",
-      "http://localhost:3000"
+      "http://localhost:8080"
     };
 
     // When & Then

@@ -90,7 +90,7 @@ public class CrearGameEstadoUseCase implements CrearGameEstadoHandler {
   private void publicarEventoEstadoActualizado(GameEstado actualizado) {
     EstadoActualizado evento =
         EstadoActualizado.of(
-            actualizado.getUsuarioRefId().value().toString(),
+            actualizado.getUsuarioRefId().value(),
             actualizado.getGameRefId().value(),
             actualizado.getEstado().toString());
     bibliotecaPublisher.publicarEstadoActualizado(evento);

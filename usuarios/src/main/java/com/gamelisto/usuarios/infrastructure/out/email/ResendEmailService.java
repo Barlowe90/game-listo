@@ -66,7 +66,7 @@ public class ResendEmailService implements IEmailService {
   }
 
   private String buildVerificationEmailHtml(String username, String verificationToken) {
-    String verificationUrl = frontendUrl + "/verify-email?token=" + verificationToken;
+    String verificationUrl = frontendUrl + "/auth/verify-email?token=" + verificationToken;
 
     return """
                 <!DOCTYPE html>

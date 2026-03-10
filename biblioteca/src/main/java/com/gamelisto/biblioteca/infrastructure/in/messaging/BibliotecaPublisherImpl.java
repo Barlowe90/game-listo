@@ -1,4 +1,4 @@
-package com.gamelisto.biblioteca.infrastructure.out.messaging;
+package com.gamelisto.biblioteca.infrastructure.in.messaging;
 
 import com.gamelisto.biblioteca.domain.eventos.EstadoActualizado;
 import com.gamelisto.biblioteca.domain.eventos.IBibliotecaPublisher;

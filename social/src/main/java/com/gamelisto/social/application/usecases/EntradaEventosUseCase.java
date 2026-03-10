@@ -3,7 +3,6 @@ package com.gamelisto.social.application.usecases;
 import com.gamelisto.social.dominio.GrafoUsuarioRepositorio;
 import com.gamelisto.social.dominio.JuegoSocialRepositorio;
 import com.gamelisto.social.dominio.UserRef;
-import com.gamelisto.social.dominio.exceptions.DomainException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
