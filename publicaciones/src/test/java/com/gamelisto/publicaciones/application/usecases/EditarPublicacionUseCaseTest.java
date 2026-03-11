@@ -9,6 +9,10 @@ import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.*;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Map;
+import java.util.Set;
+
+import com.gamelisto.publicaciones.domain.vo.DisponibilidadSemanal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +29,14 @@ class EditarPublicacionUseCaseTest {
 
   private Publicacion publicacionDe(UUID autorId) {
     return Publicacion.create(
-        autorId, 100L, "Titulo original", Idioma.ESP, Experiencia.NOVATO, EstiloJuego.LOGROS, 4);
+        autorId,
+        100L,
+        "Titulo original",
+        Idioma.ESP,
+        Experiencia.NOVATO,
+        EstiloJuego.LOGROS,
+        4,
+        DisponibilidadSemanal.empty());
   }
 
   @Test
@@ -36,9 +47,17 @@ class EditarPublicacionUseCaseTest {
     when(publicacionRepositorio.findById(pub.getId())).thenReturn(Optional.of(pub));
     when(publicacionRepositorio.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
+    Map<String, Set<String>> disponibilidad = Map.of("MIERCOLES", Set.of("DIA"));
     EditarPublicacionCommand command =
         new EditarPublicacionCommand(
-            pub.getId().value(), autorId, "Nuevo titulo", "ENG", "PRO", "DISFRUTAR_DEL_JUEGO", 6);
+            pub.getId().value(),
+            autorId,
+            "Nuevo titulo",
+            "ENG",
+            "PRO",
+            "DISFRUTAR_DEL_JUEGO",
+            6,
+            disponibilidad);
 
     PublicacionResult result = useCase.execute(command);
 
@@ -55,9 +74,17 @@ class EditarPublicacionUseCaseTest {
     Publicacion pub = publicacionDe(autorId);
     when(publicacionRepositorio.findById(pub.getId())).thenReturn(Optional.of(pub));
 
+    Map<String, Set<String>> disponibilidad = Map.of("DOMINGO", Set.of("TARDE"));
     EditarPublicacionCommand command =
         new EditarPublicacionCommand(
-            pub.getId().value(), UUID.randomUUID(), "Hack", "ESP", "NOVATO", "LOGROS", 2);
+            pub.getId().value(),
+            UUID.randomUUID(),
+            "Hack",
+            "ESP",
+            "NOVATO",
+            "LOGROS",
+            2,
+            disponibilidad);
 
     assertThatThrownBy(() -> useCase.execute(command))
         .isInstanceOf(ApplicationException.class)

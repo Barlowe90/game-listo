@@ -1,5 +1,7 @@
 package com.gamelisto.publicaciones.application.usecases;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public record EditarPublicacionCommand(
@@ -9,4 +11,5 @@ public record EditarPublicacionCommand(
     String idioma,
     String experiencia,
     String estiloJuego,
-    int jugadoresMaximos) {}
+    int jugadoresMaximos,
+    Map<String, Set<String>> disponibilidad) {}

@@ -5,9 +5,9 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.*;
-import com.gamelisto.publicaciones.domain.vo.GrupoId;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
 import com.gamelisto.publicaciones.domain.vo.UsuarioId;
+import com.gamelisto.publicaciones.domain.vo.DisponibilidadSemanal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,7 +29,14 @@ class EliminarPublicacionUseCaseTest {
 
   private Publicacion publicacionDe(UUID autorId) {
     return Publicacion.create(
-        autorId, 1L, "Titulo", Idioma.ESP, Experiencia.NOVATO, EstiloJuego.LOGROS, 4);
+        autorId,
+        1L,
+        "Titulo",
+        Idioma.ESP,
+        Experiencia.NOVATO,
+        EstiloJuego.LOGROS,
+        4,
+        DisponibilidadSemanal.empty());
   }
 
   @Test

@@ -3,6 +3,8 @@ package com.gamelisto.publicaciones.infrastructure.in.api.dto;
 import com.gamelisto.publicaciones.application.usecases.PublicacionDetalleResult;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public record PublicacionDetalleResponse(
     String id,
@@ -15,7 +17,8 @@ public record PublicacionDetalleResponse(
     int jugadoresMaximos,
     int participantesCount,
     int plazasDisponibles,
-    List<UsuarioRefResponse> participantes) {
+    List<UsuarioRefResponse> participantes,
+    Map<String, Set<String>> disponibilidad) {
   public static PublicacionDetalleResponse from(PublicacionDetalleResult r) {
     return new PublicacionDetalleResponse(
         r.id(),
@@ -28,6 +31,7 @@ public record PublicacionDetalleResponse(
         r.jugadoresMaximos(),
         r.participantesCount(),
         r.plazasDisponibles(),
-        r.participantes().stream().map(UsuarioRefResponse::from).toList());
+        r.participantes().stream().map(UsuarioRefResponse::from).toList(),
+        r.disponibilidad());
   }
 }

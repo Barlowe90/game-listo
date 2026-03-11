@@ -2,8 +2,13 @@ package com.gamelisto.publicaciones.application.usecases;
 
 import com.gamelisto.publicaciones.domain.Publicacion;
 import com.gamelisto.publicaciones.domain.UsuarioRef;
+import com.gamelisto.publicaciones.domain.vo.DisponibilidadSemanal;
+import com.gamelisto.publicaciones.domain.FranjaHoraria;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public record PublicacionDetalleResult(
     String id,
@@ -16,7 +21,8 @@ public record PublicacionDetalleResult(
     int jugadoresMaximos,
     int participantesCount,
     int plazasDisponibles,
-    List<UsuarioRefResult> participantes) {
+    List<UsuarioRefResult> participantes,
+    Map<String, Set<String>> disponibilidad) {
 
   public static PublicacionDetalleResult from(Publicacion p, List<UsuarioRef> participantes) {
     int count = participantes.size();
@@ -33,6 +39,16 @@ public record PublicacionDetalleResult(
         p.getJugadoresMaximos(),
         count,
         plazas,
-        participantes.stream().map(UsuarioRefResult::from).toList());
+        participantes.stream().map(UsuarioRefResult::from).toList(),
+        mapDisponibilidad(p.getDisponibilidadSemanal()));
+  }
+
+  private static Map<String, Set<String>> mapDisponibilidad(DisponibilidadSemanal ds) {
+    if (ds == null) return null;
+    return ds.value().entrySet().stream()
+        .collect(
+            Collectors.toMap(
+                e -> e.getKey().name(),
+                e -> e.getValue().stream().map(FranjaHoraria::name).collect(Collectors.toSet())));
   }
 }

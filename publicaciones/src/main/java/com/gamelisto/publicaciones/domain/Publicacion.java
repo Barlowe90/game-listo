@@ -1,9 +1,11 @@
 package com.gamelisto.publicaciones.domain;
 
+import com.gamelisto.publicaciones.domain.vo.DisponibilidadSemanal;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Getter
@@ -17,6 +19,7 @@ public class Publicacion {
   private final Experiencia experiencia;
   private final EstiloJuego estiloJuego;
   private final int jugadoresMaximos;
+  private final DisponibilidadSemanal disponibilidadSemanal;
 
   private Publicacion(
       PublicacionId id,
@@ -26,7 +29,8 @@ public class Publicacion {
       Idioma idioma,
       Experiencia experiencia,
       EstiloJuego estiloJuego,
-      int jugadoresMaximos) {
+      int jugadoresMaximos,
+      DisponibilidadSemanal disponibilidadSemanal) {
     this.id = id;
     this.autorId = autorId;
     this.gameId = gameId;
@@ -35,6 +39,8 @@ public class Publicacion {
     this.experiencia = experiencia;
     this.estiloJuego = estiloJuego;
     this.jugadoresMaximos = jugadoresMaximos;
+    this.disponibilidadSemanal =
+        Objects.requireNonNull(disponibilidadSemanal, "disponibilidadSemanal");
   }
 
   public static Publicacion create(
@@ -44,7 +50,8 @@ public class Publicacion {
       Idioma idioma,
       Experiencia experiencia,
       EstiloJuego estiloJuego,
-      int jugadoresMaximos) {
+      int jugadoresMaximos,
+      DisponibilidadSemanal disponibilidadSemanal) {
     return new Publicacion(
         PublicacionId.of(UUID.randomUUID()),
         autorId,
@@ -53,7 +60,8 @@ public class Publicacion {
         idioma,
         experiencia,
         estiloJuego,
-        jugadoresMaximos);
+        jugadoresMaximos,
+        disponibilidadSemanal);
   }
 
   public static Publicacion reconstitute(
@@ -64,7 +72,8 @@ public class Publicacion {
       Idioma idioma,
       Experiencia experiencia,
       EstiloJuego estiloJuego,
-      int jugadoresMaximos) {
+      int jugadoresMaximos,
+      DisponibilidadSemanal disponibilidadSemanal) {
     return new Publicacion(
         PublicacionId.of(id),
         autorId,
@@ -73,6 +82,7 @@ public class Publicacion {
         idioma,
         experiencia,
         estiloJuego,
-        jugadoresMaximos);
+        jugadoresMaximos,
+        disponibilidadSemanal);
   }
 }
