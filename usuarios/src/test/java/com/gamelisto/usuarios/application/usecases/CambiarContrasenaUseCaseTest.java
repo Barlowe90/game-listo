@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.CambiarContrasenaCommand;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.application.usecases.usuarios.CambiarContrasenaUseCase;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import java.util.Optional;

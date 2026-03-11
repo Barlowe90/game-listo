@@ -8,6 +8,7 @@ import static org.mockito.Mockito.*;
 import com.gamelisto.usuarios.application.dto.AuthResponseResult;
 import com.gamelisto.usuarios.application.dto.LoginCommand;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.application.usecases.auth.LoginUseCase;
 import com.gamelisto.usuarios.domain.refreshtoken.TokenHash;
 import com.gamelisto.usuarios.domain.repositories.RepositorioRefreshTokens;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;

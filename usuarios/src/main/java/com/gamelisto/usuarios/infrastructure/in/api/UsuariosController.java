@@ -1,7 +1,10 @@
 package com.gamelisto.usuarios.infrastructure.in.api;
 
 import com.gamelisto.usuarios.application.dto.UsuarioResult;
-import com.gamelisto.usuarios.application.usecases.*;
+import com.gamelisto.usuarios.application.usecases.usuarios.CambiarContrasenaHandle;
+import com.gamelisto.usuarios.application.usecases.usuarios.CambiarCorreoHandle;
+import com.gamelisto.usuarios.application.usecases.usuarios.EditarPerfilUsuarioHandle;
+import com.gamelisto.usuarios.application.usecases.usuarios.ObtenerUsuarioPorIdHandle;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.CambiarContrasenaRequest;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.CambiarCorreoRequest;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.EditarPerfilUsuarioRequest;

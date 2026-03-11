@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.SolicitarRestablecimientoCommand;
+import com.gamelisto.usuarios.application.usecases.auth.SolicitarRestablecimientoUseCase;
 import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.repositories.IEmailService;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;

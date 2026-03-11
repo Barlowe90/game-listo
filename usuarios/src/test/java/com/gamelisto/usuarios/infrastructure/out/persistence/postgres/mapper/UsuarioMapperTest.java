@@ -3,9 +3,11 @@ package com.gamelisto.usuarios.infrastructure.out.persistence.postgres.mapper;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.gamelisto.usuarios.domain.usuario.*;
-import com.gamelisto.usuarios.infrastructure.out.persistence.postgres.entity.UsuarioEntity;
+import com.gamelisto.usuarios.infrastructure.out.persistence.postgres.UsuarioEntity;
 import java.time.Instant;
 import java.util.UUID;
+
+import com.gamelisto.usuarios.infrastructure.out.persistence.postgres.UsuarioMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

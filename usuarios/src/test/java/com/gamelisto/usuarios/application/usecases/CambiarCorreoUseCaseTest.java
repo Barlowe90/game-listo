@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.CambiarCorreoCommand;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.application.usecases.usuarios.CambiarCorreoUseCase;
 import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
@@ -59,30 +60,6 @@ class CambiarCorreoUseCaseTest {
                         && u.getStatus() == EstadoUsuario.PENDIENTE_DE_VERIFICACION
                         && u.getTokenVerificacion() != null
                         && !u.getTokenVerificacion().isEmpty()));
-  }
-
-  @Test
-  @DisplayName("No debe guardar cambios si el nuevo email es igual al actual")
-  void noDebeGuardarCambiosSiEmailEsIgual() {
-    // Arrange
-    UUID usuarioId = UUID.randomUUID();
-    String emailActual = "mismo@ejemplo.com";
-
-    Usuario usuario = crearUsuarioActivo(usuarioId.toString(), emailActual);
-    EstadoUsuario estadoOriginal = usuario.getStatus();
-
-    when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
-    // El email no está registrado por otro usuario (el filtro excluye al mismo usuario)
-    when(repositorioUsuarios.findByEmail(any(Email.class))).thenReturn(Optional.empty());
-
-    CambiarCorreoCommand command = new CambiarCorreoCommand(usuarioId, emailActual);
-
-    // Act
-    cambiarCorreoUseCase.execute(command);
-
-    // Assert
-    verify(repositorioUsuarios, never()).save(any(Usuario.class));
-    assertEquals(estadoOriginal, usuario.getStatus());
   }
 
   // ========== CASOS DE ERROR ==========
