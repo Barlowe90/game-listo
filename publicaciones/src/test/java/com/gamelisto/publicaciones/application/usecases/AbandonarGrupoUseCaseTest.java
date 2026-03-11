@@ -6,7 +6,12 @@ import static org.mockito.Mockito.*;
 import com.gamelisto.publicaciones.domain.*;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
 import com.gamelisto.publicaciones.domain.vo.UsuarioId;
+import com.gamelisto.publicaciones.domain.vo.DisponibilidadSemanal;
+import com.gamelisto.publicaciones.domain.DiaSemana;
+import com.gamelisto.publicaciones.domain.FranjaHoraria;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,7 +45,8 @@ class AbandonarGrupoUseCaseTest {
             Idioma.ESP,
             Experiencia.NOVATO,
             EstiloJuego.LOGROS,
-            4);
+            4,
+            DisponibilidadSemanal.of(Map.of(DiaSemana.LUNES, Set.of(FranjaHoraria.TARDE))));
     GrupoJuego grupo = GrupoJuego.create(PublicacionId.of(publicacionId));
 
     when(publicacionRepositorio.findById(PublicacionId.of(publicacionId)))
@@ -69,7 +75,8 @@ class AbandonarGrupoUseCaseTest {
             Idioma.ESP,
             Experiencia.NOVATO,
             EstiloJuego.LOGROS,
-            4);
+            4,
+            DisponibilidadSemanal.of(Map.of(DiaSemana.LUNES, Set.of(FranjaHoraria.TARDE))));
 
     when(publicacionRepositorio.findById(PublicacionId.of(publicacionId)))
         .thenReturn(Optional.of(pub));

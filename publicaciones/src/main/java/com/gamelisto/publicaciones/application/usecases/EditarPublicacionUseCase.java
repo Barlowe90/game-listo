@@ -6,10 +6,15 @@ import com.gamelisto.publicaciones.domain.Publicacion;
 import com.gamelisto.publicaciones.domain.PublicacionRepositorio;
 import com.gamelisto.publicaciones.domain.Idioma;
 import com.gamelisto.publicaciones.domain.Experiencia;
+import com.gamelisto.publicaciones.domain.FranjaHoraria;
+import com.gamelisto.publicaciones.domain.DiaSemana;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.DisponibilidadSemanal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.UUID;
 
 @Service
@@ -37,6 +42,8 @@ public class EditarPublicacionUseCase implements EditarPublicacionHandler {
       throw new ApplicationException("Autor no propietario de la publicacion");
     }
 
+    DisponibilidadSemanal disponibilidad = mapToDomainDisponibilidad(command.disponibilidad());
+
     Publicacion actualizado =
         Publicacion.reconstitute(
             publicacion.getId().value(),
@@ -46,10 +53,28 @@ public class EditarPublicacionUseCase implements EditarPublicacionHandler {
             idioma,
             experiencia,
             estiloJuego,
-            jugadoresMaximos);
+            jugadoresMaximos,
+            disponibilidad);
 
     Publicacion guardado = publicacionRepositorio.save(actualizado);
 
     return PublicacionResult.from(guardado);
+  }
+
+  private DisponibilidadSemanal mapToDomainDisponibilidad(Map<String, Set<String>> in) {
+    if (in == null) return DisponibilidadSemanal.empty();
+    Map<DiaSemana, Set<FranjaHoraria>> map = new EnumMap<>(DiaSemana.class);
+    in.forEach(
+        (k, v) -> {
+          try {
+            DiaSemana dia = DiaSemana.valueOf(k);
+            Set<FranjaHoraria> franjas =
+                v.stream().map(FranjaHoraria::valueOf).collect(Collectors.toSet());
+            map.put(dia, franjas);
+          } catch (IllegalArgumentException ex) {
+            // ignore invalid keys/values
+          }
+        });
+    return DisponibilidadSemanal.of(map);
   }
 }

@@ -4,7 +4,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.gamelisto.usuarios.application.dto.*;
-import com.gamelisto.usuarios.application.usecases.*;
+import com.gamelisto.usuarios.application.usecases.admin.BuscarUsuariosPorEstadoUseCase;
+import com.gamelisto.usuarios.application.usecases.admin.CambiarEstadoUsuarioUseCase;
+import com.gamelisto.usuarios.application.usecases.admin.EliminarUsuarioUseCase;
+import com.gamelisto.usuarios.application.usecases.auth.CrearUsuarioUseCase;
+import com.gamelisto.usuarios.application.usecases.auth.ReenviarVerificacionUseCase;
+import com.gamelisto.usuarios.application.usecases.auth.RestablecerContrasenaUseCase;
+import com.gamelisto.usuarios.application.usecases.auth.VerificarEmailUseCase;
+import com.gamelisto.usuarios.application.usecases.discord.DesvincularDiscordUseCase;
+import com.gamelisto.usuarios.application.usecases.discord.VincularDiscordUseCase;
+import com.gamelisto.usuarios.application.usecases.usuarios.EditarPerfilUsuarioUseCase;
+import com.gamelisto.usuarios.application.usecases.usuarios.ObtenerUsuarioPorIdUseCase;
 import com.gamelisto.usuarios.config.TestMessagingConfig;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;

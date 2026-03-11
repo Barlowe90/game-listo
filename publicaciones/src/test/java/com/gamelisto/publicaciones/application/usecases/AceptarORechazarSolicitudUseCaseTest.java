@@ -10,8 +10,13 @@ import com.gamelisto.publicaciones.domain.*;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
 import com.gamelisto.publicaciones.domain.vo.SolicitudId;
 import com.gamelisto.publicaciones.domain.vo.UsuarioId;
+import com.gamelisto.publicaciones.domain.vo.DisponibilidadSemanal;
+import com.gamelisto.publicaciones.domain.DiaSemana;
+import com.gamelisto.publicaciones.domain.FranjaHoraria;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,7 +54,8 @@ class AceptarORechazarSolicitudUseCaseTest {
             Idioma.ESP,
             Experiencia.NOVATO,
             EstiloJuego.LOGROS,
-            4);
+            4,
+            DisponibilidadSemanal.of(Map.of(DiaSemana.VIERNES, Set.of(FranjaHoraria.NOCHE))));
 
     when(solicitudUnionRepositorio.findById(SolicitudId.of(peticionId)))
         .thenReturn(Optional.of(peticion));
@@ -87,7 +93,8 @@ class AceptarORechazarSolicitudUseCaseTest {
             Idioma.ESP,
             Experiencia.NOVATO,
             EstiloJuego.LOGROS,
-            4);
+            4,
+            DisponibilidadSemanal.of(Map.of(DiaSemana.LUNES, Set.of(FranjaHoraria.TARDE))));
 
     when(solicitudUnionRepositorio.findById(SolicitudId.of(peticionId)))
         .thenReturn(Optional.of(peticion));
@@ -122,7 +129,8 @@ class AceptarORechazarSolicitudUseCaseTest {
             Idioma.ESP,
             Experiencia.NOVATO,
             EstiloJuego.LOGROS,
-            4);
+            4,
+            DisponibilidadSemanal.of(Map.of(DiaSemana.LUNES, Set.of(FranjaHoraria.TARDE))));
 
     when(solicitudUnionRepositorio.findById(SolicitudId.of(peticionId)))
         .thenReturn(Optional.of(peticion));

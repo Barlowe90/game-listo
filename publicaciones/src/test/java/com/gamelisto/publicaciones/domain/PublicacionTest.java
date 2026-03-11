@@ -2,7 +2,7 @@ package com.gamelisto.publicaciones.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.gamelisto.publicaciones.domain.vo.PublicacionId;
+import com.gamelisto.publicaciones.domain.vo.DisponibilidadSemanal;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,8 @@ class PublicacionTest {
             Idioma.ESP,
             Experiencia.NOVATO,
             EstiloJuego.DISFRUTAR_DEL_JUEGO,
-            4);
+            4,
+            DisponibilidadSemanal.empty());
 
     assertThat(p.getId()).isNotNull();
     assertThat(p.getAutorId()).isEqualTo(autorId);
@@ -39,7 +40,15 @@ class PublicacionTest {
 
     Publicacion p =
         Publicacion.reconstitute(
-            id, autorId, 10002L, "Titulo", Idioma.ENG, Experiencia.PRO, EstiloJuego.LOGROS, 8);
+            id,
+            autorId,
+            10002L,
+            "Titulo",
+            Idioma.ENG,
+            Experiencia.PRO,
+            EstiloJuego.LOGROS,
+            8,
+            DisponibilidadSemanal.empty());
 
     assertThat(p.getId().value()).isEqualTo(id);
     assertThat(p.getAutorId()).isEqualTo(autorId);

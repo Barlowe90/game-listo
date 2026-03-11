@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.application.usecases.admin.EliminarUsuarioUseCase;
 import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
 import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;

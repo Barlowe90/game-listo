@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.LogoutCommand;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
+import com.gamelisto.usuarios.application.usecases.auth.LogoutUseCase;
 import com.gamelisto.usuarios.domain.refreshtoken.Jti;
 import com.gamelisto.usuarios.domain.refreshtoken.RefreshToken;
 import com.gamelisto.usuarios.domain.refreshtoken.TokenHash;

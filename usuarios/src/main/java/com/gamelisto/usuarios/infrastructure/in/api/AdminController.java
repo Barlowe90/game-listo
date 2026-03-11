@@ -1,7 +1,7 @@
 package com.gamelisto.usuarios.infrastructure.in.api;
 
 import com.gamelisto.usuarios.application.dto.UsuarioResult;
-import com.gamelisto.usuarios.application.usecases.*;
+import com.gamelisto.usuarios.application.usecases.admin.*;
 import com.gamelisto.usuarios.domain.usuario.EstadoUsuario;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.CambiarEstadoUsuarioRequest;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.CambiarRolUsuarioRequest;

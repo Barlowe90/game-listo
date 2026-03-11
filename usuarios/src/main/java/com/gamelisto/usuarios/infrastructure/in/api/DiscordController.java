@@ -1,14 +1,13 @@
 package com.gamelisto.usuarios.infrastructure.in.api;
 
 import com.gamelisto.usuarios.application.dto.UsuarioResult;
-import com.gamelisto.usuarios.application.usecases.DesvincularDiscordHandle;
-import com.gamelisto.usuarios.application.usecases.VincularDiscordHandle;
+import com.gamelisto.usuarios.application.usecases.discord.DesvincularDiscordHandle;
+import com.gamelisto.usuarios.application.usecases.discord.VincularDiscordHandle;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.VincularDiscordRequest;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.UsuarioResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;

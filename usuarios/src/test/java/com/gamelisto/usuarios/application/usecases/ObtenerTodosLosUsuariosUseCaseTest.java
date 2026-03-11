@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.UsuarioResult;
+import com.gamelisto.usuarios.application.usecases.admin.ObtenerTodosLosUsuariosUseCase;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import java.util.Collections;

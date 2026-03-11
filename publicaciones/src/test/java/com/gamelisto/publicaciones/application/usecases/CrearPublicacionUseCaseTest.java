@@ -6,6 +6,8 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.publicaciones.domain.*;
 import java.util.UUID;
+import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,8 +29,10 @@ class CrearPublicacionUseCaseTest {
   @DisplayName("debe crear y devolver PublicacionResult con los datos del command")
   void debeCrearPublicacion() {
     UUID autorId = UUID.randomUUID();
+    Map<String, Set<String>> disponibilidad = Map.of("VIERNES", Set.of("NOCHE"));
     CrearPublicacionCommand command =
-        new CrearPublicacionCommand(autorId, 999L, "Busco grupo", "ESP", "NOVATO", "LOGROS", 4);
+        new CrearPublicacionCommand(
+            autorId, 999L, "Busco grupo", "ESP", "NOVATO", "LOGROS", 4, disponibilidad);
 
     ArgumentCaptor<Publicacion> captor = ArgumentCaptor.forClass(Publicacion.class);
     when(publicacionRepositorio.save(captor.capture())).thenAnswer(inv -> inv.getArgument(0));
@@ -47,8 +51,10 @@ class CrearPublicacionUseCaseTest {
   @DisplayName("debe lanzar excepción si el repositorio devuelve null")
   void debeLanzarExcepcionSiRepositorioDevuelveNull() {
     UUID autorId = UUID.randomUUID();
+    Map<String, Set<String>> disponibilidad = Map.of("LUNES", Set.of("TARDE"));
     CrearPublicacionCommand command =
-        new CrearPublicacionCommand(autorId, 1L, "Titulo", "ENG", "PRO", "LOGROS", 2);
+        new CrearPublicacionCommand(
+            autorId, 1L, "Titulo", "ENG", "PRO", "LOGROS", 2, disponibilidad);
     when(publicacionRepositorio.save(any())).thenReturn(null);
 
     org.junit.jupiter.api.Assertions.assertThrows(

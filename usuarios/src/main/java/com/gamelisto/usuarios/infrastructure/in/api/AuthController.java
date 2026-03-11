@@ -1,7 +1,7 @@
 package com.gamelisto.usuarios.infrastructure.in.api;
 
 import com.gamelisto.usuarios.application.dto.*;
-import com.gamelisto.usuarios.application.usecases.*;
+import com.gamelisto.usuarios.application.usecases.auth.*;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.*;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.AuthResponse;
 import com.gamelisto.usuarios.infrastructure.in.api.dto.UsuarioResponse;
