@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GameListo — Frontend
 
-## Getting Started
+Frontend de GameListo construido con React y Next.js, diseñado para ofrecer alto rendimiento, buena indexabilidad (SEO) y una experiencia de desarrollo ágil.
 
-First, run the development server:
+Tabla de contenidos
+
+- Resumen
+- Características
+- Tecnologías clave
+- Quickstart
+- Variables de entorno
+- Arquitectura de renderizado
+- Estilos y accesibilidad
+- Contribuir
+- Referencias
+
+## Resumen
+
+Aplicación Next.js que consume el BFF (GraphQL) a través del API Gateway. El proyecto prioriza SSR/ISR para páginas públicas de alto tráfico, combinando rendimiento, frescura de contenido y eficiencia operativa.
+
+## Características
+
+- Renderizado híbrido: Server-Side Rendering (SSR) y Incremental Static Regeneration (ISR).
+- Gestión de datos con TanStack Query (cache, reintentos, SWR).
+- Estilos con Tailwind CSS y componentes headless para patrones accesibles.
+- Internacionalización con React-Intl.
+- Chat delegando a la API de Discord.
+
+## Tecnologías clave
+
+- Next.js — enrutado por archivos, SSR/ISR.
+- React — UI.
+- TanStack Query — fetching y cache.
+- Tailwind CSS — utility-first styling.
+- Headless components — accesibilidad sin dependencias de estilo.
+- React-Intl — i18n y formatos locales.
+
+## Quickstart
+
+Requisitos: Node.js (>=16 LTS recomendado), pnpm/npm/yarn.
+
+Instalar dependencias:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+# o
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Modo desarrollo:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm dev
+# o
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Construir y ejecutar producción local:
 
-## Learn More
+```bash
+pnpm build
+pnpm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Variables de entorno
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Archivo recomendado: `.env.local` (no incluir en control de versiones).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Variables habituales (ejemplos):
 
-## Deploy on Vercel
+- `NEXT_PUBLIC_API_URL` — URL pública del API Gateway o BFF.
+- `NEXT_PUBLIC_GRAPHQL_ENDPOINT` — endpoint GraphQL (si aplica).
+- `NEXT_PUBLIC_ANALYTICS_ID` — identificador para analytics (opcional).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Arquitectura de renderizado
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Páginas públicas de alto tráfico: ISR o SSR según la necesidad.
+- Revalidación bajo demanda: el back-end puede disparar revalidaciones cuando publica eventos relevantes, manteniendo la información actualizada sin saturar microservicios.
+- Todas las peticiones cliente pasan por Spring Cloud Gateway, heredando autenticación, CORS y rate-limiting.
+
+## Estilos y accesibilidad
+
+- Tailwind CSS para un CSS compacto y predecible.
+- Componentes headless para diálogos, menús y tooltips, garantizando control visual y mejores bundles.
