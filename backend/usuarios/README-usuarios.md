@@ -130,7 +130,7 @@ toda la información del usuario.
 - **Login** (`POST /v1/usuarios/auth/login`)
     - Validación de credenciales (email/username + password)
     - Verificación de estado del usuario (debe estar ACTIVO)
-    - Generación de access token (JWT) con claims: `userId`, `username`, `email`, `roles`
+    - Generación de access token (JWT) con claims: `userId`, `username`, `email`, `role`
     - Generación de refresh token (UUID almacenado en BD)
     - Respuesta con ambos tokens
 
