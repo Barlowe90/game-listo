@@ -30,8 +30,15 @@ const refreshClient = axios.create({
 // con la siguiente funcion evito que tenga que añadir a cada peticion el bearer token
 httpClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = getAccessToken();
+  const requestUrl = config.url ?? '';
 
-  if (token) {
+  const isAuthRoute =
+    requestUrl.includes('/v1/usuarios/auth/login') ||
+    requestUrl.includes('/v1/usuarios/auth/register') ||
+    requestUrl.includes('/v1/usuarios/auth/refresh') ||
+    requestUrl.includes('/v1/usuarios/auth/logout');
+
+  if (token && !isAuthRoute) {
     config.headers = config.headers ?? {};
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -51,6 +58,7 @@ httpClient.interceptors.response.use(
 
     const isAuthRoute =
       requestUrl.includes('/v1/usuarios/auth/login') ||
+      requestUrl.includes('/v1/usuarios/auth/register') ||
       requestUrl.includes('/v1/usuarios/auth/refresh') ||
       requestUrl.includes('/v1/usuarios/auth/logout');
 
