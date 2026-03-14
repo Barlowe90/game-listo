@@ -8,6 +8,7 @@ import { ThemeProvider } from 'next-themes';
 import { env } from '@/shared/config/env';
 import esMessages from '@/shared/config/i18n/messages/es';
 import enMessages from '@/shared/config/i18n/messages/en';
+import { AuthProvider } from '@/features/auth/providers/AuthProvider';
 
 const messagesByLocale = {
   es: esMessages,
@@ -32,7 +33,9 @@ export function AppProviders({ children }: PropsWithChildren) {
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
       <IntlProvider locale={locale} messages={messagesByLocale[locale]}>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <AuthProvider>
+          <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        </AuthProvider>
       </IntlProvider>
     </ThemeProvider>
   );
