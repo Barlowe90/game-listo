@@ -1,10 +1,15 @@
+import { PlaceholderPage } from '@/shared/components/ui/PlaceholderPage';
+
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto max-w-7xl px-6 py-10">
-        <h1 className="text-3xl font-bold">usuario</h1>
-        <p className="mt-3 text-sm text-muted-foreground">Archivo: usuario</p>
-      </div>
-    </main>
+    <PlaceholderPage
+      eyebrow="Perfil"
+      title="Perfil de usuario con base visual compartida"
+      description="El shell mantiene consistencia con el resto de GameListo y deja espacio para introducir actividad, biblioteca y metadatos sin romper foundations."
+      actions={[
+        { href: '/catalogo', label: 'Explorar catalogo', variant: 'primary' },
+        { href: '/', label: 'Volver al inicio', variant: 'secondary' },
+      ]}
+    />
   );
 }

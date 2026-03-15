@@ -1,10 +1,15 @@
+import { PlaceholderPage } from '@/shared/components/ui/PlaceholderPage';
+
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto max-w-7xl px-6 py-10">
-        <h1 className="text-3xl font-bold">contacto</h1>
-        <p className="mt-3 text-sm text-muted-foreground">Archivo: contacto</p>
-      </div>
-    </main>
+    <PlaceholderPage
+      eyebrow="Contacto"
+      title="Zona de contacto con shell consistente"
+      description="La pagina hereda el mismo lenguaje visual que el resto del producto: color semantico, espaciado oficial y foco visible."
+      actions={[
+        { href: '/', label: 'Volver al inicio', variant: 'primary' },
+        { href: '/registro', label: 'Crear cuenta', variant: 'secondary' },
+      ]}
+    />
   );
 }

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { AppProviders } from '@/shared/providers/app-providers';
-import Navbar from '@/shared/components/layout/Navbar';
 
 export const metadata: Metadata = {
   title: 'GameListo',
@@ -14,12 +13,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang="es">
       <body>
-        <AppProviders>
-          <Navbar />
-          {children}
-        </AppProviders>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

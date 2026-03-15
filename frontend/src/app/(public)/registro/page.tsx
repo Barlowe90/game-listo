@@ -1,10 +1,17 @@
 'use client';
 
-import { authApi } from '@/features/auth/api/authApi';
+import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import axios from 'axios';
+import { authApi } from '@/features/auth/api/authApi';
+import { Button } from '@/shared/components/ui/Button';
+import { Card, CardBody } from '@/shared/components/ui/Card';
+import { FormField } from '@/shared/components/ui/FormField';
+import { Input } from '@/shared/components/ui/Input';
+import { PageContainer } from '@/shared/components/ui/PageContainer';
+import { SectionHeader } from '@/shared/components/ui/SectionHeader';
+import { Toast } from '@/shared/components/ui/Toast';
 
 export default function RegistroPage() {
   const router = useRouter();
@@ -17,8 +24,8 @@ export default function RegistroPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = async (e) => {
-    e.preventDefault();
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
+    event.preventDefault();
     setIsSubmitting(true);
     setSuccessMessage(null);
     setErrorMessage(null);
@@ -31,7 +38,6 @@ export default function RegistroPage() {
       });
 
       setSuccessMessage('Usuario registrado correctamente.');
-
       setUsername('');
       setEmail('');
       setPassword('');
@@ -43,10 +49,10 @@ export default function RegistroPage() {
       if (axios.isAxiosError<{ message?: string }>(error)) {
         setErrorMessage(
           error.response?.data?.message ??
-            'No se pudo completar el registro. Revisa los datos e inténtalo otra vez.',
+            'No se pudo completar el registro. Revisa los datos e intentalo otra vez.',
         );
       } else {
-        setErrorMessage('No se pudo completar el registro. Revisa los datos e inténtalo otra vez.');
+        setErrorMessage('No se pudo completar el registro. Revisa los datos e intentalo otra vez.');
       }
     } finally {
       setIsSubmitting(false);
@@ -54,60 +60,94 @@ export default function RegistroPage() {
   };
 
   return (
-    <main style={{ maxWidth: 420, margin: '40px auto' }}>
-      <h1>Crear cuenta</h1>
+    <PageContainer size="narrow" className="py-10 lg:py-12">
+      <div className="grid gap-6">
+        <SectionHeader
+          eyebrow="Auth"
+          title="Crear cuenta"
+          subtitle="Registro construido ya como patron oficial del MVP: card, form field wrapper, acciones y feedback reutilizable."
+        />
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: 12 }}>
-          <label htmlFor="username">Usuario</label>
-          <input
-            id="username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            autoComplete="username"
-            style={{ display: 'block', width: '100%' }}
-          />
-        </div>
+        <Card>
+          <CardBody className="gap-6">
+          <form onSubmit={handleSubmit} className="grid gap-6">
+            <FormField
+              label="Usuario"
+              htmlFor="username"
+              helpText="Este nombre se mostrara en tu perfil y publicaciones."
+              required
+            >
+              <Input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                required
+                autoComplete="username"
+                placeholder="Tu usuario"
+              />
+            </FormField>
 
-        <div style={{ marginBottom: 12 }}>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-            style={{ display: 'block', width: '100%' }}
-          />
-        </div>
+            <FormField
+              label="Email"
+              htmlFor="email"
+              helpText="Usaremos este email para acceso y recuperacion."
+              required
+            >
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+                autoComplete="email"
+                placeholder="tu@email.com"
+              />
+            </FormField>
 
-        <div style={{ marginBottom: 12 }}>
-          <label htmlFor="password">Contraseña</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete="new-password"
-            style={{ display: 'block', width: '100%' }}
-          />
-        </div>
+            <FormField
+              label="Contrasena"
+              htmlFor="password"
+              helpText="Elige una contrasena segura para tu cuenta."
+              required
+            >
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+                autoComplete="new-password"
+                placeholder="Crea tu contrasena"
+              />
+            </FormField>
 
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Registrando...' : 'Registrarse'}
-        </button>
-      </form>
+            <Button type="submit" loading={isSubmitting} className="w-full">
+              Registrarse
+            </Button>
+          </form>
 
-      {successMessage && <p style={{ marginTop: 16 }}>{successMessage}</p>}
-      {errorMessage && <p style={{ marginTop: 16 }}>{errorMessage}</p>}
+          {successMessage ? (
+            <Toast variant="success" title="Cuenta creada" description={successMessage} />
+          ) : null}
 
-      <p style={{ marginTop: 16 }}>
-        ¿Ya tienes cuenta? <Link href="/login">Ir al login</Link>
-      </p>
-    </main>
+          {errorMessage ? (
+            <Toast
+              variant="error"
+              title="No se pudo completar el registro"
+              description={errorMessage}
+            />
+          ) : null}
+
+          <p className="text-sm text-secondary">
+            Ya tienes cuenta?{' '}
+            <Link href="/login" className="font-semibold text-primary hover:text-primary-hover">
+              Ir al login
+            </Link>
+          </p>
+          </CardBody>
+        </Card>
+      </div>
+    </PageContainer>
   );
 }

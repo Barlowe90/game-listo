@@ -1,31 +1,23 @@
 'use client';
 
-import Image from 'next/image';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { Avatar } from '@/shared/components/ui/Avatar';
+import { Button } from '@/shared/components/ui/Button';
 
 export default function AvatarUsuario() {
   const { user, logout } = useAuth();
   if (!user) return null;
 
-  const inicialesUsername =
-    (user.username || '')
-      .split(/\s+/)
-      .map((p) => p[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase() || '?';
-
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <Image
-        src={user.avatar!}
-        alt={user.username}
-        width={40}
-        height={40}
-        style={{ borderRadius: '50%', objectFit: 'cover' }}
-      />
-      <div style={{ fontWeight: 600 }}>{inicialesUsername}</div>
-      <button onClick={() => void logout()}>Logout</button>
+    <div className="flex items-center gap-3 rounded-pill border border-border bg-surface p-2 shadow-surface">
+      <Avatar src={user.avatar} name={user.username} size="sm" />
+      <div className="hidden sm:grid">
+        <span className="text-sm font-semibold text-foreground">{user.username}</span>
+        <span className="text-xs text-muted-foreground">{user.role}</span>
+      </div>
+      <Button variant="ghost" size="sm" onClick={() => void logout()}>
+        Salir
+      </Button>
     </div>
   );
 }

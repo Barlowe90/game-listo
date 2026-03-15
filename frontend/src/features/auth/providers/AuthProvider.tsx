@@ -1,6 +1,6 @@
 'use client'; // daba problemas al arrancar debido a que lo pide app router de next.js
 
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useCallback, useEffect, useState, ReactNode } from 'react';
 import { User, Session, SessionStatus } from '../model/session.model';
 import { authApi } from '../api/authApi';
 import { saveRefreshToken, getRefreshToken, clearRefreshToken } from '../api/tokenStorage';
@@ -48,21 +48,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const isAuthenticated = !!user && !!accessToken;
 
   // Actualiza el estado de sesión del frontend con los datos recibidos
-  const setSession = (session: Session) => {
+  const setSession = useCallback((session: Session) => {
     setStatus(session.status);
     setUser(session.user);
     setAccessToken(session.accessToken);
     setBridgeAccessToken(session.accessToken);
-  };
+  }, []);
 
   // Limpia la sesión del frontend (logout, refresh fallido o token inválido)
-  const clearSession = () => {
+  const clearSession = useCallback(() => {
     setUser(null);
     setAccessToken(null);
     setStatus('anonymous');
     clearRefreshToken();
     clearBridgeAccessToken();
-  };
+  }, []);
 
   // Flujo de login:
   // 1. El usuario introduce credenciales
@@ -70,27 +70,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // 3. Se guarda el refreshToken en localStorage
   // 4. Se guarda en memoria el accessToken y el usuario
   // 5. Se marca la sesión como autenticada
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const authResponse = await authApi.login(email, password);
-      saveRefreshToken(authResponse.tokens.refreshToken);
-      setSession({
-        user: authResponse.user,
-        accessToken: authResponse.tokens.accessToken,
-        status: 'authenticated',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const login = useCallback(
+    async (email: string, password: string) => {
+      setIsLoading(true);
+      try {
+        const authResponse = await authApi.login(email, password);
+        saveRefreshToken(authResponse.tokens.refreshToken);
+        setSession({
+          user: authResponse.user,
+          accessToken: authResponse.tokens.accessToken,
+          status: 'authenticated',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [setSession],
+  );
 
   // Flujo de logout:
   // 0. Obtener el refres token de localStorage
   // 1. Se llama al endpoint /logout para invalidar la sesión en el backend
   // 2. El frontend limpia los datos de sesión (tokens y usuario)
   // 3. Redirigo a home
-  const logout = async () => {
+  const logout = useCallback(async () => {
     const refreshToken = getRefreshToken();
 
     try {
@@ -101,12 +104,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       clearSession();
       router.push('/');
     }
-  };
+  }, [accessToken, clearSession, router]);
 
   // Intenta reconstruir la sesión usando el refreshToken almacenado.
   // Si el refresh tiene éxito se obtiene un nuevo accessToken y usuario.
   // Si falla, la sesión se limpia.
-  const refreshSession = async () => {
+  const refreshSession = useCallback(async () => {
     const refreshToken = getRefreshToken();
     if (!refreshToken) {
       clearSession();
@@ -128,7 +131,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [clearSession, setSession]);
 
   // Ejecuta el bootstrap de sesión al arrancar la aplicación.
   // Intenta recuperar la sesión usando el refreshToken.
@@ -152,7 +155,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUnauthorizedHandler(null);
       setTokenRefreshHandler(null);
     };
-  }, []);
+  }, [clearSession, refreshSession, setSession]);
 
   // Expone el estado de autenticación y sus funciones al resto de la aplicación
   return (
