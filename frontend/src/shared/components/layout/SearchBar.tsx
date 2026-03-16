@@ -3,7 +3,6 @@
 import { startTransition, useId } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/cn';
-import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
 
 export interface SearchBarProps {
@@ -11,7 +10,6 @@ export interface SearchBarProps {
   inputClassName?: string;
   label?: string;
   placeholder?: string;
-  buttonLabel?: string;
   targetPath?: string;
   queryParam?: string;
   size?: 'sm' | 'md';
@@ -23,8 +21,7 @@ export function SearchBar({
   className,
   inputClassName,
   label = 'Buscar videojuegos',
-  placeholder = 'Busca un juego, genero o plataforma',
-  buttonLabel = 'Buscar',
+  placeholder = 'Buscar videojuegos',
   targetPath = '/catalogo',
   queryParam = 'q',
   size = 'md',
@@ -75,9 +72,6 @@ export function SearchBar({
         placeholder={placeholder}
         className={cn('w-full', inputClassName)}
       />
-      <Button type="submit" variant="secondary" size={size === 'sm' ? 'sm' : 'md'}>
-        {buttonLabel}
-      </Button>
     </form>
   );
 }

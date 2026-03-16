@@ -14,36 +14,40 @@ import {
   Dropdown,
   DropdownContent,
   DropdownItem,
-  DropdownLabel,
   DropdownTrigger,
 } from '@/shared/components/ui/Dropdown';
 import { Skeleton } from '@/shared/components/ui/Skeleton';
 
 const navigationItems = [
   { href: '/biblioteca', label: 'Mi biblioteca' },
-  { href: '/contacto', label: 'Contacto' },
+  { href: '/publicaciones', label: 'Mis publicaciones' },
 ] as const;
 
 const videojuegosItems = [
   {
     href: '/catalogo',
     label: 'Explorar catalogo',
-    description: 'Busca fichas, descubre generos y entra en las cards del MVP.',
   },
   {
     href: '/videojuego/demo',
     label: 'Ficha demo',
-    description: 'Revisa tabs, dialog, grids y secciones en accion.',
   },
 ] as const;
 
-function AuthControl() {
+interface AuthControlProps {
+  integrated?: boolean;
+}
+
+function AuthControl({ integrated = false }: AuthControlProps) {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
       <div
-        className="flex items-center gap-3 rounded-pill border border-border bg-surface p-2 shadow-surface"
+        className={cn(
+          'flex items-center gap-3 rounded-pill border border-border bg-surface p-2 shadow-surface',
+          integrated && 'border-white/15 bg-white/10 text-inverse shadow-none backdrop-blur-sm',
+        )}
         role="status"
         aria-live="polite"
         aria-label="Cargando sesion"
@@ -62,60 +66,69 @@ function AuthControl() {
   }
 
   return (
-    <Button asChild>
+    <Button
+      asChild
+      className={
+        integrated
+          ? 'border-transparent bg-white text-foreground shadow-none hover:bg-white/90 active:bg-white/80'
+          : undefined
+      }
+    >
       <Link href="/login">Iniciar sesion</Link>
     </Button>
   );
 }
 
-export function Header() {
+export interface HeaderProps {
+  integrated?: boolean;
+}
+
+export function Header({ integrated = false }: HeaderProps) {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isVideojuegosActive = pathname === '/catalogo' || pathname.startsWith('/videojuego/');
 
   return (
-    <header className="border-b border-border bg-background">
+    <header className={cn(integrated ? 'bg-transparent' : 'border-b border-border bg-background')}>
       <Container size="wide" className="py-4">
         <div className="flex items-center justify-between gap-4">
           <Link
             href="/"
-            className="inline-flex min-h-[var(--target-min-size)] items-center gap-3 rounded-pill px-3 py-2 transition-colors hover:bg-surface"
+            className={cn(
+              'inline-flex min-h-[var(--target-min-size)] items-center gap-3 rounded-pill px-3 py-2 transition-colors',
+              integrated ? 'hover:bg-white/10' : 'hover:bg-surface',
+            )}
           >
             <span className="flex size-10 items-center justify-center rounded-pill bg-primary text-sm font-bold text-primary-foreground shadow-surface">
               G
             </span>
             <span className="grid">
-              <span className="text-sm font-semibold text-foreground">GameListo</span>
-              <span className="text-xs text-muted-foreground">Layout shell MVP</span>
+              <span className={cn('text-sm font-semibold', integrated ? 'text-inverse' : 'text-foreground')}>
+                GameListo
+              </span>
             </span>
           </Link>
 
           <div className="hidden flex-1 items-center justify-end gap-3 lg:flex">
-            <div className="w-full max-w-md">
-              <SearchBar size="sm" />
-            </div>
-
             <nav className="flex items-center gap-2" aria-label="Navegacion principal">
               <Dropdown>
                 <DropdownTrigger
                   className={cn(
                     isVideojuegosActive
                       ? 'bg-primary-soft text-primary hover:bg-primary-soft hover:text-primary'
-                      : undefined,
+                      : integrated
+                        ? 'text-inverse hover:bg-white/10 hover:text-inverse data-[state=open]:border-white/15 data-[state=open]:bg-white/10 data-[state=open]:text-inverse'
+                        : undefined,
                   )}
                 >
                   Videojuegos
                 </DropdownTrigger>
                 <DropdownContent align="start">
-                  <DropdownLabel>Explorar</DropdownLabel>
                   {videojuegosItems.map((item) => (
                     <DropdownItem key={item.href} asChild>
                       <Link href={item.href}>
                         <span className="grid gap-1 py-2">
                           <span className="font-medium text-foreground">{item.label}</span>
-                          <span className="text-xs leading-relaxed text-muted-foreground">
-                            {item.description}
-                          </span>
                         </span>
                       </Link>
                     </DropdownItem>
@@ -124,17 +137,38 @@ export function Header() {
               </Dropdown>
 
               {navigationItems.map((item) => (
-                <NavLink key={item.href} href={item.href}>
+                <NavLink
+                  key={item.href}
+                  href={item.href}
+                  className={integrated ? 'text-inverse hover:bg-white/10 hover:text-inverse' : undefined}
+                >
                   {item.label}
                 </NavLink>
               ))}
             </nav>
-            <AuthControl />
+
+            <div className="w-full max-w-md">
+              <SearchBar
+                size="sm"
+                inputClassName={
+                  integrated
+                    ? 'border-white/15 bg-white/10 text-inverse placeholder:text-white/70 shadow-none hover:border-white/25 hover:bg-white/14 focus-visible:border-white/35'
+                    : undefined
+                }
+              />
+            </div>
+
+            <AuthControl integrated={integrated} />
           </div>
 
           <button
             type="button"
-            className="inline-flex min-h-[var(--target-min-size)] items-center rounded-pill border border-border bg-surface px-4 text-sm font-semibold text-foreground shadow-surface transition-colors hover:border-border-strong hover:bg-card lg:hidden"
+            className={cn(
+              'inline-flex min-h-[var(--target-min-size)] items-center rounded-pill px-4 text-sm font-semibold transition-colors lg:hidden',
+              integrated
+                ? 'border border-white/15 bg-white/10 text-inverse shadow-none hover:border-white/25 hover:bg-white/14'
+                : 'border border-border bg-surface text-foreground shadow-surface hover:border-border-strong hover:bg-card',
+            )}
             onClick={() => setIsMobileMenuOpen((currentValue) => !currentValue)}
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobile-navigation"
@@ -146,12 +180,29 @@ export function Header() {
         {isMobileMenuOpen ? (
           <div
             id="mobile-navigation"
-            className="mt-4 grid gap-4 border-t border-border pt-4 lg:hidden"
+            className={cn(
+              'mt-4 grid gap-4 lg:hidden',
+              integrated
+                ? 'rounded-2xl bg-white/6 p-4 text-inverse backdrop-blur-sm'
+                : 'border-t border-border pt-4',
+            )}
           >
-            <SearchBar onSearch={() => setIsMobileMenuOpen(false)} />
+            <SearchBar
+              onSearch={() => setIsMobileMenuOpen(false)}
+              inputClassName={
+                integrated
+                  ? 'border-white/15 bg-white/10 text-inverse placeholder:text-white/70 shadow-none hover:border-white/25 hover:bg-white/14 focus-visible:border-white/35'
+                  : undefined
+              }
+            />
 
             <div className="grid gap-2" role="navigation" aria-label="Navegacion movil">
-              <span className="px-2 text-xs font-semibold tracking-[0.08em] text-primary uppercase">
+              <span
+                className={cn(
+                  'px-2 text-xs font-semibold tracking-[0.08em] uppercase',
+                  integrated ? 'text-white/70' : 'text-primary',
+                )}
+              >
                 Videojuegos
               </span>
               {videojuegosItems.map((item) => (
@@ -159,6 +210,7 @@ export function Header() {
                   key={item.href}
                   href={item.href}
                   stacked
+                  className={integrated ? 'text-inverse hover:bg-white/10 hover:text-inverse' : undefined}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.label}
@@ -169,14 +221,15 @@ export function Header() {
                   key={item.href}
                   href={item.href}
                   stacked
+                  className={integrated ? 'text-inverse hover:bg-white/10 hover:text-inverse' : undefined}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.label}
                 </NavLink>
               ))}
             </div>
-            <div className="grid gap-3 border-t border-border pt-4">
-              <AuthControl />
+            <div className={cn('grid gap-3', integrated ? 'pt-1' : 'border-t border-border pt-4')}>
+              <AuthControl integrated={integrated} />
             </div>
           </div>
         ) : null}

@@ -1,84 +1,46 @@
 import Link from 'next/link';
+import { cn } from '@/lib/cn';
 import { Container } from '@/shared/components/layout/Container';
-import { Grid } from '@/shared/components/layout/Grid';
 
-const productLinks = [
-  { href: '/', label: 'Inicio' },
-  { href: '/catalogo', label: 'Catalogo' },
-  { href: '/biblioteca', label: 'Mi biblioteca' },
-  { href: '/contacto', label: 'Contacto' },
-] as const;
+const LINKEDIN_URL = 'https://www.linkedin.com/in/adri-r/';
 
-const legalLinks = [
-  { href: '/nosotros', label: 'Nosotros' },
-  { href: '/politica-de-privacidad', label: 'Politica de privacidad' },
-  { href: '/legal', label: 'Legal' },
-  { href: '/cookies', label: 'Cookies' },
-] as const;
+export interface FooterProps {
+  integrated?: boolean;
+}
 
-export function Footer() {
+export function Footer({ integrated = false }: FooterProps) {
   return (
-    <footer className="border-t border-border bg-surface">
-      <Container size="wide" className="py-8 lg:py-10">
-        <Grid variant="twoColumn" className="gap-8">
-          <div className="grid gap-3">
-            <div className="flex items-center gap-3">
-              <span className="flex size-10 items-center justify-center rounded-pill bg-primary text-sm font-bold text-primary-foreground shadow-surface">
-                G
-              </span>
-              <div className="grid gap-1">
-                <strong className="text-sm font-semibold text-foreground">GameListo</strong>
-                <span className="text-sm leading-relaxed text-secondary">
-                  Shell global, navegacion y layout compartido para el MVP.
-                </span>
-              </div>
-            </div>
-            <p className="max-w-xl text-sm leading-relaxed text-secondary">
-              La aplicacion ya reutiliza header, footer, contenedores, busqueda y secciones
-              verticales sobre foundations comunes.
-            </p>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2">
-            <div className="grid gap-3">
-              <h2 className="text-sm font-semibold tracking-[0.08em] text-primary uppercase">
-                Explorar
-              </h2>
-              <div className="grid gap-2">
-                {productLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="text-sm text-secondary transition-colors hover:text-foreground"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <h2 className="text-sm font-semibold tracking-[0.08em] text-primary uppercase">
-                Legal
-              </h2>
-              <div className="grid gap-2">
-                {legalLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="text-sm text-secondary transition-colors hover:text-foreground"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Grid>
-
-        <div className="mt-8 flex flex-col gap-3 border-t border-border pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <span>GameListo MVP - fase 4.4 completada sobre el sistema visual.</span>
-          <span>Responsive basico y navegacion global compartida.</span>
+    <footer className={cn(integrated ? 'bg-transparent' : 'bg-surface')}>
+      <Container size="wide" className="py-4 lg:py-6">
+        <div
+          className={cn(
+            'mt-4 flex flex-col gap-3 pt-4 text-sm sm:flex-row sm:items-center sm:justify-between',
+            integrated ? 'text-white/80' : 'text-muted-foreground',
+          )}
+        >
+          <Link
+            href="/nosotros"
+            className={cn(
+              'inline-flex min-h-[var(--target-min-size)] items-center rounded-pill px-3 py-2 transition-colors',
+              integrated ? 'hover:bg-white/10 hover:text-inverse' : 'hover:bg-card hover:text-foreground',
+            )}
+          >
+            Nosotros
+          </Link>
+          <a
+            href={LINKEDIN_URL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Visitar LinkedIn"
+            className={cn(
+              'inline-flex min-h-[var(--target-min-size)] w-fit items-center justify-center rounded-pill px-3 py-2 transition-colors',
+              integrated ? 'hover:bg-white/10 hover:text-inverse' : 'hover:bg-card hover:text-foreground',
+            )}
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 fill-current">
+              <path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19ZM8.34 10.66H5.67V18H8.34V10.66ZM7 6.4A1.6 1.6 0 1 0 7 9.6A1.6 1.6 0 0 0 7 6.4ZM18.35 13.49C18.35 11.25 17.15 10.21 15.55 10.21C14.26 10.21 13.68 10.92 13.36 11.41V10.66H10.69V18H13.36V14.1C13.36 13.07 13.56 12.08 14.84 12.08C16.11 12.08 16.13 13.27 16.13 14.16V18H18.8L18.35 13.49Z" />
+            </svg>
+          </a>
         </div>
       </Container>
     </footer>

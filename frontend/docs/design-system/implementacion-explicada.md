@@ -87,19 +87,6 @@ La ventaja de este enfoque es que una pantalla nueva no necesita inventarse su p
 - `frontend/src/theme/tokens.ts`
   Es la misma base visual, pero preparada para poder consultarla desde TypeScript si hace falta.
 
-### Layout comun
-
-- `frontend/src/shared/components/layout/AppShell.tsx`
-- `frontend/src/shared/components/layout/Header.tsx`
-- `frontend/src/shared/components/layout/Footer.tsx`
-- `frontend/src/shared/components/layout/Container.tsx`
-- `frontend/src/shared/components/layout/Grid.tsx`
-- `frontend/src/shared/components/layout/PageSection.tsx`
-- `frontend/src/shared/components/layout/SearchBar.tsx`
-- `frontend/src/shared/components/layout/NavLink.tsx`
-- `frontend/src/shared/components/ui/PageContainer.tsx`
-  `PageContainer` sigue existiendo como primitive oficial, pero ahora se apoya en `Container` para no duplicar la logica de anchura y gutters.
-
 ### Componentes atomicos
 
 - `frontend/src/shared/components/ui/Button.tsx`
@@ -119,6 +106,19 @@ La ventaja de este enfoque es que una pantalla nueva no necesita inventarse su p
 - `frontend/src/shared/components/ui/FormField.tsx`
 - `frontend/src/shared/components/ui/EmptyState.tsx`
 - `frontend/src/shared/components/ui/SectionHeader.tsx`
+
+### Layout comun
+
+- `frontend/src/shared/components/layout/AppShell.tsx`
+- `frontend/src/shared/components/layout/Header.tsx`
+- `frontend/src/shared/components/layout/Footer.tsx`
+- `frontend/src/shared/components/layout/Container.tsx`
+- `frontend/src/shared/components/layout/Grid.tsx`
+- `frontend/src/shared/components/layout/PageSection.tsx`
+- `frontend/src/shared/components/layout/SearchBar.tsx`
+- `frontend/src/shared/components/layout/NavLink.tsx`
+- `frontend/src/shared/components/ui/PageContainer.tsx`
+  `PageContainer` sigue existiendo como primitive oficial, pero ahora se apoya en `Container` para no duplicar la logica de anchura y gutters.
 
 ### Componentes de apoyo donde ya se aprovechan
 

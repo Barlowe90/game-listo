@@ -16,17 +16,17 @@ Los componentes deben consumir esos tokens y evitar valores hardcodeados de colo
 
 ---
 
-# Fase 4.1 — Foundations visuales reducidas (MVP)
+## Fase 4.1 — Foundations visuales reducidas (MVP)
 
-## Objetivo
+### Objetivo fase 4.1
 
 Definir una base visual global suficientemente consistente para que las pantallas del MVP compartan un mismo lenguaje sin necesidad de resolver estilos caso por caso.
 
 En esta fase se fija el contrato visual del proyecto: color, tipografía, espaciado, radios, elevación y layout base.
 
-## Alcance incluido
+### Alcance incluido
 
-### 1. Paleta semántica mínima
+#### 1. Paleta semántica mínima
 
 El sistema debe trabajar con colores semánticos, no con hexadecimales usados directamente en cada componente.
 
@@ -46,7 +46,7 @@ Tokens principales:
 
 Quedan también disponibles las variantes necesarias para foreground, hover, active y soft cuando ya existan en tokens, pero el MVP no obliga a explotar todas las combinaciones posibles.
 
-### 2. Tipografía mínima
+#### 2. Tipografía mínima
 
 Se fija una tipografía de interfaz común y una escala de tamaños reutilizable.
 
@@ -58,7 +58,7 @@ Se consideran parte del MVP:
 - pesos tipográficos básicos
 - line-height base
 
-### 3. Escala de espaciado
+#### 3. Escala de espaciado
 
 Toda separación entre elementos debe salir de la escala oficial del sistema.
 
@@ -76,7 +76,7 @@ Escala base:
 
 No deben introducirse espacios arbitrarios salvo necesidad muy concreta.
 
-### 4. Radios
+#### 4. Radios
 
 Se fija una escala de radios para que botones, inputs, cards y badges mantengan una misma familia visual.
 
@@ -88,7 +88,7 @@ Escala:
 - `xl`
 - `pill`
 
-### 5. Sombras mínimas
+#### 5. Sombras mínimas
 
 Solo se usan los niveles estrictamente necesarios:
 
@@ -96,13 +96,13 @@ Solo se usan los niveles estrictamente necesarios:
 - `elevated`
 - `overlay`
 
-### 6. Motion básico
+#### 6. Motion básico
 
 El sistema define duraciones y easing reutilizables para microinteracciones.
 
 En el MVP solo se exige que los componentes base no usen timings arbitrarios y consuman los tokens existentes de duración y easing.
 
-### 7. Layout base
+#### 7. Layout base
 
 Se consideran foundations del MVP:
 
@@ -110,7 +110,7 @@ Se consideran foundations del MVP:
 - gutters principales
 - `PageContainer` como primitive oficial de layout
 
-### 8. Accesibilidad mínima razonable
+#### 8. Accesibilidad mínima razonable
 
 Para un MVP de TFG se mantiene una accesibilidad básica, sin entrar en patrones avanzados.
 
@@ -123,7 +123,7 @@ Se exige:
 - `aria-label` en botones de solo icono cuando existan
 - no romper el comportamiento nativo de controles HTML
 
-## Alcance aplazado en 4.1
+### Alcance aplazado en 4.1
 
 Se aplaza fuera del MVP:
 
@@ -133,28 +133,28 @@ Se aplaza fuera del MVP:
 - patrones ARIA complejos
 - documentación excesivamente detallada propia de un design system maduro
 
-## Principios de uso
+### Principios de uso
 
-### Consistencia antes que personalización local
+#### Consistencia antes que personalización local
 
 Si un patrón se repite, debe reutilizarse o abstraerse. No deben aparecer estilos inventados para una sola pantalla si ya existe una solución del sistema.
 
-### Semántica antes que valor directo
+#### Semántica antes que valor directo
 
 Se diseña con intención (`primary`, `surface`, `space-4`, `radius-lg`) y no con valores sueltos.
 
-### La home puede ser más expresiva, pero no rompe el sistema
+#### La home puede ser más expresiva, pero no rompe el sistema
 
 La página pública principal puede usar gradientes, bloques hero y composición más promocional, pero esos recursos no sustituyen los tokens globales ni deben contaminar el resto del producto.
 
-## Entregables de la fase 4.1 MVP
+### Entregables de la fase 4.1 MVP
 
 - `design-tokens.css`
 - `globals.css`
 - `tokens.ts`
 - guía breve de foundations en este documento
 
-## Criterio de cierre de la fase 4.1 MVP
+### Criterio de cierre de la fase 4.1 MVP
 
 La fase 4.1 se considera cerrada cuando:
 
@@ -165,17 +165,17 @@ La fase 4.1 se considera cerrada cuando:
 
 ---
 
-# Fase 4.2 — Componentes atómicos base reducidos (MVP)
+## Fase 4.2 — Componentes atómicos base reducidos (MVP)
 
-## Objetivo
+### Objetivo fase 4.2
 
 Construir únicamente los componentes atómicos con mayor reutilización real dentro del MVP, evitando patrones complejos que aportan poco valor a corto plazo.
 
 La meta no es tener un catálogo completo de design system, sino disponer de un núcleo pequeño y usable sobre el que montar formularios, navegación principal, tarjetas y feedback básico.
 
-## Componentes incluidos en el MVP
+### Componentes incluidos en el MVP
 
-### 1. Button
+#### 1. Button
 
 Componente de acción reutilizable para operaciones principales y secundarias.
 
@@ -189,7 +189,7 @@ Alcance mínimo:
 
 Queda fuera del MVP cualquier expansión de variantes que no tenga uso real inmediato.
 
-### 2. Input
+#### 2. Input
 
 Componente base para formularios y búsqueda.
 
@@ -202,13 +202,13 @@ Alcance mínimo:
 
 Puede apoyarse en `Field` como patrón contenedor para label, ayuda y error.
 
-### 3. Badge
+#### 3. Badge
 
 Elemento compacto para estados, géneros, categorías o metadatos breves.
 
 Debe basarse en tokens semánticos y ser reutilizable en ficha de juego, publicaciones y filtros.
 
-### 4. Avatar
+#### 4. Avatar
 
 Componente simple para usuario.
 
@@ -218,7 +218,7 @@ Alcance mínimo:
 - fallback con iniciales o icono
 - tamaños básicos
 
-### 5. Skeleton
+#### 5. Skeleton
 
 Componente de carga visual simple.
 
@@ -228,7 +228,7 @@ Alcance mínimo:
 - bloque/card
 - avatar opcional si se usa de verdad
 
-### 6. Toast / feedback
+#### 6. Toast / feedback
 
 Sistema básico de feedback no bloqueante.
 
@@ -239,7 +239,7 @@ Alcance mínimo:
 
 Las variantes `warning` e `info` pueden aplazarse si no son necesarias para el MVP.
 
-## Componentes aplazados fuera del MVP
+### Componentes aplazados fuera del MVP
 
 Se aplazan para fases posteriores:
 
@@ -250,9 +250,9 @@ Se aplazan para fases posteriores:
 
 Si se necesita selección simple durante el MVP, se prioriza el uso de un `select` nativo estilizado de forma ligera en lugar de construir ahora un componente custom avanzado.
 
-## Qué debe cerrarse en 4.2 MVP
+### Qué debe cerrarse en 4.2 MVP
 
-### API consistente de props
+#### API consistente de props
 
 Los componentes principales deben compartir convenciones simples y predecibles. Por ejemplo:
 
@@ -265,15 +265,15 @@ Los componentes principales deben compartir convenciones simples y predecibles. 
 
 No se busca una API perfecta de librería pública, sino coherencia interna suficiente para el proyecto.
 
-### Variantes visuales mínimas
+#### Variantes visuales mínimas
 
 Cada componente debe tener únicamente las variantes que el MVP use de forma real.
 
-### Tamaños básicos
+#### Tamaños básicos
 
 Debe existir una escala consistente de tamaños en botones, inputs, avatares y elementos similares, sin proliferación de tamaños arbitrarios.
 
-### Integración simple con iconos
+#### Integración simple con iconos
 
 Los componentes que usen iconos deben mantener:
 
@@ -281,7 +281,7 @@ Los componentes que usen iconos deben mantener:
 - separación razonable respecto al texto
 - `aria-label` en botones de solo icono
 
-### Accesibilidad mínima razonable
+#### Accesibilidad mínima razonable
 
 Para esta fase se exige solo lo imprescindible:
 
@@ -293,7 +293,7 @@ Para esta fase se exige solo lo imprescindible:
 
 No forma parte del MVP implementar navegación por teclado avanzada ni cubrir todos los patrones complejos de accesibilidad.
 
-## Reglas de implementación de 4.2 MVP
+### Reglas de implementación de 4.2 MVP
 
 1. Ningún componente atómico debe depender de colores, radios, espaciados o timings ajenos al sistema de foundations.
 2. No se construyen componentes complejos si existe una alternativa nativa suficiente para el MVP.
@@ -301,7 +301,7 @@ No forma parte del MVP implementar navegación por teclado avanzada ni cubrir to
 4. Solo se implementan componentes con uso real en páginas del MVP.
 5. La prioridad es reutilización, velocidad de implementación y consistencia visual.
 
-## Entregables de la fase 4.2 MVP
+### Entregables de la fase 4.2 MVP
 
 - `Button`
 - `Input`
@@ -311,23 +311,23 @@ No forma parte del MVP implementar navegación por teclado avanzada ni cubrir to
 - `Toast / feedback` básico
 - documentación breve del alcance MVP en este archivo
 
-## Criterio de cierre de la fase 4.2 MVP
+### Criterio de cierre de la fase 4.2 MVP
 
 La fase 4.2 se considera cerrada cuando los componentes atómicos mínimos del MVP pueden reutilizarse en varias pantallas reales del proyecto sin introducir estilos locales inconsistentes, y cuando su apariencia y comportamiento dependen de foundations.
 
 ---
 
-# Fase 4.3 — Componentes moleculares e interacción (MVP)
+## Fase 4.3 — Componentes moleculares e interacción (MVP)
 
-## Objetivo
+## Objetivo fase 4.3
 
 Construir los primeros patrones compuestos e interactivos que ya aparecen en los mockups del producto, reutilizando los componentes atómicos de la fase 4.2 y manteniendo la coherencia visual definida en foundations.
 
 En esta fase ya no se crean piezas aisladas, sino combinaciones reutilizables con valor directo en pantallas reales, especialmente navegación, ficha de juego, formularios y estados vacíos.
 
-## Componentes incluidos en el MVP
+### Componentes incluidos en el MVP
 
-### 1. Dropdown
+#### 1. Dropdown
 
 Patrón desplegable simple para navegación y acciones secundarias.
 
@@ -345,7 +345,7 @@ Alcance MVP:
 
 Queda fuera del MVP cualquier comportamiento avanzado de menú accesible complejo.
 
-### 2. Tabs
+#### 2. Tabs
 
 Patrón de navegación local entre bloques de contenido relacionados.
 
@@ -363,7 +363,7 @@ Alcance MVP:
 
 No es obligatorio implementar navegación por teclado avanzada entre tabs en esta fase MVP.
 
-### 3. Modal / Dialog
+#### 3. Modal / Dialog
 
 Patrón de capa superpuesta para acciones puntuales que no merecen pantalla completa.
 
@@ -384,7 +384,7 @@ Alcance MVP:
 
 La gestión avanzada de foco puede aplazarse en el MVP, siempre que la interacción no resulte confusa.
 
-### 4. Card
+#### 4. Card
 
 Patrón contenedor reutilizable para representar bloques de información e interacción.
 
@@ -402,9 +402,9 @@ Uso prioritario en el MVP:
 - módulos informativos
 - bloques destacados de home y ficha
 
-## Patrones adicionales incluidos en 4.3 MVP
+### Patrones adicionales incluidos en 4.3 MVP
 
-### FormField wrapper
+#### FormField wrapper
 
 Wrapper de formulario para unificar estructura y mensajes.
 
@@ -417,7 +417,7 @@ Debe contemplar:
 
 Puede apoyarse en el primitive `Field` ya existente y consolidarlo como patrón oficial de formularios del MVP.
 
-### EmptyState
+#### EmptyState
 
 Patrón para vistas sin contenido.
 
@@ -435,7 +435,7 @@ Debe incluir como mínimo:
 - acción opcional
 - icono o ilustración simple solo si aporta claridad
 
-### SectionHeader
+#### SectionHeader
 
 Patrón de cabecera de sección reutilizable.
 
@@ -452,21 +452,21 @@ Debe contemplar como mínimo:
 - subtítulo opcional
 - acción opcional a la derecha
 
-## Qué debe cerrarse en 4.3 MVP
+### Qué debe cerrarse en 4.3 MVP
 
-### Reutilización real en pantallas
+#### Reutilización real en pantallas
 
 Cada componente molecular debe nacer para resolver patrones que ya existen en los mockups o en páginas reales del producto.
 
-### Composición sobre átomos existentes
+#### Composición sobre átomos existentes
 
 Dropdown, Tabs, Modal, Card y los patrones auxiliares deben construirse reutilizando Button, Input, Badge, Avatar, Skeleton, Surface y tokens del sistema siempre que sea posible.
 
-### Interacción simple y mantenible
+#### Interacción simple y mantenible
 
 Se prioriza una interacción clara y robusta, sin intentar cubrir todavía todos los edge cases ni todos los comportamientos avanzados de librerías completas.
 
-### Consistencia visual
+#### Consistencia visual
 
 Los componentes moleculares deben mantener:
 
@@ -475,7 +475,7 @@ Los componentes moleculares deben mantener:
 - mismas sombras
 - mismos estados visuales
 
-## Alcance aplazado fuera del MVP en 4.3
+### Alcance aplazado fuera del MVP en 4.3
 
 Se aplaza para fases posteriores:
 
@@ -485,7 +485,7 @@ Se aplaza para fases posteriores:
 - variantes excesivas de card
 - menús contextuales ricos o altamente configurables
 
-## Entregables de la fase 4.3 MVP
+### Entregables de la fase 4.3 MVP
 
 - `Dropdown` simple para navegación
 - `Tabs` para ficha del juego
@@ -495,13 +495,13 @@ Se aplaza para fases posteriores:
 - `EmptyState`
 - `SectionHeader`
 
-## Criterio de cierre de la fase 4.3 MVP
+### Criterio de cierre de la fase 4.3 MVP
 
 La fase 4.3 se considera cerrada cuando los patrones interactivos y compuestos necesarios para las pantallas principales del MVP pueden reutilizarse sin duplicar estructura ni estilos, y cuando su implementación se apoya en los componentes atómicos y foundations ya definidos.
 
 ## Fase 4.4 — Layout shell y navegación global
 
-### Objetivo
+### Objetivo fase 4.4
 
 Construir la estructura estable compartida por la mayoría de páginas del MVP, definiendo una base de navegación y layout consistente para vistas públicas y, cuando aplique, vistas internas.
 
@@ -562,10 +562,6 @@ Debe contemplar como mínimo:
 
 - Nosotros
 - Contacto
-- Política de privacidad
-- Legal
-- Cookies
-- redes o enlaces sociales si se muestran en el mockup final
 
 No requiere una arquitectura compleja; basta con una implementación clara y reutilizable.
 
@@ -672,7 +668,255 @@ Los patrones creados en esta fase deben utilizarse en páginas reales del proyec
 
 ---
 
-# Checklist de validación MVP
+## Fase 4.5 — Patrones de dominio de GameListo
+
+### Objetivo
+
+Construir componentes propios de GameListo que representen entidades, acciones y patrones reales del producto, manteniendo reutilización interna y coherencia visual con el sistema definido en las fases anteriores.
+
+A diferencia de las fases previas, centradas en foundations, componentes atómicos, patrones moleculares y layout global, esta fase se enfoca en componentes de **dominio**, es decir, piezas ligadas directamente a la experiencia funcional de GameListo.
+
+Estos componentes no son genéricos para cualquier aplicación, pero sí deben ser reutilizables dentro del producto y entre distintas pantallas del MVP.
+
+---
+
+### Alcance MVP de la fase 4.5
+
+En el MVP, esta fase se limita a los patrones de dominio que ya aparecen en los mockups o que aportan valor directo a las vistas principales del producto.
+
+Se priorizan:
+
+- componentes reutilizables en home, catálogo, ficha de videojuego y publicaciones
+- patrones visuales directamente ligados al dominio de videojuegos y sociabilidad
+- bloques que permitan componer pantallas reales sin repetir lógica visual ni estructura
+
+Se aplazan variaciones muy especializadas o componentes de dominio que no se utilicen todavía en la demo principal.
+
+---
+
+### Componentes de dominio incluidos
+
+#### GameCard
+
+Tarjeta reutilizable para mostrar videojuegos en listados y carruseles del producto.
+
+Debe servir para casos como:
+
+- Top videojuegos
+- Descubre
+- resultados de búsqueda
+- listados generales del catálogo
+- juegos relacionados o sugeridos
+
+Puede combinar portada, título, metadatos y acción de navegación.
+
+---
+
+#### GameHero
+
+Bloque principal de cabecera para la ficha de videojuego.
+
+Debe contemplar como mínimo:
+
+- portada
+- título
+- estudio
+- año
+- rating
+
+Puede incluir metadatos adicionales si aparecen de forma estable en la vista principal del juego.
+
+---
+
+#### GameActionBar
+
+Barra de acciones asociada al videojuego.
+
+Debe contemplar acciones como:
+
+- Quiero
+- Tengo
+- Jugando
+- Jugado
+- Añadir a lista
+
+Debe servir como patrón de interacción visible y reutilizable en la ficha o en otros contextos relacionados con biblioteca personal.
+
+---
+
+#### TagList / GenreChip / PlatformChip
+
+Conjunto de patrones visuales para representar etiquetas del dominio.
+
+Debe permitir mostrar de forma clara y compacta:
+
+- géneros
+- plataformas
+- etiquetas relevantes
+- metadatos breves asociados a un juego
+
+Puede apoyarse en `Badge` o chips ya existentes, siempre que la abstracción de dominio sea clara.
+
+---
+
+#### InfoPanelCard
+
+Tarjeta informativa para bloques de contenido estructurado de la ficha del juego.
+
+Debe servir para representar secciones como:
+
+- descripción
+- títulos alternativos
+- idiomas
+- relaciones
+- información adicional del producto
+
+Debe mantener una presentación clara, reutilizable y alineada con la jerarquía visual del sistema.
+
+---
+
+#### FilterChip
+
+Chip interactivo para filtros activos o seleccionables.
+
+Debe servir para representar opciones simples de filtrado dentro de barras o grupos de filtros.
+
+---
+
+#### FilterBar
+
+Contenedor de filtros del dominio social o de descubrimiento.
+
+Debe contemplar filtros como:
+
+- idioma
+- experiencia
+- estilo
+- horario
+- plataforma
+
+En el MVP puede resolverse de manera simple, siempre que sea reutilizable y consistente.
+
+---
+
+#### PublicationCard
+
+Tarjeta principal de publicación social dentro de GameListo.
+
+Debe contemplar, según el alcance real del MVP:
+
+- título
+- badges
+- matriz horaria
+- avatares
+- CTA de unirse o invitar
+
+Es uno de los componentes más importantes del dominio social del producto.
+
+---
+
+#### AvailabilityMatrix
+
+Representación visual de disponibilidad semanal.
+
+Debe mostrar la matriz:
+
+- lunes a domingo
+- mañana / tarde / noche
+
+Debe ser reutilizable en publicaciones y, si procede, en perfiles o filtros.
+
+---
+
+#### AvatarGroup
+
+Agrupación compacta de avatares para representar participantes, miembros o usuarios relacionados.
+
+Debe ser reutilizable en publicaciones, grupos o secciones sociales del producto.
+
+---
+
+#### EmptyPublicationsState
+
+Estado vacío específico del dominio social.
+
+Debe comunicar de forma clara la ausencia de publicaciones o actividad, manteniendo coherencia con los patrones generales de empty state definidos anteriormente.
+
+---
+
+#### ImportLibraryBanner
+
+Bloque destacado orientado a la importación de biblioteca.
+
+Debe funcionar como patrón visible de llamada a la acción en la Home o en otras zonas destacadas del producto.
+
+---
+
+#### FeatureCard
+
+Tarjeta de valor de producto para bloques como:
+
+- Organiza tu biblioteca
+- Conecta
+- Descubre
+
+Debe reutilizarse en la Home o en secciones equivalentes de presentación del producto.
+
+---
+
+### Qué debe cerrarse en esta fase 4.5
+
+#### 1. Traducción del dominio a componentes reutilizables
+
+Los conceptos propios de GameListo deben abstraerse como componentes claros, en lugar de construirse de forma ad hoc en cada pantalla.
+
+---
+
+#### 2. Reutilización en pantallas reales
+
+Los componentes de dominio deben utilizarse en páginas reales del MVP, especialmente en:
+
+- Home
+- catálogo o descubrimiento
+- ficha de videojuego
+- publicaciones
+
+---
+
+#### 3. Coherencia con las fases anteriores
+
+Todos los patrones de dominio deben construirse sobre:
+
+- foundations
+- componentes atómicos
+- componentes moleculares
+- layout shell
+
+No deben romper el sistema previo ni introducir estilos fuera del diseño global.
+
+---
+
+#### 4. Jerarquía visual del producto
+
+La interfaz debe empezar a reflejar ya la identidad funcional de GameListo, diferenciando claramente:
+
+- bloques de videojuegos
+- acciones de biblioteca
+- filtros
+- publicaciones
+- banners y bloques promocionales
+
+---
+
+#### 5. Simplificación razonable para MVP
+
+No es necesario cerrar todas las variaciones posibles de cada componente de dominio.
+
+Basta con definir las variantes realmente necesarias para las pantallas actuales del MVP.
+
+---
+
+## Checklist de validación MVP
 
 ## Fase 4.1
 
@@ -719,3 +963,22 @@ Los patrones creados en esta fase deben utilizarse en páginas reales del proyec
 - [x] Mobile navigation decidida: implementada o aplazada formalmente
 - [x] Layout y navegación consumen tokens del sistema
 - [x] No se repite la estructura global manualmente en cada página
+
+## Fase 4.5
+
+- [ ] `GameCard` implementada
+- [ ] `GameHero` implementado
+- [ ] `GameActionBar` implementada
+- [ ] `TagList`, `GenreChip` o `PlatformChip` implementados según necesidad real
+- [ ] `InfoPanelCard` implementada
+- [ ] `FilterChip` implementado
+- [ ] `FilterBar` implementada
+- [ ] `PublicationCard` implementada
+- [ ] `AvailabilityMatrix` implementada
+- [ ] `AvatarGroup` implementado
+- [ ] `EmptyPublicationsState` implementado
+- [ ] `ImportLibraryBanner` implementado
+- [ ] `FeatureCard` implementada
+- [ ] Los componentes de dominio se usan en pantallas reales
+- [ ] No hay duplicación innecesaria de patrones del dominio
+- [ ] Todo consume el sistema visual ya definido

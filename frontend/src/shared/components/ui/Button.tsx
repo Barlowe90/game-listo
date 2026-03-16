@@ -76,7 +76,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {loading ? (
           <span
             aria-hidden="true"
-            className="size-4 animate-spin rounded-pill border-2 border-current border-t-transparent [animation-duration:var(--duration-slow)] [animation-timing-function:var(--easing-standard)]"
+            className="size-4 animate-spin rounded-pill border-2 border-current 
+            border-t-transparent [animation-duration:var(--duration-slow)] 
+            [animation-timing-function:var(--easing-standard)]"
           />
         ) : null}
         <span>{children}</span>

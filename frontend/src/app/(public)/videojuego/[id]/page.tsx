@@ -54,11 +54,7 @@ function formatTitleFromSlug(slug: string) {
     .join(' ');
 }
 
-export default async function VideojuegoPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function VideojuegoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const title = id === 'demo' ? 'GameListo Demo' : formatTitleFromSlug(decodeURIComponent(id));
 
@@ -163,13 +159,6 @@ export default async function VideojuegoPage({
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="primary">Action RPG</Badge>
-                  <Badge>PC</Badge>
-                  <Badge>PlayStation 5</Badge>
-                  <Badge>Cooperativo online</Badge>
-                </div>
-
                 <p className="text-base leading-relaxed text-secondary">
                   Esta vista sirve como referencia para las futuras fichas reales: ya resuelve
                   jerarquia, acciones, metadatos, bloques de detalle y contenido segmentado por
@@ -192,7 +181,9 @@ export default async function VideojuegoPage({
               <Card>
                 <CardHeader>
                   <CardTitle>Resumen rapido</CardTitle>
-                  <CardDescription>Metadatos compactos sobre una card reutilizable.</CardDescription>
+                  <CardDescription>
+                    Metadatos compactos sobre una card reutilizable.
+                  </CardDescription>
                 </CardHeader>
                 <CardBody className="gap-3 pt-4">
                   <div className="grid gap-1">
@@ -251,15 +242,10 @@ export default async function VideojuegoPage({
                   Preparada para siguientes fases
                 </h3>
                 <p className="text-sm leading-relaxed text-secondary">
-                  Cuando lleguen los datos reales, esta pantalla podra conectar resenas,
-                  biblioteca, videos o capturas manteniendo exactamente la misma estructura visual.
+                  Cuando lleguen los datos reales, esta pantalla podra conectar resenas, biblioteca,
+                  videos o capturas manteniendo exactamente la misma estructura visual.
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  <Badge>Tabs</Badge>
-                  <Badge>Cards</Badge>
-                  <Badge>Dialog</Badge>
-                  <Badge>Empty states</Badge>
-                </div>
+                <div className="flex flex-wrap gap-2"></div>
               </Card>
             </Grid>
           </TabsContent>
@@ -316,4 +302,3 @@ export default async function VideojuegoPage({
     </>
   );
 }
-

@@ -1,3 +1,4 @@
+/* igual que globals pero para que lo entienda TS */
 const colors = {
   primary: 'var(--color-primary)',
   primaryHover: 'var(--color-primary-hover)',

@@ -1,4 +1,8 @@
+'use client';
+
 import type { ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/cn';
 import { Footer } from '@/shared/components/layout/Footer';
 import { Header } from '@/shared/components/layout/Header';
 
@@ -7,12 +11,21 @@ export interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
+
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <Header />
+    <div
+      className={cn(
+        'flex min-h-screen flex-col text-foreground',
+        isHomePage
+          ? 'bg-[linear-gradient(180deg,#3B3FB7_0%,#070D29_100%)]'
+          : 'bg-background',
+      )}
+    >
+      <Header integrated={isHomePage} />
       <main className="flex-1">{children}</main>
-      <Footer />
+      <Footer integrated={isHomePage} />
     </div>
   );
 }
-
