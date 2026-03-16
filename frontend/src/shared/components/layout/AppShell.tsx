@@ -17,10 +17,10 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div
       className={cn(
-        'flex min-h-screen flex-col text-foreground',
+        'flex min-h-screen flex-col',
         isHomePage
-          ? 'bg-[linear-gradient(180deg,#3B3FB7_0%,#070D29_100%)]'
-          : 'bg-background',
+          ? 'bg-[linear-gradient(180deg,#3B3FB7_0%,#070D29_100%)] text-primary-foreground'
+          : 'bg-background text-foreground',
       )}
     >
       <Header integrated={isHomePage} />

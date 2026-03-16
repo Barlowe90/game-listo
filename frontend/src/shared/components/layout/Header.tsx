@@ -68,11 +68,11 @@ function AuthControl({ integrated = false }: AuthControlProps) {
   return (
     <Button
       asChild
-      className={
+      className={cn(
         integrated
-          ? 'border-transparent bg-white text-foreground shadow-none hover:bg-white/90 active:bg-white/80'
-          : undefined
-      }
+          ? 'border-transparent bg-white text-primary! shadow-none hover:bg-white/90 active:bg-white/80'
+          : 'border-transparent bg-black text-white! shadow-none hover:bg-transparent hover:!text-foreground active:bg-transparent',
+      )}
     >
       <Link href="/login">Iniciar sesion</Link>
     </Button>
@@ -91,7 +91,7 @@ export function Header({ integrated = false }: HeaderProps) {
   return (
     <header className={cn(integrated ? 'bg-transparent' : 'border-b border-border bg-background')}>
       <Container size="wide" className="py-4">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 lg:grid lg:grid-cols-[auto_1fr_auto]">
           <Link
             href="/"
             className={cn(
@@ -103,22 +103,27 @@ export function Header({ integrated = false }: HeaderProps) {
               G
             </span>
             <span className="grid">
-              <span className={cn('text-sm font-semibold', integrated ? 'text-inverse' : 'text-foreground')}>
+              <span
+                className={cn(
+                  'text-sm font-semibold',
+                  integrated ? 'text-inverse' : 'text-foreground',
+                )}
+              >
                 GameListo
               </span>
             </span>
           </Link>
 
-          <div className="hidden flex-1 items-center justify-end gap-3 lg:flex">
+          <div className="hidden min-w-0 items-center justify-center gap-3 lg:flex">
             <nav className="flex items-center gap-2" aria-label="Navegacion principal">
               <Dropdown>
                 <DropdownTrigger
                   className={cn(
-                    isVideojuegosActive
-                      ? 'bg-primary-soft text-primary hover:bg-primary-soft hover:text-primary'
-                      : integrated
-                        ? 'text-inverse hover:bg-white/10 hover:text-inverse data-[state=open]:border-white/15 data-[state=open]:bg-white/10 data-[state=open]:text-inverse'
-                        : undefined,
+                    integrated
+                      ? isVideojuegosActive
+                        ? 'bg-primary-soft text-primary hover:bg-primary-soft hover:text-primary'
+                        : 'text-inverse hover:bg-white/10 hover:text-inverse data-[state=open]:border-white/15 data-[state=open]:bg-white/10 data-[state=open]:text-inverse'
+                      : 'border-transparent bg-transparent text-foreground hover:bg-transparent hover:text-foreground data-[state=open]:border-transparent data-[state=open]:bg-transparent data-[state=open]:text-foreground',
                   )}
                 >
                   Videojuegos
@@ -140,14 +145,18 @@ export function Header({ integrated = false }: HeaderProps) {
                 <NavLink
                   key={item.href}
                   href={item.href}
-                  className={integrated ? 'text-inverse hover:bg-white/10 hover:text-inverse' : undefined}
+                  className={
+                    integrated
+                      ? 'text-inverse hover:bg-white/10 hover:text-inverse'
+                      : 'bg-transparent text-foreground hover:bg-transparent hover:text-foreground'
+                  }
                 >
                   {item.label}
                 </NavLink>
               ))}
             </nav>
 
-            <div className="w-full max-w-md">
+            <div className="w-72 xl:w-80">
               <SearchBar
                 size="sm"
                 inputClassName={
@@ -157,7 +166,9 @@ export function Header({ integrated = false }: HeaderProps) {
                 }
               />
             </div>
+          </div>
 
+          <div className="hidden justify-self-end lg:flex">
             <AuthControl integrated={integrated} />
           </div>
 
@@ -167,7 +178,7 @@ export function Header({ integrated = false }: HeaderProps) {
               'inline-flex min-h-[var(--target-min-size)] items-center rounded-pill px-4 text-sm font-semibold transition-colors lg:hidden',
               integrated
                 ? 'border border-white/15 bg-white/10 text-inverse shadow-none hover:border-white/25 hover:bg-white/14'
-                : 'border border-border bg-surface text-foreground shadow-surface hover:border-border-strong hover:bg-card',
+                : 'border border-border bg-transparent text-foreground shadow-none hover:border-border-strong hover:bg-transparent',
             )}
             onClick={() => setIsMobileMenuOpen((currentValue) => !currentValue)}
             aria-expanded={isMobileMenuOpen}
@@ -200,7 +211,7 @@ export function Header({ integrated = false }: HeaderProps) {
               <span
                 className={cn(
                   'px-2 text-xs font-semibold tracking-[0.08em] uppercase',
-                  integrated ? 'text-white/70' : 'text-primary',
+                  integrated ? 'text-white/70' : 'text-foreground',
                 )}
               >
                 Videojuegos
@@ -210,7 +221,11 @@ export function Header({ integrated = false }: HeaderProps) {
                   key={item.href}
                   href={item.href}
                   stacked
-                  className={integrated ? 'text-inverse hover:bg-white/10 hover:text-inverse' : undefined}
+                  className={
+                    integrated
+                      ? 'text-inverse hover:bg-white/10 hover:text-inverse'
+                      : 'bg-transparent text-foreground hover:bg-transparent hover:text-foreground'
+                  }
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.label}
@@ -221,7 +236,11 @@ export function Header({ integrated = false }: HeaderProps) {
                   key={item.href}
                   href={item.href}
                   stacked
-                  className={integrated ? 'text-inverse hover:bg-white/10 hover:text-inverse' : undefined}
+                  className={
+                    integrated
+                      ? 'text-inverse hover:bg-white/10 hover:text-inverse'
+                      : 'bg-transparent text-foreground hover:bg-transparent hover:text-foreground'
+                  }
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.label}
