@@ -5,14 +5,15 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/cn';
 
 const cardVariants = cva(
-  'overflow-hidden rounded-xl border border-border text-foreground transition-[transform,background-color,border-color,box-shadow] duration-[var(--duration-normal)] ease-[var(--easing-standard)]',
+  'overflow-hidden rounded-xl text-foreground transition-[transform,background-color,box-shadow] duration-[var(--duration-normal)] ease-[var(--easing-standard)]',
   {
     variants: {
       variant: {
         base: 'bg-card shadow-surface',
         clickable:
-          'bg-card shadow-surface hover:-translate-y-px hover:border-border-strong hover:shadow-elevated focus-visible:outline-none focus-visible:shadow-elevated',
-        informative: 'bg-surface shadow-none',
+          'bg-card shadow-surface hover:-translate-y-px hover:shadow-elevated focus-visible:outline-none focus-visible:shadow-elevated',
+        informative: 'bg-transparent shadow-none',
+        home: 'bg-primary',
       },
       padding: {
         none: 'p-0',
@@ -29,23 +30,14 @@ const cardVariants = cva(
 );
 
 export interface CardProps
-  extends HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof cardVariants> {
+  extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof cardVariants> {
   asChild?: boolean;
 }
 
-export function Card({
-  asChild = false,
-  className,
-  variant,
-  padding,
-  ...props
-}: CardProps) {
+export function Card({ asChild = false, className, variant, padding, ...props }: CardProps) {
   const Component = asChild ? Slot : 'div';
 
-  return (
-    <Component className={cn(cardVariants({ variant, padding }), className)} {...props} />
-  );
+  return <Component className={cn(cardVariants({ variant, padding }), className)} {...props} />;
 }
 
 export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
@@ -60,12 +52,12 @@ export function CardFooter({ className, ...props }: HTMLAttributes<HTMLDivElemen
   return <div className={cn('flex flex-wrap items-center gap-3 p-6 pt-0', className)} {...props} />;
 }
 
-export function CardTitle({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLHeadingElement>) {
+export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h3 className={cn('text-lg font-semibold tracking-tight text-foreground', className)} {...props} />
+    <h3
+      className={cn('text-lg font-semibold tracking-tight text-foreground', className)}
+      {...props}
+    />
   );
 }
 

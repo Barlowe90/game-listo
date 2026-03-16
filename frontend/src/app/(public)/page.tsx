@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { Grid } from '@/shared/components/layout/Grid';
 import { PageSection } from '@/shared/components/layout/PageSection';
@@ -25,13 +26,13 @@ export default function Home() {
     <>
       <PageSection spacing="hero">
         <Card variant="informative" padding="lg">
-          <Grid variant="feature" className="items-start">
+          <Grid variant="feature" className="items-center gap-8">
             <div className="grid gap-6">
               <div className="grid gap-4">
-                <h1 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
+                <h1 className="text-3xl font-bold tracking-tight text-white lg:text-4xl">
                   Tu biblioteca gamer organizada y conectada
                 </h1>
-                <p className="max-w-3xl text-base leading-relaxed text-secondary">
+                <p className="max-w-3xl text-base leading-relaxed text-white">
                   Lleva el control de tus juegos, crea listas personalizadas y conecta con jugadores
                   que comparten tus mismos gustos. Todo en un mismo lugar, sin complicaciones.
                 </p>
@@ -43,6 +44,18 @@ export default function Home() {
                 </Button>
               </div>
             </div>
+
+            <div className="mx-auto w-full max-w-xs sm:max-w-sm lg:max-w-md">
+              <Image
+                src="/zero-two.png"
+                alt="Ilustracion de Zero Two"
+                width={700}
+                height={700}
+                priority
+                sizes="(min-width: 1024px) 28rem, (min-width: 640px) 24rem, 18rem"
+                className="h-auto w-full object-contain"
+              />
+            </div>
           </Grid>
         </Card>
       </PageSection>
@@ -53,12 +66,12 @@ export default function Home() {
 
           <Grid variant="cards">
             {highlights.map((highlight) => (
-              <Card key={highlight.title} variant="informative" padding="md">
+              <Card key={highlight.title} variant="home" padding="md">
                 <div className="grid gap-2">
-                  <h2 className="text-lg font-semibold tracking-tight text-foreground">
+                  <h2 className="text-lg font-semibold tracking-tight text-white">
                     {highlight.title}
                   </h2>
-                  <p className="text-sm leading-relaxed text-secondary">{highlight.description}</p>
+                  <p className="text-sm leading-relaxed text-white">{highlight.description}</p>
                 </div>
               </Card>
             ))}
@@ -67,14 +80,14 @@ export default function Home() {
       </PageSection>
 
       <PageSection spacing="hero">
-        <Card variant="informative" padding="lg">
+        <Card variant="home" padding="lg">
           <Grid variant="feature" className="items-start">
             <div className="grid gap-6">
               <div className="grid gap-4">
-                <h1 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
+                <h1 className="text-3xl font-bold tracking-tight text-white lg:text-4xl">
                   Empieza trayendo tu biblioteca
                 </h1>
-                <p className="max-w-3xl text-base leading-relaxed text-secondary">
+                <p className="max-w-3xl text-base leading-relaxed text-white">
                   Importa tu biblioteca de Steam o PlayStation para organizar todos tus videojuegos
                   en un solo lugar.
                 </p>

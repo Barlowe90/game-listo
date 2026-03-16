@@ -9,7 +9,6 @@ import { cn } from '@/lib/cn';
 import { Container } from '@/shared/components/layout/Container';
 import { NavLink } from '@/shared/components/layout/NavLink';
 import { SearchBar } from '@/shared/components/layout/SearchBar';
-import { Button } from '@/shared/components/ui/Button';
 import {
   Dropdown,
   DropdownContent,
@@ -66,16 +65,17 @@ function AuthControl({ integrated = false }: AuthControlProps) {
   }
 
   return (
-    <Button
-      asChild
+    <Link
+      href="/login"
       className={cn(
+        'inline-flex min-h-[var(--target-min-size)] items-center justify-center gap-2 rounded-md border px-4 text-sm font-semibold whitespace-nowrap transition-[background-color,border-color,color,box-shadow,opacity,transform] duration-[var(--duration-fast)] ease-[var(--easing-standard)] focus-visible:outline-none',
         integrated
-          ? 'border-transparent bg-white text-primary! shadow-none hover:bg-white/90 active:bg-white/80'
-          : 'border-transparent bg-black text-white! shadow-none hover:bg-transparent hover:!text-foreground active:bg-transparent',
+          ? 'border-transparent bg-white text-primary! shadow-none hover:border-transparent hover:bg-white/90 active:bg-white/80'
+          : 'border-transparent bg-black text-primary-foreground! shadow-none hover:bg-transparent hover:text-foreground active:bg-transparent',
       )}
     >
-      <Link href="/login">Iniciar sesion</Link>
-    </Button>
+      Iniciar sesion
+    </Link>
   );
 }
 
@@ -159,11 +159,12 @@ export function Header({ integrated = false }: HeaderProps) {
             <div className="w-72 xl:w-80">
               <SearchBar
                 size="sm"
-                inputClassName={
+                inputClassName={cn(
+                  'rounded-full',
                   integrated
-                    ? 'border-white/15 bg-white/10 text-inverse placeholder:text-white/70 shadow-none hover:border-white/25 hover:bg-white/14 focus-visible:border-white/35'
-                    : undefined
-                }
+                    ? 'border-white/15 bg-transparent text-inverse placeholder:text-white/70 shadow-none hover:border-white/25 hover:bg-white/14 focus-visible:border-white/35'
+                    : undefined,
+                )}
               />
             </div>
           </div>
