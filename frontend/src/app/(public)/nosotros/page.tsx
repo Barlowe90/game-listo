@@ -6,11 +6,6 @@ export default function NosotrosPage() {
       eyebrow="Nosotros"
       title="GameListo ya tiene una base comun para seguir creciendo"
       description="Esta pagina valida que el footer y la shell global enlazan rutas reales sin repetir estructura ni estilos locales."
-      actions={[
-        { href: '/', label: 'Volver al inicio', variant: 'primary' },
-        { href: '/catalogo', label: 'Explorar catalogo', variant: 'secondary' },
-      ]}
     />
   );
 }
-

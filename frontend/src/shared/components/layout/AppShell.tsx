@@ -13,19 +13,21 @@ export interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
+  const isLoginPage = pathname === '/login';
+  const hasIntegratedBackground = isHomePage || isLoginPage;
 
   return (
     <div
       className={cn(
         'flex min-h-screen flex-col',
-        isHomePage
+        hasIntegratedBackground
           ? 'bg-[linear-gradient(180deg,#3B3FB7_0%,#070D29_100%)] text-primary-foreground'
           : 'bg-background text-foreground',
       )}
     >
-      <Header integrated={isHomePage} />
-      <main className="flex-1">{children}</main>
-      <Footer integrated={isHomePage} />
+      {isLoginPage ? null : <Header integrated={isHomePage} />}
+      <main className={cn('flex-1', isLoginPage && 'flex')}>{children}</main>
+      {isLoginPage ? null : <Footer integrated={isHomePage} />}
     </div>
   );
 }

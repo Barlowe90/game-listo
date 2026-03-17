@@ -13,7 +13,7 @@ interface PlaceholderAction {
 export interface PlaceholderPageProps {
   eyebrow: string;
   title: string;
-  description: string;
+  description?: string;
   actions?: PlaceholderAction[];
 }
 
