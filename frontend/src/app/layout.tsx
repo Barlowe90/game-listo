@@ -5,6 +5,9 @@ import { AppProviders } from '@/shared/providers/app-providers';
 export const metadata: Metadata = {
   title: 'GameListo',
   description: 'Tu biblioteca social de videojuegos',
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({

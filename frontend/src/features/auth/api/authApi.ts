@@ -4,6 +4,7 @@ import { refresh } from './refresh';
 import { me } from './me';
 import { register } from './register';
 import { resendVerification } from './resendVerification';
+import { verifyEmail } from './verifyEmail';
 
 export const authApi = {
   login,
@@ -12,4 +13,5 @@ export const authApi = {
   me,
   register,
   resendVerification,
+  verifyEmail,
 };

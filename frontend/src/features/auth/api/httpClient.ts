@@ -39,6 +39,7 @@ httpClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const isAuthRoute =
     requestUrl.includes('/v1/usuarios/auth/login') ||
     requestUrl.includes('/v1/usuarios/auth/register') ||
+    requestUrl.includes('/v1/usuarios/auth/verify-email') ||
     requestUrl.includes('/v1/usuarios/auth/resend-verification') ||
     requestUrl.includes('/v1/usuarios/auth/refresh') ||
     requestUrl.includes('/v1/usuarios/auth/logout');
@@ -64,6 +65,7 @@ httpClient.interceptors.response.use(
     const isAuthRoute =
       requestUrl.includes('/v1/usuarios/auth/login') ||
       requestUrl.includes('/v1/usuarios/auth/register') ||
+      requestUrl.includes('/v1/usuarios/auth/verify-email') ||
       requestUrl.includes('/v1/usuarios/auth/resend-verification') ||
       requestUrl.includes('/v1/usuarios/auth/refresh') ||
       requestUrl.includes('/v1/usuarios/auth/logout');

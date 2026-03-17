@@ -13,7 +13,6 @@ export default function AvatarUsuario() {
       <Avatar src={user.avatar} name={user.username} size="sm" />
       <div className="hidden sm:grid">
         <span className="text-sm font-semibold text-foreground">{user.username}</span>
-        <span className="text-xs text-muted-foreground">{user.role}</span>
       </div>
       <Button variant="ghost" size="sm" onClick={() => void logout()}>
         Salir

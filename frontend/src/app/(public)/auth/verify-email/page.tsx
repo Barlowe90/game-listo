@@ -1,4 +1,6 @@
+import axios from 'axios';
 import Link from 'next/link';
+import { authApi } from '@/features/auth/api/authApi';
 import { Button } from '@/shared/components/ui/Button';
 import { Card, CardBody } from '@/shared/components/ui/Card';
 import { PageContainer } from '@/shared/components/ui/PageContainer';
@@ -20,48 +22,22 @@ type VerificationResult = {
 };
 
 async function verifyEmailToken(token: string): Promise<VerificationResult> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  if (!apiUrl) {
-    return {
-      status: 'error',
-      title: 'Configuracion incompleta',
-      description: 'Falta la variable NEXT_PUBLIC_API_URL en el frontend.',
-    };
-  }
-
   try {
-    const response = await fetch(`${apiUrl}/v1/usuarios/auth/verify-email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token }),
-      cache: 'no-store',
-    });
-
-    if (response.ok) {
-      return {
-        status: 'success',
-        title: 'Email verificado',
-        description: 'Tu cuenta ya esta verificada. Ya puedes iniciar sesion.',
-      };
-    }
-
-    const errorData = (await response.json().catch(() => null)) as { message?: string } | null;
+    await authApi.verifyEmail({ token });
 
     return {
-      status: 'error',
-      title: 'No se pudo verificar el email',
-      description:
-        errorData?.message ?? 'El enlace de verificacion no es valido o ha expirado.',
+      status: 'success',
+      title: 'Email verificado',
+      description: 'Tu cuenta ya esta verificada. Ya puedes iniciar sesion.',
     };
-  } catch {
+  } catch (error) {
     return {
       status: 'error',
       title: 'No se pudo verificar el email',
       description:
-        'No hemos podido conectar con el servicio de verificacion. Intentalo otra vez en unos minutos.',
+        axios.isAxiosError<{ message?: string }>(error)
+          ? error.response?.data?.message ?? 'El enlace de verificacion no es valido o ha expirado.'
+          : 'No hemos podido conectar con el servicio de verificacion. Intentalo otra vez en unos minutos.',
     };
   }
 }
