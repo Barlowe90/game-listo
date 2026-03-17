@@ -2,8 +2,7 @@
 
 import axios from 'axios';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { authApi } from '@/features/auth/api/authApi';
 import { Button } from '@/shared/components/ui/Button';
 import { Card, CardBody } from '@/shared/components/ui/Card';
@@ -13,49 +12,181 @@ import { PageContainer } from '@/shared/components/ui/PageContainer';
 import { SectionHeader } from '@/shared/components/ui/SectionHeader';
 import { Toast } from '@/shared/components/ui/Toast';
 
-export default function RegistroPage() {
-  const router = useRouter();
+const RESEND_VERIFICATION_COOLDOWN_MS = 3 * 60 * 1000;
 
+type ToastState = {
+  title: string;
+  description: string;
+};
+
+function getApiErrorMessage(error: unknown, fallbackMessage: string) {
+  if (axios.isAxiosError<{ message?: string }>(error)) {
+    return error.response?.data?.message ?? fallbackMessage;
+  }
+
+  return fallbackMessage;
+}
+
+function formatCountdown(totalSeconds: number) {
+  const minutes = Math.floor(totalSeconds / 60)
+    .toString()
+    .padStart(2, '0');
+  const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+
+  return `${minutes}:${seconds}`;
+}
+
+function EyeIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M2.5 12s3.5-6 9.5-6s9.5 6 9.5 6s-3.5 6-9.5 6s-9.5-6-9.5-6Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function EyeOffIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M3 3l18 18" />
+      <path d="M10.58 10.58A2 2 0 0 0 12 14a2 2 0 0 0 1.42-.58" />
+      <path d="M9.88 5.09A10.94 10.94 0 0 1 12 5c6 0 9.5 7 9.5 7a17.55 17.55 0 0 1-4.07 4.75" />
+      <path d="M6.61 6.61A17.32 17.32 0 0 0 2.5 12s3.5 7 9.5 7a9.8 9.8 0 0 0 4.09-.88" />
+    </svg>
+  );
+}
+
+export default function RegistroPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isResendingVerification, setIsResendingVerification] = useState(false);
+  const [successToast, setSuccessToast] = useState<ToastState | null>(null);
+  const [errorToast, setErrorToast] = useState<ToastState | null>(null);
+  const [verificationEmail, setVerificationEmail] = useState<string | null>(null);
+  const [resendAvailableAt, setResendAvailableAt] = useState<number | null>(null);
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!resendAvailableAt) {
+      return;
+    }
+
+    setCurrentTime(Date.now());
+
+    const intervalId = window.setInterval(() => {
+      const nextCurrentTime = Date.now();
+      setCurrentTime(nextCurrentTime);
+
+      if (nextCurrentTime >= resendAvailableAt) {
+        window.clearInterval(intervalId);
+      }
+    }, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [resendAvailableAt]);
+
+  const remainingSeconds =
+    resendAvailableAt === null
+      ? 0
+      : Math.max(0, Math.ceil((resendAvailableAt - currentTime) / 1000));
+  const canResendVerification = verificationEmail !== null && remainingSeconds === 0;
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
     setIsSubmitting(true);
-    setSuccessMessage(null);
-    setErrorMessage(null);
+    setSuccessToast(null);
+    setErrorToast(null);
 
     try {
+      const registrationEmail = email.trim();
+
       await authApi.register({
         username,
-        email,
+        email: registrationEmail,
         password,
       });
 
-      setSuccessMessage('Usuario registrado correctamente.');
+      const now = Date.now();
+
+      setSuccessToast({
+        title: 'Cuenta creada',
+        description: `Te hemos enviado un correo de verificacion a ${registrationEmail}.`,
+      });
+      setVerificationEmail(registrationEmail);
+      setResendAvailableAt(now + RESEND_VERIFICATION_COOLDOWN_MS);
+      setCurrentTime(now);
       setUsername('');
       setEmail('');
       setPassword('');
-
-      setTimeout(() => {
-        router.replace('/login');
-      }, 1000);
+      setIsPasswordVisible(false);
     } catch (error: unknown) {
-      if (axios.isAxiosError<{ message?: string }>(error)) {
-        setErrorMessage(
-          error.response?.data?.message ??
-            'No se pudo completar el registro. Revisa los datos e intentalo otra vez.',
-        );
-      } else {
-        setErrorMessage('No se pudo completar el registro. Revisa los datos e intentalo otra vez.');
-      }
+      setErrorToast({
+        title: 'No se pudo completar el registro',
+        description: getApiErrorMessage(
+          error,
+          'No se pudo completar el registro. Revisa los datos e intentalo otra vez.',
+        ),
+      });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!verificationEmail || !canResendVerification) {
+      return;
+    }
+
+    setIsResendingVerification(true);
+    setErrorToast(null);
+
+    try {
+      await authApi.resendVerification({
+        email: verificationEmail,
+      });
+
+      const now = Date.now();
+
+      setSuccessToast({
+        title: 'Correo reenviado',
+        description: `Te hemos reenviado el correo de verificacion a ${verificationEmail}.`,
+      });
+      setResendAvailableAt(now + RESEND_VERIFICATION_COOLDOWN_MS);
+      setCurrentTime(now);
+    } catch (error: unknown) {
+      setErrorToast({
+        title: 'No se pudo reenviar el correo',
+        description: getApiErrorMessage(
+          error,
+          'No se pudo reenviar el correo de verificacion. Intentalo otra vez.',
+        ),
+      });
+    } finally {
+      setIsResendingVerification(false);
     }
   };
 
@@ -92,15 +223,31 @@ export default function RegistroPage() {
               </FormField>
 
               <FormField label="Contrasena" htmlFor="password" required>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  required
-                  autoComplete="new-password"
-                  placeholder="Crea tu contrasena"
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={isPasswordVisible ? 'text' : 'password'}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    required
+                    autoComplete="new-password"
+                    placeholder="Crea tu contrasena"
+                    className="pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsPasswordVisible((currentValue) => !currentValue)}
+                    aria-label={isPasswordVisible ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+                    aria-pressed={isPasswordVisible}
+                    className="absolute top-1/2 right-3 inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:text-foreground"
+                  >
+                    {isPasswordVisible ? (
+                      <EyeOffIcon className="size-5" />
+                    ) : (
+                      <EyeIcon className="size-5" />
+                    )}
+                  </button>
+                </div>
               </FormField>
 
               <Button type="submit" loading={isSubmitting} className="w-full text-white!">
@@ -108,16 +255,53 @@ export default function RegistroPage() {
               </Button>
             </form>
 
-            {successMessage ? (
-              <Toast variant="success" title="Cuenta creada" description={successMessage} />
+            {successToast ? (
+              <Toast
+                variant="success"
+                title={successToast.title}
+                description={successToast.description}
+              />
             ) : null}
 
-            {errorMessage ? (
+            {errorToast ? (
               <Toast
                 variant="error"
-                title="No se pudo completar el registro"
-                description={errorMessage}
+                title={errorToast.title}
+                description={errorToast.description}
               />
+            ) : null}
+
+            {verificationEmail ? (
+              <div className="grid gap-4 rounded-lg border border-border bg-surface p-4">
+                <div className="grid gap-2">
+                  <p className="text-sm font-semibold text-foreground">
+                    Reenviar correo electronico
+                  </p>
+                  <p className="text-sm leading-relaxed text-secondary">
+                    Si no encuentras el email de verificacion para{' '}
+                    <span className="font-semibold text-foreground">{verificationEmail}</span>,
+                    puedes solicitar uno nuevo desde aqui.
+                  </p>
+                  <p className="text-sm leading-relaxed text-secondary">
+                    {canResendVerification
+                      ? 'Ya puedes volver a enviarlo.'
+                      : `Disponible de nuevo en ${formatCountdown(remainingSeconds)}.`}
+                  </p>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  loading={isResendingVerification}
+                  disabled={!canResendVerification}
+                  onClick={handleResendVerification}
+                  className="w-full sm:w-fit"
+                >
+                  {canResendVerification
+                    ? 'Reenviar correo electronico'
+                    : `Reenviar correo electronico (${formatCountdown(remainingSeconds)})`}
+                </Button>
+              </div>
             ) : null}
 
             <p className="text-sm text-secondary">

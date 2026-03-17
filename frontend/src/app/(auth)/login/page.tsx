@@ -33,11 +33,50 @@ function GameListoIcon({ className }: { className?: string }) {
   );
 }
 
+function EyeIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M2.5 12s3.5-6 9.5-6s9.5 6 9.5 6s-3.5 6-9.5 6s-9.5-6-9.5-6Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function EyeOffIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M3 3l18 18" />
+      <path d="M10.58 10.58A2 2 0 0 0 12 14a2 2 0 0 0 1.42-.58" />
+      <path d="M9.88 5.09A10.94 10.94 0 0 1 12 5c6 0 9.5 7 9.5 7a17.55 17.55 0 0 1-4.07 4.75" />
+      <path d="M6.61 6.61A17.32 17.32 0 0 0 2.5 12s3.5 7 9.5 7a9.8 9.8 0 0 0 4.09-.88" />
+    </svg>
+  );
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -111,16 +150,31 @@ export default function LoginPage() {
                   required
                   className="[&_label]:text-white"
                 >
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    required
-                    autoComplete="current-password"
-                    placeholder="Tu contrasena"
-                    className="border-white/20 bg-white/10 text-white shadow-none placeholder:text-white/60 hover:border-white/30 focus-visible:border-white/45"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={isPasswordVisible ? 'text' : 'password'}
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      required
+                      autoComplete="current-password"
+                      placeholder="Tu contrasena"
+                      className="border-white/20 bg-white/10 pr-12 text-white shadow-none placeholder:text-white/60 hover:border-white/30 focus-visible:border-white/45"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsPasswordVisible((currentValue) => !currentValue)}
+                      aria-label={isPasswordVisible ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+                      aria-pressed={isPasswordVisible}
+                      className="absolute top-1/2 right-3 inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-white/60 transition-colors hover:text-white focus-visible:outline-none focus-visible:text-white"
+                    >
+                      {isPasswordVisible ? (
+                        <EyeOffIcon className="size-5" />
+                      ) : (
+                        <EyeIcon className="size-5" />
+                      )}
+                    </button>
+                  </div>
                 </FormField>
 
                 <div className="grid gap-5">
