@@ -1,9 +1,8 @@
-// contrato con la API
-// este archivo describe el json que devuelve el backend, utilizo lo más limpio que es coger todos los datos del JSON
+// Contrato real de la API de autenticacion del backend.
 
 export interface TokenResponse {
-  accessToken: string;
-  refreshToken: string;
+  token: string;
+  expiresAt: string;
 }
 
 export interface UsuarioResponse {
@@ -19,6 +18,19 @@ export interface UsuarioResponse {
 }
 
 export interface AuthResponse {
-  tokens: TokenResponse;
-  user: UsuarioResponse;
+  accessToken: TokenResponse;
+  refreshToken: TokenResponse;
+  usuario: UsuarioResponse;
+}
+
+export function getAccessTokenValue(authResponse: AuthResponse): string {
+  return authResponse.accessToken.token;
+}
+
+export function getRefreshTokenValue(authResponse: AuthResponse): string {
+  return authResponse.refreshToken.token;
+}
+
+export function getAuthUser(authResponse: AuthResponse): UsuarioResponse {
+  return authResponse.usuario;
 }

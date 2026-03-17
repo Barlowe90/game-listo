@@ -1,5 +1,9 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import type { AuthResponse } from './auth.types';
+import {
+  getAccessTokenValue,
+  getRefreshTokenValue,
+  type AuthResponse,
+} from './auth.types';
 import { getRefreshToken, saveRefreshToken, clearRefreshToken } from './tokenStorage';
 import {
   getAccessToken,
@@ -89,12 +93,12 @@ httpClient.interceptors.response.use(
 
       const authResponse = await refreshPromise;
 
-      saveRefreshToken(authResponse.tokens.refreshToken);
-      setBridgeAccessToken(authResponse.tokens.accessToken);
+      saveRefreshToken(getRefreshTokenValue(authResponse));
+      setBridgeAccessToken(getAccessTokenValue(authResponse));
       await notifyTokenRefreshed(authResponse);
 
       originalRequest.headers = originalRequest.headers ?? {};
-      originalRequest.headers.Authorization = `Bearer ${authResponse.tokens.accessToken}`;
+      originalRequest.headers.Authorization = `Bearer ${getAccessTokenValue(authResponse)}`;
 
       return httpClient(originalRequest);
     } catch (refreshError) {

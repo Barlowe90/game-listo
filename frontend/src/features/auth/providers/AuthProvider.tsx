@@ -10,7 +10,12 @@ import {
   setUnauthorizedHandler,
   setTokenRefreshHandler,
 } from '../api/authSessionBridge';
-import type { AuthResponse } from '../api/auth.types';
+import {
+  getAccessTokenValue,
+  getAuthUser,
+  getRefreshTokenValue,
+  type AuthResponse,
+} from '../api/auth.types';
 import { useRouter } from 'next/navigation';
 
 // Define el contrato del contexto de autenticación del frontend.
@@ -75,10 +80,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoading(true);
       try {
         const authResponse = await authApi.login(email, password);
-        saveRefreshToken(authResponse.tokens.refreshToken);
+        saveRefreshToken(getRefreshTokenValue(authResponse));
         setSession({
-          user: authResponse.user,
-          accessToken: authResponse.tokens.accessToken,
+          user: getAuthUser(authResponse),
+          accessToken: getAccessTokenValue(authResponse),
           status: 'authenticated',
         });
       } finally {
@@ -120,10 +125,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsLoading(true);
     try {
       const authResponse = await authApi.refresh(refreshToken);
-      saveRefreshToken(authResponse.tokens.refreshToken);
+      saveRefreshToken(getRefreshTokenValue(authResponse));
       setSession({
-        user: authResponse.user,
-        accessToken: authResponse.tokens.accessToken,
+        user: getAuthUser(authResponse),
+        accessToken: getAccessTokenValue(authResponse),
         status: 'authenticated',
       });
     } catch {
@@ -141,11 +146,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     });
 
     setTokenRefreshHandler(async (authResponse: AuthResponse) => {
-      saveRefreshToken(authResponse.tokens.refreshToken);
+      saveRefreshToken(getRefreshTokenValue(authResponse));
       setSession({
         status: 'authenticated',
-        accessToken: authResponse.tokens.accessToken,
-        user: authResponse.user,
+        accessToken: getAccessTokenValue(authResponse),
+        user: getAuthUser(authResponse),
       });
     });
 

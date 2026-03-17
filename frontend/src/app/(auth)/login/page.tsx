@@ -120,7 +120,7 @@ export default function LoginPage() {
             <CardBody className="gap-8 p-8 text-white sm:p-10">
               <div className="grid gap-2 text-center">
                 <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                  Hola de nuevo!
+                  ¡Hola de nuevo!
                 </h1>
                 <p className="text-sm text-white/70">Inicia sesion para volver a tu biblioteca.</p>
               </div>
