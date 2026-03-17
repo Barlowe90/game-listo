@@ -14,6 +14,7 @@ import com.gamelisto.catalogo.application.usecases.SyncResultResult;
 import com.gamelisto.catalogo.application.usecases.*;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.gamelisto.catalogo.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
@@ -112,9 +113,7 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
             null);
     when(getGameByIdUseCase.execute(any())).thenReturn(gameResult);
 
-    mockMvc
-        .perform(get("/v1/catalogo/games/1").with(asGatewayUser("USER")))
-        .andExpect(status().isOk());
+    mockMvc.perform(get("/v1/catalogo/games/1")).andExpect(status().isOk());
   }
 
   @Test
@@ -122,9 +121,17 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   void debeRetornar404SiJuegoNoExiste() throws Exception {
     when(getGameByIdUseCase.execute(any()))
         .thenThrow(new DomainException("Juego no encontrado con ID: 999"));
-    mockMvc
-        .perform(get("/v1/catalogo/games/999").with(asGatewayUser("USER")))
-        .andExpect(status().isBadRequest());
+    mockMvc.perform(get("/v1/catalogo/games/999")).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("GET /v1/catalogo/games/{id}/detail debe retornar 200 sin autenticación")
+  void debeRetornarGameDetailSinAutenticacion() throws Exception {
+    GameDetailResult detailResult =
+        new GameDetailResult(1L, List.of("https://img/z1.jpg"), List.of("https://yt/z1"));
+    when(getGameDetailUseCase.execute(any())).thenReturn(detailResult);
+
+    mockMvc.perform(get("/v1/catalogo/games/1/detail")).andExpect(status().isOk());
   }
 
   // ─── Platforms ────────────────────────────────────────────────────────────
@@ -134,14 +141,18 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
     PlatformResult ps4DTO = new PlatformResult(48L, "PlayStation 4", "PS4");
     when(obtenerTodasLasPlatformasUseCase.execute()).thenReturn(List.of(ps4DTO));
 
-    mockMvc
-        .perform(get("/v1/catalogo/platforms").with(asGatewayUser("USER")))
-        .andExpect(status().isOk());
+    mockMvc.perform(get("/v1/catalogo/platforms")).andExpect(status().isOk());
+  }
+
+  @Test
+  @DisplayName("POST /v1/catalogo/sync/games sin autenticación debe retornar 403")
+  void debeProtegerSyncGamesSinAutenticacion() throws Exception {
+    mockMvc.perform(post("/v1/catalogo/sync/games")).andExpect(status().isForbidden());
   }
 
   private RequestPostProcessor asGatewayUser(String roles) {
     return req -> {
-      req.addHeader("X-User-Id", "111");
+      req.addHeader("X-User-Id", UUID.fromString("11111111-1111-1111-1111-111111111111"));
       req.addHeader("X-User-Roles", roles); // ej: "USER" o "USER,ADMIN"
       return req;
     };

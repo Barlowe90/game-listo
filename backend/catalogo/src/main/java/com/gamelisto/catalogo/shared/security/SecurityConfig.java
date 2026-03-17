@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -35,7 +36,17 @@ public class SecurityConfig {
         .addFilterBefore(gatewayAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/actuator/health").permitAll().anyRequest().authenticated());
+                auth.requestMatchers("/actuator/health")
+                    .permitAll()
+                    .requestMatchers(
+                        HttpMethod.GET,
+                        "/v1/catalogo/games",
+                        "/v1/catalogo/games/*",
+                        "/v1/catalogo/games/*/detail",
+                        "/v1/catalogo/platforms")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated());
     return http.build();
   }
 }

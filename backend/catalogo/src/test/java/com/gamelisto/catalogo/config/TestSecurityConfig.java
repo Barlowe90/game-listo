@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,7 +30,19 @@ public class TestSecurityConfig {
         .addFilterBefore(gatewayAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         // En tests permitimos todas las peticiones para evitar 401; el filtro seguirá creando
         // Authentication cuando los tests envíen headers X-User-*.
-        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers("/actuator/health")
+                    .permitAll()
+                    .requestMatchers(
+                        HttpMethod.GET,
+                        "/v1/catalogo/games",
+                        "/v1/catalogo/games/*",
+                        "/v1/catalogo/games/*/detail",
+                        "/v1/catalogo/platforms")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .httpBasic(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable);
 
