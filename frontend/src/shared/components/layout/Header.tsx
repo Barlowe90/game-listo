@@ -30,7 +30,7 @@ const videojuegosItems = [
   },
   {
     href: '/videojuego/demo',
-    label: 'Ficha demo',
+    label: 'Ficha destacada',
   },
 ] as const;
 
@@ -164,6 +164,7 @@ export function Header({ integrated = false }: HeaderProps) {
             <div className="w-72 xl:w-80">
               <SearchBar
                 size="sm"
+                enableSuggestions
                 inputClassName={cn(
                   'rounded-full',
                   integrated
@@ -205,6 +206,7 @@ export function Header({ integrated = false }: HeaderProps) {
             )}
           >
             <SearchBar
+              enableSuggestions
               onSearch={() => setIsMobileMenuOpen(false)}
               inputClassName={
                 integrated

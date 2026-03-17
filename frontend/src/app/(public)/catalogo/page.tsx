@@ -1,4 +1,7 @@
+import Image from 'next/image';
 import Link from 'next/link';
+import { getCatalogGames } from '@/features/catalogo/api/catalogApi';
+import type { Game } from '@/features/catalogo/model/catalog.types';
 import { Grid } from '@/shared/components/layout/Grid';
 import { PageSection } from '@/shared/components/layout/PageSection';
 import { SearchBar } from '@/shared/components/layout/SearchBar';
@@ -15,39 +18,74 @@ import {
 import { EmptyState } from '@/shared/components/ui/EmptyState';
 import { SectionHeader } from '@/shared/components/ui/SectionHeader';
 
-const games = [
-  {
-    slug: 'demo',
-    title: 'GameListo Demo',
-    genre: 'Action RPG',
-    platforms: 'PC, PlayStation 5',
-    description:
-      'Ficha de referencia para validar tabs, dialog, badges y bloques de detalle sobre el mismo sistema visual.',
-  },
-  {
-    slug: 'sea-of-stars',
-    title: 'Sea of Stars',
-    genre: 'JRPG',
-    platforms: 'PC, Switch, PlayStation',
-    description:
-      'Ideal para explorar cards de catalogo con metadatos compactos y acciones de descubrimiento.',
-  },
-  {
-    slug: 'hades-ii',
-    title: 'Hades II',
-    genre: 'Roguelike',
-    platforms: 'PC',
-    description:
-      'Ejemplo de contenido listo para futuras integraciones de filtros, colecciones y actividad social.',
-  },
-] as const;
-
 function getSearchValue(value: string | string[] | undefined) {
   if (Array.isArray(value)) {
     return value[0] ?? '';
   }
 
   return value ?? '';
+}
+
+function normalizeText(value: string | null | undefined) {
+  return value?.trim().toLowerCase() ?? '';
+}
+
+function getSearchIndex(game: Game) {
+  return [
+    game.name,
+    game.summary,
+    game.gameType,
+    game.gameStatus,
+    ...game.genres,
+    ...game.platforms,
+    ...game.involvedCompanies,
+    ...game.playerPerspectives,
+    ...game.themes,
+  ]
+    .map(normalizeText)
+    .join(' ');
+}
+
+function getPrimaryStudio(game: Game) {
+  return game.involvedCompanies[0] ?? 'Estudio no especificado';
+}
+
+function getShortDescription(game: Game) {
+  return (
+    game.summary?.trim() ??
+    'Esta ficha ya esta conectada al backend del catalogo y lista para crecer con biblioteca, media y contenido social.'
+  );
+}
+
+function getPrimaryBadge(game: Game) {
+  return game.genres[0] ?? game.gameType ?? 'Videojuego';
+}
+
+function renderCover(game: Game) {
+  if (game.coverUrl) {
+    return (
+      <Image
+        src={game.coverUrl}
+        alt={`Portada de ${game.name}`}
+        fill
+        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+        className="object-cover transition-transform duration-[var(--duration-normal)] ease-[var(--easing-standard)] group-hover:scale-[1.03]"
+      />
+    );
+  }
+
+  return (
+    <div className="grid h-full place-items-center bg-[linear-gradient(140deg,#dfe2ff_0%,#f7f8ff_100%)] p-6 text-center">
+      <div className="grid gap-2">
+        <span className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
+          GameListo
+        </span>
+        <strong className="text-xl font-semibold tracking-tight text-foreground">
+          {game.name}
+        </strong>
+      </div>
+    </div>
+  );
 }
 
 export default async function CatalogoPage({
@@ -57,35 +95,39 @@ export default async function CatalogoPage({
 }) {
   const resolvedSearchParams = await searchParams;
   const query = getSearchValue(resolvedSearchParams.q).trim();
-  const normalizedQuery = query.toLowerCase();
+  const normalizedQuery = normalizeText(query);
+  const games = await getCatalogGames();
   const filteredGames = normalizedQuery
-    ? games.filter((game) =>
-        [game.title, game.genre, game.platforms, game.description].some((value) =>
-          value.toLowerCase().includes(normalizedQuery),
-        ),
-      )
+    ? games.filter((game) => getSearchIndex(game).includes(normalizedQuery))
     : games;
+  const featuredGame = filteredGames[0] ?? games[0] ?? null;
 
   return (
-    <PageSection>
+    <PageSection size="wide">
       <div className="grid gap-8">
         <SectionHeader
           eyebrow="Catalogo"
-          title="Descubre videojuegos sin salir del sistema visual"
-          subtitle="El listado ya usa cards clicables, jerarquia compartida, buscador compartido y metadatos compactos para preparar la fase de datos reales."
+          title="Explora fichas reales del catalogo"
+          subtitle="El listado ya consume juegos reales del backend y mantiene el mismo sistema visual para busqueda, cards clicables y detalle por ID."
           action={
-            <Button asChild>
-              <Link href="/videojuego/demo">Abrir ficha demo</Link>
-            </Button>
+            featuredGame ? (
+              <Button asChild>
+                <Link href={`/videojuego/${featuredGame.id}`}>Abrir ficha destacada</Link>
+              </Button>
+            ) : null
           }
         />
 
-        <Card variant="informative" padding="md">
+        <Card
+          variant="informative"
+          padding="md"
+          className="rounded-[1.75rem] border border-[#e2e8f0] bg-white/80 shadow-[0_24px_60px_rgba(59,63,183,0.08)] backdrop-blur-sm"
+        >
           <div className="grid gap-4">
             <div className="flex flex-wrap items-center gap-3">
-              <Badge variant="primary">Cards clicables</Badge>
-              <Badge>Jerarquia semantica</Badge>
-              <Badge>Preparado para filtros</Badge>
+              <Badge variant="primary">Backend conectado</Badge>
+              <Badge>Busqueda por nombre y metadatos</Badge>
+              <Badge>Detalle enlazado por ID</Badge>
               {query ? <Badge variant="primary">Busqueda: {query}</Badge> : null}
             </div>
 
@@ -94,26 +136,51 @@ export default async function CatalogoPage({
         </Card>
 
         {filteredGames.length ? (
-          <Grid variant="cards">
+          <Grid variant="cards" className="gap-5">
             {filteredGames.map((game) => (
-              <Card key={game.slug} asChild variant="clickable">
-                <Link href={`/videojuego/${game.slug}`} className="block h-full">
-                  <CardHeader>
+              <Card
+                key={game.id}
+                asChild
+                variant="clickable"
+                className="group rounded-[1.75rem] border border-[#e2e8f0] bg-white/90 shadow-[0_24px_60px_rgba(59,63,183,0.08)] backdrop-blur-sm"
+              >
+                <Link href={`/videojuego/${game.id}`} className="grid h-full">
+                  <div className="relative aspect-[16/9] overflow-hidden">
+                    {renderCover(game)}
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(10,12,24,0.28)_100%)]" />
+                  </div>
+
+                  <CardHeader className="gap-3">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="primary">{game.genre}</Badge>
-                      <Badge>{game.platforms}</Badge>
+                      <Badge variant="primary">{getPrimaryBadge(game)}</Badge>
+                      {game.platforms.slice(0, 2).map((platform) => (
+                        <Badge key={platform}>{platform}</Badge>
+                      ))}
                     </div>
-                    <CardTitle>{game.title}</CardTitle>
-                    <CardDescription>{game.description}</CardDescription>
+
+                    <div className="grid gap-1">
+                      <CardTitle className="text-xl">{game.name}</CardTitle>
+                      <CardDescription>{getPrimaryStudio(game)}</CardDescription>
+                    </div>
                   </CardHeader>
-                  <CardBody className="pt-4">
-                    <div className="grid gap-2 text-sm text-secondary">
-                      <span>Slug: {game.slug}</span>
-                      <span>Listo para enlazar ficha, comunidad y biblioteca.</span>
+
+                  <CardBody className="gap-4 pt-4">
+                    <p className="text-sm leading-relaxed text-secondary">{getShortDescription(game)}</p>
+
+                    <div className="flex flex-wrap gap-2">
+                      {game.gameModes.slice(0, 3).map((mode) => (
+                        <span
+                          key={mode}
+                          className="inline-flex rounded-pill bg-primary-soft px-3 py-1 text-xs font-medium text-primary"
+                        >
+                          {mode}
+                        </span>
+                      ))}
                     </div>
                   </CardBody>
+
                   <CardFooter>
-                    <span className="text-sm font-semibold text-primary">Ver detalle</span>
+                    <span className="text-sm font-semibold text-primary">Ver ficha completa</span>
                   </CardFooter>
                 </Link>
               </Card>
@@ -122,7 +189,7 @@ export default async function CatalogoPage({
         ) : (
           <EmptyState
             title="No hemos encontrado videojuegos con ese criterio"
-            description="Prueba otra busqueda o vuelve al catalogo completo para seguir explorando las cards del MVP."
+            description="Prueba otra busqueda o vuelve al catalogo completo para seguir explorando las fichas reales."
             action={
               <>
                 <Button asChild>

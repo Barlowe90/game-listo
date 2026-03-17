@@ -1,0 +1,32 @@
+export interface Game {
+  id: number;
+  alternativeNames: string[];
+  coverUrl: string | null;
+  dlcIds: number[];
+  expandedGames: number[];
+  expansionIds: number[];
+  externalGames: string[];
+  franchises: string[];
+  gameModes: string[];
+  gameStatus: string | null;
+  gameType: string | null;
+  genres: string[];
+  involvedCompanies: string[];
+  keywords: string[];
+  multiplayerModeIds: number[];
+  name: string;
+  parentGameId: number | null;
+  platforms: string[];
+  playerPerspectives: string[];
+  remakeIds: number[];
+  remasterIds: number[];
+  similarGames: number[];
+  summary: string | null;
+  themes: string[];
+}
+
+export interface GameDetailMedia {
+  gameId: number;
+  screenshots: string[];
+  videos: string[];
+}
