@@ -105,7 +105,7 @@ export default function Home() {
 
               <div className="flex flex-wrap gap-3">
                 <Button asChild variant="secondary">
-                  <Link href="/videojuego/demo">Empieza gratis</Link>
+                  <Link href="/login">Empieza gratis</Link>
                 </Button>
               </div>
             </div>
@@ -167,7 +167,7 @@ export default function Home() {
 
             <div className="flex flex-wrap justify-center gap-3">
               <Button asChild variant="secondary">
-                <Link href="/videojuego/demo">Importar biblioteca</Link>
+                <Link href="/login">Importar biblioteca</Link>
               </Button>
             </div>
           </Grid>

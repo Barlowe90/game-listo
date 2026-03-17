@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import AvatarUsuario from '@/features/auth/components/AvatarUsuario';
@@ -70,8 +71,8 @@ function AuthControl({ integrated = false }: AuthControlProps) {
       className={cn(
         'inline-flex min-h-[var(--target-min-size)] items-center justify-center gap-2 rounded-md border px-4 text-sm font-semibold whitespace-nowrap transition-[background-color,border-color,color,box-shadow,opacity,transform] duration-[var(--duration-fast)] ease-[var(--easing-standard)] focus-visible:outline-none',
         integrated
-          ? 'border-transparent bg-white text-primary! shadow-none hover:border-transparent hover:bg-white/90 active:bg-white/80'
-          : 'border-transparent bg-black text-primary-foreground! shadow-none hover:bg-transparent hover:text-foreground active:bg-transparent',
+          ? 'border-transparent bg-white text-primary! shadow-none hover:border-transparent hover:bg-white/90 active:bg-white/80 hover:!text-black focus-visible:!text-black'
+          : 'border-transparent bg-black text-primary-foreground! shadow-none hover:bg-transparent hover:!text-black focus-visible:!text-black active:bg-transparent',
       )}
     >
       Iniciar sesion
@@ -99,9 +100,13 @@ export function Header({ integrated = false }: HeaderProps) {
               integrated ? 'hover:bg-white/10' : 'hover:bg-surface',
             )}
           >
-            <span className="flex size-10 items-center justify-center rounded-pill bg-primary text-sm font-bold text-primary-foreground shadow-surface">
-              G
-            </span>
+            <Image
+              src="/logo-gamelist.svg"
+              alt=""
+              width={40}
+              height={40}
+              className={cn('h-10 w-10 shrink-0 object-contain', integrated && 'invert')}
+            />
             <span className="grid">
               <span
                 className={cn(

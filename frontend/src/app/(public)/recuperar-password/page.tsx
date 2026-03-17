@@ -22,21 +22,12 @@ export default function RecuperarPasswordPage() {
   return (
     <PageContainer size="narrow" className="py-10 lg:py-12">
       <div className="grid gap-6">
-        <SectionHeader
-          eyebrow="Auth"
-          title="Recuperar contrasena"
-          subtitle="La estructura del formulario ya queda unificada con login y registro para cuando conectemos el flujo real."
-        />
+        <SectionHeader title="Recuperar contrasena" />
 
         <Card>
           <CardBody className="gap-6">
             <form onSubmit={handleSubmit} className="grid gap-6">
-              <FormField
-                label="Email"
-                htmlFor="recovery-email"
-                helpText="Te enviaremos instrucciones cuando el backend de recuperacion este conectado."
-                required
-              >
+              <FormField label="Email" htmlFor="recovery-email" required>
                 <Input
                   id="recovery-email"
                   type="email"
@@ -48,7 +39,7 @@ export default function RecuperarPasswordPage() {
                 />
               </FormField>
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full text-white!">
                 Enviar instrucciones
               </Button>
             </form>
@@ -64,9 +55,6 @@ export default function RecuperarPasswordPage() {
             <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-secondary">
               <Link href="/login" className="font-semibold text-primary hover:text-primary-hover">
                 Volver a login
-              </Link>
-              <Link href="/registro" className="font-semibold text-primary hover:text-primary-hover">
-                Crear cuenta
               </Link>
             </div>
           </CardBody>

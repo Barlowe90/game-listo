@@ -62,89 +62,70 @@ export default function RegistroPage() {
   return (
     <PageContainer size="narrow" className="py-10 lg:py-12">
       <div className="grid gap-6">
-        <SectionHeader
-          eyebrow="Auth"
-          title="Crear cuenta"
-          subtitle="Registro construido ya como patron oficial del MVP: card, form field wrapper, acciones y feedback reutilizable."
-        />
+        <SectionHeader title="Crear cuenta" />
 
         <Card>
-          <CardBody className="gap-6">
-          <form onSubmit={handleSubmit} className="grid gap-6">
-            <FormField
-              label="Usuario"
-              htmlFor="username"
-              helpText="Este nombre se mostrara en tu perfil y publicaciones."
-              required
-            >
-              <Input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-                required
-                autoComplete="username"
-                placeholder="Tu usuario"
+          <CardBody className="gap-6 ">
+            <form onSubmit={handleSubmit} className="grid gap-6">
+              <FormField label="Usuario" htmlFor="username" required>
+                <Input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(event) => setUsername(event.target.value)}
+                  required
+                  autoComplete="username"
+                  placeholder="Tu usuario"
+                />
+              </FormField>
+
+              <FormField label="Email" htmlFor="email" required>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                  autoComplete="email"
+                  placeholder="tu@email.com"
+                />
+              </FormField>
+
+              <FormField label="Contrasena" htmlFor="password" required>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                  autoComplete="new-password"
+                  placeholder="Crea tu contrasena"
+                />
+              </FormField>
+
+              <Button type="submit" loading={isSubmitting} className="w-full text-white!">
+                Registrarse
+              </Button>
+            </form>
+
+            {successMessage ? (
+              <Toast variant="success" title="Cuenta creada" description={successMessage} />
+            ) : null}
+
+            {errorMessage ? (
+              <Toast
+                variant="error"
+                title="No se pudo completar el registro"
+                description={errorMessage}
               />
-            </FormField>
+            ) : null}
 
-            <FormField
-              label="Email"
-              htmlFor="email"
-              helpText="Usaremos este email para acceso y recuperacion."
-              required
-            >
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-                autoComplete="email"
-                placeholder="tu@email.com"
-              />
-            </FormField>
-
-            <FormField
-              label="Contrasena"
-              htmlFor="password"
-              helpText="Elige una contrasena segura para tu cuenta."
-              required
-            >
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-                autoComplete="new-password"
-                placeholder="Crea tu contrasena"
-              />
-            </FormField>
-
-            <Button type="submit" loading={isSubmitting} className="w-full">
-              Registrarse
-            </Button>
-          </form>
-
-          {successMessage ? (
-            <Toast variant="success" title="Cuenta creada" description={successMessage} />
-          ) : null}
-
-          {errorMessage ? (
-            <Toast
-              variant="error"
-              title="No se pudo completar el registro"
-              description={errorMessage}
-            />
-          ) : null}
-
-          <p className="text-sm text-secondary">
-            Ya tienes cuenta?{' '}
-            <Link href="/login" className="font-semibold text-primary hover:text-primary-hover">
-              Ir al login
-            </Link>
-          </p>
+            <p className="text-sm text-secondary">
+              Ya tienes cuenta?{' '}
+              <Link href="/login" className="font-semibold text-primary hover:text-primary-hover">
+                Ir al login
+              </Link>
+            </p>
           </CardBody>
         </Card>
       </div>
