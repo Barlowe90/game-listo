@@ -10,28 +10,11 @@ import { cn } from '@/lib/cn';
 import { Container } from '@/shared/components/layout/Container';
 import { NavLink } from '@/shared/components/layout/NavLink';
 import { SearchBar } from '@/shared/components/layout/SearchBar';
-import {
-  Dropdown,
-  DropdownContent,
-  DropdownItem,
-  DropdownTrigger,
-} from '@/shared/components/ui/Dropdown';
 import { Skeleton } from '@/shared/components/ui/Skeleton';
 
 const navigationItems = [
   { href: '/biblioteca', label: 'Mi biblioteca' },
   { href: '/publicaciones', label: 'Mis publicaciones' },
-] as const;
-
-const videojuegosItems = [
-  {
-    href: '/catalogo',
-    label: 'Explorar catalogo',
-  },
-  {
-    href: '/videojuego/demo',
-    label: 'Ficha destacada',
-  },
 ] as const;
 
 interface AuthControlProps {
@@ -121,30 +104,22 @@ export function Header({ integrated = false }: HeaderProps) {
 
           <div className="hidden min-w-0 items-center justify-center gap-3 lg:flex">
             <nav className="flex items-center gap-2" aria-label="Navegacion principal">
-              <Dropdown>
-                <DropdownTrigger
-                  className={cn(
-                    integrated
-                      ? isVideojuegosActive
-                        ? 'bg-primary-soft text-primary hover:bg-primary-soft hover:text-primary'
-                        : 'text-inverse hover:bg-white/10 hover:text-inverse data-[state=open]:border-white/15 data-[state=open]:bg-white/10 data-[state=open]:text-inverse'
-                      : 'border-transparent bg-transparent text-foreground hover:bg-transparent hover:text-foreground data-[state=open]:border-transparent data-[state=open]:bg-transparent data-[state=open]:text-foreground',
-                  )}
-                >
-                  Videojuegos
-                </DropdownTrigger>
-                <DropdownContent align="start">
-                  {videojuegosItems.map((item) => (
-                    <DropdownItem key={item.href} asChild>
-                      <Link href={item.href}>
-                        <span className="grid gap-1 py-2">
-                          <span className="font-medium text-foreground">{item.label}</span>
-                        </span>
-                      </Link>
-                    </DropdownItem>
-                  ))}
-                </DropdownContent>
-              </Dropdown>
+              <Link
+                href="/catalogo"
+                aria-current={isVideojuegosActive ? 'page' : undefined}
+                className={cn(
+                  'inline-flex min-h-[var(--target-min-size)] items-center rounded-pill px-4 text-sm font-medium transition-colors focus-visible:outline-none',
+                  integrated
+                    ? isVideojuegosActive
+                      ? 'bg-primary-soft text-primary'
+                      : 'text-inverse hover:bg-white/10 hover:text-inverse'
+                    : isVideojuegosActive
+                      ? 'bg-primary-soft text-primary'
+                      : 'bg-transparent text-foreground hover:bg-transparent hover:text-foreground',
+                )}
+              >
+                Videojuegos
+              </Link>
 
               {navigationItems.map((item) => (
                 <NavLink
@@ -165,6 +140,7 @@ export function Header({ integrated = false }: HeaderProps) {
               <SearchBar
                 size="sm"
                 enableSuggestions
+                resetOnPathnameChange
                 inputClassName={cn(
                   'rounded-full',
                   integrated
@@ -207,6 +183,7 @@ export function Header({ integrated = false }: HeaderProps) {
           >
             <SearchBar
               enableSuggestions
+              resetOnPathnameChange
               onSearch={() => setIsMobileMenuOpen(false)}
               inputClassName={
                 integrated
@@ -224,21 +201,23 @@ export function Header({ integrated = false }: HeaderProps) {
               >
                 Videojuegos
               </span>
-              {videojuegosItems.map((item) => (
-                <NavLink
-                  key={item.href}
-                  href={item.href}
-                  stacked
-                  className={
-                    integrated
-                      ? 'text-inverse hover:bg-white/10 hover:text-inverse'
-                      : 'bg-transparent text-foreground hover:bg-transparent hover:text-foreground'
-                  }
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item.label}
-                </NavLink>
-              ))}
+              <Link
+                href="/catalogo"
+                aria-current={isVideojuegosActive ? 'page' : undefined}
+                className={cn(
+                  'inline-flex min-h-[var(--target-min-size)] w-full items-center justify-between rounded-pill px-4 text-sm font-medium transition-colors focus-visible:outline-none',
+                  integrated
+                    ? isVideojuegosActive
+                      ? 'bg-primary-soft text-primary'
+                      : 'text-inverse hover:bg-white/10 hover:text-inverse'
+                    : isVideojuegosActive
+                      ? 'bg-primary-soft text-primary'
+                      : 'bg-transparent text-foreground hover:bg-transparent hover:text-foreground',
+                )}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Videojuegos
+              </Link>
               {navigationItems.map((item) => (
                 <NavLink
                   key={item.href}

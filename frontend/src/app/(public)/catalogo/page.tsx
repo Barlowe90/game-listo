@@ -1,95 +1,190 @@
 import Link from 'next/link';
-import { getCatalogGames } from '@/features/catalogo/api/catalogApi';
+import {
+  buildCatalogHref,
+  buildPlatformFilters,
+  buildVisiblePages,
+  filterGamesByPlatforms,
+  getPageIndex,
+  getSelectedPlatforms,
+} from '@/features/catalogo/catalog-page.utils';
+import {
+  getCatalogGames,
+  getCatalogGamesPage,
+  getCatalogPlatforms,
+} from '@/features/catalogo/api/catalogApi';
+import { CatalogPlatformFilters } from '@/features/catalogo/components/CatalogPlatformFilters';
+import type { Game } from '@/features/catalogo/model/catalog.types';
+import { GameCard } from '@/shared/components/domain/GameCard';
 import { Grid } from '@/shared/components/layout/Grid';
 import { PageSection } from '@/shared/components/layout/PageSection';
-import { GameCard } from '@/shared/components/domain/GameCard';
-import { buildGameSearchIndex, normalizeGameText } from '@/shared/components/domain/game-domain.utils';
-import { SearchBar } from '@/shared/components/layout/SearchBar';
-import { Badge } from '@/shared/components/ui/Badge';
 import { Button } from '@/shared/components/ui/Button';
 import { Card } from '@/shared/components/ui/Card';
 import { EmptyState } from '@/shared/components/ui/EmptyState';
 import { SectionHeader } from '@/shared/components/ui/SectionHeader';
 
-function getSearchValue(value: string | string[] | undefined) {
-  if (Array.isArray(value)) {
-    return value[0] ?? '';
-  }
+const CATALOG_PAGE_SIZE = 12;
+const MAX_VISIBLE_PAGE_LINKS = 5;
 
-  return value ?? '';
-}
+type SearchParams = {
+  page?: string | string[];
+  platform?: string | string[];
+};
 
 export default async function CatalogoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string | string[] }>;
+  searchParams: Promise<SearchParams>;
 }) {
   const resolvedSearchParams = await searchParams;
-  const query = getSearchValue(resolvedSearchParams.q).trim();
-  const normalizedQuery = normalizeGameText(query);
-  const games = await getCatalogGames();
-  const filteredGames = normalizedQuery
-    ? games.filter((game) => buildGameSearchIndex(game).includes(normalizedQuery))
-    : games;
-  const featuredGame = filteredGames[0] ?? games[0] ?? null;
+  const requestedPageIndex = getPageIndex(resolvedSearchParams.page);
+  const selectedPlatforms = getSelectedPlatforms(resolvedSearchParams.platform);
+  const hasActivePlatformFilters = selectedPlatforms.length > 0;
+
+  const [platforms, catalogSource] = await Promise.all([
+    getCatalogPlatforms(),
+    hasActivePlatformFilters
+      ? getCatalogGames().then((games) => ({ kind: 'all' as const, games }))
+      : getCatalogGamesPage({ page: requestedPageIndex, size: CATALOG_PAGE_SIZE }).then((page) => ({
+          kind: 'page' as const,
+          page,
+        })),
+  ]);
+
+  const platformFilters = buildPlatformFilters(platforms);
+
+  let currentPageIndex = requestedPageIndex;
+  let totalCount = 0;
+  let totalPages = 0;
+  let visibleGames: Game[] = [];
+
+  if (catalogSource.kind === 'page') {
+    currentPageIndex = catalogSource.page.page;
+    totalCount = catalogSource.page.totalCount;
+    totalPages = catalogSource.page.totalPages;
+    visibleGames = catalogSource.page.items;
+  } else {
+    const filteredGames = filterGamesByPlatforms(
+      catalogSource.games,
+      selectedPlatforms,
+      platformFilters,
+    );
+
+    totalCount = filteredGames.length;
+    totalPages = totalCount ? Math.ceil(totalCount / CATALOG_PAGE_SIZE) : 0;
+    currentPageIndex = totalPages ? Math.min(requestedPageIndex, totalPages - 1) : 0;
+    visibleGames = filteredGames.slice(
+      currentPageIndex * CATALOG_PAGE_SIZE,
+      currentPageIndex * CATALOG_PAGE_SIZE + CATALOG_PAGE_SIZE,
+    );
+  }
+
+  const visiblePageLinks = buildVisiblePages(currentPageIndex, totalPages, MAX_VISIBLE_PAGE_LINKS);
+  const firstVisibleResult = totalCount ? currentPageIndex * CATALOG_PAGE_SIZE + 1 : 0;
+  const lastVisibleResult = totalCount ? firstVisibleResult + visibleGames.length - 1 : 0;
 
   return (
     <PageSection size="wide">
       <div className="grid gap-8">
-        <SectionHeader
-          eyebrow="Catalogo"
-          title="Explora fichas reales del catalogo"
-          subtitle="El listado ya consume juegos reales del backend y mantiene el mismo sistema visual para busqueda, cards clicables y detalle por ID."
-          action={
-            featuredGame ? (
-              <Button asChild>
-                <Link href={`/videojuego/${featuredGame.id}`}>Abrir ficha destacada</Link>
-              </Button>
-            ) : null
-          }
-        />
+        <SectionHeader title="Explora el catalogo de videojuegos" />
 
         <Card
           variant="informative"
           padding="md"
           className="rounded-[1.75rem] border border-[#e2e8f0] bg-white/80 shadow-[0_24px_60px_rgba(59,63,183,0.08)] backdrop-blur-sm"
         >
-          <div className="grid gap-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <Badge variant="primary">Backend conectado</Badge>
-              <Badge>Busqueda por nombre y metadatos</Badge>
-              <Badge>Detalle enlazado por ID</Badge>
-              {query ? <Badge variant="primary">Busqueda: {query}</Badge> : null}
-            </div>
-
-            <SearchBar className="max-w-2xl" defaultValue={query} />
-          </div>
+          <CatalogPlatformFilters
+            platformFilters={platformFilters}
+            selectedPlatforms={selectedPlatforms}
+          />
         </Card>
 
-        {filteredGames.length ? (
-          <Grid variant="cards" className="gap-5">
-            {filteredGames.map((game) => (
-              <GameCard
-                key={game.id}
-                game={game}
-                href={`/videojuego/${game.id}`}
-                className="group rounded-[1.75rem] border border-[#e2e8f0] bg-white/90 shadow-[0_24px_60px_rgba(59,63,183,0.08)] backdrop-blur-sm"
-              />
-            ))}
-          </Grid>
+        {visibleGames.length ? (
+          <>
+            <Grid variant="cards" className="gap-4 md:grid-cols-3 xl:grid-cols-4">
+              {visibleGames.map((game) => (
+                <GameCard
+                  key={game.id}
+                  game={game}
+                  href={`/videojuego/${game.id}`}
+                  className="h-full"
+                />
+              ))}
+            </Grid>
+
+            {totalPages > 1 ? (
+              <div className="flex flex-wrap items-center justify-between gap-4 rounded-[1.5rem] border border-border bg-white/70 p-4 shadow-surface">
+                <div className="flex flex-wrap items-center gap-2">
+                  {currentPageIndex <= 0 ? (
+                    <Button variant="secondary" size="sm" disabled>
+                      Anterior
+                    </Button>
+                  ) : (
+                    <Button asChild variant="secondary" size="sm">
+                      <Link
+                        href={buildCatalogHref({
+                          page: currentPageIndex,
+                          selectedPlatforms,
+                        })}
+                      >
+                        Anterior
+                      </Link>
+                    </Button>
+                  )}
+
+                  {visiblePageLinks.map((pageIndex) => (
+                    <Button
+                      key={pageIndex}
+                      asChild
+                      variant={pageIndex === currentPageIndex ? 'primary' : 'secondary'}
+                      size="sm"
+                      className={
+                        pageIndex === currentPageIndex ? 'text-white! hover:text-white' : undefined
+                      }
+                    >
+                      <Link
+                        href={buildCatalogHref({
+                          page: pageIndex + 1,
+                          selectedPlatforms,
+                        })}
+                        aria-current={pageIndex === currentPageIndex ? 'page' : undefined}
+                      >
+                        {pageIndex + 1}
+                      </Link>
+                    </Button>
+                  ))}
+
+                  {currentPageIndex >= totalPages - 1 ? (
+                    <Button variant="secondary" size="sm" disabled>
+                      Siguiente
+                    </Button>
+                  ) : (
+                    <Button asChild variant="secondary" size="sm">
+                      <Link
+                        href={buildCatalogHref({
+                          page: currentPageIndex + 2,
+                          selectedPlatforms,
+                        })}
+                      >
+                        Siguiente
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+
+                <p className="text-sm text-secondary">
+                  Mostrando {firstVisibleResult}-{lastVisibleResult} de {totalCount} resultados.
+                </p>
+              </div>
+            ) : null}
+          </>
         ) : (
           <EmptyState
-            title="No hemos encontrado videojuegos con ese criterio"
-            description="Prueba otra busqueda o vuelve al catalogo completo para seguir explorando las fichas reales."
+            title="No hemos encontrado videojuegos para esas plataformas"
+            description="Prueba a desactivar alguna plataforma o vuelve al listado completo."
             action={
-              <>
-                <Button asChild>
-                  <Link href="/catalogo">Limpiar busqueda</Link>
-                </Button>
-                <Button asChild variant="secondary">
-                  <Link href="/">Volver al inicio</Link>
-                </Button>
-              </>
+              <Button asChild>
+                <Link href="/catalogo">Ver todo el catalogo</Link>
+              </Button>
             }
           />
         )}

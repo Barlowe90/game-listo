@@ -8,6 +8,8 @@ import com.gamelisto.catalogo.shared.config.IgdbProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.context.event.EventListener;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +24,7 @@ public class ScheduledSyncJob {
   private final SyncPlatformsFromIGDBUseCase syncPlatformsUseCase;
   private final IgdbProperties igdbProperties;
 
-  @Scheduled(cron = "0 */5 * * * *") // Cada 12 horas (a las 00:00, 12:00, 00:00)
+  @Scheduled(cron = "0 */1 * * * *") 
   public void syncGamesIncremental() {
     logger.info("===== Iniciando sincronización automática de juegos =====");
 
@@ -42,7 +44,16 @@ public class ScheduledSyncJob {
 
   @Scheduled(cron = "0 0 0 * * 0") // Los domingos a las 00:00
   public void syncPlatformsDaily() {
-    logger.info("===== Iniciando sincronización diaria de plataformas =====");
+    performSyncPlatforms("programado (semanal)");
+  }
+
+  @EventListener(ApplicationReadyEvent.class)
+  public void syncPlatformsOnStartup() {
+    performSyncPlatforms("inicio de aplicación");
+  }
+
+  private void performSyncPlatforms(String trigger) {
+    logger.info("===== Iniciando sincronización de plataformas: {} =====", trigger);
 
     try {
       SyncResultResult result = syncPlatformsUseCase.execute();
@@ -52,7 +63,7 @@ public class ScheduledSyncJob {
           result.totalSynced());
 
     } catch (Exception e) {
-      logger.error("Error en sincronización de plataformas", e);
+      logger.error("Error en sincronización de plataformas (" + trigger + ")", e);
       // No lanzar excepción para no interrumpir el scheduler
     }
   }

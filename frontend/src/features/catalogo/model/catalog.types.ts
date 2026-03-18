@@ -30,3 +30,22 @@ export interface GameDetailMedia {
   screenshots: string[];
   videos: string[];
 }
+
+export interface CatalogGamesPage {
+  items: Game[];
+  page: number;
+  size: number;
+  totalCount: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface CatalogPlatform {
+  id: number;
+  name: string;
+  abbreviation: string | null;
+  alternativeName: string | null;
+  logoURL: string | null;
+  tipo: string | null;
+}

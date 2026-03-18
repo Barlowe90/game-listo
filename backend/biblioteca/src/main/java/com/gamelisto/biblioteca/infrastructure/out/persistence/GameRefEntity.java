@@ -17,10 +17,10 @@ public class GameRefEntity {
   @Column(name = "id", nullable = false, updatable = false)
   private Long id;
 
-  @Column(name = "nombre", nullable = false, length = 100)
+  @Column(name = "nombre", nullable = false)
   private String nombre;
 
-  @Column(name = "cover", length = 500)
+  @Column(name = "cover")
   private String cover;
 
   public GameRefEntity() {

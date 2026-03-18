@@ -1,4 +1,4 @@
-import type { ReactNode, SVGProps } from 'react';
+import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -9,13 +9,8 @@ import {
   getGamesByIds,
 } from '@/features/catalogo/api/catalogApi';
 import type { Game } from '@/features/catalogo/model/catalog.types';
-import {
-  EmptyPublicationsState,
-} from '@/shared/components/domain/EmptyPublicationsState';
-import {
-  GameActionBar,
-  type GameActionItem,
-} from '@/shared/components/domain/GameActionBar';
+import { EmptyPublicationsState } from '@/shared/components/domain/EmptyPublicationsState';
+import { GameActionBar, type GameActionItem } from '@/shared/components/domain/GameActionBar';
 import { GameHero } from '@/shared/components/domain/GameHero';
 import { InfoPanelCard } from '@/shared/components/domain/InfoPanelCard';
 import {
@@ -159,14 +154,7 @@ function ParentGameLink({
 
   const entry = buildSingleRelatedEntry(gameId, relatedGames);
 
-  return (
-    <TagList
-      items={[entry.label]}
-      getHref={() => entry.href}
-      tone="tag"
-      className="w-fit"
-    />
-  );
+  return <TagList items={[entry.label]} getHref={() => entry.href} tone="tag" className="w-fit" />;
 }
 
 function VideoEmbedCard({ index, videoUrl }: { index: number; videoUrl: string }) {
@@ -212,14 +200,6 @@ function ScreenshotCard({ index, screenshotUrl }: { index: number; screenshotUrl
         />
       </div>
     </SurfaceCard>
-  );
-}
-
-function ArrowLeftIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15 18l-6-6 6-6" />
-    </svg>
   );
 }
 
@@ -329,14 +309,6 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
       <PageSection size="wide" className="relative z-10 py-10 lg:py-14">
         <Tabs defaultValue="sobre" className="grid gap-8">
           <div className="grid gap-4">
-            <Link
-              href="/catalogo"
-              className="inline-flex w-fit items-center gap-2 rounded-pill border border-border bg-white/80 px-4 py-2 text-sm font-medium text-foreground shadow-surface transition-colors hover:border-border-strong hover:bg-surface"
-            >
-              <ArrowLeftIcon className="size-4" aria-hidden="true" />
-              Volver al catalogo
-            </Link>
-
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
               <div className="grid gap-6">
                 <GameHero

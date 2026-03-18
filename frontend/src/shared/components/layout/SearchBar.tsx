@@ -2,7 +2,7 @@
 
 import { startTransition, useDeferredValue, useEffect, useId, useRef, useState } from 'react';
 import type { FocusEventHandler, KeyboardEventHandler } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { getGameSuggestions } from '@/features/busquedas/api/sugerenciasApi';
 import type { GameSuggestion } from '@/features/busquedas/model/sugerencias.types';
 import { cn } from '@/lib/cn';
@@ -16,6 +16,7 @@ export interface SearchBarProps {
   inputClassName?: string;
   label?: string;
   placeholder?: string;
+  persistentParams?: Record<string, string | undefined>;
   targetPath?: string;
   queryParam?: string;
   size?: 'sm' | 'md';
@@ -23,6 +24,7 @@ export interface SearchBarProps {
   defaultValue?: string;
   enableSuggestions?: boolean;
   suggestionSize?: number;
+  resetOnPathnameChange?: boolean;
 }
 
 export function SearchBar({
@@ -30,6 +32,7 @@ export function SearchBar({
   inputClassName,
   label = 'Buscar videojuegos',
   placeholder = 'Buscar videojuegos',
+  persistentParams,
   targetPath = '/catalogo',
   queryParam = 'q',
   size = 'md',
@@ -37,8 +40,10 @@ export function SearchBar({
   defaultValue = '',
   enableSuggestions = false,
   suggestionSize = 5,
+  resetOnPathnameChange = false,
 }: SearchBarProps) {
   const inputId = useId();
+  const pathname = usePathname();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState(defaultValue);
@@ -63,6 +68,20 @@ export function SearchBar({
   useEffect(() => {
     setQuery(defaultValue);
   }, [defaultValue]);
+
+  useEffect(() => {
+    if (!resetOnPathnameChange) {
+      return;
+    }
+
+    setQuery(defaultValue);
+    setSuggestions([]);
+    setIsLoadingSuggestions(false);
+    setHasFetchedSuggestions(false);
+    setHasFocusWithin(false);
+    setActiveSuggestionIndex(-1);
+    inputRef.current?.blur();
+  }, [defaultValue, pathname, resetOnPathnameChange]);
 
   useEffect(() => {
     if (!enableSuggestions) {
@@ -140,6 +159,12 @@ export function SearchBar({
     }
 
     const params = new URLSearchParams();
+
+    Object.entries(persistentParams ?? {}).forEach(([paramKey, paramValue]) => {
+      if (paramValue?.trim()) {
+        params.set(paramKey, paramValue.trim());
+      }
+    });
 
     if (normalizedQuery) {
       params.set(queryParam, normalizedQuery);

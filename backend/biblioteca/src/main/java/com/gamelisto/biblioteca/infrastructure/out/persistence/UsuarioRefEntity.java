@@ -21,7 +21,7 @@ public class UsuarioRefEntity {
   @Column(name = "username", nullable = false, unique = true, length = 30)
   private String username;
 
-  @Column(name = "avatar", length = 500)
+  @Column(name = "avatar")
   private String avatar;
 
   @OneToMany(mappedBy = "usuarioRef", fetch = FetchType.LAZY)

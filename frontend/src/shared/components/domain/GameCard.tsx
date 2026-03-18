@@ -3,92 +3,60 @@ import Link from 'next/link';
 import type { Game } from '@/features/catalogo/model/catalog.types';
 import { cn } from '@/lib/cn';
 import { GameArtwork } from '@/shared/components/domain/GameArtwork';
-import {
-  getGamePrimaryBadge,
-  getGamePrimaryStudio,
-  getGameShortDescription,
-} from '@/shared/components/domain/game-domain.utils';
 import { PlatformChip, TagList } from '@/shared/components/domain/TagList';
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/shared/components/ui/Card';
-import { Badge } from '@/shared/components/ui/Badge';
+import { Card, CardBody, CardHeader, CardTitle } from '@/shared/components/ui/Card';
 
 export interface GameCardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
-  ctaLabel?: string;
-  description?: string;
   game: Game;
   href?: string;
 }
 
-function GameCardContent({
-  ctaLabel,
-  description,
-  game,
-}: {
-  ctaLabel: string;
-  description?: string;
-  game: Game;
-}) {
-  const gameDescription = description ?? getGameShortDescription(game);
+function GameCardContent({ game }: { game: Game }) {
   const modes = game.gameModes.slice(0, 3);
+  const platforms = game.platforms.slice(0, 3);
 
   return (
     <>
       <div className="relative">
         <GameArtwork
-          aspect="landscape"
+          aspect="portrait"
           radius="none"
           coverUrl={game.coverUrl}
           title={game.name}
-          className="aspect-[16/9]"
+          sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 20vw"
+          className="aspect-[4/5] bg-[linear-gradient(160deg,#edf2ff_0%,#f8fafc_100%)]"
           imageClassName="transition-transform duration-[var(--duration-normal)] ease-[var(--easing-standard)] group-hover:scale-[1.03]"
         />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,rgba(15,23,42,0.26)_100%)]" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(180deg,transparent_0%,rgba(15,23,42,0.16)_100%)]" />
       </div>
 
-      <CardHeader className="gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="primary" className="px-3 py-1.5 text-sm">
-            {getGamePrimaryBadge(game)}
-          </Badge>
-          {game.platforms.slice(0, 2).map((platform) => (
-            <PlatformChip key={platform}>{platform}</PlatformChip>
+      <CardHeader className="gap-3 p-4 pb-0">
+        <div className="flex flex-wrap gap-2">
+          {platforms.map((platform) => (
+            <PlatformChip key={platform} className="px-2.5 py-1 text-xs">
+              {platform}
+            </PlatformChip>
           ))}
         </div>
 
-        <div className="grid gap-1">
-          <CardTitle className="text-xl">{game.name}</CardTitle>
-          <p className="text-sm leading-relaxed text-secondary">{getGamePrimaryStudio(game)}</p>
-        </div>
+        <CardTitle className="line-clamp-2 text-base leading-snug">{game.name}</CardTitle>
       </CardHeader>
 
-      <CardBody className="gap-4 pt-4">
-        <p className="text-sm leading-relaxed text-secondary">{gameDescription}</p>
-        <TagList items={modes} tone="tag" />
+      <CardBody className="gap-3 p-4 pt-3">
+        <TagList
+          items={modes}
+          tone="tag"
+          emptyLabel="Sin modos registrados"
+          className="gap-2"
+        />
       </CardBody>
-
-      <CardFooter>
-        <span className="text-sm font-semibold text-primary">{ctaLabel}</span>
-      </CardFooter>
     </>
   );
 }
 
-export function GameCard({
-  className,
-  ctaLabel = 'Ver ficha completa',
-  description,
-  game,
-  href,
-  ...props
-}: GameCardProps) {
+export function GameCard({ className, game, href, ...props }: GameCardProps) {
   const cardClassName = cn(
-    'group rounded-[calc(var(--radius-xl)+0.75rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm',
+    'group rounded-[1.35rem] border border-border bg-white/92 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur-sm',
     className,
   );
 
@@ -96,7 +64,7 @@ export function GameCard({
     return (
       <Card asChild variant="clickable" className={cardClassName} {...props}>
         <Link href={href} className="grid h-full">
-          <GameCardContent ctaLabel={ctaLabel} description={description} game={game} />
+          <GameCardContent game={game} />
         </Link>
       </Card>
     );
@@ -104,7 +72,7 @@ export function GameCard({
 
   return (
     <Card variant="clickable" className={cn(cardClassName, 'grid h-full')} {...props}>
-      <GameCardContent ctaLabel={ctaLabel} description={description} game={game} />
+      <GameCardContent game={game} />
     </Card>
   );
 }

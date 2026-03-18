@@ -14,7 +14,7 @@ export interface FilterGroup {
   options: FilterOption[];
 }
 
-export interface FilterBarProps extends HTMLAttributes<HTMLDivElement> {
+export interface FilterBarProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   groups: FilterGroup[];
   subtitle?: ReactNode;
   title?: ReactNode;
