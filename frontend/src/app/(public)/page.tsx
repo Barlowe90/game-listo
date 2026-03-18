@@ -2,6 +2,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Grid } from '@/shared/components/layout/Grid';
 import { PageSection } from '@/shared/components/layout/PageSection';
+import { FeatureCard } from '@/shared/components/domain/FeatureCard';
+import { ImportLibraryBanner } from '@/shared/components/domain/ImportLibraryBanner';
 import { Button } from '@/shared/components/ui/Button';
 import { Card } from '@/shared/components/ui/Card';
 import { SectionHeader } from '@/shared/components/ui/SectionHeader';
@@ -134,44 +136,27 @@ export default function Home() {
 
           <Grid variant="cards">
             {highlights.map((highlight) => (
-              <Card key={highlight.title} variant="home" padding="md" className="h-full">
-                <div className="grid h-full gap-4">
-                  <div className="flex items-start gap-4">
-                    <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white">
-                      <highlight.icon className="size-6" />
-                    </span>
-                    <h2 className="text-lg font-semibold tracking-tight text-white">
-                      {highlight.title}
-                    </h2>
-                  </div>
-                  <p className="text-sm leading-relaxed text-white">{highlight.description}</p>
-                </div>
-              </Card>
+              <FeatureCard
+                key={highlight.title}
+                title={highlight.title}
+                description={highlight.description}
+                icon={<highlight.icon className="size-6" />}
+              />
             ))}
           </Grid>
         </div>
       </PageSection>
 
       <PageSection spacing="hero">
-        <Card variant="home" padding="lg">
-          <Grid variant="stack" className="justify-items-center gap-6 text-center">
-            <div className="grid max-w-3xl gap-4 justify-items-center">
-              <h1 className="text-3xl font-bold tracking-tight text-white lg:text-4xl">
-                Empieza trayendo tu biblioteca
-              </h1>
-              <p className="max-w-2xl text-base leading-relaxed text-white">
-                Importa tu biblioteca de Steam o PlayStation para organizar todos tus videojuegos en
-                un solo lugar.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-3">
-              <Button asChild variant="secondary">
-                <Link href="/login">Importar biblioteca</Link>
-              </Button>
-            </div>
-          </Grid>
-        </Card>
+        <ImportLibraryBanner
+          title="Empieza trayendo tu biblioteca"
+          description="Importa tu biblioteca de Steam o PlayStation para organizar todos tus videojuegos en un solo lugar."
+          action={
+            <Button asChild variant="secondary">
+              <Link href="/login">Importar biblioteca</Link>
+            </Button>
+          }
+        />
       </PageSection>
     </>
   );

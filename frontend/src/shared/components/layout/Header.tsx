@@ -62,7 +62,7 @@ function AuthControl({ integrated = false }: AuthControlProps) {
   }
 
   if (isAuthenticated) {
-    return <AvatarUsuario />;
+    return <AvatarUsuario integrated={integrated} />;
   }
 
   return (

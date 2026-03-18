@@ -966,19 +966,19 @@ Basta con definir las variantes realmente necesarias para las pantallas actuales
 
 ## Fase 4.5
 
-- [ ] `GameCard` implementada
-- [ ] `GameHero` implementado
-- [ ] `GameActionBar` implementada
-- [ ] `TagList`, `GenreChip` o `PlatformChip` implementados según necesidad real
-- [ ] `InfoPanelCard` implementada
-- [ ] `FilterChip` implementado
-- [ ] `FilterBar` implementada
-- [ ] `PublicationCard` implementada
-- [ ] `AvailabilityMatrix` implementada
-- [ ] `AvatarGroup` implementado
-- [ ] `EmptyPublicationsState` implementado
-- [ ] `ImportLibraryBanner` implementado
-- [ ] `FeatureCard` implementada
-- [ ] Los componentes de dominio se usan en pantallas reales
-- [ ] No hay duplicación innecesaria de patrones del dominio
-- [ ] Todo consume el sistema visual ya definido
+- [x] `GameCard` implementada
+- [x] `GameHero` implementado
+- [x] `GameActionBar` implementada
+- [x] `TagList`, `GenreChip` o `PlatformChip` implementados según necesidad real
+- [x] `InfoPanelCard` implementada
+- [x] `FilterChip` implementado
+- [x] `FilterBar` implementada
+- [x] `PublicationCard` implementada
+- [x] `AvailabilityMatrix` implementada
+- [x] `AvatarGroup` implementado
+- [x] `EmptyPublicationsState` implementado
+- [x] `ImportLibraryBanner` implementado
+- [x] `FeatureCard` implementada
+- [x] Los componentes de dominio se usan en pantallas reales
+- [x] No hay duplicación innecesaria de patrones del dominio
+- [x] Todo consume el sistema visual ya definido

@@ -20,7 +20,7 @@ Gracias a eso:
 
 ## La idea general
 
-La implementacion se ha hecho en cuatro capas:
+La implementacion se ha hecho en cinco capas:
 
 ### 1. Una base comun para todo el proyecto
 
@@ -69,6 +69,24 @@ Cuando la base, los atomos y los patrones compuestos ya estuvieron estables, se 
 - `PageSection`
 - `SearchBar`
 - `NavLink`
+
+### 5. Un conjunto de componentes de dominio de GameListo
+
+Cuando la base visual, los atomos, los patrones compuestos y la shell ya estuvieron asentados, se extrajeron los bloques propios del producto:
+
+- `GameCard`
+- `GameHero`
+- `GameActionBar`
+- `TagList`, `GenreChip` y `PlatformChip`
+- `InfoPanelCard`
+- `FilterChip`
+- `FilterBar`
+- `PublicationCard`
+- `AvailabilityMatrix`
+- `AvatarGroup`
+- `EmptyPublicationsState`
+- `ImportLibraryBanner`
+- `FeatureCard`
 
 La ventaja de este enfoque es que una pantalla nueva no necesita inventarse su propio estilo ni su propia estructura. Solo tiene que usar la base y los componentes que ya existen.
 
@@ -119,6 +137,23 @@ La ventaja de este enfoque es que una pantalla nueva no necesita inventarse su p
 - `frontend/src/shared/components/layout/NavLink.tsx`
 - `frontend/src/shared/components/ui/PageContainer.tsx`
   `PageContainer` sigue existiendo como primitive oficial, pero ahora se apoya en `Container` para no duplicar la logica de anchura y gutters.
+
+### Componentes de dominio
+
+- `frontend/src/shared/components/domain/GameCard.tsx`
+- `frontend/src/shared/components/domain/GameHero.tsx`
+- `frontend/src/shared/components/domain/GameActionBar.tsx`
+- `frontend/src/shared/components/domain/TagList.tsx`
+- `frontend/src/shared/components/domain/InfoPanelCard.tsx`
+- `frontend/src/shared/components/domain/FilterChip.tsx`
+- `frontend/src/shared/components/domain/FilterBar.tsx`
+- `frontend/src/shared/components/domain/PublicationCard.tsx`
+- `frontend/src/shared/components/domain/AvailabilityMatrix.tsx`
+- `frontend/src/shared/components/domain/AvatarGroup.tsx`
+- `frontend/src/shared/components/domain/EmptyPublicationsState.tsx`
+- `frontend/src/shared/components/domain/ImportLibraryBanner.tsx`
+- `frontend/src/shared/components/domain/FeatureCard.tsx`
+- `frontend/src/shared/components/domain/game-domain.utils.ts`
 
 ### Componentes de apoyo donde ya se aprovechan
 
@@ -377,6 +412,24 @@ Ahora puede vivir en el header, en el catalogo o en otras vistas sin cambiar su 
 
 Eso evita que cada menu tenga que resolverse con clases distintas o logicas repetidas.
 
+### 6. Despues se aterrizo el dominio real de GameListo
+
+Con la shell ya cerrada, el siguiente paso fue dejar de montar heroes, cards y bloques sociales directamente dentro de las paginas.
+
+La fase 4.5 consistio en convertir esos patrones del producto en componentes reutilizables:
+
+- `GameCard` para catalogo y listados de descubrimiento
+- `GameHero` y `GameActionBar` para la ficha del juego
+- `TagList`, `GenreChip`, `PlatformChip` e `InfoPanelCard` para metadatos y bloques de ficha
+- `FeatureCard` e `ImportLibraryBanner` para la home
+- `FilterChip`, `FilterBar`, `PublicationCard`, `AvailabilityMatrix`, `AvatarGroup` y `EmptyPublicationsState` para la capa social
+
+Esto tiene un efecto practico importante:
+
+la home, el catalogo, la ficha del juego y la pagina de `publicaciones` ya no resuelven esos patrones con clases locales repetidas.
+
+Ahora el proyecto tiene una capa intermedia que habla el lenguaje del producto y que se apoya en los mismos tokens, badges, cards, botones y layouts definidos antes.
+
 ---
 
 ## Donde se ve ya en la aplicacion
@@ -421,9 +474,10 @@ Ahora reutilizan:
 - `Grid`
 - `SearchBar`
 - `SectionHeader`
-- `Card`
-- `Badge`
-- cards clicables para navegar
+- `GameCard`
+- `FeatureCard`
+- `ImportLibraryBanner`
+- badges y chips de dominio
 
 Eso empieza a darles una composicion mas real sin romper el sistema.
 
@@ -434,17 +488,31 @@ La ficha demo es la mejor muestra de como 4.3 y 4.4 ya trabajan juntas.
 En una sola pantalla ya se estan usando:
 
 - `PageSection`
-- `Grid`
-- `SectionHeader`
-- `Card`
+- `GameHero`
+- `GameActionBar`
+- `InfoPanelCard`
+- `TagList`
 - `Tabs`
-- `Dialog`
-- `FormField`
+- `Card`
 - `EmptyState`
-- `Badge`
 - `Button`
 
 Eso la convierte en la referencia principal para futuros detalles de juego.
+
+### Publicaciones
+
+La ruta de `publicaciones` es donde mejor se ve la capa social de la fase 4.5.
+
+Ahora ya existe una pantalla real que reutiliza:
+
+- `FilterBar`
+- `FilterChip`
+- `PublicationCard`
+- `AvailabilityMatrix`
+- `AvatarGroup`
+- `EmptyPublicationsState`
+
+Eso permite validar el dominio social sin esperar a que exista todavia un backend especifico de publicaciones.
 
 ### Biblioteca y otras vistas sin contenido
 
@@ -504,9 +572,10 @@ Busca algo mas util para un MVP:
 - una base visual comun
 - unos atomos y patrones compuestos bien elegidos
 - una shell global que ordena la navegacion y el layout
+- una capa de componentes de dominio que habla el lenguaje real de GameListo
 - una forma clara de construir pantallas sin rehacer decisiones una y otra vez
 
 Dicho de la manera mas simple posible:
 
 GameListo ya no se pinta pantalla a pantalla.
-Ahora se construye sobre una base comun, unos atomos compartidos, unos patrones compuestos reutilizables y una shell global que da estructura a casi todo el MVP.
+Ahora se construye sobre una base comun, unos atomos compartidos, unos patrones compuestos reutilizables, una shell global estable y una capa de dominio que conecta esa base con videojuegos, biblioteca y publicaciones.

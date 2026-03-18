@@ -9,6 +9,24 @@ import {
   getGamesByIds,
 } from '@/features/catalogo/api/catalogApi';
 import type { Game } from '@/features/catalogo/model/catalog.types';
+import {
+  EmptyPublicationsState,
+} from '@/shared/components/domain/EmptyPublicationsState';
+import {
+  GameActionBar,
+  type GameActionItem,
+} from '@/shared/components/domain/GameActionBar';
+import { GameHero } from '@/shared/components/domain/GameHero';
+import { InfoPanelCard } from '@/shared/components/domain/InfoPanelCard';
+import {
+  formatGameMetaLabel,
+  getGameAdditionalTags,
+  getGameCollaborators,
+  getGameHeroTags,
+  getGamePrimaryStudio,
+  uniqueStrings,
+} from '@/shared/components/domain/game-domain.utils';
+import { TagList } from '@/shared/components/domain/TagList';
 import { cn } from '@/lib/cn';
 import { PageSection } from '@/shared/components/layout/PageSection';
 import { Button } from '@/shared/components/ui/Button';
@@ -17,19 +35,17 @@ import { EmptyState } from '@/shared/components/ui/EmptyState';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/Tabs';
 
 const MAX_RELATED_LINKS = 6;
-const MAX_KEYWORDS = 18;
 
-const LIBRARY_ACTIONS = [
-  { label: 'Deseado', icon: HeartIcon },
-  { label: 'Pendiente', icon: ClockIcon },
-  { label: 'Jugando', icon: GamepadIcon },
-  { label: 'Completado', icon: CheckIcon },
-  { label: 'Abandonado', icon: SlashCircleIcon },
+const LIBRARY_ACTIONS: GameActionItem[] = [
+  { key: 'quiero', href: '/login' },
+  { key: 'tengo', href: '/login' },
+  { key: 'jugando', href: '/login' },
+  { key: 'jugado', href: '/login' },
 ] as const;
 
 interface RelatedEntry {
-  id: number;
   href: string;
+  id: number;
   label: string;
 }
 
@@ -37,7 +53,7 @@ function SurfaceCard({ children, className }: { children: ReactNode; className?:
   return (
     <Card
       className={cn(
-        'rounded-[2rem] border border-[#e2e6fb] bg-white/90 shadow-[0_28px_72px_rgba(73,80,137,0.12)] backdrop-blur-sm',
+        'rounded-[calc(var(--radius-xl)+0.75rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm',
         className,
       )}
     >
@@ -46,70 +62,17 @@ function SurfaceCard({ children, className }: { children: ReactNode; className?:
   );
 }
 
-function DetailPanel({
-  children,
-  className,
-  title,
-}: {
-  children: ReactNode;
-  className?: string;
-  title: string;
-}) {
-  return (
-    <SurfaceCard className={className}>
-      <div className="grid gap-4 p-6">
-        <h2 className="text-lg font-semibold tracking-tight text-foreground">{title}</h2>
-        {children}
-      </div>
-    </SurfaceCard>
-  );
-}
-
 function EmptyCopy({ children }: { children: ReactNode }) {
   return <p className="text-sm leading-relaxed text-secondary">{children}</p>;
 }
 
-function QuickActionPill({
-  icon: Icon,
-  label,
-}: {
-  icon: (props: SVGProps<SVGSVGElement>) => ReactNode;
-  label: string;
-}) {
-  return (
-    <div className="inline-flex min-h-[84px] min-w-[92px] flex-col justify-center gap-2 rounded-[1.25rem] border border-[#d7dcfa] bg-[#eef1ff] px-4 py-3 text-left text-sm font-semibold text-foreground">
-      <Icon className="size-5 text-primary" aria-hidden="true" />
-      <span>{label}</span>
-    </div>
-  );
-}
-
 function MetaStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="grid gap-1 rounded-[1.25rem] bg-[#f6f7ff] p-4">
+    <div className="grid gap-1 rounded-[calc(var(--radius-xl)+0.1rem)] bg-background p-4">
       <span className="text-xs font-semibold tracking-[0.08em] text-primary uppercase">
         {label}
       </span>
       <span className="text-sm font-medium text-foreground">{value}</span>
-    </div>
-  );
-}
-
-function PillList({ emptyLabel, items }: { emptyLabel: string; items: string[] }) {
-  if (!items.length) {
-    return <EmptyCopy>{emptyLabel}</EmptyCopy>;
-  }
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {items.map((item) => (
-        <span
-          key={item}
-          className="inline-flex rounded-pill border border-[#dce1ff] bg-[#f6f7ff] px-3 py-1.5 text-sm text-foreground"
-        >
-          {item}
-        </span>
-      ))}
     </div>
   );
 }
@@ -171,18 +134,11 @@ function RelatedGameList({
 
   return (
     <div className="grid gap-3">
-      <div className="flex flex-wrap gap-2">
-        {entries.map((entry) => (
-          <Link
-            key={entry.id}
-            href={entry.href}
-            className="inline-flex rounded-pill border border-[#d8dcfa] bg-[#eef1ff] px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:border-[#bec6f5] hover:bg-white"
-          >
-            {entry.label}
-          </Link>
-        ))}
-      </div>
-
+      <TagList
+        items={entries.map((entry) => entry.label)}
+        getHref={(label) => entries.find((entry) => entry.label === label)?.href}
+        tone="tag"
+      />
       {remainingCount ? (
         <p className="text-sm text-secondary">+{remainingCount} referencias mas</p>
       ) : null}
@@ -204,40 +160,12 @@ function ParentGameLink({
   const entry = buildSingleRelatedEntry(gameId, relatedGames);
 
   return (
-    <Link
-      href={entry.href}
-      className="inline-flex w-fit rounded-pill border border-[#d8dcfa] bg-[#eef1ff] px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:border-[#bec6f5] hover:bg-white"
-    >
-      {entry.label}
-    </Link>
-  );
-}
-
-function HeroCover({ coverUrl, name }: { coverUrl: string | null; name: string }) {
-  return (
-    <div className="relative aspect-[3/4] overflow-hidden rounded-[1.65rem] border border-white bg-[linear-gradient(140deg,#dfe3ff_0%,#f7f8ff_100%)] shadow-inner">
-      {coverUrl ? (
-        <Image
-          src={coverUrl}
-          alt={`Portada de ${name}`}
-          fill
-          priority
-          sizes="(max-width: 768px) 80vw, (max-width: 1280px) 280px, 320px"
-          className="object-cover"
-        />
-      ) : (
-        <div className="grid h-full place-items-center p-6 text-center">
-          <div className="grid gap-2">
-            <span className="text-xs font-semibold tracking-[0.18em] text-primary uppercase">
-              GameListo
-            </span>
-            <strong className="text-2xl font-semibold tracking-tight text-foreground">
-              {name}
-            </strong>
-          </div>
-        </div>
-      )}
-    </div>
+    <TagList
+      items={[entry.label]}
+      getHref={() => entry.href}
+      tone="tag"
+      className="w-fit"
+    />
   );
 }
 
@@ -247,7 +175,7 @@ function VideoEmbedCard({ index, videoUrl }: { index: number; videoUrl: string }
   return (
     <SurfaceCard>
       <div className="grid gap-4 p-4">
-        <div className="overflow-hidden rounded-[1.5rem] border border-[#e2e6fb]">
+        <div className="overflow-hidden rounded-[calc(var(--radius-xl)+0.25rem)] border border-border">
           <div className="aspect-video">
             <iframe
               title={`Video ${index + 1}`}
@@ -274,7 +202,7 @@ function VideoEmbedCard({ index, videoUrl }: { index: number; videoUrl: string }
 function ScreenshotCard({ index, screenshotUrl }: { index: number; screenshotUrl: string }) {
   return (
     <SurfaceCard>
-      <div className="relative aspect-video overflow-hidden rounded-[1.9rem]">
+      <div className="relative aspect-video overflow-hidden rounded-[calc(var(--radius-xl)+0.5rem)]">
         <Image
           src={screenshotUrl}
           alt={`Screenshot ${index + 1}`}
@@ -295,67 +223,6 @@ function ArrowLeftIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-function HeartIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 20.5l-1.3-1.18C5.4 14.53 2 11.46 2 7.7A4.7 4.7 0 016.72 3 5.1 5.1 0 0112 6.09 5.1 5.1 0 0117.28 3 4.7 4.7 0 0122 7.7c0 3.76-3.4 6.83-8.7 11.62L12 20.5z"
-      />
-    </svg>
-  );
-}
-
-function ClockIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <circle cx="12" cy="12" r="9" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v5l3 2" />
-    </svg>
-  );
-}
-
-function GamepadIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M7 9h10a4 4 0 013.9 4.9l-.56 2.47A2 2 0 0118.4 18H16a2 2 0 01-1.79-1.11l-.42-.84a2 2 0 00-1.79-1.11 2 2 0 00-1.79 1.11l-.42.84A2 2 0 018 18H5.6a2 2 0 01-1.95-1.54l-.55-2.47A4 4 0 017 9z"
-      />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8 12v3M6.5 13.5h3" />
-      <circle cx="16.5" cy="12.5" r=".75" fill="currentColor" stroke="none" />
-      <circle cx="18.5" cy="14.5" r=".75" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-function CheckIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12.5l4.2 4.2L19 7" />
-    </svg>
-  );
-}
-
-function SlashCircleIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <circle cx="12" cy="12" r="9" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8 16L16 8" />
-    </svg>
-  );
-}
-
-function PlusIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
-    </svg>
-  );
-}
-
 async function resolveGameId(rawId: string) {
   if (rawId === 'demo') {
     const games = await getCatalogGames();
@@ -369,61 +236,6 @@ async function resolveGameId(rawId: string) {
   }
 
   return parsedId;
-}
-
-function uniqueStrings(values: Array<string | null | undefined>) {
-  const seen = new Set<string>();
-  const items: string[] = [];
-
-  for (const value of values) {
-    const trimmedValue = value?.trim();
-
-    if (!trimmedValue) {
-      continue;
-    }
-
-    const normalizedValue = trimmedValue.toLowerCase();
-
-    if (seen.has(normalizedValue)) {
-      continue;
-    }
-
-    seen.add(normalizedValue);
-    items.push(trimmedValue);
-  }
-
-  return items;
-}
-
-function formatLabel(value: string | null | undefined) {
-  if (!value) {
-    return null;
-  }
-
-  const normalizedValue = value.replace(/_/g, ' ').trim();
-
-  if (!normalizedValue) {
-    return null;
-  }
-
-  return normalizedValue.charAt(0).toUpperCase() + normalizedValue.slice(1);
-}
-
-function getPrimaryStudio(game: Game) {
-  return game.involvedCompanies[0] ?? 'Estudio no especificado';
-}
-
-function buildHeroTags(game: Game) {
-  return uniqueStrings([
-    ...game.genres,
-    ...game.playerPerspectives,
-    ...game.gameModes,
-    ...game.themes,
-  ]).slice(0, 12);
-}
-
-function buildAdditionalTags(game: Game) {
-  return uniqueStrings(game.keywords).slice(0, MAX_KEYWORDS);
 }
 
 function buildRelatedEntries(gameIds: number[], relatedGames: Map<number, Game>) {
@@ -496,8 +308,8 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
   ];
 
   const relatedGames = await getGamesByIds(relatedIdsToResolve);
-  const heroTags = buildHeroTags(game);
-  const additionalTags = buildAdditionalTags(game);
+  const heroTags = getGameHeroTags(game);
+  const additionalTags = getGameAdditionalTags(game);
   const alternativeNames = uniqueStrings(game.alternativeNames);
   const platforms = uniqueStrings(game.platforms);
   const themes = uniqueStrings(game.themes);
@@ -505,256 +317,215 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
   const gameModes = uniqueStrings(game.gameModes);
   const perspectives = uniqueStrings(game.playerPerspectives);
   const franchises = uniqueStrings(game.franchises);
-  const extraStudios = uniqueStrings(game.involvedCompanies).slice(1);
-  const gameTypeLabel = formatLabel(game.gameType) ?? 'No definido';
-  const gameStatusLabel = formatLabel(game.gameStatus) ?? 'No definido';
+  const extraStudios = getGameCollaborators(game);
+  const gameTypeLabel = formatGameMetaLabel(game.gameType) ?? 'No definido';
+  const gameStatusLabel = formatGameMetaLabel(game.gameStatus) ?? 'No definido';
 
   return (
     <div className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,#f8f9ff_0%,#eef0ff_42%,#e7e7fb_100%)]">
       <div className="pointer-events-none absolute left-[-8rem] top-14 h-72 w-72 rounded-full bg-white/40 blur-3xl" />
-      <div className="pointer-events-none absolute right-[-6rem] top-40 h-80 w-80 rounded-full bg-[#dfe3ff] blur-3xl" />
+      <div className="pointer-events-none absolute right-[-6rem] top-40 h-80 w-80 rounded-full bg-primary-soft blur-3xl" />
 
       <PageSection size="wide" className="relative z-10 py-10 lg:py-14">
         <Tabs defaultValue="sobre" className="grid gap-8">
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
-            <SurfaceCard>
-              <div className="grid gap-6 p-6 sm:p-8">
-                <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
-                  <HeroCover coverUrl={game.coverUrl} name={game.name} />
+          <div className="grid gap-4">
+            <Link
+              href="/catalogo"
+              className="inline-flex w-fit items-center gap-2 rounded-pill border border-border bg-white/80 px-4 py-2 text-sm font-medium text-foreground shadow-surface transition-colors hover:border-border-strong hover:bg-surface"
+            >
+              <ArrowLeftIcon className="size-4" aria-hidden="true" />
+              Volver al catalogo
+            </Link>
 
-                  <div className="grid gap-6">
-                    <div className="grid gap-3">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex rounded-pill bg-[#eef1ff] px-3 py-1 text-sm font-medium text-primary">
-                          {gameTypeLabel}
-                        </span>
-                        <span className="inline-flex rounded-pill bg-[#f6f7ff] px-3 py-1 text-sm font-medium text-foreground">
-                          {gameStatusLabel}
-                        </span>
-                      </div>
+            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
+              <div className="grid gap-6">
+                <GameHero
+                  coverUrl={game.coverUrl}
+                  title={game.name}
+                  studio={getGamePrimaryStudio(game)}
+                  collaborators={extraStudios}
+                  badges={[
+                    { label: gameTypeLabel, variant: 'primary' },
+                    { label: gameStatusLabel, variant: 'neutral' },
+                  ]}
+                  platforms={platforms}
+                  actionBar={
+                    <GameActionBar
+                      actions={LIBRARY_ACTIONS}
+                      listAction={{ href: '/login', label: 'Anadir a lista' }}
+                    />
+                  }
+                />
 
-                      <div className="grid gap-2">
-                        <h1 className="text-4xl font-semibold tracking-tight text-foreground lg:text-5xl">
-                          {game.name}
-                        </h1>
-                        <p className="text-xl text-secondary">{getPrimaryStudio(game)}</p>
-                        {extraStudios.length ? (
-                          <p className="text-sm leading-relaxed text-secondary">
-                            Con colaboracion de {extraStudios.join(', ')}.
-                          </p>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-3">
-                      {LIBRARY_ACTIONS.map((action) => (
-                        <QuickActionPill
-                          key={action.label}
-                          label={action.label}
-                          icon={action.icon}
-                        />
-                      ))}
-
-                      <Button
-                        asChild
-                        variant="secondary"
-                        className="rounded-[1.25rem] border-[#d7dcfa] bg-[#eef1ff] px-5 text-foreground shadow-none hover:border-[#bec6f5] hover:bg-white"
-                      >
-                        <Link href="/login">
-                          <PlusIcon className="size-4" aria-hidden="true" />
-                          Anadir a lista
-                        </Link>
-                      </Button>
-                    </div>
-
-                    <div className="grid gap-3">
-                      <span className="text-sm font-semibold tracking-[0.08em] text-primary uppercase">
-                        Plataformas
-                      </span>
-                      <PillList
-                        items={platforms}
-                        emptyLabel="Todavia no hay plataformas registradas para este juego."
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <TabsList className="border-[#d7dcfa] bg-[#eef1ff]/90">
+                <TabsList className="border-border bg-primary-soft/80">
                   <TabsTrigger value="sobre">Sobre</TabsTrigger>
                   <TabsTrigger value="publicaciones">Publicaciones</TabsTrigger>
                   <TabsTrigger value="videos">Videos</TabsTrigger>
                   <TabsTrigger value="screenshots">Screenshots</TabsTrigger>
                 </TabsList>
               </div>
-            </SurfaceCard>
 
-            <SurfaceCard>
-              <div className="grid gap-6 p-6 sm:p-8">
-                <div className="grid gap-3">
-                  <span className="text-sm font-semibold tracking-[0.08em] text-primary uppercase">
-                    Genero y estilo
-                  </span>
-                  <div className="flex flex-wrap gap-3">
-                    {heroTags.length ? (
-                      heroTags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="inline-flex rounded-[1rem] bg-[#dfe3ff] px-4 py-2 text-sm font-medium text-foreground"
-                        >
-                          {tag}
-                        </span>
-                      ))
-                    ) : (
-                      <EmptyCopy>
-                        No hay descriptores principales disponibles para esta ficha.
-                      </EmptyCopy>
-                    )}
+              <InfoPanelCard title="Genero y estilo" className="h-fit">
+                <div className="grid gap-6">
+                  <div className="grid gap-3">
+                    <span className="text-sm font-semibold tracking-[0.08em] text-primary uppercase">
+                      Descriptores principales
+                    </span>
+                    <TagList
+                      items={heroTags}
+                      tone="genre"
+                      emptyLabel="No hay descriptores principales disponibles para esta ficha."
+                    />
+                  </div>
+
+                  <div className="grid gap-3">
+                    <span className="text-sm font-semibold tracking-[0.08em] text-primary uppercase">
+                      Tags adicionales
+                    </span>
+                    <TagList
+                      items={additionalTags}
+                      tone="tag"
+                      getHref={(tag) => `/catalogo?q=${encodeURIComponent(tag)}`}
+                      emptyLabel="Este juego aun no tiene keywords adicionales en el backend."
+                    />
+                  </div>
+
+                  <div className="grid gap-3 border-t border-border pt-4 sm:grid-cols-3">
+                    <MetaStat label="Tipo" value={gameTypeLabel} />
+                    <MetaStat label="Estado" value={gameStatusLabel} />
+                    <MetaStat label="Franquicia" value={franchises[0] ?? 'Titulo independiente'} />
                   </div>
                 </div>
-
-                <div className="grid gap-3">
-                  <span className="text-sm font-semibold tracking-[0.08em] text-primary uppercase">
-                    Tags adicionales
-                  </span>
-                  {additionalTags.length ? (
-                    <div className="flex flex-wrap gap-x-3 gap-y-2">
-                      {additionalTags.map((tag) => (
-                        <Link
-                          key={tag}
-                          href={`/catalogo?q=${encodeURIComponent(tag)}`}
-                          className="text-sm text-primary underline-offset-4 hover:underline"
-                        >
-                          {tag}
-                        </Link>
-                      ))}
-                    </div>
-                  ) : (
-                    <EmptyCopy>
-                      Este juego aun no tiene keywords adicionales en el backend.
-                    </EmptyCopy>
-                  )}
-                </div>
-
-                <div className="grid gap-3 border-t border-[#e7eafc] pt-4 sm:grid-cols-3">
-                  <MetaStat label="Tipo" value={gameTypeLabel} />
-                  <MetaStat label="Estado" value={gameStatusLabel} />
-                  <MetaStat label="Franquicia" value={franchises[0] ?? 'Titulo independiente'} />
-                </div>
-              </div>
-            </SurfaceCard>
+              </InfoPanelCard>
+            </div>
           </div>
 
           <TabsContent value="sobre" className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            <DetailPanel title="Descripcion general" className="md:col-span-2">
+            <InfoPanelCard title="Descripcion general" className="md:col-span-2">
               <p className="text-[15px] leading-7 text-secondary">
                 {game.summary?.trim() ??
                   'Todavia no hay una descripcion general disponible para este juego.'}
               </p>
-            </DetailPanel>
+            </InfoPanelCard>
 
-            <DetailPanel title="Titulos alternativos">
+            <InfoPanelCard title="Titulos alternativos">
               <TextList
                 items={alternativeNames}
                 emptyLabel="No se han registrado nombres alternativos para este titulo."
               />
-            </DetailPanel>
+            </InfoPanelCard>
 
-            <DetailPanel title="Estilo y modos">
+            <InfoPanelCard title="Estilo y modos">
               <div className="grid gap-4">
                 <div className="grid gap-2">
                   <span className="text-sm font-semibold text-foreground">Generos</span>
-                  <PillList items={genres} emptyLabel="No hay generos asociados a este juego." />
+                  <TagList
+                    items={genres}
+                    tone="genre"
+                    emptyLabel="No hay generos asociados a este juego."
+                  />
                 </div>
                 <div className="grid gap-2">
                   <span className="text-sm font-semibold text-foreground">Perspectivas</span>
-                  <PillList
+                  <TagList
                     items={perspectives}
+                    tone="tag"
                     emptyLabel="No hay perspectivas de juego registradas."
                   />
                 </div>
                 <div className="grid gap-2">
                   <span className="text-sm font-semibold text-foreground">Modos</span>
-                  <PillList items={gameModes} emptyLabel="No hay modos de juego asociados." />
+                  <TagList
+                    items={gameModes}
+                    tone="tag"
+                    emptyLabel="No hay modos de juego asociados."
+                  />
                 </div>
               </div>
-            </DetailPanel>
+            </InfoPanelCard>
 
-            <DetailPanel title="DLC">
+            <InfoPanelCard title="DLC">
               <RelatedGameList
                 gameIds={game.dlcIds}
                 relatedGames={relatedGames}
                 emptyLabel="No hay DLC enlazados a este juego."
               />
-            </DetailPanel>
+            </InfoPanelCard>
 
-            <DetailPanel title="Expansiones">
+            <InfoPanelCard title="Expansiones">
               <RelatedGameList
                 gameIds={game.expansionIds}
                 relatedGames={relatedGames}
                 emptyLabel="No hay expansiones registradas."
               />
-            </DetailPanel>
+            </InfoPanelCard>
 
-            <DetailPanel title="Expanded games">
+            <InfoPanelCard title="Juegos expandidos">
               <RelatedGameList
                 gameIds={game.expandedGames}
                 relatedGames={relatedGames}
                 emptyLabel="No hay expanded games relacionados."
               />
-            </DetailPanel>
+            </InfoPanelCard>
 
-            <DetailPanel title="Remakes">
+            <InfoPanelCard title="Remakes">
               <RelatedGameList
                 gameIds={game.remakeIds}
                 relatedGames={relatedGames}
                 emptyLabel="No hay remakes enlazados a este titulo."
               />
-            </DetailPanel>
+            </InfoPanelCard>
 
-            <DetailPanel title="Remasters">
+            <InfoPanelCard title="Remasters">
               <RelatedGameList
                 gameIds={game.remasterIds}
                 relatedGames={relatedGames}
                 emptyLabel="No hay remasters enlazados a este titulo."
               />
-            </DetailPanel>
+            </InfoPanelCard>
 
-            <DetailPanel title="Juegos similares" className="md:col-span-2">
+            <InfoPanelCard title="Juegos similares" className="md:col-span-2">
               <RelatedGameList
                 gameIds={game.similarGames}
                 relatedGames={relatedGames}
                 emptyLabel="No hay juegos similares asociados todavia."
               />
-            </DetailPanel>
+            </InfoPanelCard>
 
-            <DetailPanel title="Franquicias">
-              <PillList
+            <InfoPanelCard title="Franquicias">
+              <TagList
                 items={franchises}
+                tone="tag"
                 emptyLabel="No se han asociado franquicias a este juego."
               />
-            </DetailPanel>
+            </InfoPanelCard>
 
-            <DetailPanel title="Tematicas">
-              <PillList items={themes} emptyLabel="No hay tematicas registradas." />
-            </DetailPanel>
+            <InfoPanelCard title="Tematicas">
+              <TagList items={themes} tone="tag" emptyLabel="No hay tematicas registradas." />
+            </InfoPanelCard>
 
-            <DetailPanel title="External games">
+            <InfoPanelCard title="Enlaces externos">
               <ExternalLinksList links={game.externalGames} />
-            </DetailPanel>
+            </InfoPanelCard>
 
-            <DetailPanel title="Parent game">
+            <InfoPanelCard title="Juego padre">
               <ParentGameLink gameId={game.parentGameId} relatedGames={relatedGames} />
-            </DetailPanel>
+            </InfoPanelCard>
           </TabsContent>
 
           <TabsContent value="publicaciones">
-            <EmptyState
+            <EmptyPublicationsState
               title="Todavia no hay publicaciones conectadas a esta ficha"
-              description="La estructura ya esta preparada para que la comunidad pueda anadir posts, reseñas o busqueda de grupo sin rehacer el layout."
+              description="La estructura social ya existe y puede crecer con grupos, reseñas y busqueda de compania sin cambiar la base visual."
               action={
-                <Button asChild variant="secondary">
-                  <Link href="/login">Iniciar sesion para participar</Link>
-                </Button>
+                <>
+                  <Button asChild>
+                    <Link href="/publicaciones">Explorar publicaciones</Link>
+                  </Button>
+                  <Button asChild variant="secondary">
+                    <Link href="/login">Iniciar sesion para participar</Link>
+                  </Button>
+                </>
               }
             />
           </TabsContent>
