@@ -58,6 +58,10 @@ async function addGameToList(listaId: string, gameId: number): Promise<void> {
   await httpClient.post(`/v1/biblioteca/lists/${listaId}/games/${gameId}`, null);
 }
 
+async function removeGameFromList(listaId: string, gameId: number): Promise<void> {
+  await httpClient.delete(`/v1/biblioteca/lists/${listaId}/games/${gameId}`);
+}
+
 export const bibliotecaApi = {
   addGameToList,
   createGameState,
@@ -66,5 +70,6 @@ export const bibliotecaApi = {
   getGameStates,
   getListById,
   getUserLists,
+  removeGameFromList,
   updateListName,
 };

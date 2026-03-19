@@ -33,7 +33,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/components/ui/Dialog';
-import { EmptyState } from '@/shared/components/ui/EmptyState';
 import { Input } from '@/shared/components/ui/Input';
 import { SectionHeader } from '@/shared/components/ui/SectionHeader';
 import { Skeleton } from '@/shared/components/ui/Skeleton';
@@ -510,17 +509,7 @@ export function BibliotecaListDetailPage({ listaId }: BibliotecaListDetailPagePr
               </InfoPanelCard>
             ) : null}
 
-            {!juegosDetalle.length ? (
-              <EmptyState
-                title="Esta lista todavia no tiene juegos"
-                description="Cuando anadas juegos, aqui veras su portada, titulo, plataforma y estado."
-                action={
-                  <Button asChild>
-                    <Link href="/catalogo">Explorar catalogo</Link>
-                  </Button>
-                }
-              />
-            ) : (
+            {
               <div className="grid gap-4">
                 <div className="hidden rounded-[calc(var(--radius-xl)+0.4rem)] border border-border bg-white/70 px-6 py-3 md:grid md:grid-cols-[5rem_minmax(0,1.4fr)_minmax(0,1fr)_auto] md:items-center">
                   <span className="text-xs font-semibold tracking-[0.08em] text-primary uppercase">
@@ -541,7 +530,7 @@ export function BibliotecaListDetailPage({ listaId }: BibliotecaListDetailPagePr
                   <BibliotecaGameRow key={`${listaId}-${juego.gameId}`} juego={juego} />
                 ))}
               </div>
-            )}
+            }
           </div>
         )}
       </PageSection>

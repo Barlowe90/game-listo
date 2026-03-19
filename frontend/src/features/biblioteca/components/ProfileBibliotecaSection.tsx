@@ -6,10 +6,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { bibliotecaApi } from '@/features/biblioteca/api/bibliotecaApi';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import type { BibliotecaLista } from '@/features/biblioteca/model/biblioteca.types';
-import {
-  formatBibliotecaEnumLabel,
-  getOfficialListNames,
-} from '@/features/biblioteca/model/biblioteca.utils';
+import { getOfficialListNames } from '@/features/biblioteca/model/biblioteca.utils';
 import { cn } from '@/lib/cn';
 import { InfoPanelCard } from '@/shared/components/domain/InfoPanelCard';
 import { Grid } from '@/shared/components/layout/Grid';
@@ -78,9 +75,6 @@ function ListTypeBadge({ tipo }: Readonly<{ tipo: BibliotecaLista['tipo'] }>) {
 }
 
 function BibliotecaListCard({ lista }: Readonly<{ lista: BibliotecaLista }>) {
-  const visibleGames = lista.juegos.slice(0, 3);
-  const remainingGames = Math.max(lista.juegos.length - visibleGames.length, 0);
-
   return (
     <Link href={`/biblioteca/listas/${lista.id}`} className="block h-full">
       <InfoPanelCard
