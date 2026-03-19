@@ -10,6 +10,7 @@ import {
 import { GameBibliotecaActions } from '@/features/biblioteca/components/GameBibliotecaActions';
 import type { Game } from '@/features/catalogo/model/catalog.types';
 import { GamePublicacionesSection } from '@/features/publicaciones/components/GamePublicacionesSection';
+import { GameSocialSummaryCard } from '@/features/social/components/GameSocialSummaryCard';
 import { GameHero } from '@/shared/components/domain/GameHero';
 import { InfoPanelCard } from '@/shared/components/domain/InfoPanelCard';
 import {
@@ -315,43 +316,47 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
                 className="xl:col-start-1 xl:row-start-1"
               />
 
-              <InfoPanelCard
-                title="Genero y estilo"
-                className="h-fit xl:col-start-2 xl:row-span-2 xl:row-start-1"
-              >
-                <div className="grid gap-6">
-                  <div className="grid gap-3">
-                    <span className="text-sm font-semibold tracking-[0.08em] text-primary uppercase">
-                      Descriptores principales
-                    </span>
-                    <TagList
-                      items={heroTags}
-                      tone="genre"
-                      emptyLabel="No hay descriptores principales disponibles para esta ficha."
-                    />
-                  </div>
+              <div className="grid gap-6 xl:col-start-2 xl:row-start-1 xl:content-start">
+                <InfoPanelCard title="Genero y estilo" className="h-fit">
+                  <div className="grid gap-6">
+                    <div className="grid gap-3">
+                      <span className="text-sm font-semibold tracking-[0.08em] text-primary uppercase">
+                        Descriptores principales
+                      </span>
+                      <TagList
+                        items={heroTags}
+                        tone="genre"
+                        emptyLabel="No hay descriptores principales disponibles para esta ficha."
+                      />
+                    </div>
 
-                  <div className="grid gap-3">
-                    <span className="text-sm font-semibold tracking-[0.08em] text-primary uppercase">
-                      Tags adicionales
-                    </span>
-                    <TagList
-                      items={additionalTags}
-                      tone="tag"
-                      getHref={(tag) => `/catalogo?q=${encodeURIComponent(tag)}`}
-                      emptyLabel="Este juego no tiene tags."
-                    />
-                  </div>
+                    <div className="grid gap-3">
+                      <span className="text-sm font-semibold tracking-[0.08em] text-primary uppercase">
+                        Tags adicionales
+                      </span>
+                      <TagList
+                        items={additionalTags}
+                        tone="tag"
+                        getHref={(tag) => `/catalogo?q=${encodeURIComponent(tag)}`}
+                        emptyLabel="Este juego no tiene tags."
+                      />
+                    </div>
 
-                  <div className="grid gap-3 border-t border-border pt-4 sm:grid-cols-3">
-                    <MetaStat label="Tipo" value={gameTypeLabel} />
-                    <MetaStat label="Estado" value={gameStatusLabel} />
-                    <MetaStat label="Franquicia" value={franchises[0] ?? 'Titulo independiente'} />
+                    <div className="grid gap-3 border-t border-border pt-4 sm:grid-cols-3">
+                      <MetaStat label="Tipo" value={gameTypeLabel} />
+                      <MetaStat label="Estado" value={gameStatusLabel} />
+                      <MetaStat
+                        label="Franquicia"
+                        value={franchises[0] ?? 'Titulo independiente'}
+                      />
+                    </div>
                   </div>
-                </div>
-              </InfoPanelCard>
+                </InfoPanelCard>
 
-              <TabsList className="border-border bg-primary-soft/80 xl:col-start-1 xl:row-start-2">
+                <GameSocialSummaryCard gameId={game.id} className="h-fit" />
+              </div>
+
+              <TabsList className="border-border bg-primary-soft/80 xl:col-span-2 xl:row-start-2">
                 <TabsTrigger value="sobre">Sobre</TabsTrigger>
                 <TabsTrigger value="publicaciones">Publicaciones</TabsTrigger>
                 <TabsTrigger value="videos">Videos</TabsTrigger>

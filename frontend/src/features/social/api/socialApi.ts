@@ -1,8 +1,14 @@
 import { httpClient } from '@/features/auth/api/httpClient';
-import type { UsuarioRef } from '@/features/social/model/social.types';
+import type { ResumenSocialJuego, UsuarioRef } from '@/features/social/model/social.types';
 
 async function listFriends(): Promise<UsuarioRef[]> {
   const response = await httpClient.get<UsuarioRef[]>('/v1/social/users/friends');
+
+  return response.data;
+}
+
+async function getGameSummary(gameId: number): Promise<ResumenSocialJuego> {
+  const response = await httpClient.get<ResumenSocialJuego>(`/v1/social/games/${gameId}/summary`);
 
   return response.data;
 }
@@ -17,6 +23,7 @@ async function removeFriend(friendId: string): Promise<void> {
 
 export const socialApi = {
   addFriend,
+  getGameSummary,
   listFriends,
   removeFriend,
 };

@@ -3,3 +3,10 @@ export interface UsuarioRef {
   username: string;
   avatar: string | null;
 }
+
+export interface ResumenSocialJuego {
+  amigosDeseadoCount: number;
+  amigosJugandoCount: number;
+  amigosDeseadoPreview: UsuarioRef[];
+  amigosJugandoPreview: UsuarioRef[];
+}
