@@ -113,7 +113,7 @@ function RelatedGameList({
   gameIds: number[];
   relatedGames: Map<number, Game>;
 }) {
-  const { entries, remainingCount } = buildRelatedEntries(gameIds, relatedGames);
+  const entries = buildRelatedEntries(gameIds, relatedGames);
 
   if (!entries.length) {
     return <EmptyCopy>{emptyLabel}</EmptyCopy>;
@@ -126,9 +126,6 @@ function RelatedGameList({
         getHref={(label) => entries.find((entry) => entry.label === label)?.href}
         tone="tag"
       />
-      {remainingCount ? (
-        <p className="text-sm text-secondary">+{remainingCount} referencias mas</p>
-      ) : null}
     </div>
   );
 }
@@ -212,16 +209,11 @@ async function resolveGameId(rawId: string) {
 
 function buildRelatedEntries(gameIds: number[], relatedGames: Map<number, Game>) {
   const uniqueIds = [...new Set(gameIds)];
-  const entries = uniqueIds.slice(0, MAX_RELATED_LINKS).map((gameId) => ({
+  return uniqueIds.map((gameId) => ({
     id: gameId,
     href: `/videojuego/${gameId}`,
     label: relatedGames.get(gameId)?.name ?? `Juego #${gameId}`,
   }));
-
-  return {
-    entries,
-    remainingCount: Math.max(uniqueIds.length - MAX_RELATED_LINKS, 0),
-  };
 }
 
 function buildSingleRelatedEntry(gameId: number, relatedGames: Map<number, Game>): RelatedEntry {
@@ -271,12 +263,12 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
 
   const relatedIdsToResolve = [
     ...(game.parentGameId ? [game.parentGameId] : []),
-    ...game.dlcIds.slice(0, MAX_RELATED_LINKS),
-    ...game.expandedGames.slice(0, MAX_RELATED_LINKS),
-    ...game.expansionIds.slice(0, MAX_RELATED_LINKS),
-    ...game.remakeIds.slice(0, MAX_RELATED_LINKS),
-    ...game.remasterIds.slice(0, MAX_RELATED_LINKS),
-    ...game.similarGames.slice(0, MAX_RELATED_LINKS),
+    ...game.dlcIds,
+    ...game.expandedGames,
+    ...game.expansionIds,
+    ...game.remakeIds,
+    ...game.remasterIds,
+    ...game.similarGames,
   ];
 
   const relatedGames = await getGamesByIds(relatedIdsToResolve);
