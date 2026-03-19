@@ -8,6 +8,8 @@ import type { UsuarioResponse } from '@/features/auth/api/auth.types';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { getGamesByIds } from '@/features/catalogo/api/catalogApi';
 import { publicacionesApi } from '@/features/publicaciones/api/publicacionesApi';
+import { GrupoJuegoInfoDialog } from '@/features/publicaciones/components/GrupoJuegoInfoDialog';
+import { PublicacionAbandonarGrupoDialog } from '@/features/publicaciones/components/PublicacionAbandonarGrupoDialog';
 import { PublicacionCard } from '@/features/publicaciones/components/PublicacionCard';
 import { PublicacionDeleteDialog } from '@/features/publicaciones/components/PublicacionDeleteDialog';
 import { PublicacionEditorDialog } from '@/features/publicaciones/components/PublicacionEditorDialog';
@@ -55,6 +57,10 @@ function getSolicitudesCountLabel(count: number) {
   return `${count} ${count === 1 ? 'solicitud' : 'solicitudes'}`;
 }
 
+function getGruposCountLabel(count: number) {
+  return `${count} ${count === 1 ? 'grupo' : 'grupos'}`;
+}
+
 function formatSolicitudEstado(estado: SolicitudUnion['estadoSolicitud']) {
   switch (estado) {
     case 'SOLICITADA':
@@ -72,7 +78,7 @@ function formatShortId(value: string) {
   return value.slice(0, 8);
 }
 
-async function loadGameTitles(publicaciones: Publicacion[]) {
+async function loadGameTitles(publicaciones: Array<Pick<Publicacion, 'gameId'>>) {
   const gameIds = publicaciones
     .map((publicacion) => Number.parseInt(publicacion.gameId, 10))
     .filter(Number.isFinite);
@@ -134,6 +140,28 @@ async function loadUsuariosMap(userIds: string[]) {
   return Object.fromEntries(pairs) as Record<string, UsuarioResponse | null>;
 }
 
+function getJoinedPublicaciones(
+  solicitudesEnviadas: SolicitudUnion[],
+  publicacionesDetalleById: Record<string, PublicacionDetalle | null>,
+  userId: string | null,
+) {
+  if (!userId) {
+    return [];
+  }
+
+  const publicaciones = solicitudesEnviadas
+    .filter((solicitud) => solicitud.estadoSolicitud === 'ACEPTADA')
+    .map((solicitud) => publicacionesDetalleById[solicitud.publicacionId])
+    .filter((publicacion): publicacion is PublicacionDetalle => Boolean(publicacion?.grupoId))
+    .filter((publicacion) =>
+      publicacion.participantes.some((participante) => participante.id === userId),
+    );
+
+  return Array.from(
+    new Map(publicaciones.map((publicacion) => [publicacion.id, publicacion])).values(),
+  );
+}
+
 function SolicitudUnionItemCard({
   title,
   count,
@@ -182,8 +210,14 @@ export function MisPublicacionesPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [editingPublicacion, setEditingPublicacion] = useState<Publicacion | null>(null);
   const [deletingPublicacion, setDeletingPublicacion] = useState<Publicacion | null>(null);
+  const [leavingPublicacion, setLeavingPublicacion] = useState<Publicacion | null>(null);
+  const [groupInfoTarget, setGroupInfoTarget] = useState<{
+    grupoId: string;
+    publicacionTitle: string;
+  } | null>(null);
   const [isSubmittingPublicacion, setIsSubmittingPublicacion] = useState(false);
   const [isDeletingPublicacion, setIsDeletingPublicacion] = useState(false);
+  const [isLeavingGroup, setIsLeavingGroup] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -218,12 +252,17 @@ export function MisPublicacionesPage() {
 
         const requestUserIds = nextSolicitudesRecibidas.map((solicitud) => solicitud.usuarioId);
 
-        const [nextGameTitlesById, nextPublicacionesDetalleById, nextUsuariosById] =
-          await Promise.all([
-            loadGameTitles(nextPublicaciones),
-            loadPublicacionesDetalleMap(publicacionIds),
-            loadUsuariosMap(requestUserIds),
-          ]);
+        const [nextPublicacionesDetalleById, nextUsuariosById] = await Promise.all([
+          loadPublicacionesDetalleMap(publicacionIds),
+          loadUsuariosMap(requestUserIds),
+        ]);
+        const nextSolicitudesPublicacionDetalle = Object.values(nextPublicacionesDetalleById).filter(
+          (publicacion): publicacion is PublicacionDetalle => Boolean(publicacion),
+        );
+        const nextGameTitlesById = await loadGameTitles([
+          ...nextPublicaciones,
+          ...nextSolicitudesPublicacionDetalle,
+        ]);
 
         if (ignore) {
           return;
@@ -274,6 +313,22 @@ export function MisPublicacionesPage() {
 
     if (!open) {
       setDeletingPublicacion(null);
+    }
+  }
+
+  function handleLeaveDialogOpenChange(open: boolean) {
+    if (isLeavingGroup) {
+      return;
+    }
+
+    if (!open) {
+      setLeavingPublicacion(null);
+    }
+  }
+
+  function handleGroupInfoDialogOpenChange(open: boolean) {
+    if (!open) {
+      setGroupInfoTarget(null);
     }
   }
 
@@ -359,6 +414,71 @@ export function MisPublicacionesPage() {
       setIsDeletingPublicacion(false);
     }
   }
+
+  function handleViewGroupInfo(publicacion: Publicacion) {
+    if (!publicacion.grupoId) {
+      return;
+    }
+
+    setGroupInfoTarget({
+      grupoId: publicacion.grupoId,
+      publicacionTitle: publicacion.titulo,
+    });
+  }
+
+  function handleLeaveGroup(publicacion: Publicacion) {
+    setLeavingPublicacion(publicacion);
+  }
+
+  async function handleAbandonarGrupo() {
+    if (!leavingPublicacion || !userId) {
+      return;
+    }
+
+    setIsLeavingGroup(true);
+    setLoadError(null);
+    setSuccessMessage(null);
+
+    try {
+      await publicacionesApi.abandonarGrupo(leavingPublicacion.id);
+      setPublicacionesDetalleById((currentPublicacionesDetalleById) => {
+        const currentDetail = currentPublicacionesDetalleById[leavingPublicacion.id];
+
+        if (!currentDetail) {
+          return currentPublicacionesDetalleById;
+        }
+
+        const nextParticipantes = currentDetail.participantes.filter(
+          (participante) => participante.id !== userId,
+        );
+
+        return {
+          ...currentPublicacionesDetalleById,
+          [leavingPublicacion.id]: {
+            ...currentDetail,
+            participantes: nextParticipantes,
+            participantesCount: nextParticipantes.length,
+            plazasDisponibles: Math.max(
+              currentDetail.jugadoresMaximos - nextParticipantes.length,
+              0,
+            ),
+          },
+        };
+      });
+      setLeavingPublicacion(null);
+      setSuccessMessage('Has abandonado el grupo correctamente.');
+    } catch (error) {
+      setLoadError(getApiErrorMessage(error, 'No se pudo abandonar el grupo.'));
+    } finally {
+      setIsLeavingGroup(false);
+    }
+  }
+
+  const joinedPublicaciones = getJoinedPublicaciones(
+    solicitudesEnviadas,
+    publicacionesDetalleById,
+    userId,
+  );
 
   return (
     <PageSection size="wide">
@@ -482,6 +602,48 @@ export function MisPublicacionesPage() {
         {loadError ? <Toast variant="error" title={loadError} /> : null}
         {successMessage ? <Toast title={successMessage} /> : null}
 
+        <Card className="rounded-[calc(var(--radius-xl)+0.5rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm">
+          <div className="grid gap-5 p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="grid gap-1">
+                <h2 className="text-lg font-semibold tracking-tight text-foreground">
+                  Grupos en los que participas
+                </h2>
+                <p className="text-sm leading-relaxed text-secondary">
+                  Aqui veras las publicaciones cuyos grupos has llegado a compartir como jugador.
+                </p>
+              </div>
+
+              <Badge variant="primary">{getGruposCountLabel(joinedPublicaciones.length)}</Badge>
+            </div>
+
+            {isLoading ? (
+              <p className="text-sm leading-relaxed text-secondary">
+                Estamos cargando los grupos en los que participas.
+              </p>
+            ) : joinedPublicaciones.length ? (
+              <div className="grid gap-5 xl:grid-cols-2 2xl:grid-cols-3">
+                {joinedPublicaciones.map((publicacion) => (
+                  <PublicacionCard
+                    key={`joined-${publicacion.id}`}
+                    publicacion={publicacion}
+                    participantes={publicacion.participantes}
+                    gameTitle={gameTitlesById[publicacion.gameId]}
+                    showGameLink
+                    disableActions={isSubmittingPublicacion || isDeletingPublicacion || isLeavingGroup}
+                    onLeaveGroup={handleLeaveGroup}
+                    onViewGroupInfo={publicacion.grupoId ? handleViewGroupInfo : undefined}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm leading-relaxed text-secondary">
+                Todavia no formas parte de ningun grupo como participante.
+              </p>
+            )}
+          </div>
+        </Card>
+
         {isLoading ? (
           <Card className="rounded-[calc(var(--radius-xl)+0.5rem)] border border-border bg-white/80 shadow-surface">
             <div className="grid gap-3 p-6">
@@ -502,9 +664,10 @@ export function MisPublicacionesPage() {
                 gameTitle={gameTitlesById[publicacion.gameId]}
                 showGameLink
                 isAuthor={userId === publicacion.autorId}
-                disableActions={isSubmittingPublicacion || isDeletingPublicacion}
+                disableActions={isSubmittingPublicacion || isDeletingPublicacion || isLeavingGroup}
                 onEdit={userId === publicacion.autorId ? setEditingPublicacion : undefined}
                 onDelete={userId === publicacion.autorId ? setDeletingPublicacion : undefined}
+                onViewGroupInfo={publicacion.grupoId ? handleViewGroupInfo : undefined}
               />
             ))}
           </div>
@@ -537,6 +700,21 @@ export function MisPublicacionesPage() {
           isDeleting={isDeletingPublicacion}
           onOpenChange={handleDeleteDialogOpenChange}
           onConfirm={handleDeletePublicacion}
+        />
+
+        <PublicacionAbandonarGrupoDialog
+          open={leavingPublicacion !== null}
+          publicacion={leavingPublicacion}
+          isLeaving={isLeavingGroup}
+          onOpenChange={handleLeaveDialogOpenChange}
+          onConfirm={handleAbandonarGrupo}
+        />
+
+        <GrupoJuegoInfoDialog
+          open={groupInfoTarget !== null}
+          grupoId={groupInfoTarget?.grupoId ?? null}
+          publicacionTitle={groupInfoTarget?.publicacionTitle}
+          onOpenChange={handleGroupInfoDialogOpenChange}
         />
       </div>
     </PageSection>

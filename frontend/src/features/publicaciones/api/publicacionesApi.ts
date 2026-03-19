@@ -46,6 +46,10 @@ async function createSolicitudUnion(publicacionId: string): Promise<SolicitudUni
   return response.data;
 }
 
+async function abandonarGrupo(publicacionId: string): Promise<void> {
+  await httpClient.post(`/v1/publicaciones/${publicacionId}/abandonar-grupo`);
+}
+
 async function getSolicitudesUnionEnviadas(): Promise<SolicitudUnion[]> {
   const response = await httpClient.get<SolicitudUnion[]>('/v1/publicaciones/solicitudes-union/enviadas');
 
@@ -72,6 +76,7 @@ async function deletePublicacion(publicacionId: string): Promise<void> {
 }
 
 export const publicacionesApi = {
+  abandonarGrupo,
   createPublicacion,
   createSolicitudUnion,
   deletePublicacion,

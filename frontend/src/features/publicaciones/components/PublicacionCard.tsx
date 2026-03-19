@@ -66,6 +66,8 @@ interface PublicacionCardProps {
   joinActionHref?: string;
   onEdit?: (publicacion: Publicacion) => void;
   onDelete?: (publicacion: Publicacion) => void;
+  onViewGroupInfo?: (publicacion: Publicacion) => void;
+  onLeaveGroup?: (publicacion: Publicacion) => void;
   onRequestJoin?: () => void;
 }
 
@@ -192,9 +194,13 @@ export function PublicacionCard({
   joinActionHref,
   onEdit,
   onDelete,
+  onViewGroupInfo,
+  onLeaveGroup,
   onRequestJoin,
 }: Readonly<PublicacionCardProps>) {
-  const hasActions = isAuthor && (onEdit || onDelete);
+  const canViewGroupInfo = Boolean(publicacion.grupoId && onViewGroupInfo);
+  const canLeaveGroup = Boolean(onLeaveGroup);
+  const hasActions = Boolean(onEdit || onDelete || canViewGroupInfo || canLeaveGroup);
   const showParticipantSlots = participantes !== undefined;
   const resolvedGameTitle = gameTitle ?? `Juego #${publicacion.gameId}`;
   const gameHref = `/videojuego/${publicacion.gameId}`;
@@ -234,7 +240,18 @@ export function PublicacionCard({
             </div>
 
             {hasActions ? (
-              <div className="flex shrink-0 items-center gap-2">
+              <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                {canViewGroupInfo ? (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => onViewGroupInfo?.(publicacion)}
+                    disabled={disableActions}
+                  >
+                    Ver info del grupo
+                  </Button>
+                ) : null}
                 {onEdit ? (
                   <PublicacionActionButton
                     iconSrc="/lapiz_editar.svg"
@@ -242,6 +259,17 @@ export function PublicacionCard({
                     disabled={disableActions}
                     onClick={() => onEdit(publicacion)}
                   />
+                ) : null}
+                {onLeaveGroup ? (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => onLeaveGroup(publicacion)}
+                    disabled={disableActions}
+                  >
+                    Abandonar grupo
+                  </Button>
                 ) : null}
                 {onDelete ? (
                   <Button

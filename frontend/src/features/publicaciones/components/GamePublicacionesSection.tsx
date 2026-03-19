@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useEffect, useState, type SVGProps } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { publicacionesApi } from '@/features/publicaciones/api/publicacionesApi';
+import { GrupoJuegoInfoDialog } from '@/features/publicaciones/components/GrupoJuegoInfoDialog';
 import { PublicacionCard } from '@/features/publicaciones/components/PublicacionCard';
 import { PublicacionDeleteDialog } from '@/features/publicaciones/components/PublicacionDeleteDialog';
 import { PublicacionEditorDialog } from '@/features/publicaciones/components/PublicacionEditorDialog';
@@ -87,6 +88,11 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingPublicacion, setEditingPublicacion] = useState<Publicacion | null>(null);
   const [deletingPublicacion, setDeletingPublicacion] = useState<Publicacion | null>(null);
+  const [groupInfoTarget, setGroupInfoTarget] = useState<{
+    grupoId: string;
+    grupo: GrupoJuego | null;
+    publicacionTitle: string;
+  } | null>(null);
   const [isSubmittingPublicacion, setIsSubmittingPublicacion] = useState(false);
   const [isDeletingPublicacion, setIsDeletingPublicacion] = useState(false);
 
@@ -159,6 +165,12 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
 
     if (!open) {
       setDeletingPublicacion(null);
+    }
+  }
+
+  function handleGroupInfoDialogOpenChange(open: boolean) {
+    if (!open) {
+      setGroupInfoTarget(null);
     }
   }
 
@@ -274,6 +286,18 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
     }
   }
 
+  function handleViewGroupInfo(publicacion: Publicacion) {
+    if (!publicacion.grupoId) {
+      return;
+    }
+
+    setGroupInfoTarget({
+      grupoId: publicacion.grupoId,
+      grupo: gruposByPublicacionId[publicacion.id] ?? null,
+      publicacionTitle: publicacion.titulo,
+    });
+  }
+
   function renderCreateAction() {
     if (status === 'anonymous') {
       return (
@@ -354,6 +378,7 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
               }
               onEdit={userId === publicacion.autorId ? setEditingPublicacion : undefined}
               onDelete={userId === publicacion.autorId ? setDeletingPublicacion : undefined}
+              onViewGroupInfo={publicacion.grupoId ? handleViewGroupInfo : undefined}
             />
           ))}
         </div>
@@ -387,6 +412,14 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
         isDeleting={isDeletingPublicacion}
         onOpenChange={handleDeleteDialogOpenChange}
         onConfirm={handleDeletePublicacion}
+      />
+
+      <GrupoJuegoInfoDialog
+        open={groupInfoTarget !== null}
+        grupoId={groupInfoTarget?.grupoId ?? null}
+        grupo={groupInfoTarget?.grupo ?? null}
+        publicacionTitle={groupInfoTarget?.publicacionTitle}
+        onOpenChange={handleGroupInfoDialogOpenChange}
       />
     </div>
   );
