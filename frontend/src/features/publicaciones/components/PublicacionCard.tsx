@@ -22,6 +22,7 @@ import {
   type AvailabilityPeriod,
 } from '@/shared/components/domain/AvailabilityMatrix';
 import { Badge } from '@/shared/components/ui/Badge';
+import { Button } from '@/shared/components/ui/Button';
 import { Card } from '@/shared/components/ui/Card';
 
 const idiomaLabelMap = new Map(
@@ -66,7 +67,6 @@ interface PublicacionActionButtonProps {
   iconSrc: string;
   label: string;
   disabled?: boolean;
-  destructive?: boolean;
   onClick?: () => void;
 }
 
@@ -96,7 +96,6 @@ function PublicacionActionButton({
   iconSrc,
   label,
   disabled = false,
-  destructive = false,
   onClick,
 }: Readonly<PublicacionActionButtonProps>) {
   return (
@@ -107,9 +106,7 @@ function PublicacionActionButton({
       aria-label={label}
       className={cn(
         'inline-flex size-10 items-center justify-center rounded-pill border bg-white/90 shadow-surface transition-colors',
-        destructive
-          ? 'border-error/30 hover:border-error hover:bg-white disabled:border-error/20'
-          : 'border-border hover:border-border-strong hover:bg-white',
+        'border-border hover:border-border-strong hover:bg-white',
         'disabled:cursor-not-allowed disabled:opacity-60',
       )}
     >
@@ -132,44 +129,48 @@ export function PublicacionCard({
   const gameHref = `/videojuego/${publicacion.gameId}`;
 
   return (
-    <Card className="relative w-full justify-self-start rounded-[calc(var(--radius-xl)+0.5rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm sm:max-w-full sm:w-fit">
-      {hasActions ? (
-        <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
-          {onEdit ? (
-            <PublicacionActionButton
-              iconSrc="/lapiz_editar.svg"
-              label="Editar publicacion"
-              disabled={disableActions}
-              onClick={() => onEdit(publicacion)}
-            />
-          ) : null}
-          {onDelete ? (
-            <PublicacionActionButton
-              iconSrc="/delete.svg"
-              label="Eliminar publicacion"
-              disabled={disableActions}
-              destructive
-              onClick={() => onDelete(publicacion)}
-            />
-          ) : null}
-        </div>
-      ) : null}
-
-      <div className={cn('grid gap-5 p-6', hasActions ? 'pr-28' : undefined)}>
+    <Card className="w-full justify-self-start rounded-[calc(var(--radius-xl)+0.5rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm sm:max-w-full sm:w-fit">
+      <div className="grid gap-5 p-6">
         <div className="grid gap-3">
-          {showGameLink ? (
-            <Link
-              href={gameHref}
-              className="text-sm font-semibold tracking-[0.08em] text-primary uppercase hover:underline"
-            >
-              {resolvedGameTitle}
-            </Link>
-          ) : null}
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="grid gap-2">
+              {showGameLink ? (
+                <Link
+                  href={gameHref}
+                  className="text-sm font-semibold tracking-[0.08em] text-primary uppercase hover:underline"
+                >
+                  {resolvedGameTitle}
+                </Link>
+              ) : null}
 
-          <div className="grid gap-2">
-            <h2 className="text-xl font-semibold tracking-tight text-foreground">
-              {publicacion.titulo}
-            </h2>
+              <h2 className="text-xl font-semibold tracking-tight text-foreground">
+                {publicacion.titulo}
+              </h2>
+            </div>
+
+            {hasActions ? (
+              <div className="flex shrink-0 items-center gap-2">
+                {onEdit ? (
+                  <PublicacionActionButton
+                    iconSrc="/lapiz_editar.svg"
+                    label="Editar publicacion"
+                    disabled={disableActions}
+                    onClick={() => onEdit(publicacion)}
+                  />
+                ) : null}
+                {onDelete ? (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => onDelete(publicacion)}
+                    disabled={disableActions}
+                  >
+                    Eliminar
+                  </Button>
+                ) : null}
+              </div>
+            ) : null}
           </div>
 
           <div className="flex flex-wrap gap-2">

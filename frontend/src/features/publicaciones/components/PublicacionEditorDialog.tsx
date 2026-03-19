@@ -140,21 +140,29 @@ function DisponibilidadEditor({
               </th>
               {PUBLICACION_FRANJAS.map((franja) => {
                 const isActive = disponibilidad[dia.value]?.includes(franja.value) ?? false;
+                const dayLabel = dia.label.toLowerCase();
+                const periodLabel = franja.label.toLowerCase();
 
                 return (
                   <td key={`${dia.value}-${franja.value}`} className="text-center">
                     <button
                       type="button"
                       className={cn(
-                        'inline-flex h-10 w-full min-w-14 items-center justify-center rounded-xl border text-xs font-semibold transition-[background-color,border-color,color,box-shadow] duration-[var(--duration-fast)] ease-[var(--easing-standard)]',
+                        'inline-flex h-10 w-full min-w-14 items-center justify-center rounded-xl border transition-[background-color,border-color,color,box-shadow] duration-[var(--duration-fast)] ease-[var(--easing-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
                         isActive
-                          ? 'border-transparent bg-primary text-primary-foreground shadow-surface'
-                          : 'border-border bg-background text-secondary hover:border-border-strong hover:bg-white',
+                          ? 'border-transparent bg-primary shadow-surface'
+                          : 'border-border bg-background hover:border-border-strong hover:bg-white',
                       )}
                       onClick={() => onToggle(dia.value, franja.value)}
                       aria-pressed={isActive}
+                      aria-label={`${dayLabel} por la ${periodLabel}: ${
+                        isActive ? 'disponible' : 'no disponible'
+                      }`}
                     >
-                      {isActive ? 'Si' : 'No'}
+                      <span className="sr-only">
+                        {isActive ? 'Disponible' : 'No disponible'} el {dayLabel} por la{' '}
+                        {periodLabel}
+                      </span>
                     </button>
                   </td>
                 );
