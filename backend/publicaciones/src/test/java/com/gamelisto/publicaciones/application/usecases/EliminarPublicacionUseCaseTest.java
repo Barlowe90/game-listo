@@ -25,6 +25,7 @@ class EliminarPublicacionUseCaseTest {
   @Mock private PublicacionRepositorio publicacionRepositorio;
   @Mock private GrupoJuegoRepositorio grupoJuegoRepositorio;
   @Mock private GrupoJuegoUsuarioRepositorio grupoJuegoUsuarioRepositorio;
+  @Mock private SolicitudUnionRepositorio solicitudUnionRepositorio;
   @InjectMocks private EliminarPublicacionUseCase useCase;
 
   private Publicacion publicacionDe(UUID autorId) {
@@ -48,6 +49,7 @@ class EliminarPublicacionUseCaseTest {
 
     useCase.execute(pub.getId().value(), autorId);
 
+    verify(solicitudUnionRepositorio).deleteByPublicacionId(pub.getId());
     verify(publicacionRepositorio).deleteById(pub.getId());
   }
 
@@ -75,6 +77,7 @@ class EliminarPublicacionUseCaseTest {
     verify(grupoJuegoUsuarioRepositorio)
         .deleteByGrupoIdAndUsuarioId(grupo.getId(), miembro2.getUsuarioId());
     verify(grupoJuegoRepositorio).delete(grupo);
+    verify(solicitudUnionRepositorio).deleteByPublicacionId(pub.getId());
     verify(publicacionRepositorio).deleteById(pub.getId());
   }
 

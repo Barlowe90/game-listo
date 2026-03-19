@@ -6,6 +6,7 @@ import com.gamelisto.publicaciones.domain.PublicacionRepositorio;
 import com.gamelisto.publicaciones.domain.GrupoJuegoRepositorio;
 import com.gamelisto.publicaciones.domain.GrupoJuegoUsuario;
 import com.gamelisto.publicaciones.domain.GrupoJuegoUsuarioRepositorio;
+import com.gamelisto.publicaciones.domain.SolicitudUnionRepositorio;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
 import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class EliminarPublicacionUseCase implements EliminarPublicacionHandler {
   private final PublicacionRepositorio publicacionRepositorio;
   private final GrupoJuegoRepositorio grupoJuegoRepositorio;
   private final GrupoJuegoUsuarioRepositorio grupoJuegoUsuarioRepositorio;
+  private final SolicitudUnionRepositorio solicitudUnionRepositorio;
 
   @Override
   public void execute(UUID publicacionId, UUID userId) {
@@ -33,6 +35,7 @@ public class EliminarPublicacionUseCase implements EliminarPublicacionHandler {
     }
 
     EliminarMiembrosYGrupo(PublicacionId.of(publicacionId));
+    solicitudUnionRepositorio.deleteByPublicacionId(PublicacionId.of(publicacionId));
 
     publicacionRepositorio.deleteById(PublicacionId.of(publicacionId));
   }

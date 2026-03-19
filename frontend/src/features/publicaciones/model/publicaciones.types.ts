@@ -20,8 +20,7 @@ export const PUBLICACION_ESTILO_JUEGO_OPTIONS = [
   { value: 'LOGROS', label: 'Logros' },
 ] as const;
 
-export type PublicacionEstiloJuego =
-  (typeof PUBLICACION_ESTILO_JUEGO_OPTIONS)[number]['value'];
+export type PublicacionEstiloJuego = (typeof PUBLICACION_ESTILO_JUEGO_OPTIONS)[number]['value'];
 
 export const PUBLICACION_DIAS = [
   { value: 'LUNES', label: 'Lunes', shortLabel: 'L' },
@@ -62,6 +61,15 @@ export interface Publicacion {
 
 export interface CrearPublicacionPayload {
   gameId: number;
+  titulo: string;
+  idioma: PublicacionIdioma;
+  experiencia: PublicacionExperiencia;
+  estiloJuego: PublicacionEstiloJuego;
+  jugadoresMaximos: number;
+  disponibilidad: PublicacionDisponibilidad;
+}
+
+export interface EditarPublicacionPayload {
   titulo: string;
   idioma: PublicacionIdioma;
   experiencia: PublicacionExperiencia;

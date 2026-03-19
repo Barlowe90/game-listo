@@ -19,4 +19,6 @@ public interface SolicitudUnionRepositorio {
   List<SolicitudUnion> findByUsuarioId(UsuarioId usuarioId);
 
   List<SolicitudUnion> findByPublicacionIdIn(List<PublicacionId> publicacionIds);
+
+  void deleteByPublicacionId(PublicacionId publicacionId);
 }

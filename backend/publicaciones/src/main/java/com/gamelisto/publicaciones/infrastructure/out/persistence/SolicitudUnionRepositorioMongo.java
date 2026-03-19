@@ -58,4 +58,9 @@ public class SolicitudUnionRepositorioMongo implements SolicitudUnionRepositorio
     List<java.util.UUID> ids = publicacionIds.stream().map(PublicacionId::value).toList();
     return mongoRepository.findByPublicacionIdIn(ids).stream().map(mapper::toDomain).toList();
   }
+
+  @Override
+  public void deleteByPublicacionId(PublicacionId publicacionId) {
+    mongoRepository.deleteByPublicacionId(publicacionId.value());
+  }
 }

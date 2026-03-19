@@ -3,25 +3,16 @@
 import axios from 'axios';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { getGamesByIds } from '@/features/catalogo/api/catalogApi';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { getGamesByIds } from '@/features/catalogo/api/catalogApi';
 import { publicacionesApi } from '@/features/publicaciones/api/publicacionesApi';
-import {
-  PUBLICACION_DIAS,
-  PUBLICACION_ESTILO_JUEGO_OPTIONS,
-  PUBLICACION_EXPERIENCIA_OPTIONS,
-  PUBLICACION_IDIOMA_OPTIONS,
-  type Publicacion,
-  type PublicacionDiaSemana,
-  type PublicacionDisponibilidad,
-  type PublicacionFranjaHoraria,
+import { PublicacionCard } from '@/features/publicaciones/components/PublicacionCard';
+import { PublicacionDeleteDialog } from '@/features/publicaciones/components/PublicacionDeleteDialog';
+import { PublicacionEditorDialog } from '@/features/publicaciones/components/PublicacionEditorDialog';
+import type {
+  EditarPublicacionPayload,
+  Publicacion,
 } from '@/features/publicaciones/model/publicaciones.types';
-import {
-  AvailabilityMatrix,
-  type AvailabilityDay,
-  type AvailabilityMatrixValue,
-  type AvailabilityPeriod,
-} from '@/shared/components/domain/AvailabilityMatrix';
 import { EmptyPublicationsState } from '@/shared/components/domain/EmptyPublicationsState';
 import { PageSection } from '@/shared/components/layout/PageSection';
 import { Badge } from '@/shared/components/ui/Badge';
@@ -33,34 +24,6 @@ interface ApiErrorResponse {
   error?: string;
   message?: string;
 }
-
-const idiomaLabelMap = new Map(
-  PUBLICACION_IDIOMA_OPTIONS.map((option) => [option.value, option.label]),
-);
-
-const experienciaLabelMap = new Map(
-  PUBLICACION_EXPERIENCIA_OPTIONS.map((option) => [option.value, option.label]),
-);
-
-const estiloLabelMap = new Map(
-  PUBLICACION_ESTILO_JUEGO_OPTIONS.map((option) => [option.value, option.label]),
-);
-
-const backendToMatrixDayMap: Record<PublicacionDiaSemana, AvailabilityDay> = {
-  LUNES: 'lunes',
-  MARTES: 'martes',
-  MIERCOLES: 'miercoles',
-  JUEVES: 'jueves',
-  VIERNES: 'viernes',
-  SABADO: 'sabado',
-  DOMINGO: 'domingo',
-};
-
-const backendToMatrixPeriodMap: Record<PublicacionFranjaHoraria, AvailabilityPeriod> = {
-  DIA: 'manana',
-  TARDE: 'tarde',
-  NOCHE: 'noche',
-};
 
 function getApiErrorMessage(error: unknown, fallback: string) {
   if (axios.isAxiosError<ApiErrorResponse>(error)) {
@@ -74,78 +37,6 @@ function getPublicacionesCountLabel(count: number) {
   return `${count} ${count === 1 ? 'publicacion' : 'publicaciones'}`;
 }
 
-function mapDisponibilidadToMatrix(
-  disponibilidad: PublicacionDisponibilidad | null,
-): AvailabilityMatrixValue {
-  if (!disponibilidad) {
-    return {};
-  }
-
-  return PUBLICACION_DIAS.reduce<AvailabilityMatrixValue>((matrix, day) => {
-    const franjas = disponibilidad[day.value] ?? [];
-
-    if (!franjas.length) {
-      return matrix;
-    }
-
-    matrix[backendToMatrixDayMap[day.value]] = franjas.map(
-      (franja) => backendToMatrixPeriodMap[franja],
-    );
-
-    return matrix;
-  }, {});
-}
-
-function PublicacionAutorCard({
-  publicacion,
-  gameTitle,
-}: Readonly<{
-  publicacion: Publicacion;
-  gameTitle?: string;
-}>) {
-  const gameHref = `/videojuego/${publicacion.gameId}`;
-  const resolvedGameTitle = gameTitle ?? `Juego #${publicacion.gameId}`;
-
-  return (
-    <Card className="w-full justify-self-start rounded-[calc(var(--radius-xl)+0.5rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm sm:max-w-full sm:w-fit">
-      <div className="grid gap-5 p-6">
-        <div className="grid gap-3">
-          <Link
-            href={gameHref}
-            className="text-sm font-semibold tracking-[0.08em] text-primary uppercase hover:underline"
-          >
-            {resolvedGameTitle}
-          </Link>
-
-          <div className="grid gap-2">
-            <h2 className="text-xl font-semibold tracking-tight text-foreground">
-              {publicacion.titulo}
-            </h2>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="primary">
-              {idiomaLabelMap.get(publicacion.idioma) ?? publicacion.idioma}
-            </Badge>
-            <Badge>
-              {experienciaLabelMap.get(publicacion.experiencia) ?? publicacion.experiencia}
-            </Badge>
-            <Badge>{estiloLabelMap.get(publicacion.estiloJuego) ?? publicacion.estiloJuego}</Badge>
-            <Badge>Hasta {publicacion.jugadoresMaximos} jugadores</Badge>
-          </div>
-        </div>
-
-        <AvailabilityMatrix
-          availability={mapDisponibilidadToMatrix(publicacion.disponibilidad)}
-          compact
-          stretch
-          abbreviatedLabels={false}
-        />
-      </div>
-    </Card>
-  );
-}
-
 export function MisPublicacionesPage() {
   const { user } = useAuth();
   const userId = user?.id ?? null;
@@ -153,6 +44,11 @@ export function MisPublicacionesPage() {
   const [gameTitlesById, setGameTitlesById] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [editingPublicacion, setEditingPublicacion] = useState<Publicacion | null>(null);
+  const [deletingPublicacion, setDeletingPublicacion] = useState<Publicacion | null>(null);
+  const [isSubmittingPublicacion, setIsSubmittingPublicacion] = useState(false);
+  const [isDeletingPublicacion, setIsDeletingPublicacion] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -223,6 +119,83 @@ export function MisPublicacionesPage() {
     };
   }, [userId]);
 
+  function handleEditDialogOpenChange(open: boolean) {
+    if (isSubmittingPublicacion) {
+      return;
+    }
+
+    if (!open) {
+      setEditingPublicacion(null);
+    }
+  }
+
+  function handleDeleteDialogOpenChange(open: boolean) {
+    if (isDeletingPublicacion) {
+      return;
+    }
+
+    if (!open) {
+      setDeletingPublicacion(null);
+    }
+  }
+
+  async function handleUpdatePublicacion(payload: EditarPublicacionPayload) {
+    if (!editingPublicacion) {
+      return;
+    }
+
+    setIsSubmittingPublicacion(true);
+    setLoadError(null);
+    setSuccessMessage(null);
+
+    try {
+      const updatedPublicacion = await publicacionesApi.updatePublicacion(
+        editingPublicacion.id,
+        payload,
+      );
+
+      setPublicaciones((currentPublicaciones) =>
+        currentPublicaciones.map((currentPublicacion) =>
+          currentPublicacion.id === updatedPublicacion.id
+            ? {
+                ...currentPublicacion,
+                ...updatedPublicacion,
+                grupoId: updatedPublicacion.grupoId ?? currentPublicacion.grupoId,
+              }
+            : currentPublicacion,
+        ),
+      );
+      setSuccessMessage('Publicacion actualizada correctamente.');
+    } finally {
+      setIsSubmittingPublicacion(false);
+    }
+  }
+
+  async function handleDeletePublicacion() {
+    if (!deletingPublicacion) {
+      return;
+    }
+
+    setIsDeletingPublicacion(true);
+    setLoadError(null);
+    setSuccessMessage(null);
+
+    try {
+      await publicacionesApi.deletePublicacion(deletingPublicacion.id);
+      setPublicaciones((currentPublicaciones) =>
+        currentPublicaciones.filter(
+          (currentPublicacion) => currentPublicacion.id !== deletingPublicacion.id,
+        ),
+      );
+      setDeletingPublicacion(null);
+      setSuccessMessage('Publicacion eliminada correctamente.');
+    } catch (error) {
+      setLoadError(getApiErrorMessage(error, 'No se pudo eliminar la publicacion.'));
+    } finally {
+      setIsDeletingPublicacion(false);
+    }
+  }
+
   return (
     <PageSection size="wide">
       <div className="grid gap-8">
@@ -241,6 +214,7 @@ export function MisPublicacionesPage() {
         </div>
 
         {loadError ? <Toast variant="error" title={loadError} /> : null}
+        {successMessage ? <Toast title={successMessage} /> : null}
 
         {isLoading ? (
           <Card className="rounded-[calc(var(--radius-xl)+0.5rem)] border border-border bg-white/80 shadow-surface">
@@ -256,10 +230,15 @@ export function MisPublicacionesPage() {
         ) : publicaciones.length ? (
           <div className="grid gap-5 xl:grid-cols-2">
             {publicaciones.map((publicacion) => (
-              <PublicacionAutorCard
+              <PublicacionCard
                 key={publicacion.id}
                 publicacion={publicacion}
                 gameTitle={gameTitlesById[publicacion.gameId]}
+                showGameLink
+                isAuthor={userId === publicacion.autorId}
+                disableActions={isSubmittingPublicacion || isDeletingPublicacion}
+                onEdit={userId === publicacion.autorId ? setEditingPublicacion : undefined}
+                onDelete={userId === publicacion.autorId ? setDeletingPublicacion : undefined}
               />
             ))}
           </div>
@@ -274,6 +253,25 @@ export function MisPublicacionesPage() {
             }
           />
         )}
+
+        {editingPublicacion ? (
+          <PublicacionEditorDialog
+            open={editingPublicacion !== null}
+            mode="edit"
+            publicacion={editingPublicacion}
+            isSubmitting={isSubmittingPublicacion}
+            onOpenChange={handleEditDialogOpenChange}
+            onSubmit={handleUpdatePublicacion}
+          />
+        ) : null}
+
+        <PublicacionDeleteDialog
+          open={deletingPublicacion !== null}
+          publicacion={deletingPublicacion}
+          isDeleting={isDeletingPublicacion}
+          onOpenChange={handleDeleteDialogOpenChange}
+          onConfirm={handleDeletePublicacion}
+        />
       </div>
     </PageSection>
   );
