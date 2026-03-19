@@ -24,7 +24,7 @@ public class ScheduledSyncJob {
   private final SyncPlatformsFromIGDBUseCase syncPlatformsUseCase;
   private final IgdbProperties igdbProperties;
 
-  @Scheduled(cron = "0 */1 * * * *") 
+  @Scheduled(cron = "0,30 * * * * *") // Cada 30 segundos
   public void syncGamesIncremental() {
     logger.info("===== Iniciando sincronización automática de juegos =====");
 
