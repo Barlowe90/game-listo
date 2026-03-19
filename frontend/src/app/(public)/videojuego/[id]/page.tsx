@@ -310,34 +310,29 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
         <Tabs defaultValue="sobre" className="grid gap-8">
           <div className="grid gap-4">
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
-              <div className="grid gap-6">
-                <GameHero
-                  coverUrl={game.coverUrl}
-                  title={game.name}
-                  studio={getGamePrimaryStudio(game)}
-                  collaborators={extraStudios}
-                  badges={[
-                    { label: gameTypeLabel, variant: 'primary' },
-                    { label: gameStatusLabel, variant: 'neutral' },
-                  ]}
-                  platforms={platforms}
-                  actionBar={
-                    <GameActionBar
-                      actions={LIBRARY_ACTIONS}
-                      listAction={{ href: '/login', label: 'Anadir a lista' }}
-                    />
-                  }
-                />
+              <GameHero
+                coverUrl={game.coverUrl}
+                title={game.name}
+                studio={getGamePrimaryStudio(game)}
+                collaborators={extraStudios}
+                badges={[
+                  { label: gameTypeLabel, variant: 'primary' },
+                  { label: gameStatusLabel, variant: 'neutral' },
+                ]}
+                platforms={platforms}
+                actionBar={
+                  <GameActionBar
+                    actions={LIBRARY_ACTIONS}
+                    listAction={{ href: '/login', label: 'Anadir a lista' }}
+                  />
+                }
+                className="xl:col-start-1 xl:row-start-1"
+              />
 
-                <TabsList className="border-border bg-primary-soft/80">
-                  <TabsTrigger value="sobre">Sobre</TabsTrigger>
-                  <TabsTrigger value="publicaciones">Publicaciones</TabsTrigger>
-                  <TabsTrigger value="videos">Videos</TabsTrigger>
-                  <TabsTrigger value="screenshots">Screenshots</TabsTrigger>
-                </TabsList>
-              </div>
-
-              <InfoPanelCard title="Genero y estilo" className="h-fit">
+              <InfoPanelCard
+                title="Genero y estilo"
+                className="h-fit xl:col-start-2 xl:row-span-2 xl:row-start-1"
+              >
                 <div className="grid gap-6">
                   <div className="grid gap-3">
                     <span className="text-sm font-semibold tracking-[0.08em] text-primary uppercase">
@@ -369,6 +364,13 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
                   </div>
                 </div>
               </InfoPanelCard>
+
+              <TabsList className="border-border bg-primary-soft/80 xl:col-start-1 xl:row-start-2">
+                <TabsTrigger value="sobre">Sobre</TabsTrigger>
+                <TabsTrigger value="publicaciones">Publicaciones</TabsTrigger>
+                <TabsTrigger value="videos">Videos</TabsTrigger>
+                <TabsTrigger value="screenshots">Screenshots</TabsTrigger>
+              </TabsList>
             </div>
           </div>
 

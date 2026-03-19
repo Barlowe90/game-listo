@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getCatalogGames } from '@/features/catalogo/api/catalogApi';
-import type { Game } from '@/features/catalogo/model/catalog.types';
+import type { CatalogGameSummary } from '@/features/catalogo/model/catalog.types';
 import type {
   AvailabilityMatrixValue,
   AvailabilityPeriod,
@@ -38,7 +38,7 @@ interface PublicationRecord {
   availability: AvailabilityMatrixValue;
   description: string;
   experience: string;
-  game: Game;
+  game: CatalogGameSummary;
   id: string;
   language: string;
   participants: AvatarGroupMember[];
@@ -138,11 +138,11 @@ function normalizeFilterValue(value: string | string[] | undefined) {
   return getSearchValue(value).trim();
 }
 
-function getPrimaryPlatform(game: Game) {
+function getPrimaryPlatform(game: CatalogGameSummary) {
   return game.platforms[0] ?? 'Multiplataforma';
 }
 
-function buildPublicationRecords(games: Game[]) {
+function buildPublicationRecords(games: CatalogGameSummary[]) {
   const sourceGames = games.slice(0, PUBLICATION_BLUEPRINTS.length);
 
   return PUBLICATION_BLUEPRINTS.map((blueprint, index) => {
@@ -311,7 +311,7 @@ export default async function PublicacionesPage({
                 }}
                 badges={[
                   {
-                    label: publication.game.genres[0] ?? 'Grupo abierto',
+                    label: publication.game.gameModes[0] ?? 'Grupo abierto',
                     variant: 'primary',
                   },
                   { label: publication.platform },

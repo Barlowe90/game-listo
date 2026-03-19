@@ -1,4 +1,4 @@
-import type { CatalogPlatform, Game } from '@/features/catalogo/model/catalog.types';
+import type { CatalogGameSummary, CatalogPlatform } from '@/features/catalogo/model/catalog.types';
 import { normalizeGameText } from '@/shared/components/domain/game-domain.utils';
 
 export interface PlatformFilter {
@@ -154,7 +154,7 @@ export function buildPlatformTokenSet(
 }
 
 export function filterGamesByPlatforms(
-  games: Game[],
+  games: CatalogGameSummary[],
   selectedPlatforms: string[],
   platformFilters: PlatformFilter[],
 ) {

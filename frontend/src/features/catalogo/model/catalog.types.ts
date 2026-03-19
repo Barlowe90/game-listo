@@ -1,3 +1,11 @@
+export interface CatalogGameSummary {
+  id: number;
+  coverUrl: string | null;
+  gameModes: string[];
+  name: string;
+  platforms: string[];
+}
+
 export interface Game {
   id: number;
   alternativeNames: string[];
@@ -32,7 +40,7 @@ export interface GameDetailMedia {
 }
 
 export interface CatalogGamesPage {
-  items: Game[];
+  items: CatalogGameSummary[];
   page: number;
   size: number;
   totalCount: number;

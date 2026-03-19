@@ -2,18 +2,13 @@ import Link from 'next/link';
 import {
   buildCatalogHref,
   buildPlatformFilters,
+  buildPlatformTokenSet,
   buildVisiblePages,
-  filterGamesByPlatforms,
   getPageIndex,
   getSelectedPlatforms,
 } from '@/features/catalogo/catalog-page.utils';
-import {
-  getCatalogGames,
-  getCatalogGamesPage,
-  getCatalogPlatforms,
-} from '@/features/catalogo/api/catalogApi';
+import { getCatalogGamesPage, getCatalogPlatforms } from '@/features/catalogo/api/catalogApi';
 import { CatalogPlatformFilters } from '@/features/catalogo/components/CatalogPlatformFilters';
-import type { Game } from '@/features/catalogo/model/catalog.types';
 import { GameCard } from '@/shared/components/domain/GameCard';
 import { Grid } from '@/shared/components/layout/Grid';
 import { PageSection } from '@/shared/components/layout/PageSection';
@@ -38,45 +33,22 @@ export default async function CatalogoPage({
   const resolvedSearchParams = await searchParams;
   const requestedPageIndex = getPageIndex(resolvedSearchParams.page);
   const selectedPlatforms = getSelectedPlatforms(resolvedSearchParams.platform);
-  const hasActivePlatformFilters = selectedPlatforms.length > 0;
-
-  const [platforms, catalogSource] = await Promise.all([
-    getCatalogPlatforms(),
-    hasActivePlatformFilters
-      ? getCatalogGames().then((games) => ({ kind: 'all' as const, games }))
-      : getCatalogGamesPage({ page: requestedPageIndex, size: CATALOG_PAGE_SIZE }).then((page) => ({
-          kind: 'page' as const,
-          page,
-        })),
-  ]);
+  const platforms = await getCatalogPlatforms();
 
   const platformFilters = buildPlatformFilters(platforms);
+  const platformQueryTokens = Array.from(
+    buildPlatformTokenSet(selectedPlatforms, platformFilters),
+  );
+  const catalogPage = await getCatalogGamesPage({
+    page: requestedPageIndex,
+    size: CATALOG_PAGE_SIZE,
+    platforms: platformQueryTokens,
+  });
 
-  let currentPageIndex = requestedPageIndex;
-  let totalCount = 0;
-  let totalPages = 0;
-  let visibleGames: Game[] = [];
-
-  if (catalogSource.kind === 'page') {
-    currentPageIndex = catalogSource.page.page;
-    totalCount = catalogSource.page.totalCount;
-    totalPages = catalogSource.page.totalPages;
-    visibleGames = catalogSource.page.items;
-  } else {
-    const filteredGames = filterGamesByPlatforms(
-      catalogSource.games,
-      selectedPlatforms,
-      platformFilters,
-    );
-
-    totalCount = filteredGames.length;
-    totalPages = totalCount ? Math.ceil(totalCount / CATALOG_PAGE_SIZE) : 0;
-    currentPageIndex = totalPages ? Math.min(requestedPageIndex, totalPages - 1) : 0;
-    visibleGames = filteredGames.slice(
-      currentPageIndex * CATALOG_PAGE_SIZE,
-      currentPageIndex * CATALOG_PAGE_SIZE + CATALOG_PAGE_SIZE,
-    );
-  }
+  const currentPageIndex = catalogPage.page;
+  const totalCount = catalogPage.totalCount;
+  const totalPages = catalogPage.totalPages;
+  const visibleGames = catalogPage.items;
 
   const visiblePageLinks = buildVisiblePages(currentPageIndex, totalPages, MAX_VISIBLE_PAGE_LINKS);
   const firstVisibleResult = totalCount ? currentPageIndex * CATALOG_PAGE_SIZE + 1 : 0;

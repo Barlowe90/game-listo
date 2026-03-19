@@ -1,4 +1,5 @@
 import type {
+  CatalogGameSummary,
   CatalogGamesPage,
   CatalogPlatform,
   Game,
@@ -53,14 +54,23 @@ function getCatalogPlatformSortLabel(platform: CatalogPlatform) {
 export async function getCatalogGamesPage({
   page = 0,
   size = 20,
+  platforms = [],
 }: {
   page?: number;
   size?: number;
+  platforms?: string[];
 } = {}): Promise<CatalogGamesPage> {
   const searchParams = new URLSearchParams({
     page: String(Math.max(page, 0)),
     size: String(Math.max(size, 1)),
   });
+
+  platforms
+    .map((platform) => platform.trim())
+    .filter(Boolean)
+    .forEach((platform) => {
+      searchParams.append('platform', platform);
+    });
 
   const response = await catalogFetch(`/v1/catalogo/games?${searchParams.toString()}`);
 
@@ -68,7 +78,7 @@ export async function getCatalogGamesPage({
     throw buildCatalogRequestError('/v1/catalogo/games', response);
   }
 
-  const items = (await response.json()) as Game[];
+  const items = (await response.json()) as CatalogGameSummary[];
   const currentPage = readPaginationHeader(response.headers, 'X-Current-Page', page);
   const pageSize = readPaginationHeader(response.headers, 'X-Page-Size', size);
   const totalCount = readPaginationHeader(response.headers, 'X-Total-Count', items.length);
@@ -102,7 +112,7 @@ export async function getCatalogPlatforms() {
 }
 
 export async function getCatalogGames() {
-  const allGames: Game[] = [];
+  const allGames: CatalogGameSummary[] = [];
   let currentPage = 0;
 
   while (true) {

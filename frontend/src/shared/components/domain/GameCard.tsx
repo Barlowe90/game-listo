@@ -1,17 +1,17 @@
 import type { HTMLAttributes } from 'react';
 import Link from 'next/link';
-import type { Game } from '@/features/catalogo/model/catalog.types';
+import type { CatalogGameSummary } from '@/features/catalogo/model/catalog.types';
 import { cn } from '@/lib/cn';
 import { GameArtwork } from '@/shared/components/domain/GameArtwork';
 import { PlatformChip, TagList } from '@/shared/components/domain/TagList';
 import { Card, CardBody, CardHeader, CardTitle } from '@/shared/components/ui/Card';
 
 export interface GameCardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
-  game: Game;
+  game: CatalogGameSummary;
   href?: string;
 }
 
-function GameCardContent({ game }: { game: Game }) {
+function GameCardContent({ game }: { game: CatalogGameSummary }) {
   const modes = game.gameModes.slice(0, 3);
   const platforms = game.platforms.slice(0, 3);
 
