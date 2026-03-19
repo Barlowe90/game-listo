@@ -4,6 +4,10 @@ import axios from 'axios';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { authApi } from '@/features/auth/api/authApi';
+import {
+  PASSWORD_RULES_HELP_TEXT,
+  getPasswordRuleErrorMessage,
+} from '@/features/auth/passwordRules';
 import { Button } from '@/shared/components/ui/Button';
 import { Card, CardBody } from '@/shared/components/ui/Card';
 import { FormField } from '@/shared/components/ui/FormField';
@@ -19,9 +23,17 @@ type ToastState = {
   description: string;
 };
 
+interface ApiErrorResponse {
+  error?: string;
+  errors?: Record<string, string>;
+  message?: string;
+}
+
 function getApiErrorMessage(error: unknown, fallbackMessage: string) {
-  if (axios.isAxiosError<{ message?: string }>(error)) {
-    return error.response?.data?.message ?? fallbackMessage;
+  if (axios.isAxiosError<ApiErrorResponse>(error)) {
+    const responseData = error.response?.data;
+
+    return responseData?.error ?? responseData?.message ?? fallbackMessage;
   }
 
   return fallbackMessage;
@@ -79,6 +91,7 @@ export default function RegistroPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResendingVerification, setIsResendingVerification] = useState(false);
@@ -117,9 +130,18 @@ export default function RegistroPage() {
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
-    setIsSubmitting(true);
     setSuccessToast(null);
     setErrorToast(null);
+    setPasswordError(null);
+
+    const nextPasswordError = getPasswordRuleErrorMessage(password);
+
+    if (nextPasswordError) {
+      setPasswordError(nextPasswordError);
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       const registrationEmail = email.trim();
@@ -142,8 +164,18 @@ export default function RegistroPage() {
       setUsername('');
       setEmail('');
       setPassword('');
+      setPasswordError(null);
       setIsPasswordVisible(false);
     } catch (error: unknown) {
+      if (axios.isAxiosError<ApiErrorResponse>(error)) {
+        const passwordFieldError = error.response?.data?.errors?.password;
+
+        if (passwordFieldError) {
+          setPasswordError(passwordFieldError);
+          return;
+        }
+      }
+
       setErrorToast({
         title: 'No se pudo completar el registro',
         description: getApiErrorMessage(
@@ -222,17 +254,29 @@ export default function RegistroPage() {
                 />
               </FormField>
 
-              <FormField label="Contrasena" htmlFor="password" required>
+              <FormField
+                label="Contrasena"
+                htmlFor="password"
+                required
+                helpText={PASSWORD_RULES_HELP_TEXT}
+                errorMessage={passwordError}
+              >
                 <div className="relative">
                   <Input
                     id="password"
                     type={isPasswordVisible ? 'text' : 'password'}
                     value={password}
-                    onChange={(event) => setPassword(event.target.value)}
+                    onChange={(event) => {
+                      setPassword(event.target.value);
+                      setPasswordError(null);
+                      setErrorToast(null);
+                    }}
                     required
                     autoComplete="new-password"
                     placeholder="Crea tu contrasena"
                     className="pr-12"
+                    minLength={8}
+                    state={passwordError ? 'error' : 'default'}
                   />
                   <button
                     type="button"

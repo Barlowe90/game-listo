@@ -6,10 +6,7 @@ export const metadata: Metadata = {
   title: 'GameListo',
   description: 'Tu biblioteca social de videojuegos',
   icons: {
-    icon: [
-      { url: '/logo-gamelist.svg', type: 'image/svg+xml' },
-      { url: '/favicon.ico' },
-    ],
+    icon: [{ url: '/logo-gamelist.svg', type: 'image/svg+xml', sizes: 'any' }],
     shortcut: '/logo-gamelist.svg',
   },
 };

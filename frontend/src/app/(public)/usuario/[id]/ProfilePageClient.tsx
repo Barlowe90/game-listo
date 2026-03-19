@@ -7,6 +7,10 @@ import { authApi } from '@/features/auth/api/authApi';
 import { getAccessToken } from '@/features/auth/api/authSessionBridge';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import type { User } from '@/features/auth/model/session.model';
+import {
+  PASSWORD_RULES_HELP_TEXT,
+  getPasswordRuleErrorMessage,
+} from '@/features/auth/passwordRules';
 import { ProfileBibliotecaSection } from '@/features/biblioteca/components/ProfileBibliotecaSection';
 import { cn } from '@/lib/cn';
 import { InfoPanelCard } from '@/shared/components/domain/InfoPanelCard';
@@ -166,6 +170,7 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
   const [discordError, setDiscordError] = useState<string | null>(null);
   const [discordSuccess, setDiscordSuccess] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [newPasswordError, setNewPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [profileSettingsError, setProfileSettingsError] = useState<string | null>(null);
   const [profileSettingsSuccess, setProfileSettingsSuccess] = useState<string | null>(null);
@@ -444,6 +449,7 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
   async function handlePasswordSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPasswordError(null);
+    setNewPasswordError(null);
     setPasswordSuccess(null);
 
     if (!currentPassword) {
@@ -451,8 +457,13 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
       return;
     }
 
-    if (newPassword.length < 8) {
-      setPasswordError('La nueva contrasena debe tener al menos 8 caracteres.');
+    const nextPasswordError = getPasswordRuleErrorMessage(
+      newPassword,
+      'La nueva contrasena',
+    );
+
+    if (nextPasswordError) {
+      setNewPasswordError(nextPasswordError);
       return;
     }
 
@@ -462,8 +473,18 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
       await authApi.changePassword(currentPassword, newPassword);
       setCurrentPassword('');
       setNewPassword('');
+      setNewPasswordError(null);
       setPasswordSuccess('Contrasena actualizada correctamente.');
     } catch (error) {
+      if (axios.isAxiosError<ApiErrorResponse>(error)) {
+        const fieldError = error.response?.data?.errors?.contrasenaNueva;
+
+        if (fieldError) {
+          setNewPasswordError(fieldError);
+          return;
+        }
+      }
+
       setPasswordError(getApiErrorMessage(error, 'No se pudo actualizar la contrasena.'));
     } finally {
       setIsSavingPassword(false);
@@ -607,18 +628,27 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
                 />
               </FormField>
 
-              <FormField label="Nueva contrasena" htmlFor="new-password" required>
+              <FormField
+                label="Nueva contrasena"
+                htmlFor="new-password"
+                required
+                helpText={PASSWORD_RULES_HELP_TEXT}
+                errorMessage={newPasswordError}
+              >
                 <Input
                   id="new-password"
                   type="password"
                   value={newPassword}
                   onChange={(event) => {
                     setNewPassword(event.target.value);
+                    setNewPasswordError(null);
                     setPasswordError(null);
                     setPasswordSuccess(null);
                   }}
                   autoComplete="new-password"
                   disabled={isSavingPassword}
+                  minLength={8}
+                  state={newPasswordError ? 'error' : 'default'}
                 />
               </FormField>
 

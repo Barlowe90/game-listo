@@ -54,6 +54,10 @@ async function createGameState(gameId: number, estado: BibliotecaEstado): Promis
   });
 }
 
+async function deleteGameState(gameId: number): Promise<void> {
+  await httpClient.delete(`/v1/biblioteca/games/${gameId}/state`);
+}
+
 async function rateGame(gameId: number, rating: number): Promise<void> {
   await httpClient.post(`/v1/biblioteca/games/${gameId}/rate`, {
     rating,
@@ -70,6 +74,7 @@ async function removeGameFromList(listaId: string, gameId: number): Promise<void
 
 export const bibliotecaApi = {
   addGameToList,
+  deleteGameState,
   createGameState,
   createList,
   deleteList,

@@ -4,6 +4,10 @@ import axios from 'axios';
 import Link from 'next/link';
 import { useState } from 'react';
 import { authApi } from '@/features/auth/api/authApi';
+import {
+  PASSWORD_RULES_HELP_TEXT,
+  getPasswordRuleErrorMessage,
+} from '@/features/auth/passwordRules';
 import { Button } from '@/shared/components/ui/Button';
 import { Card, CardBody } from '@/shared/components/ui/Card';
 import { FormField } from '@/shared/components/ui/FormField';
@@ -33,11 +37,13 @@ export function ResetPasswordPageClient({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
     setSuccessMessage(null);
     setErrorMessage(null);
+    setPasswordError(null);
 
     if (!token) {
       setErrorMessage('Falta el token de restablecimiento.');
@@ -49,8 +55,13 @@ export function ResetPasswordPageClient({
       return;
     }
 
-    if (newPassword.length < 8) {
-      setErrorMessage('La nueva contrasena debe tener al menos 8 caracteres.');
+    const nextPasswordError = getPasswordRuleErrorMessage(
+      newPassword,
+      'La nueva contrasena',
+    );
+
+    if (nextPasswordError) {
+      setPasswordError(nextPasswordError);
       return;
     }
 
@@ -74,9 +85,13 @@ export function ResetPasswordPageClient({
       if (axios.isAxiosError<ApiErrorResponse>(error)) {
         const fieldErrors = error.response?.data?.errors;
 
+        if (fieldErrors?.nuevaContrasena) {
+          setPasswordError(fieldErrors.nuevaContrasena);
+          return;
+        }
+
         setErrorMessage(
           fieldErrors?.email ??
-            fieldErrors?.nuevaContrasena ??
             fieldErrors?.token ??
             error.response?.data?.error ??
             error.response?.data?.message ??
@@ -123,19 +138,28 @@ export function ResetPasswordPageClient({
                 />
               </FormField>
 
-              <FormField label="Nueva contrasena" htmlFor="reset-password" required>
+              <FormField
+                label="Nueva contrasena"
+                htmlFor="reset-password"
+                required
+                helpText={PASSWORD_RULES_HELP_TEXT}
+                errorMessage={passwordError}
+              >
                 <Input
                   id="reset-password"
                   type="password"
                   value={newPassword}
                   onChange={(event) => {
                     setNewPassword(event.target.value);
+                    setPasswordError(null);
                     setErrorMessage(null);
                     setSuccessMessage(null);
                   }}
                   required
                   autoComplete="new-password"
                   disabled={!token || isSubmitting}
+                  minLength={8}
+                  state={passwordError ? 'error' : 'default'}
                 />
               </FormField>
 
