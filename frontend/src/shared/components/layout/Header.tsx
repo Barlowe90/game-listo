@@ -12,10 +12,7 @@ import { NavLink } from '@/shared/components/layout/NavLink';
 import { SearchBar } from '@/shared/components/layout/SearchBar';
 import { Skeleton } from '@/shared/components/ui/Skeleton';
 
-const navigationItems = [
-  { href: '/biblioteca', label: 'Mi biblioteca' },
-  { href: '/publicaciones', label: 'Mis publicaciones' },
-] as const;
+const navigationItems = [{ href: '/publicaciones', label: 'Mis publicaciones' }] as const;
 
 interface AuthControlProps {
   integrated?: boolean;
@@ -68,9 +65,35 @@ export interface HeaderProps {
 }
 
 export function Header({ integrated = false }: HeaderProps) {
+  const { isAuthenticated, isLoading, user } = useAuth();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isVideojuegosActive = pathname === '/catalogo' || pathname.startsWith('/videojuego/');
+  const userProfilePath = user ? `/usuario/${user.id}` : null;
+  const bibliotecaHref =
+    isAuthenticated && user ? `/usuario/${user.id}?seccion=biblioteca` : isLoading ? '/biblioteca' : '/login';
+  const isBibliotecaActive =
+    pathname === '/biblioteca' || (userProfilePath !== null && pathname === userProfilePath);
+  const bibliotecaLinkClassName = cn(
+    'inline-flex min-h-[var(--target-min-size)] items-center rounded-pill px-4 text-sm font-medium transition-colors focus-visible:outline-none',
+    integrated
+      ? isBibliotecaActive
+        ? 'bg-primary-soft text-primary'
+        : 'text-inverse hover:bg-white/10 hover:text-inverse'
+      : isBibliotecaActive
+        ? 'bg-primary-soft text-primary'
+        : 'bg-transparent text-foreground hover:bg-transparent hover:text-foreground',
+  );
+  const bibliotecaMobileLinkClassName = cn(
+    'inline-flex min-h-[var(--target-min-size)] w-full items-center justify-between rounded-pill px-4 text-sm font-medium transition-colors focus-visible:outline-none',
+    integrated
+      ? isBibliotecaActive
+        ? 'bg-primary-soft text-primary'
+        : 'text-inverse hover:bg-white/10 hover:text-inverse'
+      : isBibliotecaActive
+        ? 'bg-primary-soft text-primary'
+        : 'bg-transparent text-foreground hover:bg-transparent hover:text-foreground',
+  );
 
   return (
     <header className={cn(integrated ? 'bg-transparent' : 'border-b border-border bg-background')}>
@@ -119,6 +142,14 @@ export function Header({ integrated = false }: HeaderProps) {
                 )}
               >
                 Videojuegos
+              </Link>
+
+              <Link
+                href={bibliotecaHref}
+                aria-current={isBibliotecaActive ? 'page' : undefined}
+                className={bibliotecaLinkClassName}
+              >
+                Mi biblioteca
               </Link>
 
               {navigationItems.map((item) => (
@@ -217,6 +248,14 @@ export function Header({ integrated = false }: HeaderProps) {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Videojuegos
+              </Link>
+              <Link
+                href={bibliotecaHref}
+                aria-current={isBibliotecaActive ? 'page' : undefined}
+                className={bibliotecaMobileLinkClassName}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Mi biblioteca
               </Link>
               {navigationItems.map((item) => (
                 <NavLink

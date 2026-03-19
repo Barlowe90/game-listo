@@ -10,6 +10,10 @@ import type {
   BibliotecaLista,
   BibliotecaListaJuego,
 } from '@/features/biblioteca/model/biblioteca.types';
+import {
+  formatBibliotecaEnumLabel,
+  getOfficialListNames,
+} from '@/features/biblioteca/model/biblioteca.utils';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { getGamesByIds } from '@/features/catalogo/api/catalogApi';
 import { cn } from '@/lib/cn';
@@ -61,24 +65,6 @@ function getApiErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
-function formatEnumLabel(value: string) {
-  return value
-    .toLowerCase()
-    .split('_')
-    .filter(Boolean)
-    .map((chunk) => chunk.charAt(0).toUpperCase() + chunk.slice(1))
-    .join(' ');
-}
-
-function getOfficialListNames(lists: BibliotecaLista[]) {
-  return new Set(
-    lists
-      .filter((lista) => lista.tipo === 'OFICIAL')
-      .map((lista) => lista.nombre.trim().toUpperCase())
-      .filter(Boolean),
-  );
-}
-
 function ListTypeBadge({ tipo }: Readonly<{ tipo: BibliotecaLista['tipo'] }>) {
   const isPersonalizada = tipo === 'PERSONALIZADA';
 
@@ -99,7 +85,7 @@ function EstadoBadge({ estado }: Readonly<{ estado: string | null }>) {
     return <Badge variant="neutral">Sin estado</Badge>;
   }
 
-  return <Badge variant="primary">{formatEnumLabel(estado)}</Badge>;
+  return <Badge variant="primary">{formatBibliotecaEnumLabel(estado)}</Badge>;
 }
 
 function BibliotecaListDetailLoading() {

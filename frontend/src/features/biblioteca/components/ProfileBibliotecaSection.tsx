@@ -6,6 +6,10 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { bibliotecaApi } from '@/features/biblioteca/api/bibliotecaApi';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import type { BibliotecaLista } from '@/features/biblioteca/model/biblioteca.types';
+import {
+  formatBibliotecaEnumLabel,
+  getOfficialListNames,
+} from '@/features/biblioteca/model/biblioteca.utils';
 import { cn } from '@/lib/cn';
 import { InfoPanelCard } from '@/shared/components/domain/InfoPanelCard';
 import { Grid } from '@/shared/components/layout/Grid';
@@ -48,15 +52,6 @@ function getApiErrorMessage(error: unknown, fallback: string, field?: string) {
   return fallback;
 }
 
-function formatEnumLabel(value: string) {
-  return value
-    .toLowerCase()
-    .split('_')
-    .filter(Boolean)
-    .map((chunk) => chunk.charAt(0).toUpperCase() + chunk.slice(1))
-    .join(' ');
-}
-
 function getGameCountLabel(count: number) {
   return `${count} ${count === 1 ? 'juego' : 'juegos'}`;
 }
@@ -64,15 +59,6 @@ function getGameCountLabel(count: number) {
 function sortLists(lists: BibliotecaLista[]) {
   return [...lists].sort((leftList, rightList) =>
     leftList.nombre.localeCompare(rightList.nombre, 'es', { sensitivity: 'base' }),
-  );
-}
-
-function getOfficialListNames(lists: BibliotecaLista[]) {
-  return new Set(
-    lists
-      .filter((lista) => lista.tipo === 'OFICIAL')
-      .map((lista) => lista.nombre.trim().toUpperCase())
-      .filter(Boolean),
   );
 }
 
@@ -97,52 +83,16 @@ function BibliotecaListCard({ lista }: Readonly<{ lista: BibliotecaLista }>) {
 
   return (
     <Link href={`/biblioteca/listas/${lista.id}`} className="block h-full">
-    <InfoPanelCard
-      title={
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <span>{lista.nombre}</span>
-          <ListTypeBadge tipo={lista.tipo} />
-        </div>
-      }
-      description={getGameCountLabel(lista.juegos.length)}
-      className="h-full transition-[transform,box-shadow,border-color] duration-[var(--duration-fast)] ease-[var(--easing-standard)] hover:-translate-y-px hover:border-border-strong hover:shadow-[0_18px_45px_rgba(15,23,42,0.12)]"
-    >
-      {visibleGames.length ? (
-        <div className="grid gap-2">
-          <ul className="grid gap-2">
-            {visibleGames.map((game) => (
-              <li
-                key={`${lista.id}-${game.gameId}`}
-                className="flex items-center justify-between gap-3 rounded-xl border border-border bg-white/70 px-4 py-3"
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-foreground">
-                    {game.nombre?.trim() || `Juego #${game.gameId}`}
-                  </p>
-                  <p className="truncate text-xs text-secondary">
-                    {game.estado ? formatEnumLabel(game.estado) : 'Sin estado'}
-                  </p>
-                </div>
-
-                <span className="shrink-0 text-xs font-medium text-muted-foreground">
-                  #{game.gameId}
-                </span>
-              </li>
-            ))}
-          </ul>
-
-          {remainingGames ? (
-            <p className="text-xs font-medium text-secondary">
-              +{remainingGames} {remainingGames === 1 ? 'juego mas' : 'juegos mas'}
-            </p>
-          ) : null}
-        </div>
-      ) : (
-        <p className="rounded-xl border border-dashed border-border px-4 py-4 text-sm leading-relaxed text-secondary">
-          Todavia no has anadido juegos a esta lista.
-        </p>
-      )}
-    </InfoPanelCard>
+      <InfoPanelCard
+        title={
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <span>{lista.nombre}</span>
+            <ListTypeBadge tipo={lista.tipo} />
+          </div>
+        }
+        description={getGameCountLabel(lista.juegos.length)}
+        className="h-full transition-[transform,box-shadow,border-color] duration-[var(--duration-fast)] ease-[var(--easing-standard)] hover:-translate-y-px hover:border-border-strong hover:shadow-[0_18px_45px_rgba(15,23,42,0.12)]"
+      ></InfoPanelCard>
     </Link>
   );
 }

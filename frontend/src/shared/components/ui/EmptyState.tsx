@@ -4,7 +4,7 @@ import { Card } from '@/shared/components/ui/Card';
 
 export interface EmptyStateProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   title: ReactNode;
-  description: ReactNode;
+  description?: ReactNode;
   action?: ReactNode;
   icon?: ReactNode;
 }

@@ -1,5 +1,7 @@
 import { httpClient } from '@/features/auth/api/httpClient';
 import type {
+  BibliotecaEstado,
+  BibliotecaGameEstado,
   BibliotecaLista,
   CrearBibliotecaListaPayload,
 } from '@/features/biblioteca/model/biblioteca.types';
@@ -40,9 +42,28 @@ async function createList({
   return response.data;
 }
 
+async function getGameStates(gameId: number): Promise<BibliotecaGameEstado[]> {
+  const response = await httpClient.get<BibliotecaGameEstado[]>(`/v1/biblioteca/games/${gameId}`);
+
+  return response.data;
+}
+
+async function createGameState(gameId: number, estado: BibliotecaEstado): Promise<void> {
+  await httpClient.post(`/v1/biblioteca/games/${gameId}/state`, {
+    estado,
+  });
+}
+
+async function addGameToList(listaId: string, gameId: number): Promise<void> {
+  await httpClient.post(`/v1/biblioteca/lists/${listaId}/games/${gameId}`, null);
+}
+
 export const bibliotecaApi = {
+  addGameToList,
+  createGameState,
   createList,
   deleteList,
+  getGameStates,
   getListById,
   getUserLists,
   updateListName,

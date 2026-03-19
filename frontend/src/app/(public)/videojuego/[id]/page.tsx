@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import {
   getCatalogGames,
@@ -8,9 +7,9 @@ import {
   getGameDetailMedia,
   getGamesByIds,
 } from '@/features/catalogo/api/catalogApi';
+import { GameBibliotecaActions } from '@/features/biblioteca/components/GameBibliotecaActions';
 import type { Game } from '@/features/catalogo/model/catalog.types';
 import { EmptyPublicationsState } from '@/shared/components/domain/EmptyPublicationsState';
-import { GameActionBar, type GameActionItem } from '@/shared/components/domain/GameActionBar';
 import { GameHero } from '@/shared/components/domain/GameHero';
 import { InfoPanelCard } from '@/shared/components/domain/InfoPanelCard';
 import {
@@ -24,19 +23,11 @@ import {
 import { TagList } from '@/shared/components/domain/TagList';
 import { cn } from '@/lib/cn';
 import { PageSection } from '@/shared/components/layout/PageSection';
-import { Button } from '@/shared/components/ui/Button';
 import { Card } from '@/shared/components/ui/Card';
 import { EmptyState } from '@/shared/components/ui/EmptyState';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/Tabs';
 
 const MAX_RELATED_LINKS = 6;
-
-const LIBRARY_ACTIONS: GameActionItem[] = [
-  { key: 'quiero', href: '/login' },
-  { key: 'tengo', href: '/login' },
-  { key: 'jugando', href: '/login' },
-  { key: 'jugado', href: '/login' },
-] as const;
 
 interface RelatedEntry {
   href: string;
@@ -320,12 +311,7 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
                   { label: gameStatusLabel, variant: 'neutral' },
                 ]}
                 platforms={platforms}
-                actionBar={
-                  <GameActionBar
-                    actions={LIBRARY_ACTIONS}
-                    listAction={{ href: '/login', label: 'Anadir a lista' }}
-                  />
-                }
+                actionBar={<GameBibliotecaActions gameId={game.id} />}
                 className="xl:col-start-1 xl:row-start-1"
               />
 
@@ -487,20 +473,7 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
           </TabsContent>
 
           <TabsContent value="publicaciones">
-            <EmptyPublicationsState
-              title="Todavia no hay publicaciones conectadas a esta ficha"
-              description="La estructura social ya existe y puede crecer con grupos, reseñas y busqueda de compania sin cambiar la base visual."
-              action={
-                <>
-                  <Button asChild>
-                    <Link href="/publicaciones">Explorar publicaciones</Link>
-                  </Button>
-                  <Button asChild variant="secondary">
-                    <Link href="/login">Iniciar sesion para participar</Link>
-                  </Button>
-                </>
-              }
-            />
+            <EmptyPublicationsState title="Todavia no hay publicaciones conectadas a esta ficha" />
           </TabsContent>
 
           <TabsContent value="videos">
@@ -511,10 +484,7 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
                 ))}
               </div>
             ) : (
-              <EmptyState
-                title="No hay videos disponibles por ahora"
-                description="El backend del detalle aun no devuelve videos para este juego o la ficha todavia no tiene material asociado."
-              />
+              <EmptyState title="No hay videos disponibles por ahora" />
             )}
           </TabsContent>
 
@@ -530,10 +500,7 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
                 ))}
               </div>
             ) : (
-              <EmptyState
-                title="No hay screenshots disponibles"
-                description="Cuando el detalle multimedia tenga capturas asociadas apareceran aqui sin cambiar la navegacion local de la ficha."
-              />
+              <EmptyState title="No hay screenshots disponibles" />
             )}
           </TabsContent>
         </Tabs>
