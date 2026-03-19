@@ -1,6 +1,7 @@
 package com.gamelisto.catalogo.infrastructure.in.igdb.mapper;
 
 import com.gamelisto.catalogo.application.usecases.IgdbGameDTO;
+import com.gamelisto.catalogo.infrastructure.in.igdb.IgdbImageSizes;
 import com.gamelisto.catalogo.infrastructure.in.igdb.dto.*;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,9 @@ public class IgdbGameMapper {
     return new IgdbGameDTO(
         gameIGDBdto.id(),
         extractNames(gameIGDBdto.alternativeNames()),
-        gameIGDBdto.cover() != null ? gameIGDBdto.cover().getFullUrl() : null,
+        gameIGDBdto.cover() != null
+            ? gameIGDBdto.cover().toSizedUrl(IgdbImageSizes.COVER_HIGH)
+            : null,
         extractIds(gameIGDBdto.dlcs()),
         extractIds(gameIGDBdto.expandedGames()),
         extractIds(gameIGDBdto.expansions()),
@@ -71,7 +74,7 @@ public class IgdbGameMapper {
   private List<String> extractScreenshotUrls(List<IgdbScreenshotRequest> dtos) {
     if (dtos == null) return List.of();
     return dtos.stream()
-        .map(IgdbScreenshotRequest::getFullUrl)
+        .map(screenshot -> screenshot.toSizedUrl(IgdbImageSizes.SCREENSHOT_HIGH))
         .filter(java.util.Objects::nonNull)
         .toList();
   }

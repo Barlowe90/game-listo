@@ -1,17 +1,16 @@
 package com.gamelisto.catalogo.infrastructure.in.igdb.dto;
 
-public record IgdbCoverRequest(String url, Integer width, Integer height) {
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gamelisto.catalogo.infrastructure.in.igdb.IgdbImageUrlBuilder;
+
+public record IgdbCoverRequest(
+    String url, @JsonProperty("image_id") String imageId, Integer width, Integer height) {
 
   public String getFullUrl() {
-    if (url == null) {
-      return null;
-    }
-    if (url.startsWith("//")) {
-      return "https:" + url;
-    }
-    if (!url.startsWith("http")) {
-      return "https://" + url;
-    }
-    return url;
+    return IgdbImageUrlBuilder.normalizeUrl(url);
+  }
+
+  public String toSizedUrl(String size) {
+    return IgdbImageUrlBuilder.buildSizedUrl(imageId, url, size);
   }
 }
