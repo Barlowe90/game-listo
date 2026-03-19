@@ -129,7 +129,7 @@ export function PublicacionCard({
   const gameHref = `/videojuego/${publicacion.gameId}`;
 
   return (
-    <Card className="w-full justify-self-start rounded-[calc(var(--radius-xl)+0.5rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm sm:max-w-full sm:w-fit">
+    <Card className="h-full w-full rounded-[calc(var(--radius-xl)+0.5rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm">
       <div className="grid gap-5 p-6">
         <div className="grid gap-3">
           <div className="flex flex-wrap items-start justify-between gap-3">

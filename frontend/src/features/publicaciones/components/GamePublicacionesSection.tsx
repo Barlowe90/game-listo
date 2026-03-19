@@ -267,7 +267,7 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
           </div>
         </Card>
       ) : publicaciones.length ? (
-        <div className="grid gap-5 xl:grid-cols-2">
+        <div className="grid gap-5 xl:grid-cols-2 2xl:grid-cols-3">
           {publicaciones.map((publicacion) => (
             <PublicacionCard
               key={publicacion.id}
