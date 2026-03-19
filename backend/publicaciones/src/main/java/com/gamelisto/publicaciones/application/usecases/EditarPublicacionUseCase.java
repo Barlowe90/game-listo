@@ -6,6 +6,8 @@ import com.gamelisto.publicaciones.domain.Publicacion;
 import com.gamelisto.publicaciones.domain.PublicacionRepositorio;
 import com.gamelisto.publicaciones.domain.Idioma;
 import com.gamelisto.publicaciones.domain.Experiencia;
+import com.gamelisto.publicaciones.domain.GrupoJuego;
+import com.gamelisto.publicaciones.domain.GrupoJuegoRepositorio;
 import com.gamelisto.publicaciones.domain.FranjaHoraria;
 import com.gamelisto.publicaciones.domain.DiaSemana;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class EditarPublicacionUseCase implements EditarPublicacionHandler {
 
   private final PublicacionRepositorio publicacionRepositorio;
+  private final GrupoJuegoRepositorio grupoJuegoRepositorio;
 
   @Override
   public PublicacionResult execute(EditarPublicacionCommand command) {
@@ -57,8 +60,9 @@ public class EditarPublicacionUseCase implements EditarPublicacionHandler {
             disponibilidad);
 
     Publicacion guardado = publicacionRepositorio.save(actualizado);
+    GrupoJuego grupo = grupoJuegoRepositorio.findByPublicacionId(guardado.getId()).orElse(null);
 
-    return PublicacionResult.from(guardado);
+    return PublicacionResult.from(guardado, grupo);
   }
 
   private DisponibilidadSemanal mapToDomainDisponibilidad(Map<String, Set<String>> in) {

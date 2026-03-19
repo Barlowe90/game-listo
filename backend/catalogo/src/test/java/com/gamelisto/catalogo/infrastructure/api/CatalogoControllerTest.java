@@ -2,20 +2,26 @@ package com.gamelisto.catalogo.infrastructure.api;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamelisto.catalogo.AbstractIntegrationTest;
+import com.gamelisto.catalogo.application.usecases.GameCardResult;
 import com.gamelisto.catalogo.application.usecases.GameResult;
+import com.gamelisto.catalogo.application.usecases.ObtenerTodosLosJuegosCommand;
 import com.gamelisto.catalogo.application.usecases.PlatformResult;
 import com.gamelisto.catalogo.application.usecases.SyncResultResult;
 import com.gamelisto.catalogo.application.usecases.*;
+import com.gamelisto.catalogo.domain.PageResult;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.gamelisto.catalogo.domain.exceptions.DomainException;
+import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +88,58 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
 
   // ─── Game by ID ───────────────────────────────────────────────────────────
   @Test
+  @DisplayName("GET /v1/catalogo/games debe retornar resultados paginados con headers")
+  void debeRetornarJuegosPaginadosConHeaders() throws Exception {
+    GameCardResult gameResult =
+        new GameCardResult(
+            1L,
+            "Zelda",
+            "https://img/z.jpg",
+            List.of("PC"),
+            List.of("Cooperative", "Online multiplayer"));
+    PageResult<GameCardResult> pageResult = new PageResult<>(List.of(gameResult), 2, 5, 11, 3);
+
+    when(obtenerTodosLosJuegosUseCase.execute(any())).thenReturn(pageResult);
+
+    mockMvc
+        .perform(get("/v1/catalogo/games").param("page", "2").param("size", "5"))
+        .andExpect(status().isOk())
+        .andExpect(header().string("X-Current-Page", "2"))
+        .andExpect(header().string("X-Page-Size", "5"))
+        .andExpect(header().string("X-Total-Count", "11"))
+        .andExpect(header().string("X-Total-Pages", "3"))
+        .andExpect(jsonPath("$[0].id").value(1))
+        .andExpect(jsonPath("$[0].name").value("Zelda"))
+        .andExpect(jsonPath("$[0].platforms[0]").value("PC"))
+        .andExpect(jsonPath("$[0].gameModes[0]").value("Cooperative"))
+        .andExpect(jsonPath("$[0].summary").doesNotExist());
+  }
+
+  @Test
+  @DisplayName("GET /v1/catalogo/games debe aceptar filtros opcionales de plataforma")
+  void debeAceptarFiltrosOpcionalesDePlataforma() throws Exception {
+    PageResult<GameCardResult> pageResult = new PageResult<>(List.of(), 0, 12, 0, 0);
+    ArgumentCaptor<ObtenerTodosLosJuegosCommand> commandCaptor =
+        ArgumentCaptor.forClass(ObtenerTodosLosJuegosCommand.class);
+
+    when(obtenerTodosLosJuegosUseCase.execute(any())).thenReturn(pageResult);
+
+    mockMvc
+        .perform(
+            get("/v1/catalogo/games")
+                .param("page", "0")
+                .param("size", "12")
+                .param("platform", "PS4")
+                .param("platform", "PlayStation 4"))
+        .andExpect(status().isOk());
+
+    verify(obtenerTodosLosJuegosUseCase).execute(commandCaptor.capture());
+    ObtenerTodosLosJuegosCommand command = commandCaptor.getValue();
+    org.assertj.core.api.Assertions.assertThat(command.platforms())
+        .containsExactlyInAnyOrder("ps4", "playstation 4");
+  }
+
+  @Test
   @DisplayName("GET /v1/catalogo/games/{id} debe retornar 200 cuando el juego existe")
   void debeRetornarDetalleDeJuego() throws Exception {
     GameResult gameResult =
@@ -112,9 +170,7 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
             null);
     when(getGameByIdUseCase.execute(any())).thenReturn(gameResult);
 
-    mockMvc
-        .perform(get("/v1/catalogo/games/1").with(asGatewayUser("USER")))
-        .andExpect(status().isOk());
+    mockMvc.perform(get("/v1/catalogo/games/1")).andExpect(status().isOk());
   }
 
   @Test
@@ -122,9 +178,17 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   void debeRetornar404SiJuegoNoExiste() throws Exception {
     when(getGameByIdUseCase.execute(any()))
         .thenThrow(new DomainException("Juego no encontrado con ID: 999"));
-    mockMvc
-        .perform(get("/v1/catalogo/games/999").with(asGatewayUser("USER")))
-        .andExpect(status().isBadRequest());
+    mockMvc.perform(get("/v1/catalogo/games/999")).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  @DisplayName("GET /v1/catalogo/games/{id}/detail debe retornar 200 sin autenticación")
+  void debeRetornarGameDetailSinAutenticacion() throws Exception {
+    GameDetailResult detailResult =
+        new GameDetailResult(1L, List.of("https://img/z1.jpg"), List.of("https://yt/z1"));
+    when(getGameDetailUseCase.execute(any())).thenReturn(detailResult);
+
+    mockMvc.perform(get("/v1/catalogo/games/1/detail")).andExpect(status().isOk());
   }
 
   // ─── Platforms ────────────────────────────────────────────────────────────
@@ -134,14 +198,18 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
     PlatformResult ps4DTO = new PlatformResult(48L, "PlayStation 4", "PS4");
     when(obtenerTodasLasPlatformasUseCase.execute()).thenReturn(List.of(ps4DTO));
 
-    mockMvc
-        .perform(get("/v1/catalogo/platforms").with(asGatewayUser("USER")))
-        .andExpect(status().isOk());
+    mockMvc.perform(get("/v1/catalogo/platforms")).andExpect(status().isOk());
+  }
+
+  @Test
+  @DisplayName("POST /v1/catalogo/sync/games sin autenticación debe retornar 403")
+  void debeProtegerSyncGamesSinAutenticacion() throws Exception {
+    mockMvc.perform(post("/v1/catalogo/sync/games")).andExpect(status().isForbidden());
   }
 
   private RequestPostProcessor asGatewayUser(String roles) {
     return req -> {
-      req.addHeader("X-User-Id", "111");
+      req.addHeader("X-User-Id", UUID.fromString("11111111-1111-1111-1111-111111111111"));
       req.addHeader("X-User-Roles", roles); // ej: "USER" o "USER,ADMIN"
       return req;
     };

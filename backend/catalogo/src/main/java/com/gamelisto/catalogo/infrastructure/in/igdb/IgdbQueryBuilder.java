@@ -14,6 +14,7 @@ public class IgdbQueryBuilder {
 
     return "fields "
         + "alternative_names.name,"
+        + "cover.image_id,"
         + "cover.url,"
         + "dlcs.id,"
         + "expanded_games.id,"
@@ -33,6 +34,7 @@ public class IgdbQueryBuilder {
         + "player_perspectives.name,"
         + "remakes.id,"
         + "remasters.id,"
+        + "screenshots.image_id,"
         + "screenshots.url,"
         + "similar_games.id,"
         + "summary,"
@@ -55,6 +57,7 @@ public class IgdbQueryBuilder {
         + "abbreviation,"
         + "alternative_name,"
         + "name,"
+        + "platform_logo.image_id,"
         + "platform_logo.url,"
         + "platform_type.name,"
         + "id"

@@ -1,6 +1,7 @@
 package com.gamelisto.catalogo.infrastructure.in.igdb.mapper;
 
 import com.gamelisto.catalogo.application.usecases.IgdbPlatformDTO;
+import com.gamelisto.catalogo.infrastructure.in.igdb.IgdbImageSizes;
 import com.gamelisto.catalogo.infrastructure.in.igdb.dto.PlatformFromIGDBResponse;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +13,7 @@ public class IgdbPlatformMapper {
 
     String logoUrl =
         platformIGDBdto.platformLogo() != null
-            ? extractLogoUrl(platformIGDBdto.platformLogo().getFullUrl())
+            ? platformIGDBdto.platformLogo().toSizedUrl(IgdbImageSizes.PLATFORM_LOGO_HIGH)
             : null;
 
     String tipo =
@@ -27,20 +28,6 @@ public class IgdbPlatformMapper {
         platformIGDBdto.alternativeName(),
         logoUrl,
         tipo);
-  }
-
-  private String extractLogoUrl(String logo) {
-    if (logo == null || logo.isBlank()) return null;
-
-    if (logo.startsWith("//")) {
-      return "https:" + logo;
-    }
-
-    if (logo.startsWith("http")) {
-      return logo;
-    }
-
-    return logo;
   }
 
   private String formatCategory(String tipo) {

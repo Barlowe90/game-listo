@@ -51,13 +51,19 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
 
       UUID userId = UUID.fromString(userIdHeader);
 
-      List<SimpleGrantedAuthority> authorities =
+        String firstRole =
           Arrays.stream(rolesHeader.split(","))
-              .map(String::trim)
-              .filter(r -> !r.isBlank())
-              .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
-              .map(SimpleGrantedAuthority::new)
-              .toList();
+            .map(String::trim)
+            .filter(r -> !r.isBlank())
+            .findFirst()
+            .orElse(null);
+
+        List<SimpleGrantedAuthority> authorities =
+          firstRole == null
+            ? List.of()
+            : List.of(
+              new SimpleGrantedAuthority(
+                firstRole.startsWith("ROLE_") ? firstRole : "ROLE_" + firstRole));
 
       Authentication authentication =
           new UsernamePasswordAuthenticationToken(userId, null, authorities);

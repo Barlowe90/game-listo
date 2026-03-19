@@ -130,7 +130,7 @@ toda la información del usuario.
 - **Login** (`POST /v1/usuarios/auth/login`)
     - Validación de credenciales (email/username + password)
     - Verificación de estado del usuario (debe estar ACTIVO)
-    - Generación de access token (JWT) con claims: `userId`, `username`, `email`, `roles`
+    - Generación de access token (JWT) con claims: `userId`, `username`, `email`, `role`
     - Generación de refresh token (UUID almacenado en BD)
     - Respuesta con ambos tokens
 
@@ -362,7 +362,7 @@ autenticación/rol requerido, DTO de request (si aplica), DTO de response y una 
 | GET    | /v1/usuarios/auth/me                  | Authenticated | —                                             | UsuarioResponse (200)                         | Devuelve el perfil del usuario autenticado (userId inyectado por `@AuthenticationPrincipal`).                                                                                                   |
 | PUT    | /v1/usuarios/password                 | Authenticated | CambiarContrasenaRequest                      | void (200)                                    | Cambiar la contraseña del usuario autenticado.                                                                                                                                                  |
 | PUT    | /v1/usuarios/email                    | Authenticated | CambiarCorreoRequest                          | void (200)                                    | Cambiar el email del usuario autenticado (puede requerir nueva verificación).                                                                                                                   |
-| PATCH  | /v1/usuarios                          | Authenticated | EditarPerfilUsuarioRequest                    | UsuarioResponse (200)                         | Editar perfil del usuario autenticado (username, avatar, language, etc.).                                                                                                                       |
+| PATCH  | /v1/usuarios/{id}                     | Authenticated | EditarPerfilUsuarioRequest                    | UsuarioResponse (200)                         | Editar perfil del usuario autenticado (username, avatar, language, etc.).                                                                                                                       |
 | GET    | /v1/usuarios/{id}                     | Public        | —                                             | UsuarioResponse (200)                         | Obtener datos públicos del usuario por ID.                                                                                                                                                      |
 | PUT    | /v1/usuarios/discord                  | Authenticated | VincularDiscordRequest                        | UsuarioResponse (200)                         | Vincular cuenta de Discord al perfil del usuario autenticado.                                                                                                                                   |
 | DELETE | /v1/usuarios/discord                  | Authenticated | —                                             | UsuarioResponse (200)                         | Desvincular la cuenta de Discord del usuario autenticado.                                                                                                                                       |

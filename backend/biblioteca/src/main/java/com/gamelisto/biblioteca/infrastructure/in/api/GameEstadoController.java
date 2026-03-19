@@ -2,6 +2,7 @@ package com.gamelisto.biblioteca.infrastructure.in.api;
 
 import com.gamelisto.biblioteca.application.usecase.BuscarGameEstadosPorGameIdHandler;
 import com.gamelisto.biblioteca.application.usecase.CrearGameEstadoHandler;
+import com.gamelisto.biblioteca.application.usecase.EliminarGameEstadoHandler;
 import com.gamelisto.biblioteca.application.usecase.RateGameEstadoHandler;
 import com.gamelisto.biblioteca.infrastructure.in.api.dto.CrearGameEstadoRequest;
 import com.gamelisto.biblioteca.infrastructure.in.api.dto.GameEstadoResponse;
@@ -27,6 +28,7 @@ public class GameEstadoController {
   private static final Logger logger = LoggerFactory.getLogger(GameEstadoController.class);
   private final RateGameEstadoHandler rateGameEstado;
   private final CrearGameEstadoHandler crearGameEstado;
+  private final EliminarGameEstadoHandler eliminarGameEstado;
   private final BuscarGameEstadosPorGameIdHandler buscarGameEstadosPorGameId;
 
   @PostMapping("/games/{gameRefId}/state")
@@ -40,6 +42,17 @@ public class GameEstadoController {
     crearGameEstado.execute(request.toCommand(userId, gameRefId));
 
     return ResponseEntity.status(HttpStatus.OK).build();
+  }
+
+  @DeleteMapping("/games/{gameRefId}/state")
+  public ResponseEntity<Void> eliminarGameEstado(
+      @AuthenticationPrincipal UUID userId, @PathVariable String gameRefId) {
+
+    logger.info("Eliminar Game Estado para el juego con id {}", gameRefId);
+
+    eliminarGameEstado.execute(userId, gameRefId);
+
+    return ResponseEntity.noContent().build();
   }
 
   @PostMapping("/games/{gameRefId}/rate")

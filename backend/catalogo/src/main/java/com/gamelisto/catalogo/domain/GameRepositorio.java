@@ -9,7 +9,9 @@ public interface GameRepositorio {
 
   Optional<Game> findById(GameId id);
 
-  List<Game> findAll();
+  PageResult<Game> findAll(int page, int size, List<String> platforms);
+
+  PageResult<GameCardSummary> findSummaries(int page, int size, List<String> platforms);
 
   long findMaxId();
 }

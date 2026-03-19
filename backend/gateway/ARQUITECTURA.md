@@ -56,7 +56,7 @@
 │  │      ┌─────────────────────────────────┐        │         │   │
 │  │      │ d) Agregar headers              │        │         │   │
 │  │      │    X-User-Id: <userId>          │◄───────┘         │   │
-│  │      │    X-User-Roles: <roles>        │                  │   │
+│  │      │    X-User-Roles: <rol>          │                  │   │
 │  │      └─────────────┬───────────────────┘                  │   │
 │  │                    │                                       │   │
 │  └────────────────────┼───────────────────────────────────────┘   │
@@ -142,8 +142,8 @@ Gateway valida:
   ✓ No está revocado
   
 Gateway agrega headers:
-  X-User-Id: 123e4567-e89b...
-  X-User-Roles: USER,ADMIN
+        X-User-Id: 123e4567-e89b...
+        X-User-Roles: USER
   
 Gateway → usuarios
         /v1/usuarios/auth/me

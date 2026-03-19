@@ -27,7 +27,7 @@ public class ListaGameEntity {
   private String nombreLista;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "tipo", nullable = false, length = 100)
+  @Column(name = "tipo", nullable = false)
   private Tipo tipo;
 
   @OneToMany(

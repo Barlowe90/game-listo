@@ -133,7 +133,6 @@ Relaciones orientativas:
 | PATCH  | `/v1/publicaciones/solicitudes-union/{solicitudId}`   | Authenticated (autor/receptor) | `SolicitudUnionRequest`    | `SolicitudUnionResponse` (200 OK)       | Aceptar o rechazar una solicitud (según payload).                        |
 | GET    | `/v1/publicaciones/solicitudes-union/enviadas`        | Authenticated                  | —                          | `List<SolicitudUnionResponse>` (200 OK) | Listar solicitudes enviadas por el usuario autenticado.                  |
 | GET    | `/v1/publicaciones/solicitudes-union/recibidas`       | Authenticated                  | —                          | `List<SolicitudUnionResponse>` (200 OK) | Listar solicitudes recibidas por el usuario autenticado.                 |
-| GET    | `/v1/publicaciones/{publicacionId}/solicitudes-union` | Authenticated (autor)          | —                          | `List<SolicitudUnionResponse>` (200 OK) | Listar solicitudes asociadas a una publicación.                          |
 | POST   | `/v1/publicaciones/{publicacionId}/abandonar-grupo`   | Authenticated                  | —                          | void (204 No Content)                   | Abandonar el grupo asociado a la publicación por el usuario autenticado. |
 | GET    | `/v1/publicaciones/grupos/{grupoId}`                  | Public                         | —                          | `GrupoJuegoResponse` (200 OK)           | Obtener datos del grupo de juego (`grupoId` UUID).                       |
 

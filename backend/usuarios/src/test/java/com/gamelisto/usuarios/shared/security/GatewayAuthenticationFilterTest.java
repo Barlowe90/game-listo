@@ -72,9 +72,8 @@ class GatewayAuthenticationFilterTest {
     // Assert
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     assertThat(auth).isNotNull();
-    assertThat(auth.getAuthorities())
-        .extracting(GrantedAuthority::getAuthority)
-        .containsExactlyInAnyOrder("ROLE_USER", "ROLE_ADMIN");
+    // Ahora solo se acepta un único rol por usuario (el primero)
+    assertThat(auth.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsExactly("ROLE_USER");
     verify(filterChain, times(1)).doFilter(request, response);
   }
 
@@ -180,10 +179,7 @@ class GatewayAuthenticationFilterTest {
     // Assert
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     assertThat(auth).isNotNull();
-    assertThat(auth.getAuthorities())
-        .hasSize(2)
-        .extracting(GrantedAuthority::getAuthority)
-        .containsExactlyInAnyOrder("ROLE_USER", "ROLE_ADMIN");
+    assertThat(auth.getAuthorities()).hasSize(1).extracting(GrantedAuthority::getAuthority).containsExactly("ROLE_USER");
     verify(filterChain, times(1)).doFilter(request, response);
   }
 
@@ -200,10 +196,7 @@ class GatewayAuthenticationFilterTest {
     // Assert
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     assertThat(auth).isNotNull();
-    assertThat(auth.getAuthorities())
-        .hasSize(2)
-        .extracting(GrantedAuthority::getAuthority)
-        .containsExactlyInAnyOrder("ROLE_USER", "ROLE_ADMIN");
+    assertThat(auth.getAuthorities()).hasSize(1).extracting(GrantedAuthority::getAuthority).containsExactly("ROLE_USER");
     verify(filterChain, times(1)).doFilter(request, response);
   }
 

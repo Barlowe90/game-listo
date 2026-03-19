@@ -115,10 +115,12 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                         .mutate()
                         .headers(
                             h -> {
-                              // Usar "set" para sobrescribir y evitar duplicados
-                              h.set("X-User-Id", jwtValidator.getUserId(claims));
-                              h.set(
-                                  "X-User-Roles", String.join(",", jwtValidator.getRoles(claims)));
+                                // Usar "set" para sobrescribir y evitar duplicados
+                                h.set("X-User-Id", jwtValidator.getUserId(claims));
+                                // Solo exponer un único rol: tomar el primero si hay varios
+                                var _roles = jwtValidator.getRoles(claims);
+                                String singleRole = (_roles == null || _roles.isEmpty()) ? "" : _roles.get(0);
+                                h.set("X-User-Roles", singleRole);
                             })
                         .build();
 

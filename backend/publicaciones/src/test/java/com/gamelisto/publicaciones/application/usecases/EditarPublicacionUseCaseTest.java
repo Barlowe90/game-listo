@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 
 import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.*;
+import com.gamelisto.publicaciones.domain.vo.PublicacionId;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class EditarPublicacionUseCaseTest {
 
   @Mock private PublicacionRepositorio publicacionRepositorio;
+  @Mock private GrupoJuegoRepositorio grupoJuegoRepositorio;
   @InjectMocks private EditarPublicacionUseCase useCase;
 
   private Publicacion publicacionDe(UUID autorId) {
@@ -44,8 +46,10 @@ class EditarPublicacionUseCaseTest {
   void debeEditarTitulo() {
     UUID autorId = UUID.randomUUID();
     Publicacion pub = publicacionDe(autorId);
+    GrupoJuego grupo = GrupoJuego.create(PublicacionId.of(pub.getId().value()));
     when(publicacionRepositorio.findById(pub.getId())).thenReturn(Optional.of(pub));
     when(publicacionRepositorio.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    when(grupoJuegoRepositorio.findByPublicacionId(pub.getId())).thenReturn(Optional.of(grupo));
 
     Map<String, Set<String>> disponibilidad = Map.of("MIERCOLES", Set.of("DIA"));
     EditarPublicacionCommand command =
@@ -64,6 +68,7 @@ class EditarPublicacionUseCaseTest {
     assertThat(result.titulo()).isEqualTo("Nuevo titulo");
     assertThat(result.idioma()).isEqualTo("ENG");
     assertThat(result.jugadoresMaximos()).isEqualTo(6);
+    assertThat(result.grupoId()).isEqualTo(grupo.getId().value().toString());
     verify(publicacionRepositorio).save(any(Publicacion.class));
   }
 
