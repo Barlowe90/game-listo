@@ -71,7 +71,7 @@ Base path: `/v1/biblioteca`
 | POST   | `/v1/biblioteca/lists/{listaId}/games/{gameRefId}` | Authenticated (propietario) | —                        | void (204 No Content)               | Añade una referencia de juego a la lista; `listaId` y `gameRefId` se tratan como `String`.                   |
 | DELETE | `/v1/biblioteca/lists/{listaId}/games/{gameRefId}` | Authenticated (propietario) | —                        | void (204 No Content)               | Elimina una referencia de juego de la lista.                                                                 |
 | POST   | `/v1/biblioteca/games/{gameRefId}/state`           | Authenticated               | `CrearGameEstadoRequest` | void (200 OK)                       | Registra o actualiza el estado del juego para el usuario (`userId` extraído por `@AuthenticationPrincipal`). |
-| POST   | `/v1/biblioteca/games/{gameRefId}/rate`            | Authenticated               | `RateGameEstadoRequest`  | void (200 OK)                       | Asigna o actualiza la puntuación (rating) del juego por el usuario.                                          |
+| POST   | `/v1/biblioteca/games/{gameRefId}/rate`            | Authenticated               | `RateGameEstadoRequest`  | void (200 OK)                       | Asigna o actualiza la puntuación del juego por el usuario. El dominio solo acepta valores entre `0.0` y `10.0` en incrementos de `0.25`. |
 | GET    | `/v1/biblioteca/games/{gameRefId}`                 | Public                      | —                        | `List<GameEstadoResponse>` (200 OK) | Devuelve los estados/valoraciones de un juego (controlador recibe `gameRefId` como `Long`).                  |
 
 Seguridad
