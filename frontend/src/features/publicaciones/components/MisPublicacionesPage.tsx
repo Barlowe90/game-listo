@@ -107,7 +107,7 @@ function PublicacionAutorCard({
   const resolvedGameTitle = gameTitle ?? `Juego #${publicacion.gameId}`;
 
   return (
-    <Card className="rounded-[calc(var(--radius-xl)+0.5rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm">
+    <Card className="w-full justify-self-start rounded-[calc(var(--radius-xl)+0.5rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm sm:max-w-full sm:w-fit">
       <div className="grid gap-5 p-6">
         <div className="grid gap-3">
           <Link
@@ -117,16 +117,10 @@ function PublicacionAutorCard({
             {resolvedGameTitle}
           </Link>
 
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="grid gap-2">
-              <h2 className="text-xl font-semibold tracking-tight text-foreground">
-                {publicacion.titulo}
-              </h2>
-            </div>
-
-            <span className="inline-flex items-center rounded-pill border border-border bg-background px-3 py-1 text-sm font-semibold text-foreground">
-              Hasta {publicacion.jugadoresMaximos} jugadores
-            </span>
+          <div className="grid gap-2">
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">
+              {publicacion.titulo}
+            </h2>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -137,10 +131,16 @@ function PublicacionAutorCard({
               {experienciaLabelMap.get(publicacion.experiencia) ?? publicacion.experiencia}
             </Badge>
             <Badge>{estiloLabelMap.get(publicacion.estiloJuego) ?? publicacion.estiloJuego}</Badge>
+            <Badge>Hasta {publicacion.jugadoresMaximos} jugadores</Badge>
           </div>
         </div>
 
-        <AvailabilityMatrix availability={mapDisponibilidadToMatrix(publicacion.disponibilidad)} />
+        <AvailabilityMatrix
+          availability={mapDisponibilidadToMatrix(publicacion.disponibilidad)}
+          compact
+          stretch
+          abbreviatedLabels={false}
+        />
       </div>
     </Card>
   );
