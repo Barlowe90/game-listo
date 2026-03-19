@@ -2,21 +2,26 @@ package com.gamelisto.catalogo.infrastructure.api;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamelisto.catalogo.AbstractIntegrationTest;
+import com.gamelisto.catalogo.application.usecases.GameCardResult;
 import com.gamelisto.catalogo.application.usecases.GameResult;
+import com.gamelisto.catalogo.application.usecases.ObtenerTodosLosJuegosCommand;
 import com.gamelisto.catalogo.application.usecases.PlatformResult;
 import com.gamelisto.catalogo.application.usecases.SyncResultResult;
 import com.gamelisto.catalogo.application.usecases.*;
+import com.gamelisto.catalogo.domain.PageResult;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import com.gamelisto.catalogo.domain.exceptions.DomainException;
+import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +87,58 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   }
 
   // ─── Game by ID ───────────────────────────────────────────────────────────
+  @Test
+  @DisplayName("GET /v1/catalogo/games debe retornar resultados paginados con headers")
+  void debeRetornarJuegosPaginadosConHeaders() throws Exception {
+    GameCardResult gameResult =
+        new GameCardResult(
+            1L,
+            "Zelda",
+            "https://img/z.jpg",
+            List.of("PC"),
+            List.of("Cooperative", "Online multiplayer"));
+    PageResult<GameCardResult> pageResult = new PageResult<>(List.of(gameResult), 2, 5, 11, 3);
+
+    when(obtenerTodosLosJuegosUseCase.execute(any())).thenReturn(pageResult);
+
+    mockMvc
+        .perform(get("/v1/catalogo/games").param("page", "2").param("size", "5"))
+        .andExpect(status().isOk())
+        .andExpect(header().string("X-Current-Page", "2"))
+        .andExpect(header().string("X-Page-Size", "5"))
+        .andExpect(header().string("X-Total-Count", "11"))
+        .andExpect(header().string("X-Total-Pages", "3"))
+        .andExpect(jsonPath("$[0].id").value(1))
+        .andExpect(jsonPath("$[0].name").value("Zelda"))
+        .andExpect(jsonPath("$[0].platforms[0]").value("PC"))
+        .andExpect(jsonPath("$[0].gameModes[0]").value("Cooperative"))
+        .andExpect(jsonPath("$[0].summary").doesNotExist());
+  }
+
+  @Test
+  @DisplayName("GET /v1/catalogo/games debe aceptar filtros opcionales de plataforma")
+  void debeAceptarFiltrosOpcionalesDePlataforma() throws Exception {
+    PageResult<GameCardResult> pageResult = new PageResult<>(List.of(), 0, 12, 0, 0);
+    ArgumentCaptor<ObtenerTodosLosJuegosCommand> commandCaptor =
+        ArgumentCaptor.forClass(ObtenerTodosLosJuegosCommand.class);
+
+    when(obtenerTodosLosJuegosUseCase.execute(any())).thenReturn(pageResult);
+
+    mockMvc
+        .perform(
+            get("/v1/catalogo/games")
+                .param("page", "0")
+                .param("size", "12")
+                .param("platform", "PS4")
+                .param("platform", "PlayStation 4"))
+        .andExpect(status().isOk());
+
+    verify(obtenerTodosLosJuegosUseCase).execute(commandCaptor.capture());
+    ObtenerTodosLosJuegosCommand command = commandCaptor.getValue();
+    org.assertj.core.api.Assertions.assertThat(command.platforms())
+        .containsExactlyInAnyOrder("ps4", "playstation 4");
+  }
+
   @Test
   @DisplayName("GET /v1/catalogo/games/{id} debe retornar 200 cuando el juego existe")
   void debeRetornarDetalleDeJuego() throws Exception {

@@ -27,7 +27,7 @@ Base path: `/v1/catalogo`
 
 | Método | Ruta                             | Auth / Rol          | Request                     | Response                          | Descripción / Notas                                                                                          |
 |--------|----------------------------------|---------------------|-----------------------------|-----------------------------------|--------------------------------------------------------------------------------------------------------------|
-| GET    | `/v1/catalogo/games`             | Public              | query params `page`, `size` | `List<GameResponse>` (200 OK)     | Listado de juegos (controlador acepta page/size; implementación actual devuelve todos).                      |
+| GET    | `/v1/catalogo/games`             | Public              | query params `page`, `size` | `List<GameCardResponse>` (200 OK) | Listado paginado ligero para cards: cover, nombre, plataformas y modos.                                     |
 | GET    | `/v1/catalogo/games/{id}`        | Public              | path `id` (Long)            | `GameResponse` (200 OK)           | Metadatos canónicos del juego (Postgres).                                                                    |
 | GET    | `/v1/catalogo/games/{id}/detail` | Public              | path `id` (Long)            | `GameDetailResponse` (200 OK)     | Contenido enriquecido (MongoDB): screenshots, videos, descripción larga.                                     |
 | GET    | `/v1/catalogo/platforms`         | Public              | —                           | `List<PlatformResponse>` (200 OK) | Listado de plataformas soportadas.                                                                           |
@@ -38,7 +38,7 @@ Notas adicionales
 
 - Aunque los endpoints de sincronización no requieren autenticación en el código actual, en entornos de producción
   deberían protegerse para administradores.
-- DTOs: `GameResponse`, `GameDetailResponse`, `PlatformResponse`, `SyncStatusResponse` se encuentran en
+- DTOs: `GameCardResponse`, `GameResponse`, `GameDetailResponse`, `PlatformResponse`, `SyncStatusResponse` se encuentran en
   `infrastructure/in/api/dto`.
 
 ## Consejos rápidos de lectura
@@ -55,7 +55,7 @@ Notas adicionales
 - GameDetail
     - Referencia a `gameId`, screenshots (List<String>), videos (List<String>), descripción larga y campos grandes.
 - Proyección/DTOs
-    - `GameResponse` (para consultas rápidas) y `GameDetailResponse` (contenido multimedia).
+    - `GameCardResponse` (listado ligero), `GameResponse` (detalle canónico) y `GameDetailResponse` (contenido multimedia).
 
 ## Persistencia y decisiones operativas
 

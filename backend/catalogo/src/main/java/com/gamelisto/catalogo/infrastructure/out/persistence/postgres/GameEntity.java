@@ -44,7 +44,7 @@ public class GameEntity {
 
   @ElementCollection
   @CollectionTable(name = "game_external_games", joinColumns = @JoinColumn(name = "game_id"))
-  @Column(name = "external_url", length = 500)
+  @Column(name = "external_url")
   private List<String> externalGames = new ArrayList<>();
 
   @ElementCollection

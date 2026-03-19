@@ -1,7 +1,7 @@
 package com.gamelisto.catalogo.application.usecases;
 
-import java.util.List;
+import com.gamelisto.catalogo.domain.PageResult;
 
 public interface ObtenerTodosLosJuegosHandle {
-  List<GameResult> execute();
+  PageResult<GameCardResult> execute(ObtenerTodosLosJuegosCommand command);
 }
