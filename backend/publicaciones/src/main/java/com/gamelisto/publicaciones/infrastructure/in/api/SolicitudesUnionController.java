@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +22,6 @@ public class SolicitudesUnionController {
   private final CrearSolicitudUnionHandler crearSolicitud;
   private final BuscarSolicitudesUnionEnviadasHandler buscarSolicitudesEnviadas;
   private final BuscarSolicitudesUnionRecibidasHandler buscarSolicitudesRecibidas;
-  private final BuscarSolicitudesUnionRecibidasEnLaPublicacionHandler
-      buscarSolicitudesUnionRecibidasEnLaPublicacion;
   private final AceptarORechazarPeticionHandle aceptarORechazarPeticionHandle;
 
   @PostMapping("/{publicacionId}/solicitud-union")
@@ -75,20 +72,6 @@ public class SolicitudesUnionController {
     logger.info("Listar solicitudes de union recibidas por el usuario {}", userId);
 
     List<SolicitudUnionResult> result = buscarSolicitudesRecibidas.execute(userId);
-
-    List<SolicitudUnionResponse> response =
-        result.stream().map(SolicitudUnionResponse::from).toList();
-
-    return ResponseEntity.status(HttpStatus.OK).body(response);
-  }
-
-  @GetMapping("/{publicacionId}/solicitudes-union")
-  public ResponseEntity<List<SolicitudUnionResponse>> obtenerSolicitudesUnion(
-      @PathVariable UUID publicacionId, @AuthenticationPrincipal UUID userId) {
-    logger.info("Listar solicitudes recibidas a la publicacion {}", publicacionId);
-
-    List<SolicitudUnionResult> result =
-        buscarSolicitudesUnionRecibidasEnLaPublicacion.execute(userId, publicacionId);
 
     List<SolicitudUnionResponse> response =
         result.stream().map(SolicitudUnionResponse::from).toList();
