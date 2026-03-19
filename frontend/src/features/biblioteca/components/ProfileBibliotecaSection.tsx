@@ -15,7 +15,6 @@ import {
   Dialog,
   DialogBody,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -34,13 +33,6 @@ interface ApiErrorResponse {
 }
 
 const LIST_NAME_PATTERN = /^[a-zA-Z0-9 _-]{3,30}$/;
-const RESERVED_LIST_NAMES = new Set([
-  'DESEADO',
-  'PENDIENTE',
-  'JUGANDO',
-  'COMPLETADO',
-  'ABANDONADO',
-]);
 
 function getApiErrorMessage(error: unknown, fallback: string, field?: string) {
   if (axios.isAxiosError<ApiErrorResponse>(error)) {
@@ -75,6 +67,15 @@ function sortLists(lists: BibliotecaLista[]) {
   );
 }
 
+function getOfficialListNames(lists: BibliotecaLista[]) {
+  return new Set(
+    lists
+      .filter((lista) => lista.tipo === 'OFICIAL')
+      .map((lista) => lista.nombre.trim().toUpperCase())
+      .filter(Boolean),
+  );
+}
+
 function ListTypeBadge({ tipo }: Readonly<{ tipo: BibliotecaLista['tipo'] }>) {
   const isPersonalizada = tipo === 'PERSONALIZADA';
 
@@ -95,6 +96,7 @@ function BibliotecaListCard({ lista }: Readonly<{ lista: BibliotecaLista }>) {
   const remainingGames = Math.max(lista.juegos.length - visibleGames.length, 0);
 
   return (
+    <Link href={`/biblioteca/listas/${lista.id}`} className="block h-full">
     <InfoPanelCard
       title={
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -103,6 +105,7 @@ function BibliotecaListCard({ lista }: Readonly<{ lista: BibliotecaLista }>) {
         </div>
       }
       description={getGameCountLabel(lista.juegos.length)}
+      className="h-full transition-[transform,box-shadow,border-color] duration-[var(--duration-fast)] ease-[var(--easing-standard)] hover:-translate-y-px hover:border-border-strong hover:shadow-[0_18px_45px_rgba(15,23,42,0.12)]"
     >
       {visibleGames.length ? (
         <div className="grid gap-2">
@@ -140,12 +143,12 @@ function BibliotecaListCard({ lista }: Readonly<{ lista: BibliotecaLista }>) {
         </p>
       )}
     </InfoPanelCard>
+    </Link>
   );
 }
 
 function BibliotecaStats({ listas }: Readonly<{ listas: BibliotecaLista[] }>) {
   const listasPersonalizadas = listas.filter((lista) => lista.tipo === 'PERSONALIZADA').length;
-  const listasOficiales = listas.filter((lista) => lista.tipo === 'OFICIAL').length;
   const juegosTotales = listas.reduce((total, lista) => total + lista.juegos.length, 0);
 
   return (
@@ -304,7 +307,7 @@ export function ProfileBibliotecaSection() {
       return;
     }
 
-    if (RESERVED_LIST_NAMES.has(nextNombre.toUpperCase())) {
+    if (getOfficialListNames(listas).has(nextNombre.toUpperCase())) {
       setNombreListaError('Ese nombre esta reservado para una lista oficial.');
       return;
     }
@@ -389,82 +392,36 @@ export function ProfileBibliotecaSection() {
     );
   }
 
-  const listasPersonalizadas = sortLists(listas.filter((lista) => lista.tipo === 'PERSONALIZADA'));
-  const listasOficiales = sortLists(listas.filter((lista) => lista.tipo === 'OFICIAL'));
-  const hasAnyList = listas.length > 0;
-
   return (
     <div className="grid gap-6">
-      <SectionHeader title="Biblioteca" />
+      <SectionHeader
+        title="Biblioteca"
+        action={
+          <Button onClick={() => handleCreateDialogOpenChange(true)}>Crear nueva lista</Button>
+        }
+      />
 
       {listasError ? <Toast variant="error" title={listasError} /> : null}
       {listasSuccess ? <Toast title={listasSuccess} /> : null}
 
       <BibliotecaStats listas={listas} />
 
-      {!hasAnyList ? (
-        <EmptyState
-          title="Todavia no tienes listas en tu biblioteca"
-          description="Crea tu primera lista personalizada para empezar a organizar tus juegos."
-          action={
-            <>
-              <Button onClick={() => handleCreateDialogOpenChange(true)}>Crear nueva lista</Button>
-              <Button asChild variant="secondary">
-                <Link href="/catalogo">Explorar catalogo</Link>
-              </Button>
-            </>
-          }
-        />
-      ) : (
-        <>
-          <div className="grid gap-4">
-            {listasPersonalizadas.length ? (
-              <div className="grid gap-4 lg:grid-cols-2">
-                {listasPersonalizadas.map((lista) => (
-                  <BibliotecaListCard key={lista.id} lista={lista} />
-                ))}
-              </div>
-            ) : (
-              <InfoPanelCard title="Crea tu primera lista personalizada">
-                <div className="flex flex-wrap justify-end gap-3">
-                  <Button onClick={() => handleCreateDialogOpenChange(true)}>
-                    Crear nueva lista
-                  </Button>
-                </div>
-              </InfoPanelCard>
-            )}
-          </div>
+      <div className="grid gap-4">
+        <div className="grid gap-1">
+          <h3 className="text-xl font-semibold tracking-tight text-foreground">Tus listas</h3>
+        </div>
 
-          <div className="grid gap-4">
-            <div className="grid gap-1">
-              <h3 className="text-xl font-semibold tracking-tight text-foreground">
-                Listas oficiales
-              </h3>
-            </div>
-
-            {listasOficiales.length ? (
-              <div className="grid gap-4 lg:grid-cols-2">
-                {listasOficiales.map((lista) => (
-                  <BibliotecaListCard key={lista.id} lista={lista} />
-                ))}
-              </div>
-            ) : (
-              <InfoPanelCard
-                title="Tus listas oficiales todavia no estan sincronizadas"
-                description="Cuando el servicio biblioteca reciba tu alta de usuario apareceran aqui."
-              />
-            )}
-          </div>
-        </>
-      )}
+        <div className="grid gap-4 lg:grid-cols-2">
+          {listas.map((lista) => (
+            <BibliotecaListCard key={lista.id} lista={lista} />
+          ))}
+        </div>
+      </div>
 
       <Dialog open={isCreateDialogOpen} onOpenChange={handleCreateDialogOpenChange}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Crear nueva lista</DialogTitle>
-            <DialogDescription>
-              Las listas personalizadas te permiten organizar la biblioteca como prefieras.
-            </DialogDescription>
           </DialogHeader>
 
           <form className="grid gap-4" onSubmit={handleCreateListSubmit}>

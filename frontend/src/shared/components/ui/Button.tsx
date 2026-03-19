@@ -14,6 +14,8 @@ export const buttonVariants = cva(
           'border-transparent bg-primary text-white! shadow-surface hover:bg-primary-hover hover:text-white! active:bg-primary-active active:text-white!',
         secondary:
           'border-border bg-surface text-foreground hover:border-border-strong hover:bg-card',
+        destructive:
+          'border-error bg-error text-white! shadow-surface hover:bg-white hover:text-error! hover:border-error active:bg-error-soft active:text-error!',
         ghost:
           'border-transparent bg-transparent text-secondary! hover:bg-primary-soft hover:text-foreground',
       },
