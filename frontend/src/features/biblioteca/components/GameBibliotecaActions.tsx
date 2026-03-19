@@ -87,14 +87,52 @@ const inactiveActionChipClassName =
 
 const disabledActionChipClassName = 'pointer-events-none opacity-[var(--opacity-disabled)]';
 
+const ratingCardClassName =
+  'grid gap-3 rounded-[calc(var(--radius-xl)+0.4rem)] border border-border bg-white/85 p-4 shadow-surface';
+
+const RATING_OPTIONS = Array.from({ length: 41 }, (_, index) => index * 0.25);
+
+function formatRatingValue(rating: number) {
+  return String(rating).replace('.', ',');
+}
+
+function formatRatingSummary(rating: number | null) {
+  return rating === null ? 'Sin nota' : `${formatRatingValue(rating)} / 10`;
+}
+
+function formatRatingSelectValue(rating: number | null) {
+  if (rating === null) {
+    return '';
+  }
+
+  return String(rating);
+}
+
+function parseRatingSelectValue(value: string) {
+  if (!value) {
+    return null;
+  }
+
+  const parsedValue = Number(value);
+
+  if (!Number.isFinite(parsedValue)) {
+    return null;
+  }
+
+  return parsedValue;
+}
+
 export function GameBibliotecaActions({ gameId }: GameBibliotecaActionsProps) {
   const { status, user } = useAuth();
   const [listas, setListas] = useState<BibliotecaLista[]>([]);
   const [estadoActual, setEstadoActual] = useState<BibliotecaEstado | null>(null);
+  const [ratingActual, setRatingActual] = useState<number | null>(null);
+  const [ratingDraft, setRatingDraft] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoadingLibraryContext, setIsLoadingLibraryContext] = useState(false);
   const [isSavingEstado, setIsSavingEstado] = useState(false);
+  const [isSavingRating, setIsSavingRating] = useState(false);
   const [isListDialogOpen, setIsListDialogOpen] = useState(false);
   const [addingToListId, setAddingToListId] = useState<string | null>(null);
 
@@ -102,6 +140,8 @@ export function GameBibliotecaActions({ gameId }: GameBibliotecaActionsProps) {
     if (status === 'anonymous') {
       setListas([]);
       setEstadoActual(null);
+      setRatingActual(null);
+      setRatingDraft('');
       setError(null);
       setSuccessMessage(null);
       setIsLoadingLibraryContext(false);
@@ -133,9 +173,15 @@ export function GameBibliotecaActions({ gameId }: GameBibliotecaActionsProps) {
         const estadoDelUsuario = gameStates.find(
           (gameState) => gameState.usuarioRefId === userId && isBibliotecaEstado(gameState.estado),
         );
+        const nextRating =
+          typeof estadoDelUsuario?.rating === 'number' && Number.isFinite(estadoDelUsuario.rating)
+            ? estadoDelUsuario.rating
+            : null;
 
         setListas(nextListas);
         setEstadoActual(estadoDelUsuario?.estado ?? null);
+        setRatingActual(nextRating);
+        setRatingDraft(formatRatingSelectValue(nextRating));
       } catch (nextError) {
         if (ignore) {
           return;
@@ -143,6 +189,8 @@ export function GameBibliotecaActions({ gameId }: GameBibliotecaActionsProps) {
 
         setListas([]);
         setEstadoActual(null);
+        setRatingActual(null);
+        setRatingDraft('');
         setError(
           getApiErrorMessage(
             nextError,
@@ -174,6 +222,8 @@ export function GameBibliotecaActions({ gameId }: GameBibliotecaActionsProps) {
   );
 
   const bibliotecaHref = user ? `/usuario/${user.id}?seccion=biblioteca` : '/login';
+  const hasEstadoSeleccionado = estadoActual !== null;
+  const ratingInputId = `game-${gameId}-rating`;
 
   async function handleSelectEstado(estado: BibliotecaEstado) {
     if (status !== 'authenticated' || !user || isSavingEstado || estadoActual === estado) {
@@ -181,19 +231,70 @@ export function GameBibliotecaActions({ gameId }: GameBibliotecaActionsProps) {
     }
 
     const previousEstado = estadoActual;
+    const previousRating = ratingActual;
+    const previousRatingDraft = ratingDraft;
+    const nextRating = previousRating ?? 0;
+
     setIsSavingEstado(true);
     setError(null);
     setSuccessMessage(null);
     setEstadoActual(estado);
+
+    if (previousEstado === null) {
+      setRatingActual(nextRating);
+      setRatingDraft(formatRatingSelectValue(nextRating));
+    }
 
     try {
       await bibliotecaApi.createGameState(gameId, estado);
       setSuccessMessage(`Estado actualizado a ${formatBibliotecaEnumLabel(estado)}.`);
     } catch (nextError) {
       setEstadoActual(previousEstado);
+      setRatingActual(previousRating);
+      setRatingDraft(previousRatingDraft);
       setError(getApiErrorMessage(nextError, 'No se pudo guardar el estado del juego.'));
     } finally {
       setIsSavingEstado(false);
+    }
+  }
+
+  async function handleSelectRating(nextValue: string) {
+    if (
+      status !== 'authenticated' ||
+      !user ||
+      isSavingRating ||
+      isSavingEstado ||
+      isLoadingLibraryContext ||
+      !hasEstadoSeleccionado
+    ) {
+      return;
+    }
+
+    const nextRating = parseRatingSelectValue(nextValue);
+
+    if (nextRating === null || nextRating === ratingActual) {
+      setRatingDraft(formatRatingSelectValue(ratingActual));
+      return;
+    }
+
+    const previousRating = ratingActual;
+    const previousRatingDraft = ratingDraft;
+
+    setIsSavingRating(true);
+    setError(null);
+    setSuccessMessage(null);
+    setRatingActual(nextRating);
+    setRatingDraft(nextValue);
+
+    try {
+      await bibliotecaApi.rateGame(gameId, nextRating);
+      setSuccessMessage(`Puntuacion guardada: ${formatRatingValue(nextRating)} / 10.`);
+    } catch (nextError) {
+      setRatingActual(previousRating);
+      setRatingDraft(previousRatingDraft);
+      setError(getApiErrorMessage(nextError, 'No se pudo guardar la puntuacion del juego.'));
+    } finally {
+      setIsSavingRating(false);
     }
   }
 
@@ -311,11 +412,90 @@ export function GameBibliotecaActions({ gameId }: GameBibliotecaActionsProps) {
     );
   }
 
+  function renderRatingCard(options?: {
+    href?: string;
+    disabled?: boolean;
+    helperText?: string;
+  }) {
+    const helperMessage =
+      options?.helperText ??
+      (options?.href
+        ? 'Inicia sesion para puntuar.'
+        : !hasEstadoSeleccionado
+          ? 'Selecciona primero un estado.'
+          : null);
+
+    return (
+      <div className={ratingCardClassName}>
+        <div className="flex flex-wrap items-center gap-3">
+          <label
+            htmlFor={ratingInputId}
+            className="text-xs font-semibold tracking-[0.08em] text-primary uppercase"
+          >
+            Tu nota
+          </label>
+
+          <select
+            id={ratingInputId}
+            value={ratingDraft}
+            onChange={(event) => {
+              void handleSelectRating(event.target.value);
+            }}
+            disabled={
+              Boolean(options?.href) ||
+              Boolean(options?.disabled) ||
+              !hasEstadoSeleccionado ||
+              isSavingRating
+            }
+            className={cn(
+              'min-h-[var(--target-min-size)] min-w-[11rem] rounded-md border border-border bg-white px-3 py-2 text-sm text-foreground shadow-surface transition-[border-color,background-color,color,box-shadow] duration-[var(--duration-fast)] ease-[var(--easing-standard)] focus-visible:border-primary',
+              (options?.href || options?.disabled || !hasEstadoSeleccionado || isSavingRating) &&
+                'cursor-not-allowed bg-surface text-muted-foreground',
+            )}
+            aria-describedby={helperMessage ? `${ratingInputId}-help` : undefined}
+          >
+            <option value="" disabled>
+              Selecciona una nota
+            </option>
+            {RATING_OPTIONS.map((ratingOption) => (
+              <option key={ratingOption} value={ratingOption}>
+                {formatRatingValue(ratingOption)}
+              </option>
+            ))}
+          </select>
+
+          <span className="inline-flex items-center rounded-pill border border-border bg-background px-3 py-1 text-sm font-semibold text-foreground">
+            {isSavingRating ? 'Guardando...' : formatRatingSummary(ratingActual)}
+          </span>
+
+          {options?.href ? (
+            <Button asChild variant="secondary" className="sm:min-w-[10rem]">
+              <Link href={options.href}>Iniciar sesion</Link>
+            </Button>
+          ) : null}
+        </div>
+
+        {helperMessage ? (
+          <p id={`${ratingInputId}-help`} className="text-sm text-secondary">
+            {helperMessage}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
+
   if (status === 'loading') {
     return (
-      <div className="flex flex-wrap gap-3">
-        {BIBLIOTECA_ESTADOS.map((estado) => renderEstadoChip(estado, { disabled: true }))}
-        {renderAddToListChip({ disabled: true })}
+      <div className="grid gap-3">
+        {renderRatingCard({
+          disabled: true,
+          helperText: 'Estamos cargando tu nota.',
+        })}
+
+        <div className="flex flex-wrap gap-3">
+          {BIBLIOTECA_ESTADOS.map((estado) => renderEstadoChip(estado, { disabled: true }))}
+          {renderAddToListChip({ disabled: true })}
+        </div>
       </div>
     );
   }
@@ -323,6 +503,8 @@ export function GameBibliotecaActions({ gameId }: GameBibliotecaActionsProps) {
   if (status !== 'authenticated') {
     return (
       <div className="grid gap-3">
+        {renderRatingCard({ href: '/login' })}
+
         <div className="flex flex-wrap gap-3">
           {BIBLIOTECA_ESTADOS.map((estado) => renderEstadoChip(estado, { href: '/login' }))}
           {renderAddToListChip({ href: '/login' })}
@@ -335,6 +517,14 @@ export function GameBibliotecaActions({ gameId }: GameBibliotecaActionsProps) {
 
   return (
     <div className="grid gap-3">
+      {renderRatingCard({
+        disabled: isLoadingLibraryContext || isSavingEstado,
+        helperText:
+          isLoadingLibraryContext && !hasEstadoSeleccionado
+            ? 'Estamos cargando tu nota.'
+            : undefined,
+      })}
+
       <div className="flex flex-wrap gap-3">
         {BIBLIOTECA_ESTADOS.map((estado) =>
           renderEstadoChip(estado, { disabled: isLoadingLibraryContext || isSavingEstado }),

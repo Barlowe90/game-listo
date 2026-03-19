@@ -54,6 +54,12 @@ async function createGameState(gameId: number, estado: BibliotecaEstado): Promis
   });
 }
 
+async function rateGame(gameId: number, rating: number): Promise<void> {
+  await httpClient.post(`/v1/biblioteca/games/${gameId}/rate`, {
+    rating,
+  });
+}
+
 async function addGameToList(listaId: string, gameId: number): Promise<void> {
   await httpClient.post(`/v1/biblioteca/lists/${listaId}/games/${gameId}`, null);
 }
@@ -71,5 +77,6 @@ export const bibliotecaApi = {
   getListById,
   getUserLists,
   removeGameFromList,
+  rateGame,
   updateListName,
 };
