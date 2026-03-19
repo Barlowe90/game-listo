@@ -9,7 +9,7 @@ import {
 } from '@/features/catalogo/api/catalogApi';
 import { GameBibliotecaActions } from '@/features/biblioteca/components/GameBibliotecaActions';
 import type { Game } from '@/features/catalogo/model/catalog.types';
-import { EmptyPublicationsState } from '@/shared/components/domain/EmptyPublicationsState';
+import { GamePublicacionesSection } from '@/features/publicaciones/components/GamePublicacionesSection';
 import { GameHero } from '@/shared/components/domain/GameHero';
 import { InfoPanelCard } from '@/shared/components/domain/InfoPanelCard';
 import {
@@ -473,7 +473,7 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
           </TabsContent>
 
           <TabsContent value="publicaciones">
-            <EmptyPublicationsState title="Todavia no hay publicaciones conectadas a esta ficha" />
+            <GamePublicacionesSection gameId={game.id} />
           </TabsContent>
 
           <TabsContent value="videos">

@@ -12,8 +12,6 @@ import { NavLink } from '@/shared/components/layout/NavLink';
 import { SearchBar } from '@/shared/components/layout/SearchBar';
 import { Skeleton } from '@/shared/components/ui/Skeleton';
 
-const navigationItems = [{ href: '/publicaciones', label: 'Mis publicaciones' }] as const;
-
 interface AuthControlProps {
   integrated?: boolean;
 }
@@ -71,7 +69,13 @@ export function Header({ integrated = false }: HeaderProps) {
   const isVideojuegosActive = pathname === '/catalogo' || pathname.startsWith('/videojuego/');
   const userProfilePath = user ? `/usuario/${user.id}` : null;
   const bibliotecaHref =
-    isAuthenticated && user ? `/usuario/${user.id}?seccion=biblioteca` : isLoading ? '/biblioteca' : '/login';
+    isAuthenticated && user
+      ? `/usuario/${user.id}?seccion=biblioteca`
+      : isLoading
+        ? '/biblioteca'
+        : '/login';
+  const misPublicacionesHref =
+    isAuthenticated && user ? '/mis-publicaciones' : isLoading ? '/mis-publicaciones' : '/login';
   const isBibliotecaActive =
     pathname === '/biblioteca' || (userProfilePath !== null && pathname === userProfilePath);
   const bibliotecaLinkClassName = cn(
@@ -151,20 +155,16 @@ export function Header({ integrated = false }: HeaderProps) {
               >
                 Mi biblioteca
               </Link>
-
-              {navigationItems.map((item) => (
-                <NavLink
-                  key={item.href}
-                  href={item.href}
-                  className={
-                    integrated
-                      ? 'text-inverse hover:bg-white/10 hover:text-inverse'
-                      : 'bg-transparent text-foreground hover:bg-transparent hover:text-foreground'
-                  }
-                >
-                  {item.label}
-                </NavLink>
-              ))}
+              <NavLink
+                href={misPublicacionesHref}
+                className={
+                  integrated
+                    ? 'text-inverse hover:bg-white/10 hover:text-inverse'
+                    : 'bg-transparent text-foreground hover:bg-transparent hover:text-foreground'
+                }
+              >
+                Mis publicaciones
+              </NavLink>
             </nav>
 
             <div className="w-72 xl:w-80">
@@ -257,21 +257,18 @@ export function Header({ integrated = false }: HeaderProps) {
               >
                 Mi biblioteca
               </Link>
-              {navigationItems.map((item) => (
-                <NavLink
-                  key={item.href}
-                  href={item.href}
-                  stacked
-                  className={
-                    integrated
-                      ? 'text-inverse hover:bg-white/10 hover:text-inverse'
-                      : 'bg-transparent text-foreground hover:bg-transparent hover:text-foreground'
-                  }
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item.label}
-                </NavLink>
-              ))}
+              <NavLink
+                href={misPublicacionesHref}
+                stacked
+                className={
+                  integrated
+                    ? 'text-inverse hover:bg-white/10 hover:text-inverse'
+                    : 'bg-transparent text-foreground hover:bg-transparent hover:text-foreground'
+                }
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Mis publicaciones
+              </NavLink>
             </div>
             <div className={cn('grid gap-3', integrated ? 'pt-1' : 'border-t border-border pt-4')}>
               <AuthControl integrated={integrated} />
