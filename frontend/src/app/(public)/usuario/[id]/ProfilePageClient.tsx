@@ -12,6 +12,7 @@ import {
   getPasswordRuleErrorMessage,
 } from '@/features/auth/passwordRules';
 import { ProfileBibliotecaSection } from '@/features/biblioteca/components/ProfileBibliotecaSection';
+import { ProfileFriendsSection } from '@/features/social/components/ProfileFriendsSection';
 import { cn } from '@/lib/cn';
 import { InfoPanelCard } from '@/shared/components/domain/InfoPanelCard';
 import { PageSection } from '@/shared/components/layout/PageSection';
@@ -111,25 +112,6 @@ function getApiErrorMessage(error: unknown, fallback: string, field?: string) {
 
 function normalizeLanguage(value: string | null | undefined): LanguageCode {
   return value === 'ENG' ? 'ENG' : 'ESP';
-}
-
-function PlaceholderSection({
-  action,
-  title,
-}: Readonly<{
-  action?: React.ReactNode;
-  title: string;
-}>) {
-  return (
-    <div className="grid gap-6">
-      <SectionHeader title={title} action={action} />
-      <SurfaceCard>
-        <div className="grid place-items-center p-8 text-center">
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">{title}</h2>
-        </div>
-      </SurfaceCard>
-    </div>
-  );
 }
 
 function SimpleStateCard({
@@ -740,7 +722,7 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
   function renderSectionContent() {
     switch (activeSection) {
       case 'amigos':
-        return <PlaceholderSection title="Amigos" />;
+        return <ProfileFriendsSection />;
       case 'ajustes':
         return renderAjustesSection();
       case 'biblioteca':

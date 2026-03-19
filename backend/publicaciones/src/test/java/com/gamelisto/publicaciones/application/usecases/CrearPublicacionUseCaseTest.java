@@ -2,12 +2,19 @@ package com.gamelisto.publicaciones.application.usecases;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import com.gamelisto.publicaciones.domain.*;
-import java.util.UUID;
+import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
+import com.gamelisto.publicaciones.domain.GrupoJuegoUsuario;
+import com.gamelisto.publicaciones.domain.GrupoJuegoUsuarioRepositorio;
+import com.gamelisto.publicaciones.domain.GrupoJuegoRepositorio;
+import com.gamelisto.publicaciones.domain.Publicacion;
+import com.gamelisto.publicaciones.domain.PublicacionRepositorio;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +33,7 @@ class CrearPublicacionUseCaseTest {
   @InjectMocks private CrearPublicacionUseCase useCase;
 
   @Test
-  @DisplayName("debe crear y devolver PublicacionResult con los datos del command")
+  @DisplayName("debe crear la publicacion y agregar al autor al grupo")
   void debeCrearPublicacion() {
     UUID autorId = UUID.randomUUID();
     Map<String, Set<String>> disponibilidad = Map.of("VIERNES", Set.of("NOCHE"));
@@ -45,10 +52,11 @@ class CrearPublicacionUseCaseTest {
     assertThat(result.autorId()).isEqualTo(autorId.toString());
     assertThat(result.titulo()).isEqualTo("Busco grupo");
     verify(publicacionRepositorio).save(any(Publicacion.class));
+    verify(grupoJuegoUsuarioRepositorio).save(any(GrupoJuegoUsuario.class));
   }
 
   @Test
-  @DisplayName("debe lanzar excepción si el repositorio devuelve null")
+  @DisplayName("debe lanzar excepcion si el repositorio devuelve null")
   void debeLanzarExcepcionSiRepositorioDevuelveNull() {
     UUID autorId = UUID.randomUUID();
     Map<String, Set<String>> disponibilidad = Map.of("LUNES", Set.of("TARDE"));
@@ -57,8 +65,6 @@ class CrearPublicacionUseCaseTest {
             autorId, 1L, "Titulo", "ENG", "PRO", "LOGROS", 2, disponibilidad);
     when(publicacionRepositorio.save(any())).thenReturn(null);
 
-    org.junit.jupiter.api.Assertions.assertThrows(
-        com.gamelisto.publicaciones.application.exceptions.ApplicationException.class,
-        () -> useCase.execute(command));
+    Assertions.assertThrows(ApplicationException.class, () -> useCase.execute(command));
   }
 }
