@@ -1,7 +1,9 @@
 'use client';
 
+import axios from 'axios';
 import Link from 'next/link';
 import { useState } from 'react';
+import { authApi } from '@/features/auth/api/authApi';
 import { Button } from '@/shared/components/ui/Button';
 import { Card, CardBody } from '@/shared/components/ui/Card';
 import { FormField } from '@/shared/components/ui/FormField';
@@ -10,13 +12,43 @@ import { PageContainer } from '@/shared/components/ui/PageContainer';
 import { SectionHeader } from '@/shared/components/ui/SectionHeader';
 import { Toast } from '@/shared/components/ui/Toast';
 
+interface ApiErrorResponse {
+  error?: string;
+  errors?: Record<string, string>;
+  message?: string;
+}
+
 export default function RecuperarPasswordPage() {
   const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
-    setSubmitted(true);
+    setIsSubmitting(true);
+    setSuccessMessage(null);
+    setErrorMessage(null);
+
+    try {
+      await authApi.forgotPassword({ email: email.trim() });
+      setSuccessMessage(
+        'Si existe una cuenta con ese email, te hemos enviado un enlace para restablecer la contrasena.',
+      );
+    } catch (error) {
+      if (axios.isAxiosError<ApiErrorResponse>(error)) {
+        setErrorMessage(
+          error.response?.data?.errors?.email ??
+            error.response?.data?.error ??
+            error.response?.data?.message ??
+            'No se pudo iniciar la recuperacion de contrasena.',
+        );
+      } else {
+        setErrorMessage('No se pudo iniciar la recuperacion de contrasena.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -32,25 +64,25 @@ export default function RecuperarPasswordPage() {
                   id="recovery-email"
                   type="email"
                   value={email}
-                  onChange={(event) => setEmail(event.target.value)}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    setSuccessMessage(null);
+                    setErrorMessage(null);
+                  }}
                   required
                   autoComplete="email"
                   placeholder="tu@email.com"
                 />
               </FormField>
 
-              <Button type="submit" className="w-full text-white!">
+              <Button type="submit" loading={isSubmitting} className="w-full text-white!">
                 Enviar instrucciones
               </Button>
             </form>
 
-            {submitted ? (
-              <Toast
-                variant="success"
-                title="Solicitud preparada"
-                description="El patron de feedback ya esta listo para integrarse con el endpoint real."
-              />
-            ) : null}
+            {successMessage ? <Toast title={successMessage} /> : null}
+
+            {errorMessage ? <Toast variant="error" title={errorMessage} /> : null}
 
             <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-secondary">
               <Link href="/login" className="font-semibold text-primary hover:text-primary-hover">

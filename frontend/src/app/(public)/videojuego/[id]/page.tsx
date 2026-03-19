@@ -353,7 +353,7 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
                       items={additionalTags}
                       tone="tag"
                       getHref={(tag) => `/catalogo?q=${encodeURIComponent(tag)}`}
-                      emptyLabel="Este juego aun no tiene keywords adicionales en el backend."
+                      emptyLabel="Este juego no tiene tags."
                     />
                   </div>
 
@@ -377,15 +377,14 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
           <TabsContent value="sobre" className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             <InfoPanelCard title="Descripcion general" className="md:col-span-2">
               <p className="text-[15px] leading-7 text-secondary">
-                {game.summary?.trim() ??
-                  'Todavia no hay una descripcion general disponible para este juego.'}
+                {game.summary?.trim() ?? 'Este juego no tiene descripcion general.'}
               </p>
             </InfoPanelCard>
 
             <InfoPanelCard title="Titulos alternativos">
               <TextList
                 items={alternativeNames}
-                emptyLabel="No se han registrado nombres alternativos para este titulo."
+                emptyLabel="Este juego no tiene nombres alternativos."
               />
             </InfoPanelCard>
 

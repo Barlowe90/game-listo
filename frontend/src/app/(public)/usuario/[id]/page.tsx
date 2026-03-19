@@ -1,15 +1,35 @@
-import { PlaceholderPage } from '@/shared/components/ui/PlaceholderPage';
+import { ProfilePageClient } from './ProfilePageClient';
 
-export default function Home() {
-  return (
-    <PlaceholderPage
-      eyebrow="Perfil"
-      title="Perfil de usuario con base visual compartida"
-      description="El shell mantiene consistencia con el resto de GameListo y deja espacio para introducir actividad, biblioteca y metadatos sin romper foundations."
-      actions={[
-        { href: '/catalogo', label: 'Explorar catalogo', variant: 'primary' },
-        { href: '/', label: 'Volver al inicio', variant: 'secondary' },
-      ]}
-    />
-  );
+type ProfileSectionKey = 'biblioteca' | 'amigos' | 'ajustes';
+
+interface SearchParams {
+  seccion?: string | string[];
+}
+
+function getSearchValue(value: string | string[] | undefined) {
+  if (Array.isArray(value)) {
+    return value[0] ?? '';
+  }
+
+  return value ?? '';
+}
+
+function normalizeSection(value: string | string[] | undefined): ProfileSectionKey {
+  const normalizedValue = getSearchValue(value).trim().toLowerCase();
+
+  if (normalizedValue === 'amigos' || normalizedValue === 'ajustes') {
+    return normalizedValue;
+  }
+
+  return 'biblioteca';
+}
+
+export default async function UsuarioPage({
+  searchParams,
+}: Readonly<{
+  searchParams: Promise<SearchParams>;
+}>) {
+  const resolvedSearchParams = await searchParams;
+
+  return <ProfilePageClient activeSection={normalizeSection(resolvedSearchParams.seccion)} />;
 }

@@ -41,6 +41,8 @@ httpClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     requestUrl.includes('/v1/usuarios/auth/register') ||
     requestUrl.includes('/v1/usuarios/auth/verify-email') ||
     requestUrl.includes('/v1/usuarios/auth/resend-verification') ||
+    requestUrl.includes('/v1/usuarios/auth/forgot-password') ||
+    requestUrl.includes('/v1/usuarios/auth/reset-password') ||
     requestUrl.includes('/v1/usuarios/auth/refresh') ||
     requestUrl.includes('/v1/usuarios/auth/logout');
 
@@ -67,6 +69,8 @@ httpClient.interceptors.response.use(
       requestUrl.includes('/v1/usuarios/auth/register') ||
       requestUrl.includes('/v1/usuarios/auth/verify-email') ||
       requestUrl.includes('/v1/usuarios/auth/resend-verification') ||
+      requestUrl.includes('/v1/usuarios/auth/forgot-password') ||
+      requestUrl.includes('/v1/usuarios/auth/reset-password') ||
       requestUrl.includes('/v1/usuarios/auth/refresh') ||
       requestUrl.includes('/v1/usuarios/auth/logout');
 
