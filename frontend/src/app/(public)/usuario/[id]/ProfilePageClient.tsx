@@ -5,12 +5,14 @@ import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { authApi } from '@/features/auth/api/authApi';
 import { getAccessToken } from '@/features/auth/api/authSessionBridge';
+import { getUserById } from '@/features/auth/api/getUserById';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import type { User } from '@/features/auth/model/session.model';
 import {
   PASSWORD_RULES_HELP_TEXT,
   getPasswordRuleErrorMessage,
 } from '@/features/auth/passwordRules';
+import { socialApi } from '@/features/social/api/socialApi';
 import { ProfileBibliotecaSection } from '@/features/biblioteca/components/ProfileBibliotecaSection';
 import { ProfileFriendsSection } from '@/features/social/components/ProfileFriendsSection';
 import { cn } from '@/lib/cn';
@@ -44,6 +46,7 @@ type LanguageCode = 'ESP' | 'ENG';
 
 interface ProfilePageClientProps {
   activeSection: ProfileSectionKey;
+  profileUserId: string;
 }
 
 interface ApiErrorResponse {
@@ -114,6 +117,10 @@ function normalizeLanguage(value: string | null | undefined): LanguageCode {
   return value === 'ENG' ? 'ENG' : 'ESP';
 }
 
+function getSectionLabel(sectionKey: ProfileSectionKey) {
+  return PROFILE_SECTIONS.find((section) => section.key === sectionKey)?.label ?? 'Perfil';
+}
+
 function SimpleStateCard({
   action,
   title,
@@ -131,9 +138,10 @@ function SimpleStateCard({
   );
 }
 
-export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
+export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageClientProps) {
   const { accessToken, setSession, status, user } = useAuth();
-  const [profile, setProfile] = useState<User | null>(user);
+  const isOwnProfile = user?.id === profileUserId;
+  const [profile, setProfile] = useState<User | null>(isOwnProfile ? user : null);
   const [avatarDraft, setAvatarDraft] = useState(user?.avatar ?? '');
   const [languageDraft, setLanguageDraft] = useState<LanguageCode | ''>(
     user?.language === 'ENG' ? 'ENG' : user?.language === 'ESP' ? 'ESP' : '',
@@ -164,6 +172,11 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
   const [isSavingEmail, setIsSavingEmail] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
   const [profileRefreshKey, setProfileRefreshKey] = useState(0);
+  const [friendActionError, setFriendActionError] = useState<string | null>(null);
+  const [friendActionSuccess, setFriendActionSuccess] = useState<string | null>(null);
+  const [isFriend, setIsFriend] = useState(false);
+  const [isLoadingFriendship, setIsLoadingFriendship] = useState(false);
+  const [isUpdatingFriendship, setIsUpdatingFriendship] = useState(false);
 
   const applyProfileUpdate = useCallback(
     (nextProfile: User) => {
@@ -188,7 +201,17 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
   );
 
   useEffect(() => {
-    if (!user) {
+    setProfile((currentProfile) => {
+      if (currentProfile?.id === profileUserId) {
+        return currentProfile;
+      }
+
+      return isOwnProfile ? user ?? null : null;
+    });
+  }, [isOwnProfile, profileUserId, user]);
+
+  useEffect(() => {
+    if (!isOwnProfile || !user) {
       return;
     }
 
@@ -198,22 +221,9 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
     setEmailDraft((currentEmail) => currentEmail || user.email);
     setDiscordUserIdDraft((currentValue) => currentValue || user.discordUserId || '');
     setDiscordUsernameDraft((currentValue) => currentValue || user.discordUsername || '');
-  }, [user]);
+  }, [isOwnProfile, user]);
 
   useEffect(() => {
-    if (status === 'anonymous') {
-      setProfile(null);
-      setEmailDraft('');
-      setProfileError(null);
-      setIsLoadingProfile(false);
-      return;
-    }
-
-    if (status !== 'authenticated' || !accessToken) {
-      setIsLoadingProfile(status === 'loading');
-      return;
-    }
-
     let ignore = false;
 
     async function loadProfile() {
@@ -221,19 +231,31 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
       setProfileError(null);
 
       try {
-        const authenticatedUser = await authApi.me();
+        const nextProfile =
+          isOwnProfile && status === 'authenticated' && accessToken
+            ? await authApi.me()
+            : await getUserById(profileUserId);
 
         if (ignore) {
           return;
         }
 
-        applyProfileUpdate(authenticatedUser);
+        if (isOwnProfile && status === 'authenticated' && accessToken) {
+          applyProfileUpdate(nextProfile);
+        } else {
+          setProfile(nextProfile);
+        }
       } catch (error) {
         if (ignore) {
           return;
         }
 
-        setProfileError(getApiErrorMessage(error, 'No se pudo cargar tu perfil.'));
+        setProfileError(
+          getApiErrorMessage(
+            error,
+            isOwnProfile ? 'No se pudo cargar tu perfil.' : 'No se pudo cargar este perfil.',
+          ),
+        );
       } finally {
         if (!ignore) {
           setIsLoadingProfile(false);
@@ -246,10 +268,60 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
     return () => {
       ignore = true;
     };
-  }, [accessToken, applyProfileUpdate, profileRefreshKey, status]);
+  }, [accessToken, applyProfileUpdate, isOwnProfile, profileRefreshKey, profileUserId, status]);
 
-  const visibleProfile = profile ?? user;
-  const profileUsername = visibleProfile?.username ?? 'Tu perfil';
+  useEffect(() => {
+    setFriendActionError(null);
+    setFriendActionSuccess(null);
+
+    if (status !== 'authenticated' || isOwnProfile) {
+      setIsFriend(false);
+      setIsLoadingFriendship(false);
+      return;
+    }
+
+    let ignore = false;
+
+    async function loadFriendship() {
+      setIsLoadingFriendship(true);
+
+      try {
+        const friends = await socialApi.listFriends();
+
+        if (ignore) {
+          return;
+        }
+
+        setIsFriend(friends.some((friend) => friend.id === profileUserId));
+      } catch (error) {
+        if (ignore) {
+          return;
+        }
+
+        setFriendActionError(
+          getApiErrorMessage(error, 'No se pudo comprobar si este usuario ya es tu amigo.'),
+        );
+      } finally {
+        if (!ignore) {
+          setIsLoadingFriendship(false);
+        }
+      }
+    }
+
+    void loadFriendship();
+
+    return () => {
+      ignore = true;
+    };
+  }, [isOwnProfile, profileUserId, status]);
+
+  const visibleProfile = profile ?? (isOwnProfile ? user : null);
+  const availableSections = isOwnProfile
+    ? PROFILE_SECTIONS
+    : PROFILE_SECTIONS.filter((section) => section.key !== 'ajustes');
+  const resolvedActiveSection =
+    !isOwnProfile && activeSection === 'ajustes' ? 'biblioteca' : activeSection;
+  const profileUsername = visibleProfile?.username ?? (isOwnProfile ? 'Tu perfil' : 'Perfil');
   const profileAvatar = visibleProfile?.avatar ?? null;
   const currentAvatar = profile?.avatar ?? user?.avatar ?? '';
   const currentLanguage = normalizeLanguage(profile?.language ?? user?.language);
@@ -264,6 +336,37 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
   const isDiscordDirty =
     discordUserIdDraft.trim() !== currentDiscordUserId ||
     discordUsernameDraft.trim() !== currentDiscordUsername;
+
+  async function handleFriendAction() {
+    if (status !== 'authenticated' || !visibleProfile || isOwnProfile) {
+      return;
+    }
+
+    setFriendActionError(null);
+    setFriendActionSuccess(null);
+    setIsUpdatingFriendship(true);
+
+    try {
+      if (isFriend) {
+        await socialApi.removeFriend(visibleProfile.id);
+        setIsFriend(false);
+        setFriendActionSuccess(`${visibleProfile.username} ya no forma parte de tus amigos.`);
+      } else {
+        await socialApi.addFriend(visibleProfile.id);
+        setIsFriend(true);
+        setFriendActionSuccess(`${visibleProfile.username} se ha agregado a tus amigos.`);
+      }
+    } catch (error) {
+      setFriendActionError(
+        getApiErrorMessage(
+          error,
+          isFriend ? 'No se pudo eliminar este amigo.' : 'No se pudo agregar este amigo.',
+        ),
+      );
+    } finally {
+      setIsUpdatingFriendship(false);
+    }
+  }
 
   async function handleProfileSettingsSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -471,6 +574,82 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
     } finally {
       setIsSavingPassword(false);
     }
+  }
+
+  function renderProfileAction() {
+    if (isOwnProfile) {
+      return null;
+    }
+
+    if (status === 'loading') {
+      return (
+        <Button type="button" disabled loading>
+          Comprobando amistad
+        </Button>
+      );
+    }
+
+    if (status !== 'authenticated') {
+      return (
+        <Button asChild>
+          <Link href="/login">Iniciar sesion para agregar amigo</Link>
+        </Button>
+      );
+    }
+
+    if (!visibleProfile) {
+      return null;
+    }
+
+    return (
+      <Button
+        type="button"
+        variant={isFriend ? 'destructive' : 'primary'}
+        loading={isLoadingFriendship || isUpdatingFriendship}
+        disabled={isLoadingFriendship}
+        onClick={() => void handleFriendAction()}
+      >
+        {isFriend ? 'Eliminar amigo' : 'Agregar amigo'}
+      </Button>
+    );
+  }
+
+  function renderPublicProfileSection() {
+    const sectionTitle = getSectionLabel(resolvedActiveSection);
+
+    if (profileError && !visibleProfile) {
+      return (
+        <div className="grid gap-6">
+          <SectionHeader
+            title={sectionTitle}
+            action={
+              <Button onClick={() => setProfileRefreshKey((currentValue) => currentValue + 1)}>
+                Reintentar
+              </Button>
+            }
+          />
+
+          <Toast variant="error" title={profileError} />
+
+          <SimpleStateCard title="No pudimos cargar este perfil ahora mismo" />
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid gap-6">
+        <SectionHeader title={sectionTitle} />
+
+        <InfoPanelCard
+          title="Perfil publico simplificado"
+          description={
+            visibleProfile
+              ? `En este MVP puedes gestionar la amistad con ${visibleProfile.username} desde la cabecera del perfil.`
+              : 'En este MVP solo esta disponible la gestion de amistad desde la cabecera.'
+          }
+        />
+      </div>
+    );
   }
 
   function renderAjustesSection() {
@@ -720,7 +899,11 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
   }
 
   function renderSectionContent() {
-    switch (activeSection) {
+    if (!isOwnProfile) {
+      return renderPublicProfileSection();
+    }
+
+    switch (resolvedActiveSection) {
       case 'amigos':
         return <ProfileFriendsSection />;
       case 'ajustes':
@@ -748,6 +931,9 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
                   </>
                 ) : (
                   <>
+                    <p className="text-xs font-semibold tracking-[0.12em] text-primary uppercase">
+                      {isOwnProfile ? 'Tu perfil' : 'Perfil de usuario'}
+                    </p>
                     <Avatar
                       name={profileUsername}
                       src={profileAvatar}
@@ -757,8 +943,13 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
                     <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                       {profileUsername}
                     </h1>
+                    {renderProfileAction()}
                   </>
                 )}
+
+                {profileError && !visibleProfile ? <Toast variant="error" title={profileError} /> : null}
+                {friendActionError ? <Toast variant="error" title={friendActionError} /> : null}
+                {friendActionSuccess ? <Toast title={friendActionSuccess} /> : null}
               </div>
             </SurfaceCard>
 
@@ -771,12 +962,12 @@ export function ProfilePageClient({ activeSection }: ProfilePageClientProps) {
                 </div>
 
                 <nav className="grid gap-2" aria-label="Secciones del perfil">
-                  {PROFILE_SECTIONS.map((section) => (
+                  {availableSections.map((section) => (
                     <SidebarSectionLink
                       key={section.key}
                       href={`?seccion=${section.key}`}
                       label={section.label}
-                      active={section.key === activeSection}
+                      active={section.key === resolvedActiveSection}
                     />
                   ))}
                 </nav>

@@ -6,6 +6,10 @@ interface SearchParams {
   seccion?: string | string[];
 }
 
+interface RouteParams {
+  id: string;
+}
+
 function getSearchValue(value: string | string[] | undefined) {
   if (Array.isArray(value)) {
     return value[0] ?? '';
@@ -25,11 +29,19 @@ function normalizeSection(value: string | string[] | undefined): ProfileSectionK
 }
 
 export default async function UsuarioPage({
+  params,
   searchParams,
 }: Readonly<{
+  params: Promise<RouteParams>;
   searchParams: Promise<SearchParams>;
 }>) {
+  const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
 
-  return <ProfilePageClient activeSection={normalizeSection(resolvedSearchParams.seccion)} />;
+  return (
+    <ProfilePageClient
+      activeSection={normalizeSection(resolvedSearchParams.seccion)}
+      profileUserId={resolvedParams.id}
+    />
+  );
 }

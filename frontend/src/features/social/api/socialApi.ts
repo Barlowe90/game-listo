@@ -7,6 +7,16 @@ async function listFriends(): Promise<UsuarioRef[]> {
   return response.data;
 }
 
+async function addFriend(friendId: string): Promise<void> {
+  await httpClient.post(`/v1/social/users/friends/${friendId}`, null);
+}
+
+async function removeFriend(friendId: string): Promise<void> {
+  await httpClient.delete(`/v1/social/users/friends/${friendId}`);
+}
+
 export const socialApi = {
+  addFriend,
   listFriends,
+  removeFriend,
 };
