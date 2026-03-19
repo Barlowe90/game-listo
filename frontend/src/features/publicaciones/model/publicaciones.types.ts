@@ -59,6 +59,34 @@ export interface Publicacion {
   disponibilidad: PublicacionDisponibilidad | null;
 }
 
+export interface UsuarioRef {
+  id: string;
+  username: string;
+  avatar: string | null;
+}
+
+export interface GrupoJuego {
+  id: string;
+  publicacionId: string;
+  fechaCreacion: string;
+  participantes: UsuarioRef[];
+}
+
+export interface PublicacionDetalle extends Publicacion {
+  participantesCount: number;
+  plazasDisponibles: number;
+  participantes: UsuarioRef[];
+}
+
+export type SolicitudUnionEstado = 'SOLICITADA' | 'ACEPTADA' | 'RECHAZADA';
+
+export interface SolicitudUnion {
+  id: string;
+  publicacionId: string;
+  usuarioId: string;
+  estadoSolicitud: SolicitudUnionEstado;
+}
+
 export interface CrearPublicacionPayload {
   gameId: number;
   titulo: string;

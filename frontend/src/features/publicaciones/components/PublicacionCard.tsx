@@ -7,6 +7,7 @@ import type {
   PublicacionDiaSemana,
   PublicacionDisponibilidad,
   PublicacionFranjaHoraria,
+  UsuarioRef,
 } from '@/features/publicaciones/model/publicaciones.types';
 import {
   PUBLICACION_DIAS,
@@ -21,6 +22,7 @@ import {
   type AvailabilityMatrixValue,
   type AvailabilityPeriod,
 } from '@/shared/components/domain/AvailabilityMatrix';
+import { Avatar } from '@/shared/components/ui/Avatar';
 import { Badge } from '@/shared/components/ui/Badge';
 import { Button } from '@/shared/components/ui/Button';
 import { Card } from '@/shared/components/ui/Card';
@@ -55,18 +57,29 @@ const backendToMatrixPeriodMap: Record<PublicacionFranjaHoraria, AvailabilityPer
 
 interface PublicacionCardProps {
   publicacion: Publicacion;
+  participantes?: UsuarioRef[] | null;
   gameTitle?: string;
   showGameLink?: boolean;
   isAuthor?: boolean;
   disableActions?: boolean;
+  isJoinRequested?: boolean;
+  joinActionHref?: string;
   onEdit?: (publicacion: Publicacion) => void;
   onDelete?: (publicacion: Publicacion) => void;
+  onRequestJoin?: () => void;
 }
 
 interface PublicacionActionButtonProps {
   iconSrc: string;
   label: string;
   disabled?: boolean;
+  onClick?: () => void;
+}
+
+interface JoinSlotProps {
+  disabled?: boolean;
+  href?: string;
+  label: string;
   onClick?: () => void;
 }
 
@@ -115,18 +128,90 @@ function PublicacionActionButton({
   );
 }
 
+function JoinSlotPlusIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+function JoinSlot({ disabled = false, href, label, onClick }: Readonly<JoinSlotProps>) {
+  const className = cn(
+    'inline-flex size-10 items-center justify-center rounded-pill border-2 bg-white text-primary shadow-surface transition-[background-color,border-color,color,transform] duration-[var(--duration-fast)] ease-[var(--easing-standard)]',
+    disabled
+      ? 'border-primary/35 text-primary/40'
+      : 'border-primary/75 hover:-translate-y-0.5 hover:bg-primary-soft/40',
+  );
+
+  if (href && !disabled) {
+    return (
+      <Link href={href} aria-label={label} className={className}>
+        <JoinSlotPlusIcon />
+      </Link>
+    );
+  }
+
+  if (onClick && !disabled) {
+    return (
+      <button type="button" aria-label={label} className={className} onClick={onClick}>
+        <JoinSlotPlusIcon />
+      </button>
+    );
+  }
+
+  return (
+    <span aria-label={label} className={className} role="img">
+      <JoinSlotPlusIcon />
+    </span>
+  );
+}
+
+function sortParticipantes(publicacion: Publicacion, participantes: UsuarioRef[]) {
+  return [...participantes].sort((left, right) => {
+    if (left.id === publicacion.autorId) {
+      return -1;
+    }
+
+    if (right.id === publicacion.autorId) {
+      return 1;
+    }
+
+    return left.username.localeCompare(right.username, 'es', { sensitivity: 'base' });
+  });
+}
+
 export function PublicacionCard({
   publicacion,
+  participantes,
   gameTitle,
   showGameLink = false,
   isAuthor = false,
   disableActions = false,
+  isJoinRequested = false,
+  joinActionHref,
   onEdit,
   onDelete,
+  onRequestJoin,
 }: Readonly<PublicacionCardProps>) {
   const hasActions = isAuthor && (onEdit || onDelete);
+  const showParticipantSlots = participantes !== undefined;
   const resolvedGameTitle = gameTitle ?? `Juego #${publicacion.gameId}`;
   const gameHref = `/videojuego/${publicacion.gameId}`;
+  const totalSlots = Math.max(publicacion.jugadoresMaximos, 1);
+  const sortedParticipantes = sortParticipantes(publicacion, participantes ?? []);
+  const visibleParticipantes = (
+    sortedParticipantes.length
+      ? sortedParticipantes
+      : [{ id: publicacion.autorId, username: 'Autor', avatar: null }]
+  ).slice(0, totalSlots);
+  const emptySlotsCount = Math.max(totalSlots - visibleParticipantes.length, 0);
+  const joinDisabled =
+    disableActions ||
+    isAuthor ||
+    isJoinRequested ||
+    visibleParticipantes.length >= totalSlots ||
+    (!joinActionHref && !onRequestJoin);
 
   return (
     <Card className="h-full w-full rounded-[calc(var(--radius-xl)+0.5rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm">
@@ -191,6 +276,34 @@ export function PublicacionCard({
           stretch
           abbreviatedLabels={false}
         />
+
+        {showParticipantSlots ? (
+          <div className="flex flex-wrap items-center gap-2" aria-label="Plazas del grupo">
+            {visibleParticipantes.map((participante) => (
+              <Avatar
+                key={participante.id}
+                src={participante.avatar}
+                name={participante.username}
+                size="sm"
+                className="size-10 border-primary/15 bg-white text-primary shadow-surface"
+              />
+            ))}
+
+            {Array.from({ length: emptySlotsCount }, (_, slotIndex) => (
+              <JoinSlot
+                key={`join-slot-${publicacion.id}-${slotIndex}`}
+                disabled={joinDisabled}
+                href={joinActionHref}
+                label={
+                  isJoinRequested
+                    ? 'Solicitud de union ya enviada'
+                    : `Solicitar union a ${publicacion.titulo}`
+                }
+                onClick={onRequestJoin}
+              />
+            ))}
+          </div>
+        ) : null}
       </div>
     </Card>
   );

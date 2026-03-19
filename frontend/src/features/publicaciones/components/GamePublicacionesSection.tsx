@@ -11,6 +11,7 @@ import { PublicacionEditorDialog } from '@/features/publicaciones/components/Pub
 import type {
   CrearPublicacionPayload,
   EditarPublicacionPayload,
+  GrupoJuego,
   Publicacion,
 } from '@/features/publicaciones/model/publicaciones.types';
 import { EmptyPublicationsState } from '@/shared/components/domain/EmptyPublicationsState';
@@ -51,10 +52,35 @@ function getPublicacionesCountLabel(count: number) {
   return `${count} ${count === 1 ? 'publicacion' : 'publicaciones'}`;
 }
 
+async function loadGrupoJuego(publicacion: Publicacion): Promise<GrupoJuego | null> {
+  if (!publicacion.grupoId) {
+    return null;
+  }
+
+  try {
+    return await publicacionesApi.getGrupoJuego(publicacion.grupoId);
+  } catch {
+    return null;
+  }
+}
+
+async function loadGruposPorPublicacion(publicaciones: Publicacion[]) {
+  const grupos = await Promise.all(
+    publicaciones.map(async (publicacion) => [publicacion.id, await loadGrupoJuego(publicacion)]),
+  );
+
+  return Object.fromEntries(grupos) as Record<string, GrupoJuego | null>;
+}
+
 export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionProps) {
   const { status, user } = useAuth();
   const userId = user?.id ?? null;
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
+  const [gruposByPublicacionId, setGruposByPublicacionId] = useState<
+    Record<string, GrupoJuego | null>
+  >({});
+  const [requestedPublicacionIds, setRequestedPublicacionIds] = useState<Record<string, true>>({});
+  const [joiningPublicacionId, setJoiningPublicacionId] = useState<string | null>(null);
   const [isLoadingPublicaciones, setIsLoadingPublicaciones] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -70,15 +96,18 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
     async function loadPublicaciones() {
       setIsLoadingPublicaciones(true);
       setLoadError(null);
+      setRequestedPublicacionIds({});
 
       try {
         const nextPublicaciones = await publicacionesApi.getPublicacionesPorJuego(gameId);
+        const nextGruposByPublicacionId = await loadGruposPorPublicacion(nextPublicaciones);
 
         if (ignore) {
           return;
         }
 
         setPublicaciones(nextPublicaciones);
+        setGruposByPublicacionId(nextGruposByPublicacionId);
       } catch (error) {
         if (ignore) {
           return;
@@ -139,6 +168,7 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
 
     try {
       const createdPublicacion = await publicacionesApi.createPublicacion(payload);
+      const createdGrupo = await loadGrupoJuego(createdPublicacion);
 
       setPublicaciones((currentPublicaciones) => [
         createdPublicacion,
@@ -146,6 +176,10 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
           (currentPublicacion) => currentPublicacion.id !== createdPublicacion.id,
         ),
       ]);
+      setGruposByPublicacionId((currentGruposByPublicacionId) => ({
+        ...currentGruposByPublicacionId,
+        [createdPublicacion.id]: createdGrupo,
+      }));
       setSuccessMessage('Publicacion creada correctamente.');
     } finally {
       setIsSubmittingPublicacion(false);
@@ -199,12 +233,44 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
           (currentPublicacion) => currentPublicacion.id !== deletingPublicacion.id,
         ),
       );
+      setGruposByPublicacionId((currentGruposByPublicacionId) => {
+        const nextGruposByPublicacionId = { ...currentGruposByPublicacionId };
+        delete nextGruposByPublicacionId[deletingPublicacion.id];
+        return nextGruposByPublicacionId;
+      });
       setDeletingPublicacion(null);
       setSuccessMessage('Publicacion eliminada correctamente.');
     } catch (error) {
       setLoadError(getApiErrorMessage(error, 'No se pudo eliminar la publicacion.'));
     } finally {
       setIsDeletingPublicacion(false);
+    }
+  }
+
+  async function handleRequestJoin(publicacion: Publicacion) {
+    if (
+      status !== 'authenticated' ||
+      joiningPublicacionId === publicacion.id ||
+      requestedPublicacionIds[publicacion.id]
+    ) {
+      return;
+    }
+
+    setJoiningPublicacionId(publicacion.id);
+    setLoadError(null);
+    setSuccessMessage(null);
+
+    try {
+      await publicacionesApi.createSolicitudUnion(publicacion.id);
+      setRequestedPublicacionIds((currentRequestedPublicacionIds) => ({
+        ...currentRequestedPublicacionIds,
+        [publicacion.id]: true,
+      }));
+      setSuccessMessage('Solicitud de union enviada correctamente.');
+    } catch (error) {
+      setLoadError(getApiErrorMessage(error, 'No se pudo enviar la solicitud de union.'));
+    } finally {
+      setJoiningPublicacionId(null);
     }
   }
 
@@ -272,8 +338,20 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
             <PublicacionCard
               key={publicacion.id}
               publicacion={publicacion}
+              participantes={gruposByPublicacionId[publicacion.id]?.participantes ?? null}
               isAuthor={userId === publicacion.autorId}
-              disableActions={isSubmittingPublicacion || isDeletingPublicacion}
+              disableActions={
+                isSubmittingPublicacion ||
+                isDeletingPublicacion ||
+                joiningPublicacionId === publicacion.id
+              }
+              isJoinRequested={Boolean(requestedPublicacionIds[publicacion.id])}
+              joinActionHref={status === 'anonymous' ? '/login' : undefined}
+              onRequestJoin={
+                status === 'authenticated' && userId !== publicacion.autorId
+                  ? () => void handleRequestJoin(publicacion)
+                  : undefined
+              }
               onEdit={userId === publicacion.autorId ? setEditingPublicacion : undefined}
               onDelete={userId === publicacion.autorId ? setDeletingPublicacion : undefined}
             />
