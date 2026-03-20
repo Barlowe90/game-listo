@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/components/ui/Dialog';
+import { BIBLIOTECA_LIST_TEXT } from './biblioteca.shared';
 
 interface BibliotecaDeleteListDialogProps {
   isDeletingList: boolean;
@@ -28,7 +29,7 @@ export function BibliotecaDeleteListDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Eliminar lista</DialogTitle>
+          <DialogTitle>{BIBLIOTECA_LIST_TEXT.deleteList}</DialogTitle>
           <DialogDescription>
             Esta accion eliminara la lista personalizada y no se puede deshacer.
           </DialogDescription>
@@ -47,10 +48,10 @@ export function BibliotecaDeleteListDialog({
             onClick={() => onOpenChange(false)}
             disabled={isDeletingList}
           >
-            Cancelar
+            {BIBLIOTECA_LIST_TEXT.cancel}
           </Button>
           <Button type="button" variant="destructive" onClick={onConfirm} loading={isDeletingList}>
-            Eliminar lista
+            {BIBLIOTECA_LIST_TEXT.deleteList}
           </Button>
         </DialogFooter>
       </DialogContent>

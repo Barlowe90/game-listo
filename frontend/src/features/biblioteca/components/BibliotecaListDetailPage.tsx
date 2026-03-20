@@ -16,10 +16,15 @@ import { BibliotecaDeleteListDialog } from './BibliotecaDeleteListDialog';
 import { BibliotecaListDetailHeader } from './BibliotecaListDetailHeader';
 import { BibliotecaListGamesSection } from './BibliotecaListGamesSection';
 import {
-  BibliotecaListDetailLoading,
-  LIST_NAME_PATTERN,
-  ListTypeBadge,
   getApiErrorMessage,
+  getApiFieldErrorMessage,
+  getGameCountLabel,
+  ListTypeBadge,
+  validateBibliotecaListName,
+  BIBLIOTECA_LIST_TEXT,
+} from './biblioteca.shared';
+import {
+  BibliotecaListDetailLoading,
   type BibliotecaListaJuegoDetalle,
 } from './bibliotecaListDetail.shared';
 
@@ -184,23 +189,15 @@ export function BibliotecaListDetailPage({ listaId }: BibliotecaListDetailPagePr
       return;
     }
 
-    const nextNombre = nombreDraft.trim();
+    const { errorMessage, normalizedName: nextNombre } = validateBibliotecaListName(
+      nombreDraft,
+      officialListNames,
+    );
+
     resetFeedback();
 
-    if (!nextNombre) {
-      setNombreError('Introduce un nombre para la lista.');
-      return;
-    }
-
-    if (!LIST_NAME_PATTERN.test(nextNombre)) {
-      setNombreError(
-        'Usa entre 3 y 30 caracteres con letras, numeros, espacios, guiones o guiones bajos.',
-      );
-      return;
-    }
-
-    if (officialListNames.has(nextNombre.toUpperCase())) {
-      setNombreError('Ese nombre esta reservado para una lista oficial.');
+    if (errorMessage) {
+      setNombreError(errorMessage);
       return;
     }
 
@@ -218,24 +215,12 @@ export function BibliotecaListDetailPage({ listaId }: BibliotecaListDetailPagePr
       setIsEditingName(false);
       setSuccessMessage('Nombre de la lista actualizado correctamente.');
     } catch (renameError) {
-      if (
-        typeof renameError === 'object' &&
-        renameError !== null &&
-        'isAxiosError' in renameError &&
-        (renameError as { isAxiosError?: boolean }).isAxiosError
-      ) {
-        const fieldErrors = (
-          renameError as { response?: { data?: { errors?: Record<string, string> } } }
-        ).response?.data?.errors;
-        const fieldMessage = fieldErrors?.nombre ?? null;
+      const fieldMessage = getApiFieldErrorMessage(renameError, 'nombre');
 
-        if (fieldMessage) {
-          setNombreError(fieldMessage);
-        } else {
-          setError(getApiErrorMessage(renameError, 'No se pudo actualizar el nombre de la lista.'));
-        }
+      if (fieldMessage) {
+        setNombreError(fieldMessage);
       } else {
-        setError('No se pudo actualizar el nombre de la lista.');
+        setError(getApiErrorMessage(renameError, 'No se pudo actualizar el nombre de la lista.'));
       }
     } finally {
       setIsSavingName(false);
@@ -281,7 +266,7 @@ export function BibliotecaListDetailPage({ listaId }: BibliotecaListDetailPagePr
                   Reintentar
                 </Button>
                 <Button asChild variant="secondary">
-                  <Link href={backHref}>Volver a biblioteca</Link>
+                  <Link href={backHref}>{BIBLIOTECA_LIST_TEXT.backToLibrary}</Link>
                 </Button>
               </div>
             </InfoPanelCard>
@@ -318,7 +303,7 @@ export function BibliotecaListDetailPage({ listaId }: BibliotecaListDetailPagePr
                     <ListTypeBadge tipo={lista.tipo} />
                   </div>
                 }
-                description={`${lista.juegos.length} ${lista.juegos.length === 1 ? 'juego' : 'juegos'} en esta lista`}
+                description={getGameCountLabel(lista.juegos.length, 'en esta lista')}
               >
                 {isEditingName ? (
                   <p className="text-sm leading-relaxed text-secondary">

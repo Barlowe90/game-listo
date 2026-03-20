@@ -17,11 +17,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/components/ui/Dialog';
+import { getGameCountLabel } from './biblioteca.shared';
 
-interface ApiErrorResponse {
-  error?: string;
-  message?: string;
-}
+export { getApiErrorMessage } from './biblioteca.shared';
 
 interface BibliotecaRatingCardProps {
   disabled?: boolean;
@@ -69,20 +67,6 @@ const ratingCardClassName =
   'grid gap-3 rounded-[calc(var(--radius-xl)+0.4rem)] border border-border bg-white/85 p-4 shadow-surface';
 
 export const RATING_OPTIONS = Array.from({ length: 41 }, (_, index) => index * 0.25);
-
-export function getApiErrorMessage(error: unknown, fallback: string) {
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'isAxiosError' in error &&
-    (error as { isAxiosError?: boolean }).isAxiosError
-  ) {
-    const responseData = (error as { response?: { data?: ApiErrorResponse } }).response?.data;
-    return responseData?.error ?? responseData?.message ?? fallback;
-  }
-
-  return fallback;
-}
 
 function getEstadoIconSrc(estado: BibliotecaEstado) {
   return `/${estado.toLowerCase()}.svg`;
@@ -330,7 +314,7 @@ export function BibliotecaAddToListDialog({
                     <div className="grid gap-1">
                       <span className="text-sm font-semibold text-foreground">{lista.nombre}</span>
                       <span className="text-xs text-secondary">
-                        {lista.juegos.length} {lista.juegos.length === 1 ? 'juego' : 'juegos'}
+                        {getGameCountLabel(lista.juegos.length)}
                       </span>
                     </div>
 

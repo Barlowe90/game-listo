@@ -4,6 +4,7 @@ import type { BibliotecaLista } from '@/features/biblioteca/model/biblioteca.typ
 import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
 import { SectionHeader } from '@/shared/components/ui/SectionHeader';
+import { BIBLIOTECA_LIST_TEXT } from './biblioteca.shared';
 
 interface BibliotecaListDetailHeaderProps {
   backHref: string;
@@ -60,7 +61,7 @@ export function BibliotecaListDetailHeader({
                 disabled={isSavingName}
                 state={nombreError ? 'error' : 'default'}
                 className="w-[min(26rem,70vw)] bg-white"
-                aria-label="Editar nombre de la lista"
+                aria-label={BIBLIOTECA_LIST_TEXT.editName}
               />
             ) : (
               <span>{lista.nombre}</span>
@@ -71,7 +72,7 @@ export function BibliotecaListDetailHeader({
                 type="button"
                 onClick={onBeginEditing}
                 className="inline-flex size-10 items-center justify-center rounded-pill border border-border bg-white/80 transition-colors hover:border-border-strong hover:bg-white"
-                aria-label="Editar nombre de la lista"
+                aria-label={BIBLIOTECA_LIST_TEXT.editName}
               >
                 <Image
                   src="/lapiz_editar.svg"
@@ -91,11 +92,11 @@ export function BibliotecaListDetailHeader({
         <div className="flex flex-wrap items-center gap-3">
           {canManageList ? (
             <Button variant="destructive" onClick={onDeleteClick} disabled={isDeletingList}>
-              Eliminar lista
+              {BIBLIOTECA_LIST_TEXT.deleteList}
             </Button>
           ) : null}
           <Button asChild variant="secondary">
-            <Link href={backHref}>Volver a biblioteca</Link>
+            <Link href={backHref}>{BIBLIOTECA_LIST_TEXT.backToLibrary}</Link>
           </Button>
         </div>
       }

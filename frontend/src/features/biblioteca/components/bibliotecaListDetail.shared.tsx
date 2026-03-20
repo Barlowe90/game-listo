@@ -1,52 +1,15 @@
-import axios from 'axios';
 import Link from 'next/link';
-import { cn } from '@/lib/cn';
 import { GameArtwork } from '@/shared/components/domain/GameArtwork';
 import { PlatformChip } from '@/shared/components/domain/TagList';
 import { Badge } from '@/shared/components/ui/Badge';
 import { Card } from '@/shared/components/ui/Card';
 import { SectionHeader } from '@/shared/components/ui/SectionHeader';
 import { Skeleton } from '@/shared/components/ui/Skeleton';
-import type {
-  BibliotecaLista,
-  BibliotecaListaJuego,
-} from '@/features/biblioteca/model/biblioteca.types';
+import type { BibliotecaListaJuego } from '@/features/biblioteca/model/biblioteca.types';
 import { formatBibliotecaEnumLabel } from '@/features/biblioteca/model/biblioteca.utils';
-
-interface ApiErrorResponse {
-  error?: string;
-  message?: string;
-}
 
 export interface BibliotecaListaJuegoDetalle extends BibliotecaListaJuego {
   plataformas: string[];
-}
-
-export const LIST_NAME_PATTERN = /^[a-zA-Z0-9 _-]{3,30}$/;
-
-export function getApiErrorMessage(error: unknown, fallback: string) {
-  if (axios.isAxiosError<ApiErrorResponse>(error)) {
-    const responseData = error.response?.data;
-
-    return responseData?.error ?? responseData?.message ?? fallback;
-  }
-
-  return fallback;
-}
-
-export function ListTypeBadge({ tipo }: Readonly<{ tipo: BibliotecaLista['tipo'] }>) {
-  const isPersonalizada = tipo === 'PERSONALIZADA';
-
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded-pill px-3 py-1 text-[11px] font-semibold tracking-[0.08em] uppercase',
-        isPersonalizada ? 'bg-primary-soft text-primary' : 'bg-surface text-muted-foreground',
-      )}
-    >
-      {isPersonalizada ? 'Personalizada' : 'Oficial'}
-    </span>
-  );
 }
 
 export function EstadoBadge({ estado }: Readonly<{ estado: string | null }>) {
