@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { Pencil } from 'lucide-react';
 import Link from 'next/link';
 import type { BibliotecaLista } from '@/features/biblioteca/model/biblioteca.types';
 import { Button } from '@/shared/components/ui/Button';
@@ -74,13 +74,7 @@ export function BibliotecaListDetailHeader({
                 className="inline-flex size-10 items-center justify-center rounded-pill border border-border bg-white/80 transition-colors hover:border-border-strong hover:bg-white"
                 aria-label={BIBLIOTECA_LIST_TEXT.editName}
               >
-                <Image
-                  src="/lapiz_editar.svg"
-                  alt=""
-                  width={18}
-                  height={18}
-                  className="size-[18px]"
-                />
+                <Pencil className="size-[18px]" aria-hidden="true" />
               </button>
             ) : null}
           </span>

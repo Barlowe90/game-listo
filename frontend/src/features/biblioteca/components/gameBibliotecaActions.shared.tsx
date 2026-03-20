@@ -1,4 +1,12 @@
-import Image from 'next/image';
+import {
+  CircleCheckBig,
+  CircleOff,
+  Clock3,
+  Gamepad2,
+  Heart,
+  Plus,
+  type LucideIcon,
+} from 'lucide-react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import type {
@@ -56,7 +64,7 @@ const actionChipClassName =
   'inline-flex min-h-[70px] min-w-[84px] flex-col items-center justify-center gap-1.5 rounded-[calc(var(--radius-xl)+0.25rem)] border px-3 py-2 text-center text-[13px] font-semibold transition-[background-color,border-color,color,box-shadow,opacity] duration-[var(--duration-fast)] ease-[var(--easing-standard)]';
 
 const activeActionChipClassName =
-  'border-transparent bg-primary text-primary-foreground shadow-surface [&_img]:brightness-0 [&_img]:invert';
+  'border-transparent bg-primary text-primary-foreground shadow-surface';
 
 const inactiveActionChipClassName =
   'border-border bg-primary-soft/70 text-foreground hover:border-border-strong hover:bg-surface';
@@ -68,9 +76,13 @@ const ratingCardClassName =
 
 export const RATING_OPTIONS = Array.from({ length: 41 }, (_, index) => index * 0.25);
 
-function getEstadoIconSrc(estado: BibliotecaEstado) {
-  return `/${estado.toLowerCase()}.svg`;
-}
+const bibliotecaEstadoIcons: Record<BibliotecaEstado, LucideIcon> = {
+  DESEADO: Heart,
+  PENDIENTE: Clock3,
+  JUGANDO: Gamepad2,
+  COMPLETADO: CircleCheckBig,
+  ABANDONADO: CircleOff,
+};
 
 export function formatRatingValue(rating: number) {
   return String(rating).replace('.', ',');
@@ -103,16 +115,11 @@ export function parseRatingSelectValue(value: string) {
 }
 
 function EstadoChipContent({ estado }: Readonly<{ estado: BibliotecaEstado }>) {
+  const Icon = bibliotecaEstadoIcons[estado];
+
   return (
     <>
-      <Image
-        src={getEstadoIconSrc(estado)}
-        alt=""
-        aria-hidden="true"
-        width={16}
-        height={16}
-        className="size-4"
-      />
+      <Icon aria-hidden="true" className="size-4" />
       <span>{formatBibliotecaEnumLabel(estado)}</span>
     </>
   );
@@ -121,7 +128,7 @@ function EstadoChipContent({ estado }: Readonly<{ estado: BibliotecaEstado }>) {
 function PlusChipContent() {
   return (
     <>
-      <Image src="/plus.svg" alt="" aria-hidden="true" width={20} height={20} className="size-5" />
+      <Plus aria-hidden="true" className="size-5" />
       <span>Anadir a lista</span>
     </>
   );

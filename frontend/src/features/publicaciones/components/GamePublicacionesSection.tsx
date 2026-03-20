@@ -1,8 +1,9 @@
 'use client';
 
 import axios from 'axios';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState, type SVGProps } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { publicacionesApi } from '@/features/publicaciones/api/publicacionesApi';
 import { GrupoJuegoInfoDialog } from '@/features/publicaciones/components/GrupoJuegoInfoDialog';
@@ -29,14 +30,6 @@ interface ApiErrorResponse {
 
 interface GamePublicacionesSectionProps {
   gameId: number;
-}
-
-function PlusIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
-    </svg>
-  );
 }
 
 function getApiErrorMessage(error: unknown, fallback: string) {
@@ -302,10 +295,7 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
     if (status === 'anonymous') {
       return (
         <Button asChild>
-          <Link href="/login">
-            <PlusIcon className="size-4" aria-hidden="true" />
-            Crear nueva publicacion
-          </Link>
+          <Link href="/login">Crear nueva publicacion</Link>
         </Button>
       );
     }
@@ -313,7 +303,7 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
     if (status === 'loading') {
       return (
         <Button type="button" disabled>
-          <PlusIcon className="size-4" aria-hidden="true" />
+          <Plus className="size-4" aria-hidden="true" />
           Cargando sesion
         </Button>
       );
@@ -325,7 +315,6 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
         onClick={() => handleCreateDialogOpenChange(true)}
         disabled={isSubmittingPublicacion || isDeletingPublicacion}
       >
-        <PlusIcon className="size-4" aria-hidden="true" />
         Crear nueva publicacion
       </Button>
     );

@@ -1,5 +1,6 @@
 'use client';
 
+import { Check, SlidersHorizontal, X } from 'lucide-react';
 import { useDeferredValue, useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -26,34 +27,6 @@ const MAX_VISIBLE_SELECTED_PLATFORMS = 6;
 interface CatalogPlatformFiltersProps {
   platformFilters: PlatformFilter[];
   selectedPlatforms: string[];
-}
-
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      className={className}
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="m5 13 4 4L19 7" />
-    </svg>
-  );
-}
-
-function FilterIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      className={className}
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M7 12h10m-7 6h4" />
-    </svg>
-  );
 }
 
 function getSelectedPlatformLabel(selectedPlatform: string, platformFilters: PlatformFilter[]) {
@@ -170,9 +143,7 @@ export function CatalogPlatformFilters({
                     onClick={() => navigateToSelection(nextSelectedPlatforms)}
                   >
                     <span>{platform.label}</span>
-                    <span className="text-muted-foreground" aria-hidden="true">
-                      x
-                    </span>
+                    <X className="size-3.5 text-muted-foreground" aria-hidden="true" />
                   </button>
                 );
               })}
@@ -196,7 +167,7 @@ export function CatalogPlatformFilters({
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-2 text-white! hover:text-white">
-                <FilterIcon className="size-4 text-current" />
+                <SlidersHorizontal className="size-4 text-current" aria-hidden="true" />
                 Filtrar plataformas
               </Button>
             </DialogTrigger>
@@ -264,7 +235,7 @@ export function CatalogPlatformFilters({
                               )}
                               aria-hidden="true"
                             >
-                              <CheckIcon className="size-4" />
+                              <Check className="size-4" />
                             </span>
                           </button>
                         );

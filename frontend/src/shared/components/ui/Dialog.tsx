@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
 export const Dialog = DialogPrimitive.Root;
@@ -22,8 +23,9 @@ export const DialogOverlay = React.forwardRef<
 
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
-export interface DialogContentProps
-  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
+export interface DialogContentProps extends React.ComponentPropsWithoutRef<
+  typeof DialogPrimitive.Content
+> {
   showClose?: boolean;
 }
 
@@ -47,9 +49,7 @@ export const DialogContent = React.forwardRef<
           className="absolute top-4 right-4 inline-flex size-10 items-center justify-center rounded-pill border border-transparent text-muted-foreground transition-colors duration-[var(--duration-fast)] ease-[var(--easing-standard)] hover:bg-surface hover:text-foreground"
           aria-label="Cerrar dialogo"
         >
-          <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 fill-current">
-            <path d="m13.41 12 4.3-4.29a1 1 0 0 0-1.42-1.42L12 10.59l-4.29-4.3a1 1 0 1 0-1.42 1.42L10.59 12l-4.3 4.29a1 1 0 1 0 1.42 1.42L12 13.41l4.29 4.3a1 1 0 0 0 1.42-1.42Z" />
-          </svg>
+          <X aria-hidden="true" className="size-5" />
         </DialogPrimitive.Close>
       ) : null}
     </DialogPrimitive.Content>
@@ -58,24 +58,15 @@ export const DialogContent = React.forwardRef<
 
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
-export function DialogHeader({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+export function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn('grid gap-2 pr-12', className)} {...props} />;
 }
 
-export function DialogBody({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+export function DialogBody({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn('grid gap-4', className)} {...props} />;
 }
 
-export function DialogFooter({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+export function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn('flex flex-col-reverse gap-3 sm:flex-row sm:justify-end', className)}

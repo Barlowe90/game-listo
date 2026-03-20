@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { Pencil, Plus, type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import type {
   Publicacion,
@@ -72,7 +72,7 @@ interface PublicacionCardProps {
 }
 
 interface PublicacionActionButtonProps {
-  iconSrc: string;
+  icon: LucideIcon;
   label: string;
   disabled?: boolean;
   onClick?: () => void;
@@ -108,7 +108,7 @@ function mapDisponibilidadToMatrix(
 }
 
 function PublicacionActionButton({
-  iconSrc,
+  icon: Icon,
   label,
   disabled = false,
   onClick,
@@ -125,16 +125,8 @@ function PublicacionActionButton({
         'disabled:cursor-not-allowed disabled:opacity-60',
       )}
     >
-      <Image src={iconSrc} alt="" width={18} height={18} className="size-[18px]" />
+      <Icon className="size-[18px]" aria-hidden="true" />
     </button>
-  );
-}
-
-function JoinSlotPlusIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
-    </svg>
   );
 }
 
@@ -149,7 +141,7 @@ function JoinSlot({ disabled = false, href, label, onClick }: Readonly<JoinSlotP
   if (href && !disabled) {
     return (
       <Link href={href} aria-label={label} className={className}>
-        <JoinSlotPlusIcon />
+        <Plus className="size-4" aria-hidden="true" />
       </Link>
     );
   }
@@ -157,14 +149,14 @@ function JoinSlot({ disabled = false, href, label, onClick }: Readonly<JoinSlotP
   if (onClick && !disabled) {
     return (
       <button type="button" aria-label={label} className={className} onClick={onClick}>
-        <JoinSlotPlusIcon />
+        <Plus className="size-4" aria-hidden="true" />
       </button>
     );
   }
 
   return (
     <span aria-label={label} className={className} role="img">
-      <JoinSlotPlusIcon />
+      <Plus className="size-4" aria-hidden="true" />
     </span>
   );
 }
@@ -254,7 +246,7 @@ export function PublicacionCard({
                 ) : null}
                 {onEdit ? (
                   <PublicacionActionButton
-                    iconSrc="/lapiz_editar.svg"
+                    icon={Pencil}
                     label="Editar publicacion"
                     disabled={disableActions}
                     onClick={() => onEdit(publicacion)}

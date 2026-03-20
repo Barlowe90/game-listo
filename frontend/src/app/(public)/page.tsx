@@ -1,92 +1,35 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Grid } from '@/shared/components/layout/Grid';
-import { PageSection } from '@/shared/components/layout/PageSection';
+import { BookMarked, Compass, UsersRound, type LucideIcon } from 'lucide-react';
 import { FeatureCard } from '@/shared/components/domain/FeatureCard';
 import { ImportLibraryBanner } from '@/shared/components/domain/ImportLibraryBanner';
+import { Grid } from '@/shared/components/layout/Grid';
+import { PageSection } from '@/shared/components/layout/PageSection';
 import { Button } from '@/shared/components/ui/Button';
 import { Card } from '@/shared/components/ui/Card';
 import { SectionHeader } from '@/shared/components/ui/SectionHeader';
 
-type HighlightIconProps = {
-  className?: string;
-};
-
-function LibraryIcon({ className }: HighlightIconProps) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M5 4.5v15" />
-      <path d="M10 4.5v15" />
-      <path d="m15 5.5 4 13" />
-    </svg>
-  );
-}
-
-function PlayersIcon({ className }: HighlightIconProps) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <circle cx="8" cy="8" r="3" />
-      <circle cx="17" cy="7" r="2.5" />
-      <path d="M3.5 19a4.5 4.5 0 0 1 9 0" />
-      <path d="M13.5 17.5a4 4 0 0 1 7 0" />
-    </svg>
-  );
-}
-
-function DiscoverIcon({ className }: HighlightIconProps) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M13.5 4.5c-2.8.8-5.7 3.7-6.5 6.5L6.5 13.5l4 4 2.5-.5c2.8-.8 5.7-3.7 6.5-6.5l.5-2.5z" />
-      <path d="m9.5 14.5-3 5 5-3" />
-      <circle cx="14.5" cy="9.5" r="1.5" />
-    </svg>
-  );
-}
-
-const highlights = [
+const highlights: ReadonlyArray<{
+  title: string;
+  description: string;
+  icon: LucideIcon;
+}> = [
   {
     title: 'Organiza tu biblioteca',
     description: 'Gestiona todos tus juegos en un solo lugar.',
-    icon: LibraryIcon,
+    icon: BookMarked,
   },
   {
     title: 'Conecta con otros jugadores',
     description: 'Crea publicaciones y busca compañeros de juego.',
-    icon: PlayersIcon,
+    icon: UsersRound,
   },
   {
     title: 'Descubre nuevos títulos',
     description: 'Explora el catálogo de juegos más completo.',
-    icon: DiscoverIcon,
+    icon: Compass,
   },
-] as const;
+];
 
 export default function Home() {
   return (
@@ -140,7 +83,7 @@ export default function Home() {
                 key={highlight.title}
                 title={highlight.title}
                 description={highlight.description}
-                icon={<highlight.icon className="size-6" />}
+                icon={<highlight.icon className="size-6" aria-hidden="true" />}
               />
             ))}
           </Grid>
