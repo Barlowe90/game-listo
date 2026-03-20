@@ -36,9 +36,7 @@ export default async function CatalogoPage({
   const platforms = await getCatalogPlatforms();
 
   const platformFilters = buildPlatformFilters(platforms);
-  const platformQueryTokens = Array.from(
-    buildPlatformTokenSet(selectedPlatforms, platformFilters),
-  );
+  const platformQueryTokens = Array.from(buildPlatformTokenSet(selectedPlatforms, platformFilters));
   const catalogPage = await getCatalogGamesPage({
     page: requestedPageIndex,
     size: CATALOG_PAGE_SIZE,
