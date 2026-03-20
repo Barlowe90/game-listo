@@ -1,16 +1,16 @@
 import Link from 'next/link';
+import { AppRouteState } from '@/app/AppRouteState';
 import { Button } from '@/shared/components/ui/Button';
-import { VideojuegoRouteState } from './VideojuegoRouteState';
 
 export default function NotFound() {
   return (
-    <VideojuegoRouteState
-      title="No encontramos este videojuego"
-      description="Puede que el identificador no exista, se haya retirado del catalogo o el enlace ya no sea valido."
+    <AppRouteState
+      title="No encontramos esta pagina"
+      description="La URL puede ser incorrecta, la pagina haberse movido o el recurso ya no estar disponible."
       action={
         <>
           <Button asChild>
-            <Link href="/catalogo">Ir al catalogo</Link>
+            <Link href="/catalogo">Explorar videojuegos</Link>
           </Button>
           <Button asChild variant="secondary">
             <Link href="/">Volver al inicio</Link>

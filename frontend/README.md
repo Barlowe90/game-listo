@@ -69,8 +69,6 @@ Archivo recomendado: `.env.local` (no incluir en control de versiones).
 Variables habituales (ejemplos):
 
 - `NEXT_PUBLIC_API_URL` — URL pública del API Gateway o BFF.
-- `NEXT_PUBLIC_GRAPHQL_ENDPOINT` — endpoint GraphQL (si aplica).
-- `NEXT_PUBLIC_ANALYTICS_ID` — identificador para analytics (opcional).
 
 ## Arquitectura de renderizado
 
