@@ -95,3 +95,6 @@ frontend/.vercel
 # typescript
 frontend/*.tsbuildinfo
 frontend/next-env.d.ts
+
+# Maven local repository
+.m2/
