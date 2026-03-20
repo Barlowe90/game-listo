@@ -9,6 +9,19 @@ import { getApiBaseUrl } from '@/shared/config/api';
 
 const DEFAULT_REVALIDATE_SECONDS = 60;
 
+class CatalogRequestError extends Error {
+  path: string;
+  status: number;
+
+  constructor(path: string, response: Response) {
+    super(`Catalog API request failed (${response.status}) for ${path}`);
+    this.name = 'CatalogRequestError';
+    this.path = path;
+    this.status = response.status;
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
+
 async function catalogFetch(path: string) {
   return fetch(`${getApiBaseUrl()}${path}`, {
     headers: {
@@ -21,7 +34,7 @@ async function catalogFetch(path: string) {
 }
 
 function buildCatalogRequestError(path: string, response: Response) {
-  return new Error(`Catalog API request failed (${response.status}) for ${path}`);
+  return new CatalogRequestError(path, response);
 }
 
 async function catalogRequest<T>(path: string, allowNotFound: true): Promise<T | null>;
@@ -115,7 +128,16 @@ export async function getGameById(gameId: number) {
 }
 
 export async function getGameDetailMedia(gameId: number) {
-  return catalogRequest<GameDetailMedia>(`/v1/catalogo/games/${gameId}/detail`, true);
+  try {
+    return await catalogRequest<GameDetailMedia>(`/v1/catalogo/games/${gameId}/detail`, true);
+  } catch (error) {
+    // Some catalog entries have a valid game record but no resolvable media detail payload.
+    if (error instanceof CatalogRequestError && error.status === 400) {
+      return null;
+    }
+
+    throw error;
+  }
 }
 
 export async function getGamesByIds(gameIds: number[]) {
