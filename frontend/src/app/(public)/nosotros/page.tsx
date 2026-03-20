@@ -219,7 +219,7 @@ const architectureHighlights = [
 ] as const;
 
 const guidingPrinciples = [
-  'El README deja claro que no busca ser un producto de produccion, sino una demostracion academica seria y defendible.',
+  'GameListo no busca ser un producto de produccion, sino una demostracion academica seria y defendible.',
   'La filosofia KISS prioriza resolver bien lo importante antes que sobrecargar el sistema con complejidad innecesaria.',
   'La legibilidad del codigo y la capacidad de explicar cada decision son parte del objetivo del proyecto.',
   'El testing se enfoca en los casos principales para sostener el valor demostrativo sin perder el ritmo de desarrollo.',
@@ -253,9 +253,9 @@ export default function NosotrosPage() {
                 </p>
 
                 <p className="max-w-3xl text-sm leading-relaxed text-white/75">
-                  El README la presenta como una propuesta academica desarrollada en la Universidad
-                  de Murcia, con interes real por la arquitectura, el despliegue y la experiencia
-                  de usuario, pero sin perder un enfoque pragmatico y demostrativo.
+                  Se plantea como una propuesta academica desarrollada en la Universidad de Murcia,
+                  con interes real por la arquitectura, el despliegue y la experiencia de usuario,
+                  pero sin perder un enfoque pragmatico y demostrativo.
                 </p>
               </div>
 
@@ -422,9 +422,9 @@ export default function NosotrosPage() {
                   Un TFG con ambicion tecnica y pies en el suelo
                 </h2>
                 <p className="text-base leading-relaxed text-secondary">
-                  El propio README marca el tono: GameListo quiere ser explicable, util y coherente
-                  antes que gigantesco. Esa intencion tambien ayuda a contar mejor quienes somos y
-                  por que existe esta plataforma.
+                  GameListo quiere ser explicable, util y coherente antes que gigantesco. Esa
+                  intencion tambien ayuda a contar mejor quienes somos y por que existe esta
+                  plataforma.
                 </p>
               </div>
 
