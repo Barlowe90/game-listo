@@ -1,6 +1,4 @@
-import Link from 'next/link';
 import { PageSection } from '@/shared/components/layout/PageSection';
-import { Button } from '@/shared/components/ui/Button';
 import { Card } from '@/shared/components/ui/Card';
 
 export default function NosotrosPage() {
