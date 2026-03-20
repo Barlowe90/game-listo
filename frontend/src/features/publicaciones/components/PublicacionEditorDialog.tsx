@@ -1,26 +1,17 @@
 'use client';
 
 import axios from 'axios';
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import type {
   CrearPublicacionPayload,
   EditarPublicacionPayload,
   Publicacion,
   PublicacionDiaSemana,
-  PublicacionDisponibilidad,
   PublicacionEstiloJuego,
   PublicacionExperiencia,
   PublicacionFranjaHoraria,
   PublicacionIdioma,
 } from '@/features/publicaciones/model/publicaciones.types';
-import {
-  PUBLICACION_DIAS,
-  PUBLICACION_ESTILO_JUEGO_OPTIONS,
-  PUBLICACION_EXPERIENCIA_OPTIONS,
-  PUBLICACION_FRANJAS,
-  PUBLICACION_IDIOMA_OPTIONS,
-} from '@/features/publicaciones/model/publicaciones.types';
-import { cn } from '@/lib/cn';
 import { Button } from '@/shared/components/ui/Button';
 import {
   Dialog,
@@ -31,26 +22,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/components/ui/Dialog';
-import { FormField } from '@/shared/components/ui/FormField';
-import { Input } from '@/shared/components/ui/Input';
 import { Toast } from '@/shared/components/ui/Toast';
+import {
+  PublicacionAvailabilitySection,
+  PublicacionBasicFields,
+  createInitialFormState,
+  getApiErrorMessage,
+  toggleDisponibilidad,
+  type PublicacionFormErrors,
+  type PublicacionFormState,
+} from './publicacionEditor.shared';
 
 interface ApiErrorResponse {
   error?: string;
-  errors?: Record<string, string>;
   message?: string;
 }
-
-interface PublicacionFormState {
-  titulo: string;
-  idioma: PublicacionIdioma;
-  experiencia: PublicacionExperiencia;
-  estiloJuego: PublicacionEstiloJuego;
-  jugadoresMaximos: string;
-  disponibilidad: PublicacionDisponibilidad;
-}
-
-type PublicacionFormErrors = Partial<Record<'general' | 'jugadoresMaximos' | 'titulo', string>>;
 
 type PublicacionEditorCreateProps = {
   open: boolean;
@@ -71,145 +57,112 @@ type PublicacionEditorEditProps = {
 };
 
 type PublicacionEditorDialogProps = PublicacionEditorCreateProps | PublicacionEditorEditProps;
+type PublicacionEditorDialogFormProps = {
+  dialogProps: PublicacionEditorDialogProps;
+  editingPublicacion: Publicacion | null;
+  onOpenChange: (open: boolean) => void;
+};
 
-const selectClassName =
-  'min-h-[var(--target-min-size)] w-full rounded-md border border-border bg-card px-4 py-2 text-sm text-foreground shadow-surface transition-[border-color,background-color,color,box-shadow] duration-[var(--duration-fast)] ease-[var(--easing-standard)] hover:border-border-strong focus-visible:border-primary disabled:cursor-not-allowed disabled:bg-surface disabled:text-muted-foreground';
+function getGeneralErrorMessage(
+  error: unknown,
+  hasFieldErrors: boolean,
+  mode: PublicacionEditorDialogProps['mode'],
+) {
+  const generalError = axios.isAxiosError<ApiErrorResponse>(error)
+    ? (error.response?.data?.error ?? error.response?.data?.message)
+    : undefined;
 
-function createInitialFormState(publicacion?: Publicacion | null): PublicacionFormState {
-  return {
-    titulo: publicacion?.titulo ?? '',
-    idioma: publicacion?.idioma ?? 'ESP',
-    experiencia: publicacion?.experiencia ?? 'NOVATO',
-    estiloJuego: publicacion?.estiloJuego ?? 'DISFRUTAR_DEL_JUEGO',
-    jugadoresMaximos: String(publicacion?.jugadoresMaximos ?? 4),
-    disponibilidad: publicacion?.disponibilidad ?? {},
-  };
-}
-
-function getApiErrorMessage(error: unknown, fallback: string, field?: string) {
-  if (axios.isAxiosError<ApiErrorResponse>(error)) {
-    const responseData = error.response?.data;
-
-    if (field && responseData?.errors?.[field]) {
-      return responseData.errors[field];
-    }
-
-    return responseData?.error ?? responseData?.message ?? fallback;
+  if (generalError) {
+    return generalError;
   }
 
-  return fallback;
+  if (hasFieldErrors) {
+    return undefined;
+  }
+
+  return mode === 'create'
+    ? 'No se pudo crear la publicacion.'
+    : 'No se pudo actualizar la publicacion.';
 }
 
-function DisponibilidadEditor({
-  disponibilidad,
-  onToggle,
-}: Readonly<{
-  disponibilidad: PublicacionDisponibilidad;
-  onToggle: (dia: PublicacionDiaSemana, franja: PublicacionFranjaHoraria) => void;
-}>) {
-  return (
-    <div className="overflow-x-auto rounded-[calc(var(--radius-xl)+0.25rem)] border border-border bg-surface p-4">
-      <table className="w-full border-separate border-spacing-2 text-left">
-        <caption className="sr-only">Editor de disponibilidad semanal</caption>
-        <thead>
-          <tr>
-            <th className="w-20 text-xs font-semibold tracking-[0.08em] text-secondary uppercase">
-              Dia
-            </th>
-            {PUBLICACION_FRANJAS.map((franja) => (
-              <th
-                key={franja.value}
-                className="text-center text-xs font-semibold tracking-[0.08em] text-secondary uppercase"
-                scope="col"
-              >
-                <span className="sm:hidden">{franja.shortLabel}</span>
-                <span className="hidden sm:inline">{franja.label}</span>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {PUBLICACION_DIAS.map((dia) => (
-            <tr key={dia.value}>
-              <th
-                scope="row"
-                className="text-xs font-semibold tracking-[0.08em] text-foreground uppercase"
-              >
-                <span className="sm:hidden">{dia.shortLabel}</span>
-                <span className="hidden sm:inline">{dia.label}</span>
-              </th>
-              {PUBLICACION_FRANJAS.map((franja) => {
-                const isActive = disponibilidad[dia.value]?.includes(franja.value) ?? false;
-                const dayLabel = dia.label.toLowerCase();
-                const periodLabel = franja.label.toLowerCase();
-
-                return (
-                  <td key={`${dia.value}-${franja.value}`} className="text-center">
-                    <button
-                      type="button"
-                      className={cn(
-                        'inline-flex h-10 w-full min-w-14 items-center justify-center rounded-xl border transition-[background-color,border-color,color,box-shadow] duration-[var(--duration-fast)] ease-[var(--easing-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
-                        isActive
-                          ? 'border-transparent bg-primary shadow-surface'
-                          : 'border-border bg-background hover:border-border-strong hover:bg-white',
-                      )}
-                      onClick={() => onToggle(dia.value, franja.value)}
-                      aria-pressed={isActive}
-                      aria-label={`${dayLabel} por la ${periodLabel}: ${
-                        isActive ? 'disponible' : 'no disponible'
-                      }`}
-                    >
-                      <span className="sr-only">
-                        {isActive ? 'Disponible' : 'No disponible'} el {dayLabel} por la{' '}
-                        {periodLabel}
-                      </span>
-                    </button>
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-export function PublicacionEditorDialog(props: Readonly<PublicacionEditorDialogProps>) {
-  const editingPublicacion = props.mode === 'edit' ? props.publicacion : null;
+function PublicacionEditorDialogForm({
+  dialogProps,
+  editingPublicacion,
+  onOpenChange,
+}: Readonly<PublicacionEditorDialogFormProps>) {
+  const mode = dialogProps.mode;
   const [formState, setFormState] = useState<PublicacionFormState>(() =>
     createInitialFormState(editingPublicacion),
   );
   const [formErrors, setFormErrors] = useState<PublicacionFormErrors>({});
 
-  useEffect(() => {
-    if (!props.open) {
-      return;
-    }
+  function clearGeneralError() {
+    setFormErrors((currentErrors) => ({
+      ...currentErrors,
+      general: undefined,
+    }));
+  }
 
-    setFormState(createInitialFormState(editingPublicacion));
-    setFormErrors({});
-  }, [editingPublicacion, props.open]);
+  function clearFieldError(field: keyof PublicacionFormErrors) {
+    setFormErrors((currentErrors) => ({
+      ...currentErrors,
+      [field]: undefined,
+      general: undefined,
+    }));
+  }
+
+  function updateFormState(
+    recipe: (currentFormState: PublicacionFormState) => PublicacionFormState,
+  ) {
+    setFormState((currentFormState) => recipe(currentFormState));
+  }
+
+  function handleTituloChange(value: string) {
+    updateFormState((currentFormState) => ({
+      ...currentFormState,
+      titulo: value,
+    }));
+    clearFieldError('titulo');
+  }
+
+  function handleIdiomaChange(value: PublicacionIdioma) {
+    updateFormState((currentFormState) => ({
+      ...currentFormState,
+      idioma: value,
+    }));
+    clearGeneralError();
+  }
+
+  function handleExperienciaChange(value: PublicacionExperiencia) {
+    updateFormState((currentFormState) => ({
+      ...currentFormState,
+      experiencia: value,
+    }));
+    clearGeneralError();
+  }
+
+  function handleEstiloJuegoChange(value: PublicacionEstiloJuego) {
+    updateFormState((currentFormState) => ({
+      ...currentFormState,
+      estiloJuego: value,
+    }));
+    clearGeneralError();
+  }
+
+  function handleJugadoresMaximosChange(value: string) {
+    updateFormState((currentFormState) => ({
+      ...currentFormState,
+      jugadoresMaximos: value,
+    }));
+    clearFieldError('jugadoresMaximos');
+  }
 
   function handleToggleDisponibilidad(dia: PublicacionDiaSemana, franja: PublicacionFranjaHoraria) {
-    setFormState((currentFormState) => {
-      const currentFranjas = currentFormState.disponibilidad[dia] ?? [];
-      const nextFranjas = currentFranjas.includes(franja)
-        ? currentFranjas.filter((currentFranja) => currentFranja !== franja)
-        : [...currentFranjas, franja];
-      const nextDisponibilidad = { ...currentFormState.disponibilidad };
-
-      if (nextFranjas.length) {
-        nextDisponibilidad[dia] = nextFranjas;
-      } else {
-        delete nextDisponibilidad[dia];
-      }
-
-      return {
-        ...currentFormState,
-        disponibilidad: nextDisponibilidad,
-      };
-    });
+    updateFormState((currentFormState) => ({
+      ...currentFormState,
+      disponibilidad: toggleDisponibilidad(currentFormState.disponibilidad, dia, franja),
+    }));
+    clearGeneralError();
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -233,9 +186,9 @@ export function PublicacionEditorDialog(props: Readonly<PublicacionEditorDialogP
     }
 
     try {
-      if (props.mode === 'create') {
-        await props.onSubmit({
-          gameId: props.gameId,
+      if (mode === 'create') {
+        await dialogProps.onSubmit({
+          gameId: dialogProps.gameId,
           titulo,
           idioma: formState.idioma,
           experiencia: formState.experiencia,
@@ -244,7 +197,7 @@ export function PublicacionEditorDialog(props: Readonly<PublicacionEditorDialogP
           disponibilidad: formState.disponibilidad,
         });
       } else {
-        await props.onSubmit({
+        await dialogProps.onSubmit({
           titulo,
           idioma: formState.idioma,
           experiencia: formState.experiencia,
@@ -254,27 +207,60 @@ export function PublicacionEditorDialog(props: Readonly<PublicacionEditorDialogP
         });
       }
 
-      props.onOpenChange(false);
+      onOpenChange(false);
     } catch (error) {
       const tituloError = getApiErrorMessage(error, '', 'titulo') || undefined;
       const jugadoresMaximosError = getApiErrorMessage(error, '', 'jugadoresMaximos') || undefined;
-      const generalError = axios.isAxiosError<ApiErrorResponse>(error)
-        ? (error.response?.data?.error ?? error.response?.data?.message)
-        : undefined;
 
       setFormErrors({
         titulo: tituloError,
         jugadoresMaximos: jugadoresMaximosError,
-        general:
-          generalError ??
-          (tituloError || jugadoresMaximosError
-            ? undefined
-            : props.mode === 'create'
-              ? 'No se pudo crear la publicacion.'
-              : 'No se pudo actualizar la publicacion.'),
+        general: getGeneralErrorMessage(error, Boolean(tituloError || jugadoresMaximosError), mode),
       });
     }
   }
+
+  return (
+    <form className="grid gap-0" onSubmit={handleSubmit}>
+      <DialogBody className="grid gap-6 px-6">
+        {formErrors.general ? <Toast variant="error" title={formErrors.general} /> : null}
+
+        <PublicacionBasicFields
+          formErrors={formErrors}
+          formState={formState}
+          isSubmitting={dialogProps.isSubmitting}
+          onExperienciaChange={handleExperienciaChange}
+          onEstiloJuegoChange={handleEstiloJuegoChange}
+          onIdiomaChange={handleIdiomaChange}
+          onJugadoresMaximosChange={handleJugadoresMaximosChange}
+          onTituloChange={handleTituloChange}
+        />
+
+        <PublicacionAvailabilitySection
+          disponibilidad={formState.disponibilidad}
+          onToggle={handleToggleDisponibilidad}
+        />
+      </DialogBody>
+
+      <DialogFooter className="border-t border-border px-6 py-4">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => onOpenChange(false)}
+          disabled={dialogProps.isSubmitting}
+        >
+          Cancelar
+        </Button>
+        <Button type="submit" loading={dialogProps.isSubmitting}>
+          {mode === 'create' ? 'Crear publicacion' : 'Guardar cambios'}
+        </Button>
+      </DialogFooter>
+    </form>
+  );
+}
+
+export function PublicacionEditorDialog(props: Readonly<PublicacionEditorDialogProps>) {
+  const editingPublicacion = props.mode === 'edit' ? props.publicacion : null;
 
   function handleOpenChange(open: boolean) {
     if (props.isSubmitting) {
@@ -298,176 +284,18 @@ export function PublicacionEditorDialog(props: Readonly<PublicacionEditorDialogP
           </DialogDescription>
         </DialogHeader>
 
-        <form className="grid gap-0" onSubmit={handleSubmit}>
-          <DialogBody className="grid gap-6 px-6">
-            {formErrors.general ? <Toast variant="error" title={formErrors.general} /> : null}
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <FormField
-                label="Titulo de la publicacion"
-                htmlFor="publicacion-titulo"
-                required
-                errorMessage={formErrors.titulo}
-              >
-                <Input
-                  id="publicacion-titulo"
-                  value={formState.titulo}
-                  onChange={(event) => {
-                    setFormState((currentFormState) => ({
-                      ...currentFormState,
-                      titulo: event.target.value,
-                    }));
-                    setFormErrors((currentErrors) => ({
-                      ...currentErrors,
-                      titulo: undefined,
-                      general: undefined,
-                    }));
-                  }}
-                  placeholder="Busco grupo para avanzar la campana"
-                  autoComplete="off"
-                  disabled={props.isSubmitting}
-                  state={formErrors.titulo ? 'error' : 'default'}
-                />
-              </FormField>
-
-              <FormField label="Idioma" htmlFor="publicacion-idioma" required>
-                <select
-                  id="publicacion-idioma"
-                  value={formState.idioma}
-                  onChange={(event) => {
-                    setFormState((currentFormState) => ({
-                      ...currentFormState,
-                      idioma: event.target.value as PublicacionIdioma,
-                    }));
-                    setFormErrors((currentErrors) => ({
-                      ...currentErrors,
-                      general: undefined,
-                    }));
-                  }}
-                  className={selectClassName}
-                  disabled={props.isSubmitting}
-                >
-                  {PUBLICACION_IDIOMA_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </FormField>
-
-              <FormField label="Experiencia" htmlFor="publicacion-experiencia" required>
-                <select
-                  id="publicacion-experiencia"
-                  value={formState.experiencia}
-                  onChange={(event) => {
-                    setFormState((currentFormState) => ({
-                      ...currentFormState,
-                      experiencia: event.target.value as PublicacionExperiencia,
-                    }));
-                    setFormErrors((currentErrors) => ({
-                      ...currentErrors,
-                      general: undefined,
-                    }));
-                  }}
-                  className={selectClassName}
-                  disabled={props.isSubmitting}
-                >
-                  {PUBLICACION_EXPERIENCIA_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </FormField>
-
-              <FormField label="Estilo de juego" htmlFor="publicacion-estilo" required>
-                <select
-                  id="publicacion-estilo"
-                  value={formState.estiloJuego}
-                  onChange={(event) => {
-                    setFormState((currentFormState) => ({
-                      ...currentFormState,
-                      estiloJuego: event.target.value as PublicacionEstiloJuego,
-                    }));
-                    setFormErrors((currentErrors) => ({
-                      ...currentErrors,
-                      general: undefined,
-                    }));
-                  }}
-                  className={selectClassName}
-                  disabled={props.isSubmitting}
-                >
-                  {PUBLICACION_ESTILO_JUEGO_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </FormField>
-
-              <FormField
-                label="Jugadores maximos"
-                htmlFor="publicacion-jugadores-maximos"
-                required
-                helpText="Incluye al autor dentro del total del grupo."
-                errorMessage={formErrors.jugadoresMaximos}
-              >
-                <Input
-                  id="publicacion-jugadores-maximos"
-                  type="number"
-                  inputMode="numeric"
-                  min={2}
-                  max={99}
-                  value={formState.jugadoresMaximos}
-                  onChange={(event) => {
-                    setFormState((currentFormState) => ({
-                      ...currentFormState,
-                      jugadoresMaximos: event.target.value,
-                    }));
-                    setFormErrors((currentErrors) => ({
-                      ...currentErrors,
-                      jugadoresMaximos: undefined,
-                      general: undefined,
-                    }));
-                  }}
-                  disabled={props.isSubmitting}
-                  state={formErrors.jugadoresMaximos ? 'error' : 'default'}
-                />
-              </FormField>
-            </div>
-
-            <div className="grid gap-3">
-              <div className="grid gap-1">
-                <h3 className="text-sm font-semibold tracking-[0.08em] text-primary uppercase">
-                  Disponibilidad semanal
-                </h3>
-                <p className="text-sm leading-relaxed text-secondary">
-                  Marca las franjas en las que sueles jugar. Si prefieres decidirlo mas tarde,
-                  puedes dejar la tabla vacia.
-                </p>
-              </div>
-
-              <DisponibilidadEditor
-                disponibilidad={formState.disponibilidad}
-                onToggle={handleToggleDisponibilidad}
-              />
-            </div>
-          </DialogBody>
-
-          <DialogFooter className="border-t border-border px-6 py-4">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => handleOpenChange(false)}
-              disabled={props.isSubmitting}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" loading={props.isSubmitting}>
-              {props.mode === 'create' ? 'Crear publicacion' : 'Guardar cambios'}
-            </Button>
-          </DialogFooter>
-        </form>
+        {props.open ? (
+          <PublicacionEditorDialogForm
+            key={
+              props.mode === 'edit'
+                ? `${props.publicacion.id}-${props.open}`
+                : `create-${props.open}`
+            }
+            dialogProps={props}
+            editingPublicacion={editingPublicacion}
+            onOpenChange={handleOpenChange}
+          />
+        ) : null}
       </DialogContent>
     </Dialog>
   );
