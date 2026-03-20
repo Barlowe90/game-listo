@@ -641,11 +641,11 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
         <SectionHeader title={sectionTitle} />
 
         <InfoPanelCard
-          title="Perfil publico simplificado"
+          title="Perfil publico"
           description={
             visibleProfile
-              ? `En este MVP puedes gestionar la amistad con ${visibleProfile.username} desde la cabecera del perfil.`
-              : 'En este MVP solo esta disponible la gestion de amistad desde la cabecera.'
+              ? `Puedes gestionar la amistad con ${visibleProfile.username} desde la cabecera del perfil.`
+              : 'Puedes gestionar la amistad desde la cabecera del perfil.'
           }
         />
       </div>

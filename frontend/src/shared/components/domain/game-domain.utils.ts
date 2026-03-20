@@ -1,8 +1,5 @@
 import type { Game } from '@/features/catalogo/model/catalog.types';
 
-const DEFAULT_GAME_DESCRIPTION =
-  'Esta ficha ya esta conectada al backend del catalogo y lista para crecer con biblioteca, media y contenido social.';
-
 const DEFAULT_HERO_TAG_LIMIT = 12;
 const DEFAULT_ADDITIONAL_TAG_LIMIT = 18;
 
@@ -70,14 +67,6 @@ export function getGamePrimaryStudio(game: Game) {
 
 export function getGameCollaborators(game: Game) {
   return uniqueStrings(game.involvedCompanies).slice(1);
-}
-
-export function getGameShortDescription(game: Game) {
-  return game.summary?.trim() ?? DEFAULT_GAME_DESCRIPTION;
-}
-
-export function getGamePrimaryBadge(game: Game) {
-  return game.genres[0] ?? game.gameType ?? 'Videojuego';
 }
 
 export function getGameHeroTags(game: Game, limit = DEFAULT_HERO_TAG_LIMIT) {

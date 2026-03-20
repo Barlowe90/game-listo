@@ -8,7 +8,6 @@ import type {
 import { getApiBaseUrl } from '@/shared/config/api';
 
 const DEFAULT_REVALIDATE_SECONDS = 60;
-const DEFAULT_FETCH_ALL_PAGE_SIZE = 100;
 
 async function catalogFetch(path: string) {
   return fetch(`${getApiBaseUrl()}${path}`, {
@@ -109,26 +108,6 @@ export async function getCatalogPlatforms() {
       { sensitivity: 'base' },
     ),
   );
-}
-
-export async function getCatalogGames() {
-  const allGames: CatalogGameSummary[] = [];
-  let currentPage = 0;
-
-  while (true) {
-    const pageResult = await getCatalogGamesPage({
-      page: currentPage,
-      size: DEFAULT_FETCH_ALL_PAGE_SIZE,
-    });
-
-    allGames.push(...pageResult.items);
-
-    if (!pageResult.hasNextPage || !pageResult.items.length) {
-      return allGames;
-    }
-
-    currentPage += 1;
-  }
 }
 
 export async function getGameById(gameId: number) {

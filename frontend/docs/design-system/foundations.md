@@ -561,7 +561,6 @@ Pie global con enlaces informativos y legales.
 Debe contemplar como mínimo:
 
 - Nosotros
-- Contacto
 
 No requiere una arquitectura compleja; basta con una implementación clara y reutilizable.
 

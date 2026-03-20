@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import {
-  getCatalogGames,
   getGameById,
   getGameDetailMedia,
   getGamesByIds,
@@ -193,11 +192,6 @@ function ScreenshotCard({ index, screenshotUrl }: { index: number; screenshotUrl
 }
 
 async function resolveGameId(rawId: string) {
-  if (rawId === 'demo') {
-    const games = await getCatalogGames();
-    return games[0]?.id ?? null;
-  }
-
   const parsedId = Number(rawId);
 
   if (!Number.isInteger(parsedId) || parsedId <= 0) {
