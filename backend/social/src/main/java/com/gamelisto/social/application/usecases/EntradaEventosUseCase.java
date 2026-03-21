@@ -25,6 +25,12 @@ public class EntradaEventosUseCase implements EntradaEventosHandle {
   }
 
   @Override
+  public void procesarUsuarioActualizado(UUID usuarioId, String username, String avatar) {
+    UserRef user = UserRef.of(usuarioId, username, avatar);
+    grafoUsuarioRepositorio.upsertUser(user);
+  }
+
+  @Override
   public void procesarUsuarioEliminado(UUID usuarioId) {
     grafoUsuarioRepositorio.deleteUser(usuarioId);
   }

@@ -1,5 +1,6 @@
 package com.gamelisto.usuarios.infrastructure.out.messaging;
 
+import com.gamelisto.usuarios.domain.events.UsuarioActualizado;
 import com.gamelisto.usuarios.domain.events.UsuarioCreado;
 import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
 import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
@@ -18,6 +19,11 @@ public class UsuariosPublisher implements IUsuarioPublisher {
   private static final Logger logger = LoggerFactory.getLogger(UsuariosPublisher.class);
 
   private final RabbitTemplate rabbitTemplate;
+
+  @Override
+  public void publicarUsuarioActualizado(UsuarioActualizado evento) {
+    publicar(RabbitMQConfig.RK_USUARIO_ACTUALIZADO, evento);
+  }
 
   @Override
   public void publicarUsuarioCreado(UsuarioCreado evento) {

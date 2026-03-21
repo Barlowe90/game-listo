@@ -8,6 +8,8 @@ public interface EntradaEventosHandle {
 
   void procesarUsuarioCreado(String usuarioId, String username, String avatar);
 
+  void procesarUsuarioActualizado(String usuarioId, String username, String avatar);
+
   void procesarUsuarioEliminado(String usuarioId) throws ApplicationException;
 
   void procesarGameCreado(Long gameId, String nombre, List<String> platforms);

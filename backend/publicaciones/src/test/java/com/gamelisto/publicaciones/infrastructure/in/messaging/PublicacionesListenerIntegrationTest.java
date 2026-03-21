@@ -50,6 +50,24 @@ class PublicacionesListenerIntegrationTest {
   }
 
   @Test
+  @DisplayName("Debe procesar evento UsuarioActualizado y actualizar UsuarioRef")
+  void debeProcesarUsuarioActualizado() throws Exception {
+    // Arrange
+    UsuarioCreadoEventDto dto = new UsuarioCreadoEventDto("u-123", "ric", "/avatars/2.png");
+
+    MessageProperties props = new MessageProperties();
+    props.setHeader("eventType", "UsuarioActualizado");
+    Message message =
+        MessageBuilder.withBody(objectMapper.writeValueAsBytes(dto)).andProperties(props).build();
+
+    // Act
+    listener.handleEvent(message);
+
+    // Assert
+    verify(entradaEventos).procesarUsuarioActualizado("u-123", "ric", "/avatars/2.png");
+  }
+
+  @Test
   @DisplayName("Debe procesar evento UsuarioEliminado y eliminar UsuarioRef")
   void debeProcesarUsuarioEliminado() throws Exception {
     // Arrange
@@ -99,6 +117,7 @@ class PublicacionesListenerIntegrationTest {
 
     // Assert
     verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any());
+    verify(entradaEventos, never()).procesarUsuarioActualizado(any(), any(), any());
     verify(entradaEventos, never()).procesarUsuarioEliminado(any());
     verify(entradaEventos, never()).procesarGameCreado(any(), any(), any());
   }
@@ -117,6 +136,7 @@ class PublicacionesListenerIntegrationTest {
 
     // Assert
     verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any());
+    verify(entradaEventos, never()).procesarUsuarioActualizado(any(), any(), any());
     verify(entradaEventos, never()).procesarGameCreado(any(), any(), any());
     verify(entradaEventos, never()).procesarUsuarioEliminado(any());
   }

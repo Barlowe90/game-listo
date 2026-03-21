@@ -2,6 +2,7 @@ package com.gamelisto.usuarios.infrastructure.out.messaging.publishers;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 
+import com.gamelisto.usuarios.domain.events.UsuarioActualizado;
 import com.gamelisto.usuarios.domain.events.UsuarioCreado;
 import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
 import java.time.Instant;
@@ -39,6 +40,16 @@ class NoOpUsuarioPublisherTest {
 
     // When & Then - No debe lanzar excepción
     assertThatCode(() -> publisher.publicarUsuarioCreado(event)).doesNotThrowAnyException();
+  }
+
+  @Test
+  @DisplayName("Debe ejecutar publicarUsuarioActualizado sin lanzar excepciones")
+  void debeEjecutarPublicarUsuarioActualizadoSinLanzarExcepciones() {
+    // Given
+    UsuarioActualizado event = UsuarioActualizado.of("user-123", "testuser", "avatar.png");
+
+    // When & Then
+    assertThatCode(() -> publisher.publicarUsuarioActualizado(event)).doesNotThrowAnyException();
   }
 
   @Test

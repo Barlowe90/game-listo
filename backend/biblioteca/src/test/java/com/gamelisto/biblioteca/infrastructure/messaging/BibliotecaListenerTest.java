@@ -56,6 +56,28 @@ class BibliotecaListenerTest {
   }
 
   @Test
+  @DisplayName("Debe procesar evento UsuarioActualizado y actualizar UsuarioRef")
+  void debeProcesarEventoUsuarioActualizado() throws Exception {
+    // Arrange
+    UsuarioCreadoEventDto dto =
+        new UsuarioCreadoEventDto(
+            "550e8400-e29b-41d4-a716-446655440000", "jugador1", "https://avatar.url/new.png");
+
+    MessageProperties props = new MessageProperties();
+    props.setHeader("eventType", "UsuarioActualizado");
+    Message message =
+        MessageBuilder.withBody(objectMapper.writeValueAsBytes(dto)).andProperties(props).build();
+
+    // Act
+    listener.handleEvent(message);
+
+    // Assert
+    verify(entradaEventos)
+        .procesarUsuarioActualizado(
+            "550e8400-e29b-41d4-a716-446655440000", "jugador1", "https://avatar.url/new.png");
+  }
+
+  @Test
   @DisplayName("Debe procesar evento UsuarioEliminado y eliminar UsuarioRef")
   void debeProcesarEventoUsuarioEliminado() throws Exception {
     // Arrange
@@ -106,6 +128,7 @@ class BibliotecaListenerTest {
 
     // Assert - no se debe llamar a ninguna funcion del handle
     verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any());
+    verify(entradaEventos, never()).procesarUsuarioActualizado(any(), any(), any());
     verify(entradaEventos, never()).procesarGameCreado(any(), any(), any());
     verify(entradaEventos, never()).procesarUsuarioEliminado(any());
   }

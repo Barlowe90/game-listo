@@ -7,11 +7,13 @@ import static org.mockito.Mockito.*;
 import com.gamelisto.usuarios.application.dto.VerificarEmailCommand;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.application.usecases.auth.VerificarEmailUseCase;
+import com.gamelisto.usuarios.domain.events.UsuarioCreado;
 import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import java.time.Instant;
 import java.util.Optional;
+import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,6 +50,9 @@ class VerificarEmailUseCaseTest {
     assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
     assertTrue(usuario.getTokenVerificacion().isEmpty());
     verify(repositorioUsuarios).save(usuario);
+    ArgumentCaptor<UsuarioCreado> eventCaptor = ArgumentCaptor.forClass(UsuarioCreado.class);
+    verify(eventosPublisher).publicarUsuarioCreado(eventCaptor.capture());
+    assertNull(eventCaptor.getValue().avatar());
   }
 
   // ========== CASOS DE ERROR ==========

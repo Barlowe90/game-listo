@@ -23,6 +23,12 @@ public class EntradaEventosUseCase implements EntradaEventosHandle {
   }
 
   @Override
+  public void procesarUsuarioActualizado(String usuarioId, String username, String avatar) {
+    UsuarioRef usuarioRef = UsuarioRef.create(UsuarioId.fromString(usuarioId), username, avatar);
+    usuariosRefRepositorio.save(usuarioRef);
+  }
+
+  @Override
   public void procesarUsuarioEliminado(String usuarioId) throws ApplicationException {
     usuariosRefRepositorio.deleteById(UsuarioId.fromString(usuarioId));
   }

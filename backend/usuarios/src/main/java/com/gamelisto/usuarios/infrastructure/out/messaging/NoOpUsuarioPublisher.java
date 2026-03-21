@@ -1,5 +1,6 @@
 package com.gamelisto.usuarios.infrastructure.out.messaging;
 
+import com.gamelisto.usuarios.domain.events.UsuarioActualizado;
 import com.gamelisto.usuarios.domain.events.UsuarioCreado;
 import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
 import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
@@ -10,6 +11,11 @@ import org.slf4j.LoggerFactory;
 public class NoOpUsuarioPublisher implements IUsuarioPublisher {
 
   private static final Logger logger = LoggerFactory.getLogger(NoOpUsuarioPublisher.class);
+
+  @Override
+  public void publicarUsuarioActualizado(UsuarioActualizado evento) {
+    logger.debug("No-Op: UsuarioActualizado no publicado (test)");
+  }
 
   @Override
   public void publicarUsuarioCreado(UsuarioCreado evento) {

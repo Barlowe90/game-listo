@@ -8,12 +8,14 @@ import com.gamelisto.usuarios.application.dto.EditarPerfilUsuarioCommand;
 import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.application.usecases.usuarios.EditarPerfilUsuarioUseCase;
+import com.gamelisto.usuarios.domain.events.UsuarioActualizado;
 import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import java.util.Optional;
 import java.util.UUID;
+import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,6 +52,12 @@ class EditarPerfilUsuarioUseCaseTest {
     // Assert
     assertEquals("https://example.com/avatar.jpg", resultado.avatar());
     assertEquals("ENG", resultado.language());
+    ArgumentCaptor<UsuarioActualizado> eventCaptor =
+        ArgumentCaptor.forClass(UsuarioActualizado.class);
+    verify(usuarioPublisher).publicarUsuarioActualizado(eventCaptor.capture());
+    assertEquals(usuarioId.toString(), eventCaptor.getValue().usuarioId());
+    assertEquals("testuser", eventCaptor.getValue().username());
+    assertEquals("https://example.com/avatar.jpg", eventCaptor.getValue().avatar());
   }
 
   @Test
@@ -73,6 +81,7 @@ class EditarPerfilUsuarioUseCaseTest {
     // Assert
     assertEquals(avatarOriginal, resultado.avatar());
     assertEquals(idiomaOriginal.name(), resultado.language());
+    verify(usuarioPublisher, never()).publicarUsuarioActualizado(any());
   }
 
   @Test
@@ -92,6 +101,7 @@ class EditarPerfilUsuarioUseCaseTest {
     assertNotNull(exception);
     verify(repositorioUsuarios).findById(any(UsuarioId.class));
     verify(repositorioUsuarios, never()).save(any(Usuario.class));
+    verify(usuarioPublisher, never()).publicarUsuarioActualizado(any());
   }
 
   @Test
@@ -127,6 +137,7 @@ class EditarPerfilUsuarioUseCaseTest {
         assertThrows(DomainException.class, () -> editarPerfilUsuarioUseCase.execute(command));
 
     assertTrue(exception.getMessage().contains("no puede exceder 500 caracteres"));
+    verify(usuarioPublisher, never()).publicarUsuarioActualizado(any());
   }
 
   @Test
@@ -143,6 +154,7 @@ class EditarPerfilUsuarioUseCaseTest {
 
     // Act & Assert
     assertThrows(ApplicationException.class, () -> editarPerfilUsuarioUseCase.execute(command));
+    verify(usuarioPublisher, never()).publicarUsuarioActualizado(any());
   }
 
   // Helper method

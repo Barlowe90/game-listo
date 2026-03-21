@@ -39,6 +39,17 @@ class SocialListenerTest {
   }
 
   @Test
+  @DisplayName("debe procesar UsuarioActualizado")
+  void debeProcesarUsuarioActualizado() {
+    String id = "00000000-0000-0000-0000-000000000001";
+    String body = "{\"usuarioId\":\"" + id + "\",\"username\":\"alice\",\"avatar\":\"new.png\"}";
+    MessageProperties props = new MessageProperties();
+    props.setHeader("eventType", "UsuarioActualizado");
+    listener.handleEvent(new Message(body.getBytes(), props));
+    verify(entradaEventos).procesarUsuarioActualizado(UUID.fromString(id), "alice", "new.png");
+  }
+
+  @Test
   @DisplayName("debe procesar UsuarioEliminado")
   void debeProcesarUsuarioEliminado() {
     String id = "00000000-0000-0000-0000-000000000001";

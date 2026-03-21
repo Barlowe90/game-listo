@@ -41,6 +41,13 @@ public class PublicacionesListener {
           logger.info("Procesando UsuarioCreado: usuarioId={}", dto.usuarioId());
           entradaEventos.procesarUsuarioCreado(dto.usuarioId(), dto.username(), dto.avatar());
         }
+        case "UsuarioActualizado" -> {
+          UsuarioCreadoEventDto dto =
+              objectMapper.readValue(message.getBody(), UsuarioCreadoEventDto.class);
+          logger.info("Procesando UsuarioActualizado: usuarioId={}", dto.usuarioId());
+          entradaEventos.procesarUsuarioActualizado(
+              dto.usuarioId(), dto.username(), dto.avatar());
+        }
         case "UsuarioEliminado" -> {
           UsuarioEliminadoEventDto dto =
               objectMapper.readValue(message.getBody(), UsuarioEliminadoEventDto.class);
