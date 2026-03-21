@@ -7,6 +7,7 @@ import com.gamelisto.catalogo.application.usecases.GameResult;
 import com.gamelisto.catalogo.application.usecases.GameDetailResult;
 import com.gamelisto.catalogo.application.usecases.ObtenerTodosLosJuegosCommand;
 import com.gamelisto.catalogo.application.usecases.PlatformResult;
+import com.gamelisto.catalogo.application.usecases.ResolverJuegosPorSteamAppIdsHandle;
 import com.gamelisto.catalogo.application.usecases.BuscarGameDetailPorIdHandle;
 import com.gamelisto.catalogo.application.usecases.BuscarGamePorIdHandle;
 import com.gamelisto.catalogo.application.usecases.ObtenerTodasLasPlatformasHandle;
@@ -16,6 +17,9 @@ import com.gamelisto.catalogo.infrastructure.in.api.dto.GameCardResponse;
 import com.gamelisto.catalogo.infrastructure.in.api.dto.GameDetailResponse;
 import com.gamelisto.catalogo.infrastructure.in.api.dto.GameResponse;
 import com.gamelisto.catalogo.infrastructure.in.api.dto.PlatformResponse;
+import com.gamelisto.catalogo.infrastructure.in.api.dto.ResolverJuegosSteamRequest;
+import com.gamelisto.catalogo.infrastructure.in.api.dto.ResolverJuegosSteamResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +41,7 @@ public class CatalogoContoller {
   private final ObtenerTodosLosJuegosHandle obtenerTodosLosJuegos;
   private final BuscarGamePorIdHandle getGameById;
   private final ObtenerTodasLasPlatformasHandle obtenerTodasLasPlatformas;
+  private final ResolverJuegosPorSteamAppIdsHandle resolverJuegosSteam;
 
   @GetMapping("/games")
   public ResponseEntity<List<GameCardResponse>> getAllGames(
@@ -103,5 +108,16 @@ public class CatalogoContoller {
     List<PlatformResponse> responses = platforms.stream().map(PlatformResponse::from).toList();
 
     return ResponseEntity.ok(responses);
+  }
+
+  @PostMapping("/games/steam/resolve")
+  public ResponseEntity<ResolverJuegosSteamResponse> resolveSteamGames(
+      @Valid @RequestBody ResolverJuegosSteamRequest request) {
+    logger.info(
+        "Resolviendo {} appIds de Steam contra el catalogo",
+        request.steamAppIds() != null ? request.steamAppIds().size() : 0);
+
+    return ResponseEntity.ok(
+        ResolverJuegosSteamResponse.from(resolverJuegosSteam.execute(request.steamAppIds())));
   }
 }

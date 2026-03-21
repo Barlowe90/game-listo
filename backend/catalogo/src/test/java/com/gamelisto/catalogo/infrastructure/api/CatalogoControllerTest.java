@@ -40,6 +40,7 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   @MockitoBean private BuscarGamePorIdUseCase getGameByIdUseCase;
   @MockitoBean private ObtenerTodasLasPlatformasUseCase obtenerTodasLasPlatformasUseCase;
   @MockitoBean private ObtenerTodosLosJuegosUseCase obtenerTodosLosJuegosUseCase;
+  @MockitoBean private ResolverJuegosPorSteamAppIdsUseCase resolverJuegosPorSteamAppIdsUseCase;
 
   // ─── Sync Games ───────────────────────────────────────────────────────────
   @Test
@@ -205,6 +206,32 @@ class CatalogoControllerTest extends AbstractIntegrationTest {
   @DisplayName("POST /v1/catalogo/sync/games sin autenticación debe retornar 403")
   void debeProtegerSyncGamesSinAutenticacion() throws Exception {
     mockMvc.perform(post("/v1/catalogo/sync/games")).andExpect(status().isForbidden());
+  }
+
+  @Test
+  @DisplayName(
+      "POST /v1/catalogo/games/steam/resolve debe retornar los juegos resueltos sin autenticacion")
+  void debeResolverJuegosSteamSinAutenticacion() throws Exception {
+    when(resolverJuegosPorSteamAppIdsUseCase.execute(List.of(620L, 730L)))
+        .thenReturn(Map.of(620L, 10L, 730L, 20L));
+
+    String requestBody =
+        objectMapper.writeValueAsString(Map.of("steamAppIds", List.of(620L, 730L)));
+
+    mockMvc
+        .perform(
+            post("/v1/catalogo/games/steam/resolve")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.items.length()").value(2))
+        .andExpect(
+            jsonPath("$.items[?(@.steamAppId == 620)].gameId")
+                .value(org.hamcrest.Matchers.contains(10)))
+        .andExpect(
+            jsonPath("$.items[?(@.steamAppId == 730)].gameId")
+                .value(org.hamcrest.Matchers.contains(20)));
   }
 
   private RequestPostProcessor asGatewayUser(String roles) {

@@ -41,6 +41,8 @@ public class TestSecurityConfig {
                         "/v1/catalogo/games/*/detail",
                         "/v1/catalogo/platforms")
                     .permitAll()
+                    .requestMatchers(HttpMethod.POST, "/v1/catalogo/games/steam/resolve")
+                    .permitAll()
                     .anyRequest()
                     .authenticated())
         .httpBasic(AbstractHttpConfigurer::disable)

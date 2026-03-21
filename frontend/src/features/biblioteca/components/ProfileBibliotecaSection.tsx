@@ -33,10 +33,35 @@ import {
   validateBibliotecaListName,
 } from './biblioteca.shared';
 
+const STEAM_ID_64_PATTERN = /^\d{17}$/;
+
 function sortLists(lists: BibliotecaLista[]) {
   return [...lists].sort((leftList, rightList) =>
     leftList.nombre.localeCompare(rightList.nombre, 'es', { sensitivity: 'base' }),
   );
+}
+
+function validateSteamId64(steamId64Draft: string) {
+  const normalizedSteamId64 = steamId64Draft.trim();
+
+  if (!normalizedSteamId64) {
+    return {
+      errorMessage: 'Introduce tu SteamID64.',
+      normalizedSteamId64,
+    };
+  }
+
+  if (!STEAM_ID_64_PATTERN.test(normalizedSteamId64)) {
+    return {
+      errorMessage: 'El SteamID64 debe tener 17 digitos.',
+      normalizedSteamId64,
+    };
+  }
+
+  return {
+    errorMessage: null,
+    normalizedSteamId64,
+  };
 }
 
 function BibliotecaListCard({ lista }: Readonly<{ lista: BibliotecaLista }>) {
@@ -135,9 +160,13 @@ export function ProfileBibliotecaSection() {
   const [isLoadingListas, setIsLoadingListas] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isImportSteamDialogOpen, setIsImportSteamDialogOpen] = useState(false);
   const [nombreListaDraft, setNombreListaDraft] = useState('');
   const [nombreListaError, setNombreListaError] = useState<string | null>(null);
   const [isCreatingList, setIsCreatingList] = useState(false);
+  const [steamId64Draft, setSteamId64Draft] = useState('');
+  const [steamId64Error, setSteamId64Error] = useState<string | null>(null);
+  const [isImportingSteam, setIsImportingSteam] = useState(false);
 
   useEffect(() => {
     if (status === 'anonymous') {
@@ -196,6 +225,14 @@ export function ProfileBibliotecaSection() {
     }
   }
 
+  function handleImportSteamDialogOpenChange(open: boolean) {
+    setIsImportSteamDialogOpen(open);
+
+    if (!open && !isImportingSteam) {
+      setSteamId64Error(null);
+    }
+  }
+
   async function handleCreateListSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setNombreListaError(null);
@@ -233,6 +270,48 @@ export function ProfileBibliotecaSection() {
       }
     } finally {
       setIsCreatingList(false);
+    }
+  }
+
+  async function handleImportSteamSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSteamId64Error(null);
+    setListasError(null);
+    setListasSuccess(null);
+
+    const { errorMessage, normalizedSteamId64 } = validateSteamId64(steamId64Draft);
+
+    if (errorMessage) {
+      setSteamId64Error(errorMessage);
+      return;
+    }
+
+    setIsImportingSteam(true);
+
+    try {
+      const result = await bibliotecaApi.importSteamLibrary(normalizedSteamId64);
+
+      setSteamId64Draft(normalizedSteamId64);
+      setListasSuccess(
+        `Importacion completada: ${result.steamOwnedCount} juegos detectados, ` +
+          `${result.resolvedCount} encontrados en el catalogo, ${result.addedCount} nuevos, ` +
+          `${result.alreadyPresentCount} ya estaban en tu lista Steam y ` +
+          `${result.unresolvedCount} no se pudieron resolver.`,
+      );
+      handleImportSteamDialogOpenChange(false);
+      setReloadKey((currentValue) => currentValue + 1);
+    } catch (error) {
+      const fieldMessage = getApiFieldErrorMessage(error, 'steamId64');
+
+      if (fieldMessage) {
+        setSteamId64Error(fieldMessage);
+      } else {
+        setListasError(
+          getApiErrorMessage(error, 'No se pudo importar tu biblioteca de Steam.'),
+        );
+      }
+    } finally {
+      setIsImportingSteam(false);
     }
   }
 
@@ -293,7 +372,15 @@ export function ProfileBibliotecaSection() {
       <SectionHeader
         title="Biblioteca"
         action={
-          <Button onClick={() => handleCreateDialogOpenChange(true)}>Crear nueva lista</Button>
+          <div className="flex flex-wrap justify-end gap-3">
+            <Button
+              variant="secondary"
+              onClick={() => handleImportSteamDialogOpenChange(true)}
+            >
+              Importar Steam
+            </Button>
+            <Button onClick={() => handleCreateDialogOpenChange(true)}>Crear nueva lista</Button>
+          </div>
         }
       />
 
@@ -357,6 +444,56 @@ export function ProfileBibliotecaSection() {
               </Button>
               <Button type="submit" loading={isCreatingList}>
                 Crear lista
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isImportSteamDialogOpen} onOpenChange={handleImportSteamDialogOpenChange}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Importar desde Steam</DialogTitle>
+          </DialogHeader>
+
+          <form className="grid gap-4" onSubmit={handleImportSteamSubmit}>
+            <DialogBody>
+              <FormField
+                label="Id de Steam"
+                htmlFor="steam-id-64"
+                required
+                errorMessage={steamId64Error}
+                helpText="Introduce tu SteamID64 para importar los juegos de tu biblioteca que existan en nuestro catalogo."
+              >
+                <Input
+                  id="steam-id-64"
+                  value={steamId64Draft}
+                  onChange={(event) => {
+                    setSteamId64Draft(event.target.value);
+                    setSteamId64Error(null);
+                    setListasError(null);
+                    setListasSuccess(null);
+                  }}
+                  placeholder="76561198000000000"
+                  autoComplete="off"
+                  inputMode="numeric"
+                  disabled={isImportingSteam}
+                  state={steamId64Error ? 'error' : 'default'}
+                />
+              </FormField>
+            </DialogBody>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => handleImportSteamDialogOpenChange(false)}
+                disabled={isImportingSteam}
+              >
+                {BIBLIOTECA_LIST_TEXT.cancel}
+              </Button>
+              <Button type="submit" loading={isImportingSteam} disabled={isImportingSteam}>
+                Importar
               </Button>
             </DialogFooter>
           </form>

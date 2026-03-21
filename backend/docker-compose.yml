@@ -120,6 +120,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+      STEAM_API_KEY: ${STEAM_API_KEY}
     depends_on:
       postgres:
         condition: service_healthy

@@ -4,6 +4,7 @@ import type {
   BibliotecaGameEstado,
   BibliotecaLista,
   CrearBibliotecaListaPayload,
+  ImportarBibliotecaSteamResult,
 } from '@/features/biblioteca/model/biblioteca.types';
 
 async function getUserLists(): Promise<BibliotecaLista[]> {
@@ -72,6 +73,17 @@ async function removeGameFromList(listaId: string, gameId: number): Promise<void
   await httpClient.delete(`/v1/biblioteca/lists/${listaId}/games/${gameId}`);
 }
 
+async function importSteamLibrary(steamId64: string): Promise<ImportarBibliotecaSteamResult> {
+  const response = await httpClient.post<ImportarBibliotecaSteamResult>(
+    '/v1/biblioteca/imports/steam',
+    {
+      steamId64,
+    },
+  );
+
+  return response.data;
+}
+
 export const bibliotecaApi = {
   addGameToList,
   deleteGameState,
@@ -81,6 +93,7 @@ export const bibliotecaApi = {
   getGameStates,
   getListById,
   getUserLists,
+  importSteamLibrary,
   removeGameFromList,
   rateGame,
   updateListName,
