@@ -8,6 +8,7 @@ import { Card } from '@/shared/components/ui/Card';
 import { getGruposCountLabel } from './misPublicaciones.utils';
 
 interface MisPublicacionesJoinedGroupsSectionProps {
+  currentUserId: string | null;
   disableActions: boolean;
   gameTitlesById: Record<string, string>;
   isLoading: boolean;
@@ -17,6 +18,7 @@ interface MisPublicacionesJoinedGroupsSectionProps {
 }
 
 export function MisPublicacionesJoinedGroupsSection({
+  currentUserId,
   disableActions,
   gameTitlesById,
   isLoading,
@@ -33,7 +35,7 @@ export function MisPublicacionesJoinedGroupsSection({
               Grupos en los que participas
             </h2>
             <p className="text-sm leading-relaxed text-secondary">
-              Aqui veras las publicaciones cuyos grupos has llegado a compartir como jugador.
+              Aqui veras los grupos en los que ya participas, tanto si eres autor como si te has unido como jugador.
             </p>
           </div>
 
@@ -46,22 +48,27 @@ export function MisPublicacionesJoinedGroupsSection({
           </p>
         ) : joinedPublicaciones.length ? (
           <div className="grid gap-5 xl:grid-cols-2 2xl:grid-cols-3">
-            {joinedPublicaciones.map((publicacion) => (
-              <PublicacionCard
-                key={`joined-${publicacion.id}`}
-                publicacion={publicacion}
-                participantes={publicacion.participantes}
-                gameTitle={gameTitlesById[publicacion.gameId]}
-                showGameLink
-                disableActions={disableActions}
-                onLeaveGroup={onLeaveGroup}
-                onViewGroupInfo={publicacion.grupoId ? onViewGroupInfo : undefined}
-              />
-            ))}
+            {joinedPublicaciones.map((publicacion) => {
+              const isAuthor = currentUserId === publicacion.autorId;
+
+              return (
+                <PublicacionCard
+                  key={`joined-${publicacion.id}`}
+                  publicacion={publicacion}
+                  participantes={publicacion.participantes}
+                  gameTitle={gameTitlesById[publicacion.gameId]}
+                  showGameLink
+                  isAuthor={isAuthor}
+                  disableActions={disableActions}
+                  onLeaveGroup={isAuthor ? undefined : onLeaveGroup}
+                  onViewGroupInfo={publicacion.grupoId ? onViewGroupInfo : undefined}
+                />
+              );
+            })}
           </div>
         ) : (
           <p className="text-sm leading-relaxed text-secondary">
-            Todavia no formas parte de ningun grupo como participante.
+            Todavia no participas en ningun grupo de juego.
           </p>
         )}
       </div>

@@ -21,6 +21,7 @@ import {
 } from '@/features/publicaciones/components/misPublicaciones.utils';
 import type {
   EditarPublicacionPayload,
+  GrupoJuego,
   Publicacion,
   PublicacionDetalle,
   SolicitudUnion,
@@ -42,6 +43,26 @@ function getApiErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
+async function loadGrupoJuego(publicacion: Publicacion): Promise<GrupoJuego | null> {
+  if (!publicacion.grupoId) {
+    return null;
+  }
+
+  try {
+    return await publicacionesApi.getGrupoJuego(publicacion.grupoId);
+  } catch {
+    return null;
+  }
+}
+
+async function loadGruposPorPublicacion(publicaciones: Publicacion[]) {
+  const grupos = await Promise.all(
+    publicaciones.map(async (publicacion) => [publicacion.id, await loadGrupoJuego(publicacion)]),
+  );
+
+  return Object.fromEntries(grupos) as Record<string, GrupoJuego | null>;
+}
+
 export function MisPublicacionesPage() {
   const { user } = useAuth();
   const userId = user?.id ?? null;
@@ -52,6 +73,9 @@ export function MisPublicacionesPage() {
   const [publicacionesDetalleById, setPublicacionesDetalleById] = useState<
     Record<string, PublicacionDetalle | null>
   >({});
+  const [gruposByPublicacionId, setGruposByPublicacionId] = useState<
+    Record<string, GrupoJuego | null>
+  >({});
   const [usuariosById, setUsuariosById] = useState<Record<string, UsuarioResponse | null>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -61,6 +85,7 @@ export function MisPublicacionesPage() {
   const [leavingPublicacion, setLeavingPublicacion] = useState<Publicacion | null>(null);
   const [groupInfoTarget, setGroupInfoTarget] = useState<{
     grupoId: string;
+    grupo: GrupoJuego | null;
     publicacionTitle: string;
   } | null>(null);
   const [isSubmittingPublicacion, setIsSubmittingPublicacion] = useState(false);
@@ -78,6 +103,7 @@ export function MisPublicacionesPage() {
         setSolicitudesRecibidas([]);
         setGameTitlesById({});
         setPublicacionesDetalleById({});
+        setGruposByPublicacionId({});
         setUsuariosById({});
         setIsLoading(false);
         return;
@@ -100,10 +126,12 @@ export function MisPublicacionesPage() {
         ];
         const requestUserIds = nextSolicitudesRecibidas.map((solicitud) => solicitud.usuarioId);
 
-        const [nextPublicacionesDetalleById, nextUsuariosById] = await Promise.all([
-          loadPublicacionesDetalleMap(publicacionIds),
-          loadUsuariosMap(requestUserIds),
-        ]);
+        const [nextPublicacionesDetalleById, nextUsuariosById, nextGruposByPublicacionId] =
+          await Promise.all([
+            loadPublicacionesDetalleMap(publicacionIds),
+            loadUsuariosMap(requestUserIds),
+            loadGruposPorPublicacion(nextPublicaciones),
+          ]);
         const nextSolicitudesPublicacionDetalle = Object.values(
           nextPublicacionesDetalleById,
         ).filter((publicacion): publicacion is PublicacionDetalle => Boolean(publicacion));
@@ -121,6 +149,7 @@ export function MisPublicacionesPage() {
         setSolicitudesRecibidas(nextSolicitudesRecibidas);
         setGameTitlesById(nextGameTitlesById);
         setPublicacionesDetalleById(nextPublicacionesDetalleById);
+        setGruposByPublicacionId(nextGruposByPublicacionId);
         setUsuariosById(nextUsuariosById);
       } catch (error) {
         if (ignore) {
@@ -254,6 +283,11 @@ export function MisPublicacionesPage() {
         delete nextPublicacionesDetalleById[deletingPublicacion.id];
         return nextPublicacionesDetalleById;
       });
+      setGruposByPublicacionId((currentGruposByPublicacionId) => {
+        const nextGruposByPublicacionId = { ...currentGruposByPublicacionId };
+        delete nextGruposByPublicacionId[deletingPublicacion.id];
+        return nextGruposByPublicacionId;
+      });
       setDeletingPublicacion(null);
       setSuccessMessage('Publicacion eliminada correctamente.');
     } catch (error) {
@@ -270,6 +304,7 @@ export function MisPublicacionesPage() {
 
     setGroupInfoTarget({
       grupoId: publicacion.grupoId,
+      grupo: gruposByPublicacionId[publicacion.id] ?? null,
       publicacionTitle: publicacion.titulo,
     });
   }
@@ -351,10 +386,15 @@ export function MisPublicacionesPage() {
           const updatedPublicacionDetalle = await publicacionesApi.getPublicacion(
             solicitud.publicacionId,
           );
+          const updatedGrupo = await loadGrupoJuego(updatedPublicacionDetalle);
 
           setPublicacionesDetalleById((currentPublicacionesDetalleById) => ({
             ...currentPublicacionesDetalleById,
             [updatedPublicacionDetalle.id]: updatedPublicacionDetalle,
+          }));
+          setGruposByPublicacionId((currentGruposByPublicacionId) => ({
+            ...currentGruposByPublicacionId,
+            [solicitud.publicacionId]: updatedGrupo,
           }));
         } catch {
           // Si el refresco del detalle falla, mantenemos el cambio de estado de la solicitud.
@@ -385,6 +425,8 @@ export function MisPublicacionesPage() {
   const joinedPublicaciones = getJoinedPublicaciones(
     solicitudesEnviadas,
     publicacionesDetalleById,
+    publicaciones,
+    gruposByPublicacionId,
     userId,
   );
   const disableCardActions = isSubmittingPublicacion || isDeletingPublicacion || isLeavingGroup;
@@ -408,6 +450,7 @@ export function MisPublicacionesPage() {
         {successMessage ? <Toast title={successMessage} /> : null}
 
         <MisPublicacionesJoinedGroupsSection
+          currentUserId={userId}
           disableActions={disableCardActions}
           gameTitlesById={gameTitlesById}
           isLoading={isLoading}
@@ -420,6 +463,7 @@ export function MisPublicacionesPage() {
           currentUserId={userId}
           disableActions={disableCardActions}
           gameTitlesById={gameTitlesById}
+          gruposByPublicacionId={gruposByPublicacionId}
           isLoading={isLoading}
           onDelete={setDeletingPublicacion}
           onEdit={setEditingPublicacion}
@@ -457,6 +501,7 @@ export function MisPublicacionesPage() {
         <GrupoJuegoInfoDialog
           open={groupInfoTarget !== null}
           grupoId={groupInfoTarget?.grupoId ?? null}
+          grupo={groupInfoTarget?.grupo ?? null}
           publicacionTitle={groupInfoTarget?.publicacionTitle}
           onOpenChange={handleGroupInfoDialogOpenChange}
         />

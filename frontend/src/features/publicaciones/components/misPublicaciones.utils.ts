@@ -3,6 +3,7 @@ import type { UsuarioResponse } from '@/features/auth/api/auth.types';
 import { getGamesByIds } from '@/features/catalogo/api/catalogApi';
 import { publicacionesApi } from '@/features/publicaciones/api/publicacionesApi';
 import type {
+  GrupoJuego,
   Publicacion,
   PublicacionDetalle,
   SolicitudUnion,
@@ -102,13 +103,15 @@ export async function loadUsuariosMap(userIds: string[]) {
 export function getJoinedPublicaciones(
   solicitudesEnviadas: SolicitudUnion[],
   publicacionesDetalleById: Record<string, PublicacionDetalle | null>,
+  publicaciones: Publicacion[],
+  gruposByPublicacionId: Record<string, GrupoJuego | null>,
   userId: string | null,
 ) {
   if (!userId) {
     return [];
   }
 
-  const publicaciones = solicitudesEnviadas
+  const joinedBySolicitudes = solicitudesEnviadas
     .filter((solicitud) => solicitud.estadoSolicitud === 'ACEPTADA')
     .map((solicitud) => publicacionesDetalleById[solicitud.publicacionId])
     .filter((publicacion): publicacion is PublicacionDetalle => Boolean(publicacion?.grupoId))
@@ -116,7 +119,33 @@ export function getJoinedPublicaciones(
       publicacion.participantes.some((participante) => participante.id === userId),
     );
 
+  const joinedAsAuthor = publicaciones
+    .filter((publicacion) => Boolean(publicacion.grupoId))
+    .map((publicacion) => {
+      const grupo = gruposByPublicacionId[publicacion.id];
+
+      if (!grupo) {
+        return null;
+      }
+
+      return {
+        ...publicacion,
+        participantesCount: grupo.participantes.length,
+        plazasDisponibles: Math.max(
+          publicacion.jugadoresMaximos - grupo.participantes.length,
+          0,
+        ),
+        participantes: grupo.participantes,
+      } satisfies PublicacionDetalle;
+    })
+    .filter((publicacion): publicacion is PublicacionDetalle => Boolean(publicacion))
+    .filter((publicacion) =>
+      publicacion.participantes.some((participante) => participante.id === userId),
+    );
+
   return Array.from(
-    new Map(publicaciones.map((publicacion) => [publicacion.id, publicacion])).values(),
+    new Map(
+      [...joinedAsAuthor, ...joinedBySolicitudes].map((publicacion) => [publicacion.id, publicacion]),
+    ).values(),
   );
 }

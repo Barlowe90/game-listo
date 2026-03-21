@@ -139,23 +139,6 @@ export function GrupoJuegoInfoDialog({
             </p>
           ) : grupoData ? (
             <div className="grid gap-5">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="grid gap-2 rounded-[calc(var(--radius-xl)-0.1rem)] border border-border bg-surface/70 p-4">
-                  <span className="text-xs font-semibold tracking-[0.08em] text-secondary uppercase">
-                    Grupo ID
-                  </span>
-                  <p className="break-all font-mono text-sm text-foreground">{grupoData.id}</p>
-                </div>
-
-                <div className="grid gap-2 rounded-[calc(var(--radius-xl)-0.1rem)] border border-border bg-surface/70 p-4">
-                  <span className="text-xs font-semibold tracking-[0.08em] text-secondary uppercase">
-                    Publicacion ID
-                  </span>
-                  <p className="break-all font-mono text-sm text-foreground">
-                    {grupoData.publicacionId}
-                  </p>
-                </div>
-              </div>
 
               <div className="grid gap-2 rounded-[calc(var(--radius-xl)-0.1rem)] border border-border bg-surface/70 p-4">
                 <span className="text-xs font-semibold tracking-[0.08em] text-secondary uppercase">
@@ -198,9 +181,6 @@ export function GrupoJuegoInfoDialog({
                         <div className="grid gap-1 min-w-0">
                           <span className="truncate text-sm font-semibold text-foreground">
                             {participante.username}
-                          </span>
-                          <span className="break-all font-mono text-xs text-secondary">
-                            {participante.id}
                           </span>
                         </div>
                       </div>

@@ -1,5 +1,8 @@
 import Link from 'next/link';
-import type { Publicacion } from '@/features/publicaciones/model/publicaciones.types';
+import type {
+  GrupoJuego,
+  Publicacion,
+} from '@/features/publicaciones/model/publicaciones.types';
 import { EmptyPublicationsState } from '@/shared/components/domain/EmptyPublicationsState';
 import { Button } from '@/shared/components/ui/Button';
 import { Card } from '@/shared/components/ui/Card';
@@ -9,6 +12,7 @@ interface MisPublicacionesGridSectionProps {
   currentUserId: string | null;
   disableActions: boolean;
   gameTitlesById: Record<string, string>;
+  gruposByPublicacionId: Record<string, GrupoJuego | null>;
   isLoading: boolean;
   onDelete: (publicacion: Publicacion) => void;
   onEdit: (publicacion: Publicacion) => void;
@@ -20,6 +24,7 @@ export function MisPublicacionesGridSection({
   currentUserId,
   disableActions,
   gameTitlesById,
+  gruposByPublicacionId,
   isLoading,
   onDelete,
   onEdit,
@@ -64,6 +69,7 @@ export function MisPublicacionesGridSection({
           <PublicacionCard
             key={publicacion.id}
             publicacion={publicacion}
+            participantes={gruposByPublicacionId[publicacion.id]?.participantes ?? null}
             gameTitle={gameTitlesById[publicacion.gameId]}
             showGameLink
             isAuthor={isAuthor}
