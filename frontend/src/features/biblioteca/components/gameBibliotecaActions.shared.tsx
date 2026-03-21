@@ -64,7 +64,7 @@ const actionChipClassName =
   'inline-flex min-h-[70px] min-w-[84px] flex-col items-center justify-center gap-1.5 rounded-[calc(var(--radius-xl)+0.25rem)] border px-3 py-2 text-center text-[13px] font-semibold transition-[background-color,border-color,color,box-shadow,opacity] duration-[var(--duration-fast)] ease-[var(--easing-standard)]';
 
 const activeActionChipClassName =
-  'border-transparent bg-primary text-primary-foreground shadow-surface';
+  'border-transparent bg-primary text-white! shadow-surface';
 
 const inactiveActionChipClassName =
   'border-border bg-primary-soft/70 text-foreground hover:border-border-strong hover:bg-surface';
