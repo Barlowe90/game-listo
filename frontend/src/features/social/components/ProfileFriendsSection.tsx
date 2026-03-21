@@ -80,9 +80,6 @@ function FriendCard({ friend }: Readonly<{ friend: UsuarioRef }>) {
           <h3 className="truncate text-lg font-semibold tracking-tight text-foreground">
             {friend.username}
           </h3>
-          <p className="text-sm leading-relaxed text-secondary">
-            Forma parte de tu red social en GameListo.
-          </p>
         </div>
       </div>
     </Card>

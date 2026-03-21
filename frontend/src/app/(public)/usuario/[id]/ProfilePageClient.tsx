@@ -227,9 +227,7 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
   }, [isOwnProfile, profileUserId, status]);
 
   const visibleProfile = profile ?? (isOwnProfile ? user : null);
-  const availableSections = isOwnProfile
-    ? PROFILE_SECTIONS
-    : PROFILE_SECTIONS.filter((section) => section.key !== 'ajustes');
+  const availableSections = isOwnProfile ? PROFILE_SECTIONS : [];
   const resolvedActiveSection =
     !isOwnProfile && activeSection === 'ajustes' ? 'biblioteca' : activeSection;
   const profileUsername = visibleProfile?.username ?? (isOwnProfile ? 'Tu perfil' : 'Perfil');
@@ -578,7 +576,6 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
       return (
         <ProfilePublicSection
           profileError={profileError}
-          resolvedActiveSection={resolvedActiveSection}
           visibleProfile={visibleProfile}
           onRetry={handleProfileRetry}
         />

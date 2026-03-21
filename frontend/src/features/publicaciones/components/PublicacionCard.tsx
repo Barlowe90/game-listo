@@ -300,13 +300,19 @@ export function PublicacionCard({
         {showParticipantSlots ? (
           <div className="flex flex-wrap items-center gap-2" aria-label="Plazas del grupo">
             {visibleParticipantes.map((participante) => (
-              <Avatar
+              <Link
                 key={participante.id}
-                src={participante.avatar}
-                name={participante.username}
-                size="sm"
-                className="size-10 border-primary/15 bg-white text-primary shadow-surface"
-              />
+                href={`/usuario/${participante.id}`}
+                aria-label={`Ver perfil de ${participante.username}`}
+                className="rounded-pill transition-transform duration-[var(--duration-fast)] ease-[var(--easing-standard)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              >
+                <Avatar
+                  src={participante.avatar}
+                  name={participante.username}
+                  size="sm"
+                  className="size-10 border-primary/15 bg-white text-primary shadow-surface"
+                />
+              </Link>
             ))}
 
             {Array.from({ length: emptySlotsCount }, (_, slotIndex) => (

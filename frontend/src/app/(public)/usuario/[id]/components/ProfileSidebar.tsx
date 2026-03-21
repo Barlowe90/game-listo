@@ -83,6 +83,10 @@ function ProfileSectionsCard({
   availableSections,
   resolvedActiveSection,
 }: Readonly<Pick<ProfileSidebarProps, 'availableSections' | 'resolvedActiveSection'>>) {
+  if (!availableSections.length) {
+    return null;
+  }
+
   return (
     <SurfaceCard>
       <div className="grid gap-3 p-4">

@@ -1,6 +1,7 @@
 'use client';
 
 import axios from 'axios';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { publicacionesApi } from '@/features/publicaciones/api/publicacionesApi';
 import type { GrupoJuego } from '@/features/publicaciones/model/publicaciones.types';
@@ -172,12 +173,18 @@ export function GrupoJuegoInfoDialog({
                         key={participante.id}
                         className="flex items-center gap-3 rounded-[calc(var(--radius-xl)-0.2rem)] border border-border bg-white/80 px-4 py-3"
                       >
-                        <Avatar
-                          src={participante.avatar}
-                          name={participante.username}
-                          size="sm"
-                          className="size-10"
-                        />
+                        <Link
+                          href={`/usuario/${participante.id}`}
+                          aria-label={`Ver perfil de ${participante.username}`}
+                          className="rounded-pill transition-transform duration-[var(--duration-fast)] ease-[var(--easing-standard)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                        >
+                          <Avatar
+                            src={participante.avatar}
+                            name={participante.username}
+                            size="sm"
+                            className="size-10"
+                          />
+                        </Link>
                         <div className="grid gap-1 min-w-0">
                           <span className="truncate text-sm font-semibold text-foreground">
                             {participante.username}

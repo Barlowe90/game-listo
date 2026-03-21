@@ -3,30 +3,23 @@ import { InfoPanelCard } from '@/shared/components/domain/InfoPanelCard';
 import { Button } from '@/shared/components/ui/Button';
 import { SectionHeader } from '@/shared/components/ui/SectionHeader';
 import { Toast } from '@/shared/components/ui/Toast';
-import { SimpleStateCard, getSectionLabel, type ProfileSectionKey } from '../profilePage.shared';
+import { SimpleStateCard } from '../profilePage.shared';
 
 interface ProfilePublicSectionProps {
   profileError: string | null;
-  resolvedActiveSection: ProfileSectionKey;
   visibleProfile: User | null;
   onRetry: () => void;
 }
 
 export function ProfilePublicSection({
   profileError,
-  resolvedActiveSection,
   visibleProfile,
   onRetry,
 }: Readonly<ProfilePublicSectionProps>) {
-  const sectionTitle = getSectionLabel(resolvedActiveSection);
-
   if (profileError && !visibleProfile) {
     return (
       <div className="grid gap-6">
-        <SectionHeader
-          title={sectionTitle}
-          action={<Button onClick={onRetry}>Reintentar</Button>}
-        />
+        <SectionHeader title="Perfil" action={<Button onClick={onRetry}>Reintentar</Button>} />
 
         <Toast variant="error" title={profileError} />
 
@@ -37,14 +30,14 @@ export function ProfilePublicSection({
 
   return (
     <div className="grid gap-6">
-      <SectionHeader title={sectionTitle} />
+      <SectionHeader title="Perfil" />
 
       <InfoPanelCard
-        title="Perfil publico"
+        title="Informacion basica"
         description={
           visibleProfile
-            ? `Puedes gestionar la amistad con ${visibleProfile.username} desde la cabecera del perfil.`
-            : 'Puedes gestionar la amistad desde la cabecera del perfil.'
+            ? `Puedes agregar a ${visibleProfile.username} como amigo desde la cabecera de esta ficha.`
+            : 'Puedes agregar a este usuario como amigo desde la cabecera de esta ficha.'
         }
       />
     </div>
