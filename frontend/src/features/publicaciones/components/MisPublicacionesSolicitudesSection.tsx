@@ -122,9 +122,6 @@ function SolicitudEnviadaRow({
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-[calc(var(--radius-xl)+0.2rem)] border border-border bg-surface/80 px-4 py-4">
       <div className="grid gap-1">
         <span className="text-sm font-semibold text-foreground">{publicacionTitle}</span>
-        <span className="text-xs text-secondary">
-          Solicitud {formatShortId(solicitud.id)}
-        </span>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
