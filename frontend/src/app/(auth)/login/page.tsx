@@ -13,6 +13,11 @@ import { FormField } from '@/shared/components/ui/FormField';
 import { Input } from '@/shared/components/ui/Input';
 import { Toast } from '@/shared/components/ui/Toast';
 
+type LoginApiError = {
+  error?: string;
+  message?: string;
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
@@ -31,9 +36,10 @@ export default function LoginPage() {
       await login(email, password);
       router.replace('/biblioteca');
     } catch (error: unknown) {
-      if (axios.isAxiosError<{ message?: string }>(error)) {
+      if (axios.isAxiosError<LoginApiError>(error)) {
         setErrorMessage(
-          error.response?.data?.message ??
+          error.response?.data?.error ??
+            error.response?.data?.message ??
             'No se pudo iniciar sesión. Revisa tus credenciales e inténtalo otra vez.',
         );
       } else {

@@ -1,9 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import {
-  getAccessTokenValue,
-  getRefreshTokenValue,
-  type AuthResponse,
-} from './auth.types';
+import { getAccessTokenValue, getRefreshTokenValue } from './auth.types';
 import { getRefreshToken, saveRefreshToken, clearRefreshToken } from './tokenStorage';
 import {
   getAccessToken,
@@ -12,10 +8,9 @@ import {
   notifyUnauthorized,
   notifyTokenRefreshed,
 } from './authSessionBridge';
+import { executeRefreshRequest } from './refreshRequest';
 
-// con esta clase hago que todas las llamadas al back (login, me, logout, refresh) sean consistentes y no repetir la misma config en cada función authApi
-
-let refreshPromise: Promise<AuthResponse> | null = null;
+// con esta clase hago que todas las llamadas al back (login, me, logout, refresh) sean consistentes y no repetir la misma config en cada funcion authApi
 
 export const httpClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -24,14 +19,7 @@ export const httpClient = axios.create({
   },
 });
 
-const refreshClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// con la siguiente funcion evito que tenga que añadir a cada peticion el bearer token
+// con la siguiente funcion evito que tenga que anadir a cada peticion el bearer token
 httpClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = getAccessToken();
   const requestUrl = config.url ?? '';
@@ -90,16 +78,15 @@ httpClient.interceptors.response.use(
     originalRequest._retry = true;
 
     try {
-      refreshPromise ??= refreshClient
-        .post<AuthResponse>('/v1/usuarios/auth/refresh', { refreshToken })
-        .then((response) => response.data)
-        .finally(() => {
-          refreshPromise = null;
-        });
+      const authResponse = await executeRefreshRequest(refreshToken);
+      const nextRefreshToken = getRefreshTokenValue(authResponse);
+      const currentRefreshToken = getRefreshToken();
 
-      const authResponse = await refreshPromise;
+      if (currentRefreshToken !== refreshToken && currentRefreshToken !== nextRefreshToken) {
+        return Promise.reject(error);
+      }
 
-      saveRefreshToken(getRefreshTokenValue(authResponse));
+      saveRefreshToken(nextRefreshToken);
       setBridgeAccessToken(getAccessTokenValue(authResponse));
       await notifyTokenRefreshed(authResponse);
 
@@ -108,9 +95,12 @@ httpClient.interceptors.response.use(
 
       return httpClient(originalRequest);
     } catch (refreshError) {
-      clearRefreshToken();
-      clearBridgeAccessToken();
-      await notifyUnauthorized();
+      if (getRefreshToken() === refreshToken) {
+        clearRefreshToken();
+        clearBridgeAccessToken();
+        await notifyUnauthorized();
+      }
+
       return Promise.reject(refreshError);
     }
   },

@@ -3,10 +3,15 @@ package com.gamelisto.publicaciones.application.usecases;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.EstadoSolicitud;
+import com.gamelisto.publicaciones.domain.GrupoJuego;
+import com.gamelisto.publicaciones.domain.GrupoJuegoRepositorio;
+import com.gamelisto.publicaciones.domain.GrupoJuegoUsuarioRepositorio;
 import com.gamelisto.publicaciones.domain.SolicitudUnion;
 import com.gamelisto.publicaciones.domain.SolicitudUnionRepositorio;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
@@ -27,6 +32,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SolicitudUnionPublicacionUseCaseTest {
 
   @Mock private SolicitudUnionRepositorio solicitudUnionRepositorio;
+  @Mock private GrupoJuegoRepositorio grupoJuegoRepositorio;
+  @Mock private GrupoJuegoUsuarioRepositorio grupoJuegoUsuarioRepositorio;
   @InjectMocks private CrearSolicitudUnionUseCase useCase;
 
   @Test
@@ -54,8 +61,7 @@ class SolicitudUnionPublicacionUseCaseTest {
   }
 
   @Test
-  @DisplayName(
-      "debe lanzar excepción si ya existe una solicitud del mismo usuario para la publicacion")
+  @DisplayName("debe lanzar excepcion si ya existe una solicitud del mismo usuario")
   void debeLanzarSiYaExiste() {
     UUID publicacionId = UUID.randomUUID();
     UUID userId = UUID.randomUUID();
@@ -74,6 +80,68 @@ class SolicitudUnionPublicacionUseCaseTest {
     assertThatThrownBy(() -> useCase.execute(publicacionId, userId))
         .isInstanceOf(ApplicationException.class)
         .hasMessageContaining("Ya existe una solicitud");
+
+    verify(solicitudUnionRepositorio, never()).save(any());
+  }
+
+  @Test
+  @DisplayName(
+      "debe reabrir la solicitud cuando ya fue aceptada y el usuario ya no pertenece al grupo")
+  void debeReabrirSolicitudAceptadaSiUsuarioYaNoPerteneceAlGrupo() {
+    UUID publicacionId = UUID.randomUUID();
+    UUID userId = UUID.randomUUID();
+
+    SolicitudUnion existente =
+        SolicitudUnion.reconstitute(
+            SolicitudId.of(UUID.randomUUID()),
+            PublicacionId.of(publicacionId),
+            UsuarioId.of(userId),
+            EstadoSolicitud.ACEPTADA);
+    GrupoJuego grupo = GrupoJuego.create(PublicacionId.of(publicacionId));
+
+    when(solicitudUnionRepositorio.findByPublicacionIdAndUsuarioId(
+            PublicacionId.of(publicacionId), UsuarioId.of(userId)))
+        .thenReturn(Optional.of(existente));
+    when(grupoJuegoRepositorio.findByPublicacionId(PublicacionId.of(publicacionId)))
+        .thenReturn(Optional.of(grupo));
+    when(grupoJuegoUsuarioRepositorio.existsByGrupoIdAndUsuarioId(
+            grupo.getId(), UsuarioId.of(userId)))
+        .thenReturn(false);
+    when(solicitudUnionRepositorio.save(existente)).thenReturn(existente);
+
+    SolicitudUnionResult result = useCase.execute(publicacionId, userId);
+
+    assertThat(existente.getEstadoSolicitud()).isEqualTo(EstadoSolicitud.SOLICITADA);
+    assertThat(result.estadoSolicitud()).isEqualTo("SOLICITADA");
+    verify(solicitudUnionRepositorio).save(existente);
+  }
+
+  @Test
+  @DisplayName("debe lanzar excepcion si el usuario ya pertenece al grupo")
+  void debeLanzarSiElUsuarioYaPerteneceAlGrupo() {
+    UUID publicacionId = UUID.randomUUID();
+    UUID userId = UUID.randomUUID();
+
+    SolicitudUnion existente =
+        SolicitudUnion.reconstitute(
+            SolicitudId.of(UUID.randomUUID()),
+            PublicacionId.of(publicacionId),
+            UsuarioId.of(userId),
+            EstadoSolicitud.ACEPTADA);
+    GrupoJuego grupo = GrupoJuego.create(PublicacionId.of(publicacionId));
+
+    when(solicitudUnionRepositorio.findByPublicacionIdAndUsuarioId(
+            PublicacionId.of(publicacionId), UsuarioId.of(userId)))
+        .thenReturn(Optional.of(existente));
+    when(grupoJuegoRepositorio.findByPublicacionId(PublicacionId.of(publicacionId)))
+        .thenReturn(Optional.of(grupo));
+    when(grupoJuegoUsuarioRepositorio.existsByGrupoIdAndUsuarioId(
+            grupo.getId(), UsuarioId.of(userId)))
+        .thenReturn(true);
+
+    assertThatThrownBy(() -> useCase.execute(publicacionId, userId))
+        .isInstanceOf(ApplicationException.class)
+        .hasMessageContaining("ya pertenece al grupo");
 
     verify(solicitudUnionRepositorio, never()).save(any());
   }

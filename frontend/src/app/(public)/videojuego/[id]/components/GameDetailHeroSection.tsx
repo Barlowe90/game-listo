@@ -68,7 +68,6 @@ export function GameDetailHeroSection({
                 <TagList
                   items={additionalTags}
                   tone="tag"
-                  getHref={(tag) => `/catalogo?q=${encodeURIComponent(tag)}`}
                   emptyLabel="Este juego no tiene tags."
                 />
               </div>
