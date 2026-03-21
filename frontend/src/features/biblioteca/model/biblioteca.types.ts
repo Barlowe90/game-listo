@@ -36,3 +36,13 @@ export interface BibliotecaGameEstado {
   estado: BibliotecaEstado;
   rating: number | null;
 }
+
+export interface ImportarBibliotecaSteamResult {
+  listaId: string;
+  listaNombre: string;
+  steamOwnedCount: number;
+  resolvedCount: number;
+  addedCount: number;
+  alreadyPresentCount: number;
+  unresolvedCount: number;
+}

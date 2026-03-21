@@ -45,6 +45,8 @@ public class SecurityConfig {
                         "/v1/catalogo/games/*/detail",
                         "/v1/catalogo/platforms")
                     .permitAll()
+                    .requestMatchers(HttpMethod.POST, "/v1/catalogo/games/steam/resolve")
+                    .permitAll()
                     .anyRequest()
                     .authenticated());
     return http.build();

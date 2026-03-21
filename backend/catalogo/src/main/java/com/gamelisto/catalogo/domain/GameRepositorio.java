@@ -1,6 +1,7 @@
 package com.gamelisto.catalogo.domain;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface GameRepositorio {
@@ -12,6 +13,8 @@ public interface GameRepositorio {
   PageResult<Game> findAll(int page, int size, List<String> platforms);
 
   PageResult<GameCardSummary> findSummaries(int page, int size, List<String> platforms);
+
+  Map<Long, Long> findIdsBySteamAppIds(List<Long> steamAppIds);
 
   long findMaxId();
 }

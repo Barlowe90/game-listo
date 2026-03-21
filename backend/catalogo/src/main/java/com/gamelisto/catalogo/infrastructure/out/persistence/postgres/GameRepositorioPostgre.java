@@ -7,6 +7,10 @@ import com.gamelisto.catalogo.domain.GameRepositorio;
 import com.gamelisto.catalogo.domain.PageResult;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,10 +20,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -155,6 +155,51 @@ public class GameRepositorioPostgre implements GameRepositorio {
 
   @Override
   @Transactional(readOnly = true)
+  public Map<Long, Long> findIdsBySteamAppIds(List<Long> steamAppIds) {
+    List<Long> uniqueAppIds =
+        steamAppIds == null ? List.of() : steamAppIds.stream().filter(Objects::nonNull).distinct().toList();
+
+    if (uniqueAppIds.isEmpty()) {
+      return Map.of();
+    }
+
+    String sql =
+        """
+        select cast(substring(external_url from '/app/([0-9]+)') as bigint) as steam_app_id,
+               min(game_id) as game_id
+        from game_external_games
+        where substring(external_url from '/app/([0-9]+)') is not null
+          and cast(substring(external_url from '/app/([0-9]+)') as bigint) in (:appIds)
+        group by cast(substring(external_url from '/app/([0-9]+)') as bigint)
+        """;
+
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("appIds", uniqueAppIds);
+
+    List<SteamGameResolutionRow> rows =
+        jdbcTemplate.query(
+            sql,
+            params,
+            (rs, rowNum) ->
+                new SteamGameResolutionRow(rs.getLong("steam_app_id"), rs.getLong("game_id")));
+
+    Map<Long, Long> resolvedByAppId = new LinkedHashMap<>();
+    for (SteamGameResolutionRow row : rows) {
+      resolvedByAppId.putIfAbsent(row.steamAppId(), row.gameId());
+    }
+
+    Map<Long, Long> orderedResult = new LinkedHashMap<>();
+    for (Long steamAppId : uniqueAppIds) {
+      Long gameId = resolvedByAppId.get(steamAppId);
+      if (gameId != null) {
+        orderedResult.put(steamAppId, gameId);
+      }
+    }
+
+    return orderedResult;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
   public long findMaxId() {
     return jpaRepository.findMaxId();
   }
@@ -197,4 +242,6 @@ public class GameRepositorioPostgre implements GameRepositorio {
   private record GameCardBaseRow(Long id, String name, String coverUrl) {}
 
   private record GameTextCollectionRow(Long gameId, String value) {}
+
+  private record SteamGameResolutionRow(Long steamAppId, Long gameId) {}
 }

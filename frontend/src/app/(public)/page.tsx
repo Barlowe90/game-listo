@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { BookMarked, Compass, UsersRound, type LucideIcon } from 'lucide-react';
 import { FeatureCard } from '@/shared/components/domain/FeatureCard';
+import { HomeImportLibraryAction } from '@/shared/components/domain/HomeImportLibraryAction';
 import { ImportLibraryBanner } from '@/shared/components/domain/ImportLibraryBanner';
 import { Grid } from '@/shared/components/layout/Grid';
 import { PageSection } from '@/shared/components/layout/PageSection';
@@ -94,11 +95,7 @@ export default function Home() {
         <ImportLibraryBanner
           title="Empieza trayendo tu biblioteca"
           description="Importa tu biblioteca de Steam o PlayStation para organizar todos tus videojuegos en un solo lugar."
-          action={
-            <Button asChild variant="secondary">
-              <Link href="/login">Importar biblioteca</Link>
-            </Button>
-          }
+          action={<HomeImportLibraryAction />}
         />
       </PageSection>
     </>

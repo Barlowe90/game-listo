@@ -4,7 +4,11 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { bibliotecaApi } from '@/features/biblioteca/api/bibliotecaApi';
-import type { BibliotecaLista } from '@/features/biblioteca/model/biblioteca.types';
+import type {
+  BibliotecaEstado,
+  BibliotecaLista,
+} from '@/features/biblioteca/model/biblioteca.types';
+import { formatBibliotecaEnumLabel } from '@/features/biblioteca/model/biblioteca.utils';
 import { getOfficialListNames } from '@/features/biblioteca/model/biblioteca.utils';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { getGamesByIds } from '@/features/catalogo/api/catalogApi';
@@ -48,6 +52,7 @@ export function BibliotecaListDetailPage({ listaId }: BibliotecaListDetailPagePr
   const [isSavingName, setIsSavingName] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeletingList, setIsDeletingList] = useState(false);
+  const [updatingEstadoGameId, setUpdatingEstadoGameId] = useState<number | null>(null);
 
   useEffect(() => {
     if (status !== 'authenticated') {
@@ -156,6 +161,8 @@ export function BibliotecaListDetailPage({ listaId }: BibliotecaListDetailPagePr
 
   const backHref = user ? `/usuario/${user.id}?seccion=biblioteca` : '/biblioteca';
   const canManageList = lista?.tipo === 'PERSONALIZADA';
+  const showSteamActions =
+    lista?.tipo === 'PERSONALIZADA' && lista.nombre.trim().toUpperCase() === 'STEAM';
 
   function resetFeedback() {
     setNombreError(null);
@@ -247,6 +254,59 @@ export function BibliotecaListDetailPage({ listaId }: BibliotecaListDetailPagePr
     }
   }
 
+  async function handleUpdateEstado(gameId: number, nextEstado: BibliotecaEstado | null) {
+    if (!lista || status !== 'authenticated' || updatingEstadoGameId === gameId) {
+      return;
+    }
+
+    const previousEstado =
+      lista.juegos.find((juego) => juego.gameId === gameId)?.estado ?? null;
+
+    if (previousEstado === nextEstado) {
+      return;
+    }
+
+    setUpdatingEstadoGameId(gameId);
+    setError(null);
+    setSuccessMessage(null);
+    setLista((currentList) =>
+      currentList
+        ? {
+            ...currentList,
+            juegos: currentList.juegos.map((juego) =>
+              juego.gameId === gameId ? { ...juego, estado: nextEstado } : juego,
+            ),
+          }
+        : currentList,
+    );
+
+    try {
+      if (nextEstado === null) {
+        await bibliotecaApi.deleteGameState(gameId);
+        setSuccessMessage('Estado eliminado correctamente.');
+      } else {
+        await bibliotecaApi.createGameState(gameId, nextEstado);
+        setSuccessMessage(`Estado actualizado a ${formatBibliotecaEnumLabel(nextEstado)}.`);
+      }
+    } catch (updateError) {
+      setLista((currentList) =>
+        currentList
+          ? {
+              ...currentList,
+              juegos: currentList.juegos.map((juego) =>
+                juego.gameId === gameId ? { ...juego, estado: previousEstado } : juego,
+              ),
+            }
+          : currentList,
+      );
+      setError(getApiErrorMessage(updateError, 'No se pudo actualizar el estado del juego.'));
+    } finally {
+      setUpdatingEstadoGameId((currentGameId) =>
+        currentGameId === gameId ? null : currentGameId,
+      );
+    }
+  }
+
   return (
     <div className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,#f8f9ff_0%,#eef0ff_42%,#e7e7fb_100%)]">
       <div className="pointer-events-none absolute left-[-8rem] top-14 h-72 w-72 rounded-full bg-white/40 blur-3xl" />
@@ -313,7 +373,15 @@ export function BibliotecaListDetailPage({ listaId }: BibliotecaListDetailPagePr
               </InfoPanelCard>
             ) : null}
 
-            <BibliotecaListGamesSection juegosDetalle={juegosDetalle} listaId={listaId} />
+            <BibliotecaListGamesSection
+              juegosDetalle={juegosDetalle}
+              listaId={listaId}
+              showActionsColumn={showSteamActions}
+              updatingEstadoGameId={updatingEstadoGameId}
+              onUpdateEstado={(gameId, estado) => {
+                void handleUpdateEstado(gameId, estado);
+              }}
+            />
           </div>
         )}
       </PageSection>
