@@ -1,17 +1,17 @@
 package com.gamelisto.gateway.filters;
 
+import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
-import java.time.Duration;
 
 @Component
 public class RateLimitFilter implements GlobalFilter, Ordered {
@@ -19,8 +19,8 @@ public class RateLimitFilter implements GlobalFilter, Ordered {
   private static final Logger logger = LoggerFactory.getLogger(RateLimitFilter.class);
 
   private static final String RATE_LIMIT_PREFIX = "rate_limit:";
-  private static final int MAX_REQUESTS = 100; // Máximo de peticiones
-  private static final Duration WINDOW = Duration.ofMinutes(1); // Ventana de tiempo
+  private static final int MAX_REQUESTS = 300;
+  private static final Duration WINDOW = Duration.ofMinutes(1);
 
   private final ReactiveRedisTemplate<String, String> redisTemplate;
 
@@ -30,7 +30,12 @@ public class RateLimitFilter implements GlobalFilter, Ordered {
 
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-    // Obtener IP del cliente
+    String path = exchange.getRequest().getURI().getPath();
+
+    if (shouldSkipRateLimit(exchange, path)) {
+      return chain.filter(exchange);
+    }
+
     String clientIp =
         exchange.getRequest().getRemoteAddress() != null
             ? exchange.getRequest().getRemoteAddress().getAddress().getHostAddress()
@@ -44,30 +49,38 @@ public class RateLimitFilter implements GlobalFilter, Ordered {
         .flatMap(
             count -> {
               if (count == 1) {
-                // Primera petición: establecer TTL
                 return redisTemplate.expire(key, WINDOW).then(chain.filter(exchange));
-              } else if (count > MAX_REQUESTS) {
-                // Límite excedido
-                logger.warn("Rate limit excedido para IP: {}. Peticiones: {}", clientIp, count);
+              }
+
+              if (count > MAX_REQUESTS) {
+                logger.warn(
+                    "Rate limit excedido para IP: {}. Path: {}. Peticiones: {}",
+                    clientIp,
+                    path,
+                    count);
                 exchange.getResponse().setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
                 return exchange.getResponse().setComplete();
-              } else {
-                // Dentro del límite
-                return chain.filter(exchange);
               }
+
+              return chain.filter(exchange);
             })
         .onErrorResume(
-            e -> {
-              // Si Redis falla, permitir la petición (fail-open)
+            error -> {
               logger.error(
-                  "Error en rate limiting (Redis): {}. Permitiendo petición.", e.getMessage());
+                  "Error en rate limiting (Redis): {}. Permitiendo peticion.",
+                  error.getMessage());
               return chain.filter(exchange);
             });
   }
 
+  private boolean shouldSkipRateLimit(ServerWebExchange exchange, String path) {
+    return exchange.getRequest().getMethod() == HttpMethod.OPTIONS
+        || path.startsWith("/actuator/health")
+        || path.startsWith("/v1/usuarios/auth/");
+  }
+
   @Override
   public int getOrder() {
-    // Ejecutar después del filtro JWT pero antes del enrutamiento
     return -50;
   }
 }

@@ -8,6 +8,7 @@ import {
   notifyUnauthorized,
   notifyTokenRefreshed,
 } from './authSessionBridge';
+import { shouldClearSessionAfterRefreshError } from './refreshError';
 import { executeRefreshRequest } from './refreshRequest';
 
 // con esta clase hago que todas las llamadas al back (login, me, logout, refresh) sean consistentes y no repetir la misma config en cada funcion authApi
@@ -95,7 +96,10 @@ httpClient.interceptors.response.use(
 
       return httpClient(originalRequest);
     } catch (refreshError) {
-      if (getRefreshToken() === refreshToken) {
+      if (
+        shouldClearSessionAfterRefreshError(refreshError) &&
+        getRefreshToken() === refreshToken
+      ) {
         clearRefreshToken();
         clearBridgeAccessToken();
         await notifyUnauthorized();

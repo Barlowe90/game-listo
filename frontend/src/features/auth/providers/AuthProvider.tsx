@@ -24,6 +24,7 @@ import {
   getRefreshTokenValue,
   type AuthResponse,
 } from '../api/auth.types';
+import { shouldClearSessionAfterRefreshError } from '../api/refreshError';
 
 export interface AuthContextType {
   user: User | null;
@@ -142,8 +143,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         accessToken: getAccessTokenValue(authResponse),
         status: 'authenticated',
       });
-    } catch {
-      if (isMountedRef.current && getRefreshToken() === refreshToken) {
+    } catch (error) {
+      if (
+        isMountedRef.current &&
+        getRefreshToken() === refreshToken &&
+        shouldClearSessionAfterRefreshError(error)
+      ) {
         clearSession();
       }
     } finally {

@@ -38,7 +38,6 @@ public class BibliotecaListener {
         case "UsuarioCreado" -> {
           UsuarioCreadoEventDto dto =
               objectMapper.readValue(message.getBody(), UsuarioCreadoEventDto.class);
-          logger.info("Procesando UsuarioCreado: usuarioId={}", dto.usuarioId());
           entradaEventos.procesarUsuarioCreado(
               dto.usuarioId(),
               dto.username(),
@@ -49,7 +48,6 @@ public class BibliotecaListener {
         case "UsuarioActualizado" -> {
           UsuarioCreadoEventDto dto =
               objectMapper.readValue(message.getBody(), UsuarioCreadoEventDto.class);
-          logger.info("Procesando UsuarioActualizado: usuarioId={}", dto.usuarioId());
           entradaEventos.procesarUsuarioActualizado(
               dto.usuarioId(),
               dto.username(),
@@ -60,13 +58,11 @@ public class BibliotecaListener {
         case "UsuarioEliminado" -> {
           UsuarioEliminadoEventDto dto =
               objectMapper.readValue(message.getBody(), UsuarioEliminadoEventDto.class);
-          logger.info("Procesando UsuarioEliminado: usuarioId={}", dto.usuarioId());
           entradaEventos.procesarUsuarioEliminado(dto.usuarioId());
         }
         case "GameCreado" -> {
           GameCreadoEventDto dto =
               objectMapper.readValue(message.getBody(), GameCreadoEventDto.class);
-          logger.info("Procesando GameCreado: gameId={}, nombre={}", dto.id(), dto.name());
           entradaEventos.procesarGameCreado(dto.id(), dto.name(), dto.portada());
         }
         default -> logger.debug("Evento '{}' no gestionado por biblioteca, ignorando", eventType);

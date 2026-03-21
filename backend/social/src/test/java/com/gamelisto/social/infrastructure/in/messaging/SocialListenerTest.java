@@ -71,6 +71,17 @@ class SocialListenerTest {
   }
 
   @Test
+  @DisplayName("debe procesar EstadoActualizado usando gameId del evento")
+  void debeProcesarEstadoActualizadoConGameId() {
+    String id = "00000000-0000-0000-0000-000000000001";
+    String body = "{\"usuarioId\":\"" + id + "\",\"gameId\":451324,\"estado\":\"JUGANDO\"}";
+    MessageProperties props = new MessageProperties();
+    props.setHeader("eventType", "EstadoActualizado");
+    listener.handleEvent(new Message(body.getBytes(), props));
+    verify(entradaEventos).procesarEstadoActualizado(UUID.fromString(id), 451324L, "JUGANDO");
+  }
+
+  @Test
   @DisplayName("debe ignorar sin header eventType")
   void debeIgnorarSinHeader() {
     listener.handleEvent(new Message("{}".getBytes(), new MessageProperties()));

@@ -63,11 +63,11 @@ public class SocialListener {
           EstadoActualizadoEventDto dto =
               objectMapper.readValue(message.getBody(), EstadoActualizadoEventDto.class);
           log.info(
-              "Procesando EstadoActualizado: usuarioId={}, gameRefId={}, estado={}",
+              "Procesando EstadoActualizado: usuarioId={}, gameId={}, estado={}",
               dto.usuarioId(),
-              dto.gameRef(),
+              dto.gameId(),
               dto.estado());
-          entradaEventos.procesarEstadoActualizado(dto.usuarioId(), dto.gameRef(), dto.estado());
+          entradaEventos.procesarEstadoActualizado(dto.usuarioId(), dto.gameId(), dto.estado());
         }
         default -> log.debug("Evento '{}' no gestionado por social, ignorando", eventType);
       }
