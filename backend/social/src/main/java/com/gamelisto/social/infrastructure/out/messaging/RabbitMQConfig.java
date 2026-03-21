@@ -19,6 +19,7 @@ public class RabbitMQConfig {
   public static final String EXCHANGE = "gamelisto.eventos";
   public static final String BINDING_USUARIOS_KEY = "usuarios.#";
   public static final String BINDING_BIBLIOTECA_KEY = "biblioteca.#";
+  public static final String BINDING_ESTADO_ACTUALIZADO_KEY = "estado.actualizado";
 
   @Bean
   public TopicExchange gamelistoExchange() {
@@ -38,5 +39,12 @@ public class RabbitMQConfig {
   @Bean
   public Binding bindingBiblioteca(Queue socialQueue, TopicExchange gamelistoExchange) {
     return BindingBuilder.bind(socialQueue).to(gamelistoExchange).with(BINDING_BIBLIOTECA_KEY);
+  }
+
+  @Bean
+  public Binding bindingEstadoActualizado(Queue socialQueue, TopicExchange gamelistoExchange) {
+    return BindingBuilder.bind(socialQueue)
+        .to(gamelistoExchange)
+        .with(BINDING_ESTADO_ACTUALIZADO_KEY);
   }
 }

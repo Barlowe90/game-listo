@@ -33,6 +33,7 @@ public class JuegoSocialRepositorioNeo4j implements JuegoSocialRepositorio {
               """
                           MERGE (u:User {id: $userId})
                           MERGE (g:Game {id: $gameId})
+                          WITH u, g
                           OPTIONAL MATCH (u)-[r1:WISHLISTED]->(g)
                           DELETE r1
                           WITH u, g
@@ -52,6 +53,7 @@ public class JuegoSocialRepositorioNeo4j implements JuegoSocialRepositorio {
               """
                           MERGE (u:User {id: $userId})
                           MERGE (g:Game {id: $gameId})
+                          WITH u, g
                           OPTIONAL MATCH (u)-[r1:WISHLISTED]->(g)
                           DELETE r1
                           WITH u, g
@@ -71,6 +73,7 @@ public class JuegoSocialRepositorioNeo4j implements JuegoSocialRepositorio {
             """
                       MERGE (u:User {id: $userId})
                       MERGE (g:Game {id: $gameId})
+                      WITH u, g
                       OPTIONAL MATCH (u)-[r1:WISHLISTED]->(g)
                       DELETE r1
                       WITH u, g
