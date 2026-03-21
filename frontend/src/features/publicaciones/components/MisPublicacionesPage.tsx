@@ -24,6 +24,7 @@ import type {
   Publicacion,
   PublicacionDetalle,
   SolicitudUnion,
+  SolicitudUnionEstadoResolucion,
 } from '@/features/publicaciones/model/publicaciones.types';
 import { PageSection } from '@/shared/components/layout/PageSection';
 import { Toast } from '@/shared/components/ui/Toast';
@@ -65,6 +66,7 @@ export function MisPublicacionesPage() {
   const [isSubmittingPublicacion, setIsSubmittingPublicacion] = useState(false);
   const [isDeletingPublicacion, setIsDeletingPublicacion] = useState(false);
   const [isLeavingGroup, setIsLeavingGroup] = useState(false);
+  const [resolvingSolicitudIds, setResolvingSolicitudIds] = useState<string[]>([]);
 
   useEffect(() => {
     let ignore = false;
@@ -320,6 +322,66 @@ export function MisPublicacionesPage() {
     }
   }
 
+  async function handleResolveSolicitud(
+    solicitud: SolicitudUnion,
+    estadoSolicitud: SolicitudUnionEstadoResolucion,
+  ) {
+    setResolvingSolicitudIds((currentSolicitudIds) =>
+      currentSolicitudIds.includes(solicitud.id)
+        ? currentSolicitudIds
+        : [...currentSolicitudIds, solicitud.id],
+    );
+    setLoadError(null);
+    setSuccessMessage(null);
+
+    try {
+      const updatedSolicitud = await publicacionesApi.resolveSolicitudUnion(
+        solicitud.id,
+        estadoSolicitud,
+      );
+
+      setSolicitudesRecibidas((currentSolicitudesRecibidas) =>
+        currentSolicitudesRecibidas.map((currentSolicitud) =>
+          currentSolicitud.id === updatedSolicitud.id ? updatedSolicitud : currentSolicitud,
+        ),
+      );
+
+      if (estadoSolicitud === 'ACEPTADA') {
+        try {
+          const updatedPublicacionDetalle = await publicacionesApi.getPublicacion(
+            solicitud.publicacionId,
+          );
+
+          setPublicacionesDetalleById((currentPublicacionesDetalleById) => ({
+            ...currentPublicacionesDetalleById,
+            [updatedPublicacionDetalle.id]: updatedPublicacionDetalle,
+          }));
+        } catch {
+          // Si el refresco del detalle falla, mantenemos el cambio de estado de la solicitud.
+        }
+      }
+
+      setSuccessMessage(
+        estadoSolicitud === 'ACEPTADA'
+          ? 'Solicitud aceptada correctamente.'
+          : 'Solicitud rechazada correctamente.',
+      );
+    } catch (error) {
+      setLoadError(
+        getApiErrorMessage(
+          error,
+          estadoSolicitud === 'ACEPTADA'
+            ? 'No se pudo aceptar la solicitud.'
+            : 'No se pudo rechazar la solicitud.',
+        ),
+      );
+    } finally {
+      setResolvingSolicitudIds((currentSolicitudIds) =>
+        currentSolicitudIds.filter((solicitudId) => solicitudId !== solicitud.id),
+      );
+    }
+  }
+
   const joinedPublicaciones = getJoinedPublicaciones(
     solicitudesEnviadas,
     publicacionesDetalleById,
@@ -334,7 +396,9 @@ export function MisPublicacionesPage() {
 
         <MisPublicacionesSolicitudesSection
           isLoading={isLoading}
+          onResolveSolicitud={handleResolveSolicitud}
           publicacionesDetalleById={publicacionesDetalleById}
+          resolvingSolicitudIds={resolvingSolicitudIds}
           solicitudesEnviadas={solicitudesEnviadas}
           solicitudesRecibidas={solicitudesRecibidas}
           usuariosById={usuariosById}

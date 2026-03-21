@@ -1,10 +1,13 @@
 import Link from 'next/link';
+import { Check, X, type LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { UsuarioResponse } from '@/features/auth/api/auth.types';
 import type {
   PublicacionDetalle,
   SolicitudUnion,
+  SolicitudUnionEstadoResolucion,
 } from '@/features/publicaciones/model/publicaciones.types';
+import { cn } from '@/lib/cn';
 import { Avatar } from '@/shared/components/ui/Avatar';
 import { Badge } from '@/shared/components/ui/Badge';
 import { Button } from '@/shared/components/ui/Button';
@@ -17,7 +20,12 @@ import {
 
 interface MisPublicacionesSolicitudesSectionProps {
   isLoading: boolean;
+  onResolveSolicitud: (
+    solicitud: SolicitudUnion,
+    estadoSolicitud: SolicitudUnionEstadoResolucion,
+  ) => void;
   publicacionesDetalleById: Record<string, PublicacionDetalle | null>;
+  resolvingSolicitudIds: string[];
   solicitudesEnviadas: SolicitudUnion[];
   solicitudesRecibidas: SolicitudUnion[];
   usuariosById: Record<string, UsuarioResponse | null>;
@@ -30,6 +38,41 @@ interface SolicitudUnionItemCardProps {
   emptyMessage: string;
   isLoading: boolean;
   children: ReactNode;
+}
+
+interface SolicitudActionIconButtonProps {
+  icon: LucideIcon;
+  label: string;
+  tone: 'accept' | 'reject';
+  disabled?: boolean;
+  onClick: () => void;
+}
+
+function SolicitudActionIconButton({
+  icon: Icon,
+  label,
+  tone,
+  disabled = false,
+  onClick,
+}: Readonly<SolicitudActionIconButtonProps>) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      disabled={disabled}
+      onClick={onClick}
+      className={cn(
+        'inline-flex size-10 items-center justify-center rounded-pill border shadow-surface transition-colors',
+        'disabled:cursor-not-allowed disabled:opacity-60',
+        tone === 'accept'
+          ? 'border-emerald-200 bg-emerald-50 text-emerald-600 hover:border-emerald-300 hover:bg-emerald-100'
+          : 'border-rose-200 bg-rose-50 text-rose-600 hover:border-rose-300 hover:bg-rose-100',
+      )}
+    >
+      <Icon aria-hidden="true" className="size-[18px]" />
+    </button>
+  );
 }
 
 function SolicitudUnionItemCard({
@@ -80,8 +123,7 @@ function SolicitudEnviadaRow({
       <div className="grid gap-1">
         <span className="text-sm font-semibold text-foreground">{publicacionTitle}</span>
         <span className="text-xs text-secondary">
-          Solicitud {formatShortId(solicitud.id)} -{' '}
-          {formatSolicitudEstado(solicitud.estadoSolicitud)}
+          Solicitud {formatShortId(solicitud.id)}
         </span>
       </div>
 
@@ -100,10 +142,17 @@ function SolicitudEnviadaRow({
 }
 
 function SolicitudRecibidaRow({
+  isResolving,
+  onResolveSolicitud,
   publicacion,
   solicitante,
   solicitud,
 }: Readonly<{
+  isResolving: boolean;
+  onResolveSolicitud: (
+    solicitud: SolicitudUnion,
+    estadoSolicitud: SolicitudUnionEstadoResolucion,
+  ) => void;
   publicacion: PublicacionDetalle | null;
   solicitante: UsuarioResponse | null;
   solicitud: SolicitudUnion;
@@ -112,6 +161,7 @@ function SolicitudRecibidaRow({
     publicacion?.titulo ?? `Publicacion ${formatShortId(solicitud.publicacionId)}`;
   const publicacionHref = publicacion ? `/videojuego/${publicacion.gameId}` : null;
   const solicitanteName = solicitante?.username ?? `Usuario ${formatShortId(solicitud.usuarioId)}`;
+  const canResolve = solicitud.estadoSolicitud === 'SOLICITADA';
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-[calc(var(--radius-xl)+0.2rem)] border border-border bg-surface/80 px-4 py-4">
@@ -127,6 +177,24 @@ function SolicitudRecibidaRow({
         <Badge variant={solicitud.estadoSolicitud === 'SOLICITADA' ? 'primary' : 'neutral'}>
           {formatSolicitudEstado(solicitud.estadoSolicitud)}
         </Badge>
+        {canResolve ? (
+          <>
+            <SolicitudActionIconButton
+              icon={Check}
+              label={`Aceptar la solicitud de ${solicitanteName}`}
+              tone="accept"
+              disabled={isResolving}
+              onClick={() => onResolveSolicitud(solicitud, 'ACEPTADA')}
+            />
+            <SolicitudActionIconButton
+              icon={X}
+              label={`Rechazar la solicitud de ${solicitanteName}`}
+              tone="reject"
+              disabled={isResolving}
+              onClick={() => onResolveSolicitud(solicitud, 'RECHAZADA')}
+            />
+          </>
+        ) : null}
         {publicacionHref ? (
           <Button asChild variant="secondary" size="sm">
             <Link href={publicacionHref}>Ver juego</Link>
@@ -139,7 +207,9 @@ function SolicitudRecibidaRow({
 
 export function MisPublicacionesSolicitudesSection({
   isLoading,
+  onResolveSolicitud,
   publicacionesDetalleById,
+  resolvingSolicitudIds,
   solicitudesEnviadas,
   solicitudesRecibidas,
   usuariosById,
@@ -172,6 +242,8 @@ export function MisPublicacionesSolicitudesSection({
         {solicitudesRecibidas.map((solicitud) => (
           <SolicitudRecibidaRow
             key={solicitud.id}
+            isResolving={resolvingSolicitudIds.includes(solicitud.id)}
+            onResolveSolicitud={onResolveSolicitud}
             publicacion={publicacionesDetalleById[solicitud.publicacionId]}
             solicitante={usuariosById[solicitud.usuarioId]}
             solicitud={solicitud}

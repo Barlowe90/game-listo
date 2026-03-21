@@ -6,6 +6,7 @@ import type {
   PublicacionDetalle,
   Publicacion,
   SolicitudUnion,
+  SolicitudUnionEstadoResolucion,
 } from '@/features/publicaciones/model/publicaciones.types';
 
 async function getPublicacionesPorJuego(gameId: number): Promise<Publicacion[]> {
@@ -62,6 +63,18 @@ async function getSolicitudesUnionRecibidas(): Promise<SolicitudUnion[]> {
   return response.data;
 }
 
+async function resolveSolicitudUnion(
+  solicitudId: string,
+  estadoSolicitud: SolicitudUnionEstadoResolucion,
+): Promise<SolicitudUnion> {
+  const response = await httpClient.patch<SolicitudUnion>(
+    `/v1/publicaciones/solicitudes-union/${solicitudId}`,
+    { estadoSolicitud },
+  );
+
+  return response.data;
+}
+
 async function updatePublicacion(
   publicacionId: string,
   payload: EditarPublicacionPayload,
@@ -86,5 +99,6 @@ export const publicacionesApi = {
   getPublicacionesPorUsuario,
   getSolicitudesUnionEnviadas,
   getSolicitudesUnionRecibidas,
+  resolveSolicitudUnion,
   updatePublicacion,
 };

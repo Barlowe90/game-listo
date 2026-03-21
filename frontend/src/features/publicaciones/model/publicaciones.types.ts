@@ -79,6 +79,7 @@ export interface PublicacionDetalle extends Publicacion {
 }
 
 export type SolicitudUnionEstado = 'SOLICITADA' | 'ACEPTADA' | 'RECHAZADA';
+export type SolicitudUnionEstadoResolucion = Exclude<SolicitudUnionEstado, 'SOLICITADA'>;
 
 export interface SolicitudUnion {
   id: string;
