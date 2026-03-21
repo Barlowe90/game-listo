@@ -23,4 +23,6 @@ public class UsuarioRefDocument {
   private String username;
 
   private String avatar;
+  private String discordUserId;
+  private String discordUsername;
 }

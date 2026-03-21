@@ -39,18 +39,31 @@ public class PublicacionesListener {
           UsuarioCreadoEventDto dto =
               objectMapper.readValue(message.getBody(), UsuarioCreadoEventDto.class);
           logger.info("Procesando UsuarioCreado: usuarioId={}", dto.usuarioId());
-          entradaEventos.procesarUsuarioCreado(dto.usuarioId(), dto.username(), dto.avatar());
+          entradaEventos.procesarUsuarioCreado(
+              dto.usuarioId(),
+              dto.username(),
+              dto.avatar(),
+              dto.discordUserId(),
+              dto.discordUsername());
+        }
+        case "UsuarioActualizado" -> {
+          UsuarioCreadoEventDto dto =
+              objectMapper.readValue(message.getBody(), UsuarioCreadoEventDto.class);
+          entradaEventos.procesarUsuarioActualizado(
+              dto.usuarioId(),
+              dto.username(),
+              dto.avatar(),
+              dto.discordUserId(),
+              dto.discordUsername());
         }
         case "UsuarioEliminado" -> {
           UsuarioEliminadoEventDto dto =
               objectMapper.readValue(message.getBody(), UsuarioEliminadoEventDto.class);
-          logger.info("Procesando UsuarioEliminado: usuarioId={}", dto.usuarioId());
           entradaEventos.procesarUsuarioEliminado(dto.usuarioId());
         }
         case "GameCreado" -> {
           GameCreadoEventDto dto =
               objectMapper.readValue(message.getBody(), GameCreadoEventDto.class);
-          logger.info("Procesando GameCreado: gameId={}, nombre={}", dto.id(), dto.name());
           entradaEventos.procesarGameCreado(dto.id(), dto.name(), dto.platforms());
         }
         default ->

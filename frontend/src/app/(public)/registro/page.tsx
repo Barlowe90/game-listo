@@ -1,6 +1,7 @@
 'use client';
 
 import axios from 'axios';
+import { Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { authApi } from '@/features/auth/api/authApi';
@@ -46,44 +47,6 @@ function formatCountdown(totalSeconds: number) {
   const seconds = (totalSeconds % 60).toString().padStart(2, '0');
 
   return `${minutes}:${seconds}`;
-}
-
-function EyeIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M2.5 12s3.5-6 9.5-6s9.5 6 9.5 6s-3.5 6-9.5 6s-9.5-6-9.5-6Z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
-
-function EyeOffIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M3 3l18 18" />
-      <path d="M10.58 10.58A2 2 0 0 0 12 14a2 2 0 0 0 1.42-.58" />
-      <path d="M9.88 5.09A10.94 10.94 0 0 1 12 5c6 0 9.5 7 9.5 7a17.55 17.55 0 0 1-4.07 4.75" />
-      <path d="M6.61 6.61A17.32 17.32 0 0 0 2.5 12s3.5 7 9.5 7a9.8 9.8 0 0 0 4.09-.88" />
-    </svg>
-  );
 }
 
 export default function RegistroPage() {
@@ -156,7 +119,7 @@ export default function RegistroPage() {
 
       setSuccessToast({
         title: 'Cuenta creada',
-        description: `Te hemos enviado un correo de verificacion a ${registrationEmail}.`,
+        description: `Te hemos enviado un correo de verificación a ${registrationEmail}.`,
       });
       setVerificationEmail(registrationEmail);
       setResendAvailableAt(now + RESEND_VERIFICATION_COOLDOWN_MS);
@@ -180,7 +143,7 @@ export default function RegistroPage() {
         title: 'No se pudo completar el registro',
         description: getApiErrorMessage(
           error,
-          'No se pudo completar el registro. Revisa los datos e intentalo otra vez.',
+          'No se pudo completar el registro. Revisa los datos e inténtalo otra vez.',
         ),
       });
     } finally {
@@ -205,7 +168,7 @@ export default function RegistroPage() {
 
       setSuccessToast({
         title: 'Correo reenviado',
-        description: `Te hemos reenviado el correo de verificacion a ${verificationEmail}.`,
+        description: `Te hemos reenviado el correo de verificación a ${verificationEmail}.`,
       });
       setResendAvailableAt(now + RESEND_VERIFICATION_COOLDOWN_MS);
       setCurrentTime(now);
@@ -214,7 +177,7 @@ export default function RegistroPage() {
         title: 'No se pudo reenviar el correo',
         description: getApiErrorMessage(
           error,
-          'No se pudo reenviar el correo de verificacion. Intentalo otra vez.',
+          'No se pudo reenviar el correo de verificación. Inténtalo otra vez.',
         ),
       });
     } finally {
@@ -255,7 +218,7 @@ export default function RegistroPage() {
               </FormField>
 
               <FormField
-                label="Contrasena"
+                label="Contraseña"
                 htmlFor="password"
                 required
                 helpText={PASSWORD_RULES_HELP_TEXT}
@@ -273,7 +236,7 @@ export default function RegistroPage() {
                     }}
                     required
                     autoComplete="new-password"
-                    placeholder="Crea tu contrasena"
+                    placeholder="Crea tu contraseña"
                     className="pr-12"
                     minLength={8}
                     state={passwordError ? 'error' : 'default'}
@@ -281,14 +244,14 @@ export default function RegistroPage() {
                   <button
                     type="button"
                     onClick={() => setIsPasswordVisible((currentValue) => !currentValue)}
-                    aria-label={isPasswordVisible ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+                    aria-label={isPasswordVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     aria-pressed={isPasswordVisible}
                     className="absolute top-1/2 right-3 inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:text-foreground"
                   >
                     {isPasswordVisible ? (
-                      <EyeOffIcon className="size-5" />
+                      <EyeOff className="size-5" aria-hidden="true" />
                     ) : (
-                      <EyeIcon className="size-5" />
+                      <Eye className="size-5" aria-hidden="true" />
                     )}
                   </button>
                 </div>
@@ -319,12 +282,12 @@ export default function RegistroPage() {
               <div className="grid gap-4 rounded-lg border border-border bg-surface p-4">
                 <div className="grid gap-2">
                   <p className="text-sm font-semibold text-foreground">
-                    Reenviar correo electronico
+                    Reenviar correo electrónico
                   </p>
                   <p className="text-sm leading-relaxed text-secondary">
-                    Si no encuentras el email de verificacion para{' '}
+                    Si no encuentras el email de verificación para{' '}
                     <span className="font-semibold text-foreground">{verificationEmail}</span>,
-                    puedes solicitar uno nuevo desde aqui.
+                    puedes solicitar uno nuevo desde aquí.
                   </p>
                   <p className="text-sm leading-relaxed text-secondary">
                     {canResendVerification
@@ -342,8 +305,8 @@ export default function RegistroPage() {
                   className="w-full sm:w-fit"
                 >
                   {canResendVerification
-                    ? 'Reenviar correo electronico'
-                    : `Reenviar correo electronico (${formatCountdown(remainingSeconds)})`}
+                    ? 'Reenviar correo electrónico'
+                    : `Reenviar correo electrónico (${formatCountdown(remainingSeconds)})`}
                 </Button>
               </div>
             ) : null}

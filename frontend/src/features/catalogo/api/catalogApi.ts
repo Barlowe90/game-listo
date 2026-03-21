@@ -8,7 +8,19 @@ import type {
 import { getApiBaseUrl } from '@/shared/config/api';
 
 const DEFAULT_REVALIDATE_SECONDS = 60;
-const DEFAULT_FETCH_ALL_PAGE_SIZE = 100;
+
+class CatalogRequestError extends Error {
+  path: string;
+  status: number;
+
+  constructor(path: string, response: Response) {
+    super(`Catalog API request failed (${response.status}) for ${path}`);
+    this.name = 'CatalogRequestError';
+    this.path = path;
+    this.status = response.status;
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
 
 async function catalogFetch(path: string) {
   return fetch(`${getApiBaseUrl()}${path}`, {
@@ -22,7 +34,7 @@ async function catalogFetch(path: string) {
 }
 
 function buildCatalogRequestError(path: string, response: Response) {
-  return new Error(`Catalog API request failed (${response.status}) for ${path}`);
+  return new CatalogRequestError(path, response);
 }
 
 async function catalogRequest<T>(path: string, allowNotFound: true): Promise<T | null>;
@@ -111,32 +123,21 @@ export async function getCatalogPlatforms() {
   );
 }
 
-export async function getCatalogGames() {
-  const allGames: CatalogGameSummary[] = [];
-  let currentPage = 0;
-
-  while (true) {
-    const pageResult = await getCatalogGamesPage({
-      page: currentPage,
-      size: DEFAULT_FETCH_ALL_PAGE_SIZE,
-    });
-
-    allGames.push(...pageResult.items);
-
-    if (!pageResult.hasNextPage || !pageResult.items.length) {
-      return allGames;
-    }
-
-    currentPage += 1;
-  }
-}
-
 export async function getGameById(gameId: number) {
   return catalogRequest<Game>(`/v1/catalogo/games/${gameId}`, true);
 }
 
 export async function getGameDetailMedia(gameId: number) {
-  return catalogRequest<GameDetailMedia>(`/v1/catalogo/games/${gameId}/detail`, true);
+  try {
+    return await catalogRequest<GameDetailMedia>(`/v1/catalogo/games/${gameId}/detail`, true);
+  } catch (error) {
+    // Some catalog entries have a valid game record but no resolvable media detail payload.
+    if (error instanceof CatalogRequestError && error.status === 400) {
+      return null;
+    }
+
+    throw error;
+  }
 }
 
 export async function getGamesByIds(gameIds: number[]) {

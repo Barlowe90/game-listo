@@ -1,9 +1,10 @@
 package com.gamelisto.publicaciones.application.usecases;
 
+import com.gamelisto.publicaciones.domain.FranjaHoraria;
+import com.gamelisto.publicaciones.domain.GrupoJuego;
 import com.gamelisto.publicaciones.domain.Publicacion;
 import com.gamelisto.publicaciones.domain.UsuarioRef;
 import com.gamelisto.publicaciones.domain.vo.DisponibilidadSemanal;
-import com.gamelisto.publicaciones.domain.FranjaHoraria;
 
 import java.util.List;
 import java.util.Map;
@@ -19,17 +20,20 @@ public record PublicacionDetalleResult(
     String experiencia,
     String estiloJuego,
     int jugadoresMaximos,
+    String grupoId,
     int participantesCount,
     int plazasDisponibles,
     List<UsuarioRefResult> participantes,
     Map<String, Set<String>> disponibilidad) {
 
-  public static PublicacionDetalleResult from(Publicacion p, List<UsuarioRef> participantes) {
+  public static PublicacionDetalleResult from(
+      Publicacion p, GrupoJuego grupo, List<UsuarioRef> participantes) {
     int count = participantes.size();
     int plazas = Math.max(0, p.getJugadoresMaximos() - count);
+    String grupoId = grupo == null ? null : grupo.getId().value().toString();
 
     return new PublicacionDetalleResult(
-        p.getId().toString(),
+        p.getId().value().toString(),
         p.getAutorId().toString(),
         p.getGameId().toString(),
         p.getTitulo(),
@@ -37,6 +41,7 @@ public record PublicacionDetalleResult(
         p.getExperiencia().name(),
         p.getEstiloJuego().name(),
         p.getJugadoresMaximos(),
+        grupoId,
         count,
         plazas,
         participantes.stream().map(UsuarioRefResult::from).toList(),

@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { Linkedin } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import { Container } from '@/shared/components/layout/Container';
@@ -42,13 +42,7 @@ export function Footer({ integrated = false }: FooterProps) {
                 : 'hover:bg-card hover:text-foreground',
             )}
           >
-            <Image
-              src="/linkedin-logo.svg"
-              alt=""
-              width={20}
-              height={20}
-              className={cn('size-5 shrink-0 object-contain', integrated && 'invert')}
-            />
+            <Linkedin className="size-5 shrink-0" aria-hidden="true" />
           </a>
         </div>
       </Container>

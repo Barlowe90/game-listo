@@ -31,11 +31,32 @@ class SocialListenerTest {
   @DisplayName("debe procesar UsuarioCreado")
   void debeProcesarUsuarioCreado() {
     String id = "00000000-0000-0000-0000-000000000001";
-    String body = "{\"usuarioId\":\"" + id + "\",\"username\":\"alice\",\"avatar\":\"img.png\"}";
+    String body =
+        "{\"usuarioId\":\""
+            + id
+            + "\",\"username\":\"alice\",\"avatar\":\"img.png\",\"discordUserId\":\"123456789\",\"discordUsername\":\"alice.discord\"}";
     MessageProperties props = new MessageProperties();
     props.setHeader("eventType", "UsuarioCreado");
     listener.handleEvent(new Message(body.getBytes(), props));
-    verify(entradaEventos).procesarUsuarioCreado(UUID.fromString(id), "alice", "img.png");
+    verify(entradaEventos)
+        .procesarUsuarioCreado(
+            UUID.fromString(id), "alice", "img.png", "123456789", "alice.discord");
+  }
+
+  @Test
+  @DisplayName("debe procesar UsuarioActualizado")
+  void debeProcesarUsuarioActualizado() {
+    String id = "00000000-0000-0000-0000-000000000001";
+    String body =
+        "{\"usuarioId\":\""
+            + id
+            + "\",\"username\":\"alice\",\"avatar\":\"new.png\",\"discordUserId\":\"987654321\",\"discordUsername\":\"alice.updated\"}";
+    MessageProperties props = new MessageProperties();
+    props.setHeader("eventType", "UsuarioActualizado");
+    listener.handleEvent(new Message(body.getBytes(), props));
+    verify(entradaEventos)
+        .procesarUsuarioActualizado(
+            UUID.fromString(id), "alice", "new.png", "987654321", "alice.updated");
   }
 
   @Test
@@ -47,6 +68,17 @@ class SocialListenerTest {
     props.setHeader("eventType", "UsuarioEliminado");
     listener.handleEvent(new Message(body.getBytes(), props));
     verify(entradaEventos).procesarUsuarioEliminado(UUID.fromString(id));
+  }
+
+  @Test
+  @DisplayName("debe procesar EstadoActualizado usando gameId del evento")
+  void debeProcesarEstadoActualizadoConGameId() {
+    String id = "00000000-0000-0000-0000-000000000001";
+    String body = "{\"usuarioId\":\"" + id + "\",\"gameId\":451324,\"estado\":\"JUGANDO\"}";
+    MessageProperties props = new MessageProperties();
+    props.setHeader("eventType", "EstadoActualizado");
+    listener.handleEvent(new Message(body.getBytes(), props));
+    verify(entradaEventos).procesarEstadoActualizado(UUID.fromString(id), 451324L, "JUGANDO");
   }
 
   @Test

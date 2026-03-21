@@ -8,6 +8,7 @@ import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -21,13 +22,23 @@ public class AmistadRepositorioNeo4j implements AmistadRepositorio, GrafoUsuario
   @Override
   @Transactional
   public void upsertUser(UserRef user) {
+    Map<String, Object> params = new HashMap<>();
+    params.put("id", user.id().toString());
+    params.put("username", user.username() != null ? user.username() : "");
+    params.put("avatar", user.avatar() != null ? user.avatar() : "");
+    params.put("discordUserId", user.discordUserId());
+    params.put("discordUsername", user.discordUsername());
+
     neo4jClient
-        .query("MERGE (u:User {id: $id}) SET u.username = $username, u.avatar = $avatar")
-        .bindAll(
-            Map.of(
-                "id", user.id().toString(),
-                "username", user.username() != null ? user.username() : "",
-                "avatar", user.avatar() != null ? user.avatar() : ""))
+        .query(
+            """
+            MERGE (u:User {id: $id})
+            SET u.username = $username,
+                u.avatar = $avatar,
+                u.discordUserId = $discordUserId,
+                u.discordUsername = $discordUsername
+            """)
+        .bindAll(params)
         .run();
   }
 

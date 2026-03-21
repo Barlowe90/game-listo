@@ -1,13 +1,11 @@
 'use client';
 
-import axios from 'axios';
 import Link from 'next/link';
 import { useEffect, useState, type FormEvent } from 'react';
 import { bibliotecaApi } from '@/features/biblioteca/api/bibliotecaApi';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import type { BibliotecaLista } from '@/features/biblioteca/model/biblioteca.types';
 import { getOfficialListNames } from '@/features/biblioteca/model/biblioteca.utils';
-import { cn } from '@/lib/cn';
 import { InfoPanelCard } from '@/shared/components/domain/InfoPanelCard';
 import { Grid } from '@/shared/components/layout/Grid';
 import { Button } from '@/shared/components/ui/Button';
@@ -26,51 +24,18 @@ import { Input } from '@/shared/components/ui/Input';
 import { SectionHeader } from '@/shared/components/ui/SectionHeader';
 import { Skeleton } from '@/shared/components/ui/Skeleton';
 import { Toast } from '@/shared/components/ui/Toast';
-
-interface ApiErrorResponse {
-  error?: string;
-  errors?: Record<string, string>;
-  message?: string;
-}
-
-const LIST_NAME_PATTERN = /^[a-zA-Z0-9 _-]{3,30}$/;
-
-function getApiErrorMessage(error: unknown, fallback: string, field?: string) {
-  if (axios.isAxiosError<ApiErrorResponse>(error)) {
-    const responseData = error.response?.data;
-
-    if (field && responseData?.errors?.[field]) {
-      return responseData.errors[field];
-    }
-
-    return responseData?.error ?? responseData?.message ?? fallback;
-  }
-
-  return fallback;
-}
-
-function getGameCountLabel(count: number) {
-  return `${count} ${count === 1 ? 'juego' : 'juegos'}`;
-}
+import {
+  BIBLIOTECA_LIST_TEXT,
+  getApiErrorMessage,
+  getApiFieldErrorMessage,
+  getGameCountLabel,
+  ListTypeBadge,
+  validateBibliotecaListName,
+} from './biblioteca.shared';
 
 function sortLists(lists: BibliotecaLista[]) {
   return [...lists].sort((leftList, rightList) =>
     leftList.nombre.localeCompare(rightList.nombre, 'es', { sensitivity: 'base' }),
-  );
-}
-
-function ListTypeBadge({ tipo }: Readonly<{ tipo: BibliotecaLista['tipo'] }>) {
-  const isPersonalizada = tipo === 'PERSONALIZADA';
-
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded-pill px-3 py-1 text-[11px] font-semibold tracking-[0.08em] uppercase',
-        isPersonalizada ? 'bg-primary-soft text-primary' : 'bg-surface text-muted-foreground',
-      )}
-    >
-      {isPersonalizada ? 'Personalizada' : 'Oficial'}
-    </span>
   );
 }
 
@@ -237,22 +202,13 @@ export function ProfileBibliotecaSection() {
     setListasError(null);
     setListasSuccess(null);
 
-    const nextNombre = nombreListaDraft.trim();
+    const { errorMessage, normalizedName: nextNombre } = validateBibliotecaListName(
+      nombreListaDraft,
+      getOfficialListNames(listas),
+    );
 
-    if (!nextNombre) {
-      setNombreListaError('Introduce un nombre para la lista.');
-      return;
-    }
-
-    if (!LIST_NAME_PATTERN.test(nextNombre)) {
-      setNombreListaError(
-        'Usa entre 3 y 30 caracteres con letras, numeros, espacios, guiones o guiones bajos.',
-      );
-      return;
-    }
-
-    if (getOfficialListNames(listas).has(nextNombre.toUpperCase())) {
-      setNombreListaError('Ese nombre esta reservado para una lista oficial.');
+    if (errorMessage) {
+      setNombreListaError(errorMessage);
       return;
     }
 
@@ -267,17 +223,13 @@ export function ProfileBibliotecaSection() {
       setListasSuccess('Lista creada correctamente.');
       handleCreateDialogOpenChange(false);
     } catch (error) {
-      if (axios.isAxiosError<ApiErrorResponse>(error)) {
-        const fieldErrors = error.response?.data?.errors;
-        const fieldMessage = fieldErrors?.nombre ?? fieldErrors?.tipo ?? null;
+      const fieldMessage =
+        getApiFieldErrorMessage(error, 'nombre') ?? getApiFieldErrorMessage(error, 'tipo');
 
-        if (fieldMessage) {
-          setNombreListaError(fieldMessage);
-        } else {
-          setListasError(getApiErrorMessage(error, 'No se pudo crear la lista.'));
-        }
+      if (fieldMessage) {
+        setNombreListaError(fieldMessage);
       } else {
-        setListasError('No se pudo crear la lista.');
+        setListasError(getApiErrorMessage(error, 'No se pudo crear la lista.'));
       }
     } finally {
       setIsCreatingList(false);
@@ -401,7 +353,7 @@ export function ProfileBibliotecaSection() {
                 onClick={() => handleCreateDialogOpenChange(false)}
                 disabled={isCreatingList}
               >
-                Cancelar
+                {BIBLIOTECA_LIST_TEXT.cancel}
               </Button>
               <Button type="submit" loading={isCreatingList}>
                 Crear lista

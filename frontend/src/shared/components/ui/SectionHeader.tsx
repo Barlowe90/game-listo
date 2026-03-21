@@ -2,9 +2,7 @@ import type { HTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
 export interface SectionHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
-  eyebrow?: ReactNode;
   title: ReactNode;
-  subtitle?: ReactNode;
   action?: ReactNode;
 }
 

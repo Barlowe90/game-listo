@@ -35,7 +35,23 @@ public class SocialListener {
           UsuarioCreadoEventDto dto =
               objectMapper.readValue(message.getBody(), UsuarioCreadoEventDto.class);
           log.info("Procesando UsuarioCreado: usuarioId={}", dto.usuarioId());
-          entradaEventos.procesarUsuarioCreado(dto.usuarioId(), dto.username(), dto.avatar());
+          entradaEventos.procesarUsuarioCreado(
+              dto.usuarioId(),
+              dto.username(),
+              dto.avatar(),
+              dto.discordUserId(),
+              dto.discordUsername());
+        }
+        case "UsuarioActualizado" -> {
+          UsuarioCreadoEventDto dto =
+              objectMapper.readValue(message.getBody(), UsuarioCreadoEventDto.class);
+          log.info("Procesando UsuarioActualizado: usuarioId={}", dto.usuarioId());
+          entradaEventos.procesarUsuarioActualizado(
+              dto.usuarioId(),
+              dto.username(),
+              dto.avatar(),
+              dto.discordUserId(),
+              dto.discordUsername());
         }
         case "UsuarioEliminado" -> {
           UsuarioEliminadoEventDto dto =
@@ -47,11 +63,11 @@ public class SocialListener {
           EstadoActualizadoEventDto dto =
               objectMapper.readValue(message.getBody(), EstadoActualizadoEventDto.class);
           log.info(
-              "Procesando EstadoActualizado: usuarioId={}, gameRefId={}, estado={}",
+              "Procesando EstadoActualizado: usuarioId={}, gameId={}, estado={}",
               dto.usuarioId(),
-              dto.gameRef(),
+              dto.gameId(),
               dto.estado());
-          entradaEventos.procesarEstadoActualizado(dto.usuarioId(), dto.gameRef(), dto.estado());
+          entradaEventos.procesarEstadoActualizado(dto.usuarioId(), dto.gameId(), dto.estado());
         }
         default -> log.debug("Evento '{}' no gestionado por social, ignorando", eventType);
       }

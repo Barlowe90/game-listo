@@ -8,15 +8,29 @@ public final class UserRef {
   private final UUID id;
   private final String username;
   private final String avatar;
+  private final String discordUserId;
+  private final String discordUsername;
 
   public UserRef(UUID id, String username, String avatar) {
+    this(id, username, avatar, null, null);
+  }
+
+  public UserRef(
+      UUID id, String username, String avatar, String discordUserId, String discordUsername) {
     this.id = Objects.requireNonNull(id, "id no puede ser null");
     this.username = username;
     this.avatar = avatar;
+    this.discordUserId = discordUserId;
+    this.discordUsername = discordUsername;
   }
 
   public static UserRef of(UUID id, String username, String avatar) {
     return new UserRef(id, username, avatar);
+  }
+
+  public static UserRef of(
+      UUID id, String username, String avatar, String discordUserId, String discordUsername) {
+    return new UserRef(id, username, avatar, discordUserId, discordUsername);
   }
 
   public UUID id() {
@@ -29,6 +43,14 @@ public final class UserRef {
 
   public String avatar() {
     return avatar;
+  }
+
+  public String discordUserId() {
+    return discordUserId;
+  }
+
+  public String discordUsername() {
+    return discordUsername;
   }
 
   @Override

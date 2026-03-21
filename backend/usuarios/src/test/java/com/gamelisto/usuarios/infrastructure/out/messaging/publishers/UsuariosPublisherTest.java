@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
+import com.gamelisto.usuarios.domain.events.UsuarioActualizado;
 import com.gamelisto.usuarios.domain.events.UsuarioCreado;
 import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
 import com.gamelisto.usuarios.infrastructure.out.messaging.RabbitMQConfig;
@@ -70,6 +71,30 @@ class UsuariosPublisherTest {
     assertThat(exchangeCaptor.getValue()).isEqualTo(RabbitMQConfig.EXCHANGE);
     assertThat(routingKeyCaptor.getValue()).isEqualTo(RabbitMQConfig.RK_USUARIO_CREADO);
     assertThat(eventCaptor.getValue()).isEqualTo(sampleEvent);
+  }
+
+  @Test
+  @DisplayName("Debe publicar UsuarioActualizado con exchange y routing key correctos")
+  void debePublicarUsuarioActualizadoConExchangeYRk() {
+    // Given
+    UsuarioActualizado evento =
+        UsuarioActualizado.of(
+            "user-123", "testuser", "avatar.png", "123456789", "player#1234");
+
+    // When
+    publisher.publicarUsuarioActualizado(evento);
+
+    // Then
+    verify(rabbitTemplate)
+        .convertAndSend(
+            exchangeCaptor.capture(),
+            routingKeyCaptor.capture(),
+            eventCaptor.capture(),
+            any(org.springframework.amqp.core.MessagePostProcessor.class));
+
+    assertThat(exchangeCaptor.getValue()).isEqualTo(RabbitMQConfig.EXCHANGE);
+    assertThat(routingKeyCaptor.getValue()).isEqualTo(RabbitMQConfig.RK_USUARIO_ACTUALIZADO);
+    assertThat(eventCaptor.getValue()).isEqualTo(evento);
   }
 
   @Test

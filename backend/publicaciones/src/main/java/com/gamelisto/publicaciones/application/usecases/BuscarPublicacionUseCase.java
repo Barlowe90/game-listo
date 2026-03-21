@@ -47,6 +47,6 @@ public class BuscarPublicacionUseCase implements BuscarPublicacionHandler {
             .filter(Objects::nonNull)
             .toList();
 
-    return PublicacionDetalleResult.from(publicacion, usuarios);
+    return PublicacionDetalleResult.from(publicacion, grupoJuego, usuarios);
   }
 }

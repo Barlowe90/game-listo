@@ -66,8 +66,10 @@ function FriendsLoadingState() {
 }
 
 function FriendCard({ friend }: Readonly<{ friend: UsuarioRef }>) {
+  const profileHref = `/usuario/${friend.id}`;
+
   return (
-    <Card className="rounded-[calc(var(--radius-xl)+0.75rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm">
+    <Card className="rounded-[calc(var(--radius-xl)+0.75rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm transition-[border-color,transform,box-shadow] duration-[var(--duration-fast)] ease-[var(--easing-standard)] hover:-translate-y-0.5 hover:border-primary/25">
       <div className="flex items-center gap-4 p-5">
         <Avatar
           name={friend.username}
@@ -76,13 +78,20 @@ function FriendCard({ friend }: Readonly<{ friend: UsuarioRef }>) {
           className="size-14 shadow-[0_18px_40px_rgba(59,99,183,0.14)]"
         />
 
-        <div className="grid min-w-0 gap-1">
-          <h3 className="truncate text-lg font-semibold tracking-tight text-foreground">
-            {friend.username}
-          </h3>
-          <p className="text-sm leading-relaxed text-secondary">
-            Forma parte de tu red social en GameListo.
-          </p>
+        <div className="grid min-w-0 flex-1 gap-3">
+          <div className="grid min-w-0 gap-1">
+            <h3 className="truncate text-lg font-semibold tracking-tight text-foreground">
+              {friend.username}
+            </h3>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <Button asChild variant="secondary" size="sm">
+              <Link href={profileHref} aria-label={`Ver perfil de ${friend.username}`}>
+                Ver perfil
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </Card>

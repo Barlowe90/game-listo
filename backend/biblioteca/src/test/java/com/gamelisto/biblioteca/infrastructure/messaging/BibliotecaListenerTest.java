@@ -39,7 +39,11 @@ class BibliotecaListenerTest {
     // Arrange
     UsuarioCreadoEventDto dto =
         new UsuarioCreadoEventDto(
-            "550e8400-e29b-41d4-a716-446655440000", "jugador1", "https://avatar.url/img.png");
+            "550e8400-e29b-41d4-a716-446655440000",
+            "jugador1",
+            "https://avatar.url/img.png",
+            "123456789",
+            "jugador1.discord");
 
     MessageProperties props = new MessageProperties();
     props.setHeader("eventType", "UsuarioCreado");
@@ -52,7 +56,41 @@ class BibliotecaListenerTest {
     // Assert
     verify(entradaEventos)
         .procesarUsuarioCreado(
-            "550e8400-e29b-41d4-a716-446655440000", "jugador1", "https://avatar.url/img.png");
+            "550e8400-e29b-41d4-a716-446655440000",
+            "jugador1",
+            "https://avatar.url/img.png",
+            "123456789",
+            "jugador1.discord");
+  }
+
+  @Test
+  @DisplayName("Debe procesar evento UsuarioActualizado y actualizar UsuarioRef")
+  void debeProcesarEventoUsuarioActualizado() throws Exception {
+    // Arrange
+    UsuarioCreadoEventDto dto =
+        new UsuarioCreadoEventDto(
+            "550e8400-e29b-41d4-a716-446655440000",
+            "jugador1",
+            "https://avatar.url/new.png",
+            "987654321",
+            "jugador1.updated");
+
+    MessageProperties props = new MessageProperties();
+    props.setHeader("eventType", "UsuarioActualizado");
+    Message message =
+        MessageBuilder.withBody(objectMapper.writeValueAsBytes(dto)).andProperties(props).build();
+
+    // Act
+    listener.handleEvent(message);
+
+    // Assert
+    verify(entradaEventos)
+        .procesarUsuarioActualizado(
+            "550e8400-e29b-41d4-a716-446655440000",
+            "jugador1",
+            "https://avatar.url/new.png",
+            "987654321",
+            "jugador1.updated");
   }
 
   @Test
@@ -105,7 +143,8 @@ class BibliotecaListenerTest {
     listener.handleEvent(message);
 
     // Assert - no se debe llamar a ninguna funcion del handle
-    verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any());
+    verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any(), any(), any());
+    verify(entradaEventos, never()).procesarUsuarioActualizado(any(), any(), any(), any(), any());
     verify(entradaEventos, never()).procesarGameCreado(any(), any(), any());
     verify(entradaEventos, never()).procesarUsuarioEliminado(any());
   }

@@ -1,6 +1,7 @@
 'use client';
 
 import axios from 'axios';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { publicacionesApi } from '@/features/publicaciones/api/publicacionesApi';
 import type { GrupoJuego } from '@/features/publicaciones/model/publicaciones.types';
@@ -139,23 +140,6 @@ export function GrupoJuegoInfoDialog({
             </p>
           ) : grupoData ? (
             <div className="grid gap-5">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="grid gap-2 rounded-[calc(var(--radius-xl)-0.1rem)] border border-border bg-surface/70 p-4">
-                  <span className="text-xs font-semibold tracking-[0.08em] text-secondary uppercase">
-                    Grupo ID
-                  </span>
-                  <p className="break-all font-mono text-sm text-foreground">{grupoData.id}</p>
-                </div>
-
-                <div className="grid gap-2 rounded-[calc(var(--radius-xl)-0.1rem)] border border-border bg-surface/70 p-4">
-                  <span className="text-xs font-semibold tracking-[0.08em] text-secondary uppercase">
-                    Publicacion ID
-                  </span>
-                  <p className="break-all font-mono text-sm text-foreground">
-                    {grupoData.publicacionId}
-                  </p>
-                </div>
-              </div>
 
               <div className="grid gap-2 rounded-[calc(var(--radius-xl)-0.1rem)] border border-border bg-surface/70 p-4">
                 <span className="text-xs font-semibold tracking-[0.08em] text-secondary uppercase">
@@ -189,18 +173,21 @@ export function GrupoJuegoInfoDialog({
                         key={participante.id}
                         className="flex items-center gap-3 rounded-[calc(var(--radius-xl)-0.2rem)] border border-border bg-white/80 px-4 py-3"
                       >
-                        <Avatar
-                          src={participante.avatar}
-                          name={participante.username}
-                          size="sm"
-                          className="size-10"
-                        />
+                        <Link
+                          href={`/usuario/${participante.id}`}
+                          aria-label={`Ver perfil de ${participante.username}`}
+                          className="rounded-pill transition-transform duration-[var(--duration-fast)] ease-[var(--easing-standard)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                        >
+                          <Avatar
+                            src={participante.avatar}
+                            name={participante.username}
+                            size="sm"
+                            className="size-10"
+                          />
+                        </Link>
                         <div className="grid gap-1 min-w-0">
                           <span className="truncate text-sm font-semibold text-foreground">
                             {participante.username}
-                          </span>
-                          <span className="break-all font-mono text-xs text-secondary">
-                            {participante.id}
                           </span>
                         </div>
                       </div>

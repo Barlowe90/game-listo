@@ -2,47 +2,27 @@
 
 import axios from 'axios';
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { authApi } from '@/features/auth/api/authApi';
 import { getAccessToken } from '@/features/auth/api/authSessionBridge';
 import { getUserById } from '@/features/auth/api/getUserById';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import type { User } from '@/features/auth/model/session.model';
-import {
-  PASSWORD_RULES_HELP_TEXT,
-  getPasswordRuleErrorMessage,
-} from '@/features/auth/passwordRules';
-import { socialApi } from '@/features/social/api/socialApi';
+import { getPasswordRuleErrorMessage } from '@/features/auth/passwordRules';
 import { ProfileBibliotecaSection } from '@/features/biblioteca/components/ProfileBibliotecaSection';
+import { socialApi } from '@/features/social/api/socialApi';
 import { ProfileFriendsSection } from '@/features/social/components/ProfileFriendsSection';
-import { cn } from '@/lib/cn';
-import { InfoPanelCard } from '@/shared/components/domain/InfoPanelCard';
 import { PageSection } from '@/shared/components/layout/PageSection';
-import { Avatar } from '@/shared/components/ui/Avatar';
 import { Button } from '@/shared/components/ui/Button';
-import { Card } from '@/shared/components/ui/Card';
-import { FormField } from '@/shared/components/ui/FormField';
-import { Input, inputVariants } from '@/shared/components/ui/Input';
-import { SectionHeader } from '@/shared/components/ui/SectionHeader';
-import { Toast } from '@/shared/components/ui/Toast';
-
-const PROFILE_SECTIONS = [
-  {
-    key: 'biblioteca',
-    label: 'Biblioteca',
-  },
-  {
-    key: 'amigos',
-    label: 'Amigos',
-  },
-  {
-    key: 'ajustes',
-    label: 'Ajustes',
-  },
-] as const;
-
-type ProfileSectionKey = (typeof PROFILE_SECTIONS)[number]['key'];
-type LanguageCode = 'ESP' | 'ENG';
+import { ProfilePublicSection } from './components/ProfilePublicSection';
+import { ProfileSettingsSection } from './components/ProfileSettingsSection';
+import { ProfileSidebar } from './components/ProfileSidebar';
+import {
+  PROFILE_SECTIONS,
+  normalizeLanguage,
+  type LanguageCode,
+  type ProfileSectionKey,
+} from './profilePage.shared';
 
 interface ProfilePageClientProps {
   activeSection: ProfileSectionKey;
@@ -53,50 +33,6 @@ interface ApiErrorResponse {
   error?: string;
   errors?: Record<string, string>;
   message?: string;
-}
-
-function SurfaceCard({
-  children,
-  className,
-}: Readonly<{
-  children: React.ReactNode;
-  className?: string;
-}>) {
-  return (
-    <Card
-      className={cn(
-        'rounded-[calc(var(--radius-xl)+0.75rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm',
-        className,
-      )}
-    >
-      {children}
-    </Card>
-  );
-}
-
-function SidebarSectionLink({
-  active,
-  href,
-  label,
-}: Readonly<{
-  active: boolean;
-  href: string;
-  label: string;
-}>) {
-  return (
-    <Link
-      href={href}
-      aria-current={active ? 'page' : undefined}
-      className={cn(
-        'grid rounded-[calc(var(--radius-xl)+0.1rem)] border px-4 py-3 transition-[background-color,border-color,transform,box-shadow] duration-[var(--duration-fast)] ease-[var(--easing-standard)] hover:-translate-y-px',
-        active
-          ? 'border-primary/30 bg-primary-soft text-foreground shadow-surface'
-          : 'border-border bg-white/70 text-secondary hover:border-border-strong hover:bg-white hover:text-foreground',
-      )}
-    >
-      <span className="text-sm font-semibold">{label}</span>
-    </Link>
-  );
 }
 
 function getApiErrorMessage(error: unknown, fallback: string, field?: string) {
@@ -111,31 +47,6 @@ function getApiErrorMessage(error: unknown, fallback: string, field?: string) {
   }
 
   return fallback;
-}
-
-function normalizeLanguage(value: string | null | undefined): LanguageCode {
-  return value === 'ENG' ? 'ENG' : 'ESP';
-}
-
-function getSectionLabel(sectionKey: ProfileSectionKey) {
-  return PROFILE_SECTIONS.find((section) => section.key === sectionKey)?.label ?? 'Perfil';
-}
-
-function SimpleStateCard({
-  action,
-  title,
-}: Readonly<{
-  action?: React.ReactNode;
-  title: string;
-}>) {
-  return (
-    <SurfaceCard>
-      <div className="grid justify-items-center gap-4 p-8 text-center">
-        <h2 className="text-xl font-semibold tracking-tight text-foreground">{title}</h2>
-        {action ? <div className="flex flex-wrap justify-center gap-3">{action}</div> : null}
-      </div>
-    </SurfaceCard>
-  );
 }
 
 export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageClientProps) {
@@ -206,7 +117,7 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
         return currentProfile;
       }
 
-      return isOwnProfile ? user ?? null : null;
+      return isOwnProfile ? (user ?? null) : null;
     });
   }, [isOwnProfile, profileUserId, user]);
 
@@ -316,9 +227,7 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
   }, [isOwnProfile, profileUserId, status]);
 
   const visibleProfile = profile ?? (isOwnProfile ? user : null);
-  const availableSections = isOwnProfile
-    ? PROFILE_SECTIONS
-    : PROFILE_SECTIONS.filter((section) => section.key !== 'ajustes');
+  const availableSections = isOwnProfile ? PROFILE_SECTIONS : [];
   const resolvedActiveSection =
     !isOwnProfile && activeSection === 'ajustes' ? 'biblioteca' : activeSection;
   const profileUsername = visibleProfile?.username ?? (isOwnProfile ? 'Tu perfil' : 'Perfil');
@@ -368,7 +277,7 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     }
   }
 
-  async function handleProfileSettingsSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleProfileSettingsSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setAvatarError(null);
     setLanguageError(null);
@@ -415,7 +324,7 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     }
   }
 
-  async function handleEmailSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleEmailSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const nextEmail = emailDraft.trim();
@@ -452,7 +361,7 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     }
   }
 
-  async function handleDiscordSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleDiscordSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setDiscordError(null);
     setDiscordSuccess(null);
@@ -531,7 +440,7 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     }
   }
 
-  async function handlePasswordSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handlePasswordSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPasswordError(null);
     setNewPasswordError(null);
@@ -542,10 +451,7 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
       return;
     }
 
-    const nextPasswordError = getPasswordRuleErrorMessage(
-      newPassword,
-      'La nueva contrasena',
-    );
+    const nextPasswordError = getPasswordRuleErrorMessage(newPassword, 'La nueva contrasena');
 
     if (nextPasswordError) {
       setNewPasswordError(nextPasswordError);
@@ -574,6 +480,57 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     } finally {
       setIsSavingPassword(false);
     }
+  }
+
+  function handleProfileRetry() {
+    setProfileRefreshKey((currentValue) => currentValue + 1);
+  }
+
+  function handleAvatarChange(value: string) {
+    setAvatarDraft(value);
+    setAvatarError(null);
+    setProfileSettingsError(null);
+    setProfileSettingsSuccess(null);
+  }
+
+  function handleLanguageChange(value: LanguageCode) {
+    setLanguageDraft(value);
+    setLanguageError(null);
+    setProfileSettingsError(null);
+    setProfileSettingsSuccess(null);
+  }
+
+  function handleEmailChange(value: string) {
+    setEmailDraft(value);
+    setEmailError(null);
+    setEmailSuccess(null);
+  }
+
+  function handleCurrentPasswordChange(value: string) {
+    setCurrentPassword(value);
+    setPasswordError(null);
+    setPasswordSuccess(null);
+  }
+
+  function handleNewPasswordChange(value: string) {
+    setNewPassword(value);
+    setNewPasswordError(null);
+    setPasswordError(null);
+    setPasswordSuccess(null);
+  }
+
+  function handleDiscordUsernameChange(value: string) {
+    setDiscordUsernameDraft(value);
+    setDiscordUsernameError(null);
+    setDiscordError(null);
+    setDiscordSuccess(null);
+  }
+
+  function handleDiscordUserIdChange(value: string) {
+    setDiscordUserIdDraft(value);
+    setDiscordUserIdError(null);
+    setDiscordError(null);
+    setDiscordSuccess(null);
   }
 
   function renderProfileAction() {
@@ -614,300 +571,72 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     );
   }
 
-  function renderPublicProfileSection() {
-    const sectionTitle = getSectionLabel(resolvedActiveSection);
-
-    if (profileError && !visibleProfile) {
-      return (
-        <div className="grid gap-6">
-          <SectionHeader
-            title={sectionTitle}
-            action={
-              <Button onClick={() => setProfileRefreshKey((currentValue) => currentValue + 1)}>
-                Reintentar
-              </Button>
-            }
-          />
-
-          <Toast variant="error" title={profileError} />
-
-          <SimpleStateCard title="No pudimos cargar este perfil ahora mismo" />
-        </div>
-      );
-    }
-
-    return (
-      <div className="grid gap-6">
-        <SectionHeader title={sectionTitle} />
-
-        <InfoPanelCard
-          title="Perfil publico simplificado"
-          description={
-            visibleProfile
-              ? `En este MVP puedes gestionar la amistad con ${visibleProfile.username} desde la cabecera del perfil.`
-              : 'En este MVP solo esta disponible la gestion de amistad desde la cabecera.'
-          }
-        />
-      </div>
-    );
-  }
-
-  function renderAjustesSection() {
-    if (status !== 'authenticated' || !visibleProfile) {
-      return (
-        <div className="grid gap-6">
-          <SectionHeader title="Ajustes" />
-          <SimpleStateCard
-            title="Necesitas iniciar sesion"
-            action={
-              <Button asChild>
-                <Link href="/login">Iniciar sesion</Link>
-              </Button>
-            }
-          />
-        </div>
-      );
-    }
-
-    return (
-      <div className="grid gap-6">
-        <SectionHeader title="Ajustes" />
-
-        {profileError ? <Toast variant="error" title={profileError} /> : null}
-
-        <div className="grid gap-5 xl:grid-cols-2">
-          <InfoPanelCard title="Perfil" className="xl:col-span-2">
-            <form className="grid gap-4" onSubmit={handleProfileSettingsSubmit}>
-              <div className="grid gap-4 xl:grid-cols-2">
-                <FormField
-                  label="Avatar"
-                  htmlFor="profile-avatar"
-                  errorMessage={avatarError}
-                >
-                  <Input
-                    id="profile-avatar"
-                    type="url"
-                    value={avatarDraft}
-                    onChange={(event) => {
-                      setAvatarDraft(event.target.value);
-                      setAvatarError(null);
-                      setProfileSettingsError(null);
-                      setProfileSettingsSuccess(null);
-                    }}
-                    placeholder="https://..."
-                    autoComplete="url"
-                    disabled={isLoadingProfile || isSavingProfileSettings}
-                    state={avatarError ? 'error' : 'default'}
-                  />
-                </FormField>
-
-                <FormField
-                  label="Idioma"
-                  htmlFor="profile-language"
-                  errorMessage={languageError}
-                >
-                  <select
-                    id="profile-language"
-                    value={selectedLanguage}
-                    onChange={(event) => {
-                      setLanguageDraft(event.target.value as LanguageCode);
-                      setLanguageError(null);
-                      setProfileSettingsError(null);
-                      setProfileSettingsSuccess(null);
-                    }}
-                    className={cn(
-                      inputVariants({ state: languageError ? 'error' : 'default' }),
-                      'appearance-none',
-                    )}
-                    disabled={isLoadingProfile || isSavingProfileSettings}
-                  >
-                    <option value="ESP">Espanol</option>
-                    <option value="ENG">English</option>
-                  </select>
-                </FormField>
-              </div>
-
-              <div className="flex justify-end">
-                <Button
-                  type="submit"
-                  loading={isSavingProfileSettings}
-                  disabled={!isProfileSettingsDirty}
-                >
-                  Guardar perfil
-                </Button>
-              </div>
-            </form>
-
-            {profileSettingsError ? <Toast variant="error" title={profileSettingsError} /> : null}
-
-            {profileSettingsSuccess ? <Toast title={profileSettingsSuccess} /> : null}
-          </InfoPanelCard>
-
-          <InfoPanelCard title="Email">
-            <form className="grid gap-4" onSubmit={handleEmailSubmit}>
-              <FormField label="Email" htmlFor="profile-email" required errorMessage={emailError}>
-                <Input
-                  id="profile-email"
-                  type="email"
-                  value={emailDraft}
-                  onChange={(event) => {
-                    setEmailDraft(event.target.value);
-                    setEmailError(null);
-                    setEmailSuccess(null);
-                  }}
-                  placeholder="tu@email.com"
-                  autoComplete="email"
-                  state={emailError ? 'error' : 'default'}
-                  disabled={isLoadingProfile || isSavingEmail}
-                />
-              </FormField>
-
-              <div className="flex justify-end">
-                <Button type="submit" loading={isSavingEmail} disabled={!isEmailDirty}>
-                  Guardar email
-                </Button>
-              </div>
-            </form>
-
-            {emailSuccess ? <Toast title={emailSuccess} /> : null}
-          </InfoPanelCard>
-
-          <InfoPanelCard title="Contrasena">
-            <form className="grid gap-4" onSubmit={handlePasswordSubmit}>
-              <FormField label="Contrasena actual" htmlFor="current-password" required>
-                <Input
-                  id="current-password"
-                  type="password"
-                  value={currentPassword}
-                  onChange={(event) => {
-                    setCurrentPassword(event.target.value);
-                    setPasswordError(null);
-                    setPasswordSuccess(null);
-                  }}
-                  autoComplete="current-password"
-                  disabled={isSavingPassword}
-                />
-              </FormField>
-
-              <FormField
-                label="Nueva contrasena"
-                htmlFor="new-password"
-                required
-                helpText={PASSWORD_RULES_HELP_TEXT}
-                errorMessage={newPasswordError}
-              >
-                <Input
-                  id="new-password"
-                  type="password"
-                  value={newPassword}
-                  onChange={(event) => {
-                    setNewPassword(event.target.value);
-                    setNewPasswordError(null);
-                    setPasswordError(null);
-                    setPasswordSuccess(null);
-                  }}
-                  autoComplete="new-password"
-                  disabled={isSavingPassword}
-                  minLength={8}
-                  state={newPasswordError ? 'error' : 'default'}
-                />
-              </FormField>
-
-              <div className="flex justify-end">
-                <Button type="submit" loading={isSavingPassword}>
-                  Guardar contrasena
-                </Button>
-              </div>
-            </form>
-
-            {passwordError ? <Toast variant="error" title={passwordError} /> : null}
-
-            {passwordSuccess ? <Toast title={passwordSuccess} /> : null}
-          </InfoPanelCard>
-
-          <InfoPanelCard title="Discord" className="xl:col-span-2">
-            <form className="grid gap-4" onSubmit={handleDiscordSubmit}>
-              <div className="grid gap-4 xl:grid-cols-2">
-                <FormField
-                  label="Discord username"
-                  htmlFor="discord-username"
-                  required
-                  errorMessage={discordUsernameError}
-                >
-                  <Input
-                    id="discord-username"
-                    type="text"
-                    value={discordUsernameDraft}
-                    onChange={(event) => {
-                      setDiscordUsernameDraft(event.target.value);
-                      setDiscordUsernameError(null);
-                      setDiscordError(null);
-                      setDiscordSuccess(null);
-                    }}
-                    placeholder="tu_usuario"
-                    disabled={isSavingDiscord || isRemovingDiscord}
-                    state={discordUsernameError ? 'error' : 'default'}
-                  />
-                </FormField>
-
-                <FormField
-                  label="Discord ID"
-                  htmlFor="discord-user-id"
-                  required
-                  errorMessage={discordUserIdError}
-                >
-                  <Input
-                    id="discord-user-id"
-                    type="text"
-                    value={discordUserIdDraft}
-                    onChange={(event) => {
-                      setDiscordUserIdDraft(event.target.value);
-                      setDiscordUserIdError(null);
-                      setDiscordError(null);
-                      setDiscordSuccess(null);
-                    }}
-                    placeholder="123456789012345678"
-                    disabled={isSavingDiscord || isRemovingDiscord}
-                    state={discordUserIdError ? 'error' : 'default'}
-                  />
-                </FormField>
-              </div>
-
-              <div className="flex flex-wrap justify-end gap-3">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => void handleDiscordDelete()}
-                  loading={isRemovingDiscord}
-                  disabled={!hasDiscordLinked || isSavingDiscord}
-                >
-                  Eliminar Discord
-                </Button>
-                <Button type="submit" loading={isSavingDiscord} disabled={!isDiscordDirty}>
-                  Guardar Discord
-                </Button>
-              </div>
-            </form>
-
-            {discordError ? <Toast variant="error" title={discordError} /> : null}
-
-            {discordSuccess ? <Toast title={discordSuccess} /> : null}
-          </InfoPanelCard>
-        </div>
-      </div>
-    );
-  }
-
   function renderSectionContent() {
     if (!isOwnProfile) {
-      return renderPublicProfileSection();
+      return (
+        <ProfilePublicSection
+          profileError={profileError}
+          visibleProfile={visibleProfile}
+          onRetry={handleProfileRetry}
+        />
+      );
     }
 
     switch (resolvedActiveSection) {
       case 'amigos':
         return <ProfileFriendsSection />;
       case 'ajustes':
-        return renderAjustesSection();
+        return (
+          <ProfileSettingsSection
+            status={status}
+            visibleProfile={visibleProfile}
+            profileError={profileError}
+            isLoadingProfile={isLoadingProfile}
+            avatarDraft={avatarDraft}
+            avatarError={avatarError}
+            selectedLanguage={selectedLanguage}
+            languageError={languageError}
+            isSavingProfileSettings={isSavingProfileSettings}
+            isProfileSettingsDirty={isProfileSettingsDirty}
+            profileSettingsError={profileSettingsError}
+            profileSettingsSuccess={profileSettingsSuccess}
+            onAvatarChange={handleAvatarChange}
+            onLanguageChange={handleLanguageChange}
+            onProfileSettingsSubmit={handleProfileSettingsSubmit}
+            emailDraft={emailDraft}
+            emailError={emailError}
+            emailSuccess={emailSuccess}
+            isSavingEmail={isSavingEmail}
+            isEmailDirty={isEmailDirty}
+            onEmailChange={handleEmailChange}
+            onEmailSubmit={handleEmailSubmit}
+            currentPassword={currentPassword}
+            newPassword={newPassword}
+            newPasswordError={newPasswordError}
+            passwordError={passwordError}
+            passwordSuccess={passwordSuccess}
+            isSavingPassword={isSavingPassword}
+            onCurrentPasswordChange={handleCurrentPasswordChange}
+            onNewPasswordChange={handleNewPasswordChange}
+            onPasswordSubmit={handlePasswordSubmit}
+            discordUsernameDraft={discordUsernameDraft}
+            discordUserIdDraft={discordUserIdDraft}
+            discordUsernameError={discordUsernameError}
+            discordUserIdError={discordUserIdError}
+            discordError={discordError}
+            discordSuccess={discordSuccess}
+            isSavingDiscord={isSavingDiscord}
+            isRemovingDiscord={isRemovingDiscord}
+            hasDiscordLinked={hasDiscordLinked}
+            isDiscordDirty={isDiscordDirty}
+            onDiscordUsernameChange={handleDiscordUsernameChange}
+            onDiscordUserIdChange={handleDiscordUserIdChange}
+            onDiscordSubmit={handleDiscordSubmit}
+            onDiscordDelete={() => {
+              void handleDiscordDelete();
+            }}
+          />
+        );
       case 'biblioteca':
       default:
         return <ProfileBibliotecaSection />;
@@ -921,59 +650,19 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
 
       <PageSection size="wide" className="relative z-10 py-10 lg:py-14">
         <div className="grid gap-6 xl:grid-cols-[18rem_minmax(0,1fr)] xl:items-start">
-          <div className="grid gap-5 md:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] xl:sticky xl:top-24 xl:grid-cols-1">
-            <SurfaceCard>
-              <div className="grid justify-items-center gap-4 p-6 text-center">
-                {isLoadingProfile && !visibleProfile ? (
-                  <>
-                    <div className="size-24 animate-pulse rounded-full bg-primary-soft" />
-                    <div className="h-6 w-32 animate-pulse rounded-full bg-primary-soft" />
-                  </>
-                ) : (
-                  <>
-                    <p className="text-xs font-semibold tracking-[0.12em] text-primary uppercase">
-                      {isOwnProfile ? 'Tu perfil' : 'Perfil de usuario'}
-                    </p>
-                    <Avatar
-                      name={profileUsername}
-                      src={profileAvatar}
-                      size="lg"
-                      className="size-24 text-2xl shadow-[0_20px_50px_rgba(59,99,183,0.18)]"
-                    />
-                    <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-                      {profileUsername}
-                    </h1>
-                    {renderProfileAction()}
-                  </>
-                )}
-
-                {profileError && !visibleProfile ? <Toast variant="error" title={profileError} /> : null}
-                {friendActionError ? <Toast variant="error" title={friendActionError} /> : null}
-                {friendActionSuccess ? <Toast title={friendActionSuccess} /> : null}
-              </div>
-            </SurfaceCard>
-
-            <SurfaceCard>
-              <div className="grid gap-3 p-4">
-                <div className="grid gap-1 px-2 pb-1">
-                  <p className="text-xs font-semibold tracking-[0.12em] text-primary uppercase">
-                    Secciones
-                  </p>
-                </div>
-
-                <nav className="grid gap-2" aria-label="Secciones del perfil">
-                  {availableSections.map((section) => (
-                    <SidebarSectionLink
-                      key={section.key}
-                      href={`?seccion=${section.key}`}
-                      label={section.label}
-                      active={section.key === resolvedActiveSection}
-                    />
-                  ))}
-                </nav>
-              </div>
-            </SurfaceCard>
-          </div>
+          <ProfileSidebar
+            availableSections={availableSections}
+            resolvedActiveSection={resolvedActiveSection}
+            isLoadingProfile={isLoadingProfile}
+            isOwnProfile={isOwnProfile}
+            profileUsername={profileUsername}
+            profileAvatar={profileAvatar}
+            profileError={profileError}
+            visibleProfile={visibleProfile}
+            friendActionError={friendActionError}
+            friendActionSuccess={friendActionSuccess}
+            profileAction={renderProfileAction()}
+          />
 
           <div className="grid gap-6">{renderSectionContent()}</div>
         </div>

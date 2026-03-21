@@ -1,10 +1,6 @@
 import { AuthResponse } from './auth.types';
-import { httpClient } from './httpClient';
+import { executeRefreshRequest } from './refreshRequest';
 
 export async function refresh(refreshToken: string): Promise<AuthResponse> {
-  const response = await httpClient.post<AuthResponse>('/v1/usuarios/auth/refresh', {
-    refreshToken,
-  });
-
-  return response.data;
+  return executeRefreshRequest(refreshToken);
 }

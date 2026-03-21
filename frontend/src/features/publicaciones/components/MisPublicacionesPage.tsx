@@ -1,44 +1,38 @@
 'use client';
 
 import axios from 'axios';
-import Link from 'next/link';
-import { useEffect, useState, type ReactNode } from 'react';
-import { getUserById } from '@/features/auth/api/getUserById';
+import { useEffect, useState } from 'react';
 import type { UsuarioResponse } from '@/features/auth/api/auth.types';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { getGamesByIds } from '@/features/catalogo/api/catalogApi';
 import { publicacionesApi } from '@/features/publicaciones/api/publicacionesApi';
 import { GrupoJuegoInfoDialog } from '@/features/publicaciones/components/GrupoJuegoInfoDialog';
+import { MisPublicacionesGridSection } from '@/features/publicaciones/components/MisPublicacionesGridSection';
+import { MisPublicacionesHeader } from '@/features/publicaciones/components/MisPublicacionesHeader';
+import { MisPublicacionesJoinedGroupsSection } from '@/features/publicaciones/components/MisPublicacionesJoinedGroupsSection';
+import { MisPublicacionesSolicitudesSection } from '@/features/publicaciones/components/MisPublicacionesSolicitudesSection';
 import { PublicacionAbandonarGrupoDialog } from '@/features/publicaciones/components/PublicacionAbandonarGrupoDialog';
-import { PublicacionCard } from '@/features/publicaciones/components/PublicacionCard';
 import { PublicacionDeleteDialog } from '@/features/publicaciones/components/PublicacionDeleteDialog';
 import { PublicacionEditorDialog } from '@/features/publicaciones/components/PublicacionEditorDialog';
+import {
+  getJoinedPublicaciones,
+  loadGameTitles,
+  loadPublicacionesDetalleMap,
+  loadUsuariosMap,
+} from '@/features/publicaciones/components/misPublicaciones.utils';
 import type {
   EditarPublicacionPayload,
+  GrupoJuego,
   Publicacion,
   PublicacionDetalle,
   SolicitudUnion,
+  SolicitudUnionEstadoResolucion,
 } from '@/features/publicaciones/model/publicaciones.types';
-import { EmptyPublicationsState } from '@/shared/components/domain/EmptyPublicationsState';
 import { PageSection } from '@/shared/components/layout/PageSection';
-import { Avatar } from '@/shared/components/ui/Avatar';
-import { Badge } from '@/shared/components/ui/Badge';
-import { Button } from '@/shared/components/ui/Button';
-import { Card } from '@/shared/components/ui/Card';
 import { Toast } from '@/shared/components/ui/Toast';
 
 interface ApiErrorResponse {
   error?: string;
   message?: string;
-}
-
-interface SolicitudUnionItemCardProps {
-  title: string;
-  count: number;
-  description: string;
-  emptyMessage: string;
-  isLoading: boolean;
-  children: ReactNode;
 }
 
 function getApiErrorMessage(error: unknown, fallback: string) {
@@ -49,149 +43,24 @@ function getApiErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
-function getPublicacionesCountLabel(count: number) {
-  return `${count} ${count === 1 ? 'publicacion' : 'publicaciones'}`;
-}
-
-function getSolicitudesCountLabel(count: number) {
-  return `${count} ${count === 1 ? 'solicitud' : 'solicitudes'}`;
-}
-
-function getGruposCountLabel(count: number) {
-  return `${count} ${count === 1 ? 'grupo' : 'grupos'}`;
-}
-
-function formatSolicitudEstado(estado: SolicitudUnion['estadoSolicitud']) {
-  switch (estado) {
-    case 'SOLICITADA':
-      return 'Pendiente';
-    case 'ACEPTADA':
-      return 'Aceptada';
-    case 'RECHAZADA':
-      return 'Rechazada';
-    default:
-      return estado;
-  }
-}
-
-function formatShortId(value: string) {
-  return value.slice(0, 8);
-}
-
-async function loadGameTitles(publicaciones: Array<Pick<Publicacion, 'gameId'>>) {
-  const gameIds = publicaciones
-    .map((publicacion) => Number.parseInt(publicacion.gameId, 10))
-    .filter(Number.isFinite);
-
-  if (!gameIds.length) {
-    return {};
+async function loadGrupoJuego(publicacion: Publicacion): Promise<GrupoJuego | null> {
+  if (!publicacion.grupoId) {
+    return null;
   }
 
   try {
-    const gamesMap = await getGamesByIds(gameIds);
-
-    return Object.fromEntries(
-      Array.from(gamesMap.entries()).map(([gameId, game]) => [String(gameId), game.name]),
-    );
+    return await publicacionesApi.getGrupoJuego(publicacion.grupoId);
   } catch {
-    return {};
+    return null;
   }
 }
 
-async function loadPublicacionesDetalleMap(publicacionIds: string[]) {
-  const uniquePublicacionIds = [...new Set(publicacionIds)];
-
-  if (!uniquePublicacionIds.length) {
-    return {};
-  }
-
-  const pairs = await Promise.all(
-    uniquePublicacionIds.map(async (publicacionId) => {
-      try {
-        const publicacion = await publicacionesApi.getPublicacion(publicacionId);
-        return [publicacionId, publicacion] as const;
-      } catch {
-        return [publicacionId, null] as const;
-      }
-    }),
+async function loadGruposPorPublicacion(publicaciones: Publicacion[]) {
+  const grupos = await Promise.all(
+    publicaciones.map(async (publicacion) => [publicacion.id, await loadGrupoJuego(publicacion)]),
   );
 
-  return Object.fromEntries(pairs) as Record<string, PublicacionDetalle | null>;
-}
-
-async function loadUsuariosMap(userIds: string[]) {
-  const uniqueUserIds = [...new Set(userIds)];
-
-  if (!uniqueUserIds.length) {
-    return {};
-  }
-
-  const pairs = await Promise.all(
-    uniqueUserIds.map(async (userId) => {
-      try {
-        const user = await getUserById(userId);
-        return [userId, user] as const;
-      } catch {
-        return [userId, null] as const;
-      }
-    }),
-  );
-
-  return Object.fromEntries(pairs) as Record<string, UsuarioResponse | null>;
-}
-
-function getJoinedPublicaciones(
-  solicitudesEnviadas: SolicitudUnion[],
-  publicacionesDetalleById: Record<string, PublicacionDetalle | null>,
-  userId: string | null,
-) {
-  if (!userId) {
-    return [];
-  }
-
-  const publicaciones = solicitudesEnviadas
-    .filter((solicitud) => solicitud.estadoSolicitud === 'ACEPTADA')
-    .map((solicitud) => publicacionesDetalleById[solicitud.publicacionId])
-    .filter((publicacion): publicacion is PublicacionDetalle => Boolean(publicacion?.grupoId))
-    .filter((publicacion) =>
-      publicacion.participantes.some((participante) => participante.id === userId),
-    );
-
-  return Array.from(
-    new Map(publicaciones.map((publicacion) => [publicacion.id, publicacion])).values(),
-  );
-}
-
-function SolicitudUnionItemCard({
-  title,
-  count,
-  description,
-  emptyMessage,
-  isLoading,
-  children,
-}: Readonly<SolicitudUnionItemCardProps>) {
-  return (
-    <Card className="rounded-[calc(var(--radius-xl)+0.5rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm">
-      <div className="grid gap-5 p-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="grid gap-1">
-            <h2 className="text-lg font-semibold tracking-tight text-foreground">{title}</h2>
-            <p className="text-sm leading-relaxed text-secondary">{description}</p>
-          </div>
-
-          <Badge variant="primary">{getSolicitudesCountLabel(count)}</Badge>
-        </div>
-
-        {isLoading ? (
-          <p className="text-sm leading-relaxed text-secondary">Estamos cargando esta lista.</p>
-        ) : count ? (
-          <div className="grid gap-3">{children}</div>
-        ) : (
-          <p className="text-sm leading-relaxed text-secondary">{emptyMessage}</p>
-        )}
-      </div>
-    </Card>
-  );
+  return Object.fromEntries(grupos) as Record<string, GrupoJuego | null>;
 }
 
 export function MisPublicacionesPage() {
@@ -204,6 +73,9 @@ export function MisPublicacionesPage() {
   const [publicacionesDetalleById, setPublicacionesDetalleById] = useState<
     Record<string, PublicacionDetalle | null>
   >({});
+  const [gruposByPublicacionId, setGruposByPublicacionId] = useState<
+    Record<string, GrupoJuego | null>
+  >({});
   const [usuariosById, setUsuariosById] = useState<Record<string, UsuarioResponse | null>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -213,11 +85,13 @@ export function MisPublicacionesPage() {
   const [leavingPublicacion, setLeavingPublicacion] = useState<Publicacion | null>(null);
   const [groupInfoTarget, setGroupInfoTarget] = useState<{
     grupoId: string;
+    grupo: GrupoJuego | null;
     publicacionTitle: string;
   } | null>(null);
   const [isSubmittingPublicacion, setIsSubmittingPublicacion] = useState(false);
   const [isDeletingPublicacion, setIsDeletingPublicacion] = useState(false);
   const [isLeavingGroup, setIsLeavingGroup] = useState(false);
+  const [resolvingSolicitudIds, setResolvingSolicitudIds] = useState<string[]>([]);
 
   useEffect(() => {
     let ignore = false;
@@ -229,6 +103,7 @@ export function MisPublicacionesPage() {
         setSolicitudesRecibidas([]);
         setGameTitlesById({});
         setPublicacionesDetalleById({});
+        setGruposByPublicacionId({});
         setUsuariosById({});
         setIsLoading(false);
         return;
@@ -249,16 +124,17 @@ export function MisPublicacionesPage() {
           ...nextSolicitudesEnviadas.map((solicitud) => solicitud.publicacionId),
           ...nextSolicitudesRecibidas.map((solicitud) => solicitud.publicacionId),
         ];
-
         const requestUserIds = nextSolicitudesRecibidas.map((solicitud) => solicitud.usuarioId);
 
-        const [nextPublicacionesDetalleById, nextUsuariosById] = await Promise.all([
-          loadPublicacionesDetalleMap(publicacionIds),
-          loadUsuariosMap(requestUserIds),
-        ]);
-        const nextSolicitudesPublicacionDetalle = Object.values(nextPublicacionesDetalleById).filter(
-          (publicacion): publicacion is PublicacionDetalle => Boolean(publicacion),
-        );
+        const [nextPublicacionesDetalleById, nextUsuariosById, nextGruposByPublicacionId] =
+          await Promise.all([
+            loadPublicacionesDetalleMap(publicacionIds),
+            loadUsuariosMap(requestUserIds),
+            loadGruposPorPublicacion(nextPublicaciones),
+          ]);
+        const nextSolicitudesPublicacionDetalle = Object.values(
+          nextPublicacionesDetalleById,
+        ).filter((publicacion): publicacion is PublicacionDetalle => Boolean(publicacion));
         const nextGameTitlesById = await loadGameTitles([
           ...nextPublicaciones,
           ...nextSolicitudesPublicacionDetalle,
@@ -273,6 +149,7 @@ export function MisPublicacionesPage() {
         setSolicitudesRecibidas(nextSolicitudesRecibidas);
         setGameTitlesById(nextGameTitlesById);
         setPublicacionesDetalleById(nextPublicacionesDetalleById);
+        setGruposByPublicacionId(nextGruposByPublicacionId);
         setUsuariosById(nextUsuariosById);
       } catch (error) {
         if (ignore) {
@@ -406,6 +283,11 @@ export function MisPublicacionesPage() {
         delete nextPublicacionesDetalleById[deletingPublicacion.id];
         return nextPublicacionesDetalleById;
       });
+      setGruposByPublicacionId((currentGruposByPublicacionId) => {
+        const nextGruposByPublicacionId = { ...currentGruposByPublicacionId };
+        delete nextGruposByPublicacionId[deletingPublicacion.id];
+        return nextGruposByPublicacionId;
+      });
       setDeletingPublicacion(null);
       setSuccessMessage('Publicacion eliminada correctamente.');
     } catch (error) {
@@ -422,6 +304,7 @@ export function MisPublicacionesPage() {
 
     setGroupInfoTarget({
       grupoId: publicacion.grupoId,
+      grupo: gruposByPublicacionId[publicacion.id] ?? null,
       publicacionTitle: publicacion.titulo,
     });
   }
@@ -474,214 +357,119 @@ export function MisPublicacionesPage() {
     }
   }
 
+  async function handleResolveSolicitud(
+    solicitud: SolicitudUnion,
+    estadoSolicitud: SolicitudUnionEstadoResolucion,
+  ) {
+    setResolvingSolicitudIds((currentSolicitudIds) =>
+      currentSolicitudIds.includes(solicitud.id)
+        ? currentSolicitudIds
+        : [...currentSolicitudIds, solicitud.id],
+    );
+    setLoadError(null);
+    setSuccessMessage(null);
+
+    try {
+      const updatedSolicitud = await publicacionesApi.resolveSolicitudUnion(
+        solicitud.id,
+        estadoSolicitud,
+      );
+
+      setSolicitudesRecibidas((currentSolicitudesRecibidas) =>
+        currentSolicitudesRecibidas.map((currentSolicitud) =>
+          currentSolicitud.id === updatedSolicitud.id ? updatedSolicitud : currentSolicitud,
+        ),
+      );
+
+      if (estadoSolicitud === 'ACEPTADA') {
+        try {
+          const updatedPublicacionDetalle = await publicacionesApi.getPublicacion(
+            solicitud.publicacionId,
+          );
+          const updatedGrupo = await loadGrupoJuego(updatedPublicacionDetalle);
+
+          setPublicacionesDetalleById((currentPublicacionesDetalleById) => ({
+            ...currentPublicacionesDetalleById,
+            [updatedPublicacionDetalle.id]: updatedPublicacionDetalle,
+          }));
+          setGruposByPublicacionId((currentGruposByPublicacionId) => ({
+            ...currentGruposByPublicacionId,
+            [solicitud.publicacionId]: updatedGrupo,
+          }));
+        } catch {
+          // Si el refresco del detalle falla, mantenemos el cambio de estado de la solicitud.
+        }
+      }
+
+      setSuccessMessage(
+        estadoSolicitud === 'ACEPTADA'
+          ? 'Solicitud aceptada correctamente.'
+          : 'Solicitud rechazada correctamente.',
+      );
+    } catch (error) {
+      setLoadError(
+        getApiErrorMessage(
+          error,
+          estadoSolicitud === 'ACEPTADA'
+            ? 'No se pudo aceptar la solicitud.'
+            : 'No se pudo rechazar la solicitud.',
+        ),
+      );
+    } finally {
+      setResolvingSolicitudIds((currentSolicitudIds) =>
+        currentSolicitudIds.filter((solicitudId) => solicitudId !== solicitud.id),
+      );
+    }
+  }
+
   const joinedPublicaciones = getJoinedPublicaciones(
     solicitudesEnviadas,
     publicacionesDetalleById,
+    publicaciones,
+    gruposByPublicacionId,
     userId,
   );
+  const disableCardActions = isSubmittingPublicacion || isDeletingPublicacion || isLeavingGroup;
 
   return (
     <PageSection size="wide">
       <div className="grid gap-8">
-        <div className="grid gap-4">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="grid gap-2">
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                Mis publicaciones
-              </h1>
-            </div>
-          </div>
+        <MisPublicacionesHeader publicacionesCount={publicaciones.length} />
 
-          <div className="flex flex-wrap items-center gap-3">
-            <Badge variant="primary">{getPublicacionesCountLabel(publicaciones.length)}</Badge>
-          </div>
-        </div>
-
-        <div className="grid gap-5 xl:grid-cols-2">
-          <SolicitudUnionItemCard
-            title="Solicitudes enviadas"
-            count={solicitudesEnviadas.length}
-            description="Aqui veras las peticiones que has enviado para unirte a otras publicaciones."
-            emptyMessage="Todavia no has enviado ninguna solicitud de union."
-            isLoading={isLoading}
-          >
-            {solicitudesEnviadas.map((solicitud) => {
-              const publicacion = publicacionesDetalleById[solicitud.publicacionId];
-              const publicacionTitle =
-                publicacion?.titulo ?? `Publicacion ${formatShortId(solicitud.publicacionId)}`;
-              const publicacionHref = publicacion ? `/videojuego/${publicacion.gameId}` : null;
-
-              return (
-                <div
-                  key={solicitud.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-[calc(var(--radius-xl)+0.2rem)] border border-border bg-surface/80 px-4 py-4"
-                >
-                  <div className="grid gap-1">
-                    <span className="text-sm font-semibold text-foreground">
-                      {publicacionTitle}
-                    </span>
-                    <span className="text-xs text-secondary">
-                      Solicitud {formatShortId(solicitud.id)} -{' '}
-                      {formatSolicitudEstado(solicitud.estadoSolicitud)}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge
-                      variant={solicitud.estadoSolicitud === 'SOLICITADA' ? 'primary' : 'neutral'}
-                    >
-                      {formatSolicitudEstado(solicitud.estadoSolicitud)}
-                    </Badge>
-                    {publicacionHref ? (
-                      <Button asChild variant="secondary" size="sm">
-                        <Link href={publicacionHref}>Ver juego</Link>
-                      </Button>
-                    ) : null}
-                  </div>
-                </div>
-              );
-            })}
-          </SolicitudUnionItemCard>
-
-          <SolicitudUnionItemCard
-            title="Solicitudes recibidas"
-            count={solicitudesRecibidas.length}
-            description="Aqui apareceran los usuarios que quieren unirse a tus publicaciones."
-            emptyMessage="Todavia no has recibido solicitudes de union."
-            isLoading={isLoading}
-          >
-            {solicitudesRecibidas.map((solicitud) => {
-              const publicacion = publicacionesDetalleById[solicitud.publicacionId];
-              const solicitante = usuariosById[solicitud.usuarioId];
-              const publicacionTitle =
-                publicacion?.titulo ?? `Publicacion ${formatShortId(solicitud.publicacionId)}`;
-              const publicacionHref = publicacion ? `/videojuego/${publicacion.gameId}` : null;
-              const solicitanteName =
-                solicitante?.username ?? `Usuario ${formatShortId(solicitud.usuarioId)}`;
-
-              return (
-                <div
-                  key={solicitud.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-[calc(var(--radius-xl)+0.2rem)] border border-border bg-surface/80 px-4 py-4"
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    <Avatar
-                      src={solicitante?.avatar}
-                      name={solicitanteName}
-                      size="sm"
-                      className="size-10"
-                    />
-                    <div className="grid gap-1">
-                      <span className="text-sm font-semibold text-foreground">
-                        {solicitanteName}
-                      </span>
-                      <span className="text-xs text-secondary">
-                        Quiere unirse a {publicacionTitle}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge
-                      variant={solicitud.estadoSolicitud === 'SOLICITADA' ? 'primary' : 'neutral'}
-                    >
-                      {formatSolicitudEstado(solicitud.estadoSolicitud)}
-                    </Badge>
-                    {publicacionHref ? (
-                      <Button asChild variant="secondary" size="sm">
-                        <Link href={publicacionHref}>Ver juego</Link>
-                      </Button>
-                    ) : null}
-                  </div>
-                </div>
-              );
-            })}
-          </SolicitudUnionItemCard>
-        </div>
+        <MisPublicacionesSolicitudesSection
+          isLoading={isLoading}
+          onResolveSolicitud={handleResolveSolicitud}
+          publicacionesDetalleById={publicacionesDetalleById}
+          resolvingSolicitudIds={resolvingSolicitudIds}
+          solicitudesEnviadas={solicitudesEnviadas}
+          solicitudesRecibidas={solicitudesRecibidas}
+          usuariosById={usuariosById}
+        />
 
         {loadError ? <Toast variant="error" title={loadError} /> : null}
         {successMessage ? <Toast title={successMessage} /> : null}
 
-        <Card className="rounded-[calc(var(--radius-xl)+0.5rem)] border border-border bg-white/90 shadow-elevated backdrop-blur-sm">
-          <div className="grid gap-5 p-6">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="grid gap-1">
-                <h2 className="text-lg font-semibold tracking-tight text-foreground">
-                  Grupos en los que participas
-                </h2>
-                <p className="text-sm leading-relaxed text-secondary">
-                  Aqui veras las publicaciones cuyos grupos has llegado a compartir como jugador.
-                </p>
-              </div>
+        <MisPublicacionesJoinedGroupsSection
+          currentUserId={userId}
+          disableActions={disableCardActions}
+          gameTitlesById={gameTitlesById}
+          isLoading={isLoading}
+          joinedPublicaciones={joinedPublicaciones}
+          onLeaveGroup={handleLeaveGroup}
+          onViewGroupInfo={handleViewGroupInfo}
+        />
 
-              <Badge variant="primary">{getGruposCountLabel(joinedPublicaciones.length)}</Badge>
-            </div>
-
-            {isLoading ? (
-              <p className="text-sm leading-relaxed text-secondary">
-                Estamos cargando los grupos en los que participas.
-              </p>
-            ) : joinedPublicaciones.length ? (
-              <div className="grid gap-5 xl:grid-cols-2 2xl:grid-cols-3">
-                {joinedPublicaciones.map((publicacion) => (
-                  <PublicacionCard
-                    key={`joined-${publicacion.id}`}
-                    publicacion={publicacion}
-                    participantes={publicacion.participantes}
-                    gameTitle={gameTitlesById[publicacion.gameId]}
-                    showGameLink
-                    disableActions={isSubmittingPublicacion || isDeletingPublicacion || isLeavingGroup}
-                    onLeaveGroup={handleLeaveGroup}
-                    onViewGroupInfo={publicacion.grupoId ? handleViewGroupInfo : undefined}
-                  />
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm leading-relaxed text-secondary">
-                Todavia no formas parte de ningun grupo como participante.
-              </p>
-            )}
-          </div>
-        </Card>
-
-        {isLoading ? (
-          <Card className="rounded-[calc(var(--radius-xl)+0.5rem)] border border-border bg-white/80 shadow-surface">
-            <div className="grid gap-3 p-6">
-              <h2 className="text-lg font-semibold tracking-tight text-foreground">
-                Cargando tu actividad
-              </h2>
-              <p className="text-sm leading-relaxed text-secondary">
-                Estamos recuperando tus publicaciones y tus solicitudes de union.
-              </p>
-            </div>
-          </Card>
-        ) : publicaciones.length ? (
-          <div className="grid gap-5 xl:grid-cols-2 2xl:grid-cols-3">
-            {publicaciones.map((publicacion) => (
-              <PublicacionCard
-                key={publicacion.id}
-                publicacion={publicacion}
-                gameTitle={gameTitlesById[publicacion.gameId]}
-                showGameLink
-                isAuthor={userId === publicacion.autorId}
-                disableActions={isSubmittingPublicacion || isDeletingPublicacion || isLeavingGroup}
-                onEdit={userId === publicacion.autorId ? setEditingPublicacion : undefined}
-                onDelete={userId === publicacion.autorId ? setDeletingPublicacion : undefined}
-                onViewGroupInfo={publicacion.grupoId ? handleViewGroupInfo : undefined}
-              />
-            ))}
-          </div>
-        ) : (
-          <EmptyPublicationsState
-            title="Todavia no has creado publicaciones"
-            description="Crea una publicacion desde la ficha de un videojuego para que aparezca aqui como autor."
-            action={
-              <Button asChild>
-                <Link href="/catalogo">Buscar un juego</Link>
-              </Button>
-            }
-          />
-        )}
+        <MisPublicacionesGridSection
+          currentUserId={userId}
+          disableActions={disableCardActions}
+          gameTitlesById={gameTitlesById}
+          gruposByPublicacionId={gruposByPublicacionId}
+          isLoading={isLoading}
+          onDelete={setDeletingPublicacion}
+          onEdit={setEditingPublicacion}
+          onViewGroupInfo={handleViewGroupInfo}
+          publicaciones={publicaciones}
+        />
 
         {editingPublicacion ? (
           <PublicacionEditorDialog
@@ -713,6 +501,7 @@ export function MisPublicacionesPage() {
         <GrupoJuegoInfoDialog
           open={groupInfoTarget !== null}
           grupoId={groupInfoTarget?.grupoId ?? null}
+          grupo={groupInfoTarget?.grupo ?? null}
           publicacionTitle={groupInfoTarget?.publicacionTitle}
           onOpenChange={handleGroupInfoDialogOpenChange}
         />

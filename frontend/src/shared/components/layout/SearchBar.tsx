@@ -16,8 +16,6 @@ export interface SearchBarProps {
   inputClassName?: string;
   label?: string;
   placeholder?: string;
-  persistentParams?: Record<string, string | undefined>;
-  targetPath?: string;
   queryParam?: string;
   size?: 'sm' | 'md';
   onSearch?: () => void;
@@ -32,8 +30,6 @@ export function SearchBar({
   inputClassName,
   label = 'Buscar videojuegos',
   placeholder = 'Buscar videojuegos',
-  persistentParams,
-  targetPath = '/catalogo',
   queryParam = 'q',
   size = 'md',
   onSearch,
@@ -155,27 +151,7 @@ export function SearchBar({
 
     if (activeSuggestion) {
       handleSuggestionSelect(activeSuggestion);
-      return;
     }
-
-    const params = new URLSearchParams();
-
-    Object.entries(persistentParams ?? {}).forEach(([paramKey, paramValue]) => {
-      if (paramValue?.trim()) {
-        params.set(paramKey, paramValue.trim());
-      }
-    });
-
-    if (normalizedQuery) {
-      params.set(queryParam, normalizedQuery);
-    }
-
-    const serializedParams = params.toString();
-    const href = serializedParams ? `${targetPath}?${serializedParams}` : targetPath;
-
-    setHasFocusWithin(false);
-    setActiveSuggestionIndex(-1);
-    navigateTo(href);
   };
 
   const handleBlurCapture: FocusEventHandler<HTMLDivElement> = (event) => {

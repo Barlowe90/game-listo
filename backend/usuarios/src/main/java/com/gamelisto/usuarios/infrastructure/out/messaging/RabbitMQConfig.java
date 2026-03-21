@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMQConfig {
 
   public static final String EXCHANGE = "gamelisto.eventos";
+  public static final String RK_USUARIO_ACTUALIZADO = "usuarios.actualizado";
   public static final String RK_USUARIO_CREADO = "usuarios.creado";
   public static final String RK_USUARIO_ELIMINADO = "usuarios.eliminado";
 

@@ -46,7 +46,7 @@ public class VerificarEmailUseCase implements VerificarEmailHandle {
             usuario.getId().value().toString(),
             usuario.getUsername().value(),
             usuario.getEmail().value(),
-            usuario.getAvatar().toString(),
+            usuario.getAvatar().url(),
             usuario.getRole() != null ? usuario.getRole().name() : null,
             usuario.getLanguage() != null ? usuario.getLanguage().name() : null,
             usuario.getStatus() != null ? usuario.getStatus().name() : null,
