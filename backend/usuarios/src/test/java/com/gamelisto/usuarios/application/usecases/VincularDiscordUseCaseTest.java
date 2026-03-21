@@ -8,6 +8,8 @@ import com.gamelisto.usuarios.application.dto.UsuarioResult;
 import com.gamelisto.usuarios.application.dto.VincularDiscordCommand;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.application.usecases.discord.VincularDiscordUseCase;
+import com.gamelisto.usuarios.domain.events.UsuarioActualizado;
+import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import java.util.Optional;
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class VincularDiscordUseCaseTest {
 
   @Mock private RepositorioUsuarios repositorioUsuarios;
+  @Mock private IUsuarioPublisher usuarioPublisher;
 
   @InjectMocks private VincularDiscordUseCase vincularDiscordUseCase;
 
@@ -59,6 +63,11 @@ class VincularDiscordUseCaseTest {
     verify(repositorioUsuarios).findById(any(UsuarioId.class));
     verify(repositorioUsuarios).findByDiscordUserId(any(DiscordUserId.class));
     verify(repositorioUsuarios).save(any(Usuario.class));
+    ArgumentCaptor<UsuarioActualizado> eventCaptor =
+        ArgumentCaptor.forClass(UsuarioActualizado.class);
+    verify(usuarioPublisher).publicarUsuarioActualizado(eventCaptor.capture());
+    assertEquals("123456789", eventCaptor.getValue().discordUserId());
+    assertEquals("player#1234", eventCaptor.getValue().discordUsername());
   }
 
   @Test
@@ -78,6 +87,7 @@ class VincularDiscordUseCaseTest {
 
     verify(repositorioUsuarios).findById(any(UsuarioId.class));
     verify(repositorioUsuarios, never()).save(any(Usuario.class));
+    verify(usuarioPublisher, never()).publicarUsuarioActualizado(any());
   }
 
   @Test
@@ -101,6 +111,7 @@ class VincularDiscordUseCaseTest {
     verify(repositorioUsuarios).findById(any(UsuarioId.class));
     verify(repositorioUsuarios).findByDiscordUserId(any(DiscordUserId.class));
     verify(repositorioUsuarios, never()).save(any(Usuario.class));
+    verify(usuarioPublisher, never()).publicarUsuarioActualizado(any());
   }
 
   @Test
@@ -127,6 +138,7 @@ class VincularDiscordUseCaseTest {
     assertEquals("player#1234", resultado.discordUsername());
 
     verify(repositorioUsuarios).save(any(Usuario.class));
+    verify(usuarioPublisher).publicarUsuarioActualizado(any(UsuarioActualizado.class));
   }
 
   @Test
@@ -153,5 +165,6 @@ class VincularDiscordUseCaseTest {
     assertEquals("newname#9999", resultado.discordUsername());
 
     verify(repositorioUsuarios).save(any(Usuario.class));
+    verify(usuarioPublisher).publicarUsuarioActualizado(any(UsuarioActualizado.class));
   }
 }

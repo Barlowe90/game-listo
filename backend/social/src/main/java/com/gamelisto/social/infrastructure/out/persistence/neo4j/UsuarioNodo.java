@@ -20,4 +20,10 @@ public class UsuarioNodo {
 
   @Property("avatar")
   private String avatar;
+
+  @Property("discordUserId")
+  private String discordUserId;
+
+  @Property("discordUsername")
+  private String discordUsername;
 }

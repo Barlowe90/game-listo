@@ -19,14 +19,24 @@ public class EntradaEventosUseCase implements EntradaEventosHandle {
   private final JuegoSocialRepositorio juegoSocialRepositorio;
 
   @Override
-  public void procesarUsuarioCreado(UUID usuarioId, String username, String avatar) {
-    UserRef user = UserRef.of(usuarioId, username, avatar);
+  public void procesarUsuarioCreado(
+      UUID usuarioId,
+      String username,
+      String avatar,
+      String discordUserId,
+      String discordUsername) {
+    UserRef user = UserRef.of(usuarioId, username, avatar, discordUserId, discordUsername);
     grafoUsuarioRepositorio.upsertUser(user);
   }
 
   @Override
-  public void procesarUsuarioActualizado(UUID usuarioId, String username, String avatar) {
-    UserRef user = UserRef.of(usuarioId, username, avatar);
+  public void procesarUsuarioActualizado(
+      UUID usuarioId,
+      String username,
+      String avatar,
+      String discordUserId,
+      String discordUsername) {
+    UserRef user = UserRef.of(usuarioId, username, avatar, discordUserId, discordUsername);
     grafoUsuarioRepositorio.upsertUser(user);
   }
 

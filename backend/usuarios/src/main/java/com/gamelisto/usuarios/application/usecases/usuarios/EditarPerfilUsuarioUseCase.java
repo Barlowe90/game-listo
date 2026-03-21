@@ -62,7 +62,9 @@ public class EditarPerfilUsuarioUseCase implements EditarPerfilUsuarioHandle {
         UsuarioActualizado.of(
             usuario.getId().value().toString(),
             usuario.getUsername().value(),
-            usuario.getAvatar().url());
+            usuario.getAvatar().url(),
+            usuario.getDiscordUserId().value(),
+            usuario.getDiscordUsername().value());
     usuarioPublisher.publicarUsuarioActualizado(evento);
   }
 

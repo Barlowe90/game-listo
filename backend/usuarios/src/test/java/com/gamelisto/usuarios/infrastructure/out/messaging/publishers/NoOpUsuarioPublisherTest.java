@@ -46,7 +46,9 @@ class NoOpUsuarioPublisherTest {
   @DisplayName("Debe ejecutar publicarUsuarioActualizado sin lanzar excepciones")
   void debeEjecutarPublicarUsuarioActualizadoSinLanzarExcepciones() {
     // Given
-    UsuarioActualizado event = UsuarioActualizado.of("user-123", "testuser", "avatar.png");
+    UsuarioActualizado event =
+        UsuarioActualizado.of(
+            "user-123", "testuser", "avatar.png", "123456789", "player#1234");
 
     // When & Then
     assertThatCode(() -> publisher.publicarUsuarioActualizado(event)).doesNotThrowAnyException();

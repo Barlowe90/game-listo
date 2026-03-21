@@ -41,6 +41,7 @@ class EditarPerfilUsuarioUseCaseTest {
         new EditarPerfilUsuarioCommand(usuarioId, "https://example.com/avatar.jpg", "ENG");
 
     Usuario usuario = crearUsuarioDefault(UsuarioId.of(usuarioId));
+    usuario.linkDiscord(DiscordUserId.of("123456789"), DiscordUsername.of("player#1234"));
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.save(any(Usuario.class)))
@@ -58,6 +59,8 @@ class EditarPerfilUsuarioUseCaseTest {
     assertEquals(usuarioId.toString(), eventCaptor.getValue().usuarioId());
     assertEquals("testuser", eventCaptor.getValue().username());
     assertEquals("https://example.com/avatar.jpg", eventCaptor.getValue().avatar());
+    assertEquals("123456789", eventCaptor.getValue().discordUserId());
+    assertEquals("player#1234", eventCaptor.getValue().discordUsername());
   }
 
   @Test

@@ -35,13 +35,23 @@ public class SocialListener {
           UsuarioCreadoEventDto dto =
               objectMapper.readValue(message.getBody(), UsuarioCreadoEventDto.class);
           log.info("Procesando UsuarioCreado: usuarioId={}", dto.usuarioId());
-          entradaEventos.procesarUsuarioCreado(dto.usuarioId(), dto.username(), dto.avatar());
+          entradaEventos.procesarUsuarioCreado(
+              dto.usuarioId(),
+              dto.username(),
+              dto.avatar(),
+              dto.discordUserId(),
+              dto.discordUsername());
         }
         case "UsuarioActualizado" -> {
           UsuarioCreadoEventDto dto =
               objectMapper.readValue(message.getBody(), UsuarioCreadoEventDto.class);
           log.info("Procesando UsuarioActualizado: usuarioId={}", dto.usuarioId());
-          entradaEventos.procesarUsuarioActualizado(dto.usuarioId(), dto.username(), dto.avatar());
+          entradaEventos.procesarUsuarioActualizado(
+              dto.usuarioId(),
+              dto.username(),
+              dto.avatar(),
+              dto.discordUserId(),
+              dto.discordUsername());
         }
         case "UsuarioEliminado" -> {
           UsuarioEliminadoEventDto dto =

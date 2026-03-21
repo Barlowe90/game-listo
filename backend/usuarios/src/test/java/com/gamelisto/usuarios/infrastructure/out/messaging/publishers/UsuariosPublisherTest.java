@@ -77,7 +77,9 @@ class UsuariosPublisherTest {
   @DisplayName("Debe publicar UsuarioActualizado con exchange y routing key correctos")
   void debePublicarUsuarioActualizadoConExchangeYRk() {
     // Given
-    UsuarioActualizado evento = UsuarioActualizado.of("user-123", "testuser", "avatar.png");
+    UsuarioActualizado evento =
+        UsuarioActualizado.of(
+            "user-123", "testuser", "avatar.png", "123456789", "player#1234");
 
     // When
     publisher.publicarUsuarioActualizado(evento);
