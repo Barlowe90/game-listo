@@ -21,7 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("BuscarUsuariosPorEstadoUseCase - Búsqueda de usuarios por estado")
+@DisplayName("BuscarUsuariosPorEstadoUseCase - BÃºsqueda de usuarios por estado")
 class BuscarUsuariosPorEstadoUseCaseTest {
 
   @Mock private RepositorioUsuarios repositorio;
@@ -43,7 +43,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -60,7 +59,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ENG,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -93,7 +91,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.SUSPENDIDO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -133,7 +130,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.PENDIENTE_DE_VERIFICACION,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.of("token123"),
             null,
             TokenVerificacion.empty(),
@@ -159,7 +155,7 @@ class BuscarUsuariosPorEstadoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe retornar lista vacía si no hay usuarios con ese estado")
+  @DisplayName("Debe retornar lista vacÃ­a si no hay usuarios con ese estado")
   void debeRetornarListaVaciaSiNoHayUsuariosConEseEstado() {
     // Arrange
     when(repositorio.findByStatus(any(EstadoUsuario.class))).thenReturn(Collections.emptyList());
@@ -188,7 +184,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -225,7 +220,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ENG,
             EstadoUsuario.ACTIVO,
             DiscordUserId.of("discord456"),
-            DiscordUsername.of("testdiscord"),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -249,13 +243,12 @@ class BuscarUsuariosPorEstadoUseCaseTest {
     assertThat(dto.language()).isEqualTo("ENG");
     assertThat(dto.status()).isEqualTo("ACTIVO");
     assertThat(dto.discordUserId()).isEqualTo("discord456");
-    assertThat(dto.discordUsername()).isEqualTo("testdiscord");
 
     verify(repositorio).findByStatus(EstadoUsuario.ACTIVO);
   }
 
   @Test
-  @DisplayName("Debe manejar múltiples usuarios con diferentes configuraciones")
+  @DisplayName("Debe manejar mÃºltiples usuarios con diferentes configuraciones")
   void debeManjejarMultiplesUsuariosConDiferentesConfiguraciones() {
     // Arrange
     Usuario usuario1 =
@@ -269,7 +262,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -286,7 +278,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ENG,
             EstadoUsuario.ACTIVO,
             DiscordUserId.of("discord789"),
-            DiscordUsername.of("adminDiscord"),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -307,3 +298,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
     verify(repositorio).findByStatus(EstadoUsuario.ACTIVO);
   }
 }
+
+
+

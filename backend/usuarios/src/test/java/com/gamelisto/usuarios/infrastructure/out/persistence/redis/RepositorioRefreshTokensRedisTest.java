@@ -25,7 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @Import({TestMessagingConfig.class, RepositorioRefreshTokensRedis.class})
 @ActiveProfiles("test")
-@DisplayName("RepositorioRefreshTokensRedis - Gestión de refresh tokens")
+@DisplayName("RepositorioRefreshTokensRedis - GestiÃ³n de refresh tokens")
 @ExtendWith(RedisTestContainerExtension.class)
 class RepositorioRefreshTokensRedisTest {
 
@@ -101,7 +101,7 @@ class RepositorioRefreshTokensRedisTest {
   }
 
   @Test
-  @DisplayName("Debe establecer TTL correcto (7 días por defecto)")
+  @DisplayName("Debe establecer TTL correcto (7 dÃ­as por defecto)")
   void debeEstablecerTTLCorrecto() {
     // Arrange
     TokenValue tokenValue = TokenValue.generate();
@@ -115,7 +115,7 @@ class RepositorioRefreshTokensRedisTest {
     // Assert
     String key = "rt:active:" + tokenHash.value();
     Long ttlSeconds = redisTemplate.getExpire(key);
-    assertThat(ttlSeconds).isGreaterThan(604000L); // ~7 días
+    assertThat(ttlSeconds).isGreaterThan(604000L); // ~7 dÃ­as
   }
 
   @Test
@@ -154,7 +154,7 @@ class RepositorioRefreshTokensRedisTest {
   }
 
   @Test
-  @DisplayName("Debe verificar si token está revocado")
+  @DisplayName("Debe verificar si token estÃ¡ revocado")
   void debeVerificarSiTokenEstaRevocado() {
     // Arrange
     TokenValue tokenValue = TokenValue.generate();
@@ -173,7 +173,7 @@ class RepositorioRefreshTokensRedisTest {
   }
 
   @Test
-  @DisplayName("Debe retornar false si token no está revocado")
+  @DisplayName("Debe retornar false si token no estÃ¡ revocado")
   void debeRetornarFalseSiTokenNoEstaRevocado() {
     // Arrange
     TokenValue tokenValue = TokenValue.generate();
@@ -186,3 +186,6 @@ class RepositorioRefreshTokensRedisTest {
     assertThat(estaRevocado).isFalse();
   }
 }
+
+
+

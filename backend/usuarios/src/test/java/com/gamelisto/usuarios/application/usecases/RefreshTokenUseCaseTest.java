@@ -60,7 +60,6 @@ class RefreshTokenUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -75,10 +74,10 @@ class RefreshTokenUseCaseTest {
     when(jwtProperties.getRefreshExpirationMs()).thenReturn(604800000L);
   }
 
-  // ========== CASOS DE ÉXITO ==========
+  // ========== CASOS DE Ã‰XITO ==========
 
   @Test
-  @DisplayName("Debe renovar tokens exitosamente con refresh token válido")
+  @DisplayName("Debe renovar tokens exitosamente con refresh token vÃ¡lido")
   void debeRenovarTokensExitosamente() {
     // Arrange
     RefreshTokenCommand command = new RefreshTokenCommand(tokenValue.value());
@@ -97,10 +96,10 @@ class RefreshTokenUseCaseTest {
     assertNotNull(response.usuario());
     assertEquals("testuser", response.usuario().username());
 
-    // Verificar que se revocó el token antiguo
+    // Verificar que se revocÃ³ el token antiguo
     verify(repositorioRefreshTokens).revocar(any(TokenHash.class), any(Duration.class));
 
-    // Verificar que se guardó el nuevo refresh token
+    // Verificar que se guardÃ³ el nuevo refresh token
     verify(repositorioRefreshTokens)
         .guardarActivo(any(TokenHash.class), any(UsuarioId.class), any(Instant.class));
   }
@@ -139,10 +138,10 @@ class RefreshTokenUseCaseTest {
     assertNotEquals(tokenValue.value(), response.refreshToken().token());
   }
 
-  // ========== CASOS DE ERROR - TOKEN INVÁLIDO ==========
+  // ========== CASOS DE ERROR - TOKEN INVÃLIDO ==========
 
   @Test
-  @DisplayName("Debe lanzar excepción si el refresh token no existe")
+  @DisplayName("Debe lanzar excepciÃ³n si el refresh token no existe")
   void debeLanzarExcepcionSiTokenNoExiste() {
     // Arrange
     RefreshTokenCommand command = new RefreshTokenCommand(tokenValue.value());
@@ -158,7 +157,7 @@ class RefreshTokenUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el refresh token está revocado")
+  @DisplayName("Debe lanzar excepciÃ³n si el refresh token estÃ¡ revocado")
   void debeLanzarExcepcionSiTokenRevocado() {
     // Arrange
     RefreshTokenCommand command = new RefreshTokenCommand(tokenValue.value());
@@ -174,7 +173,7 @@ class RefreshTokenUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el refresh token ha expirado")
+  @DisplayName("Debe lanzar excepciÃ³n si el refresh token ha expirado")
   void debeLanzarExcepcionSiTokenExpirado() {
     // Arrange
     RefreshToken tokenExpirado =
@@ -182,7 +181,7 @@ class RefreshTokenUseCaseTest {
             tokenHash,
             usuario.getId(),
             Instant.now().minus(8, ChronoUnit.DAYS),
-            Instant.now().minus(1, ChronoUnit.DAYS), // Expirado hace 1 día
+            Instant.now().minus(1, ChronoUnit.DAYS), // Expirado hace 1 dÃ­a
             false);
 
     RefreshTokenCommand command = new RefreshTokenCommand(tokenValue.value());
@@ -196,14 +195,14 @@ class RefreshTokenUseCaseTest {
 
     assertEquals("Refresh token expirado", exception.getMessage());
 
-    // Verificar que se revocó el token expirado
+    // Verificar que se revocÃ³ el token expirado
     verify(repositorioRefreshTokens).revocar(any(TokenHash.class), any(Duration.class));
   }
 
   // ========== CASOS DE USUARIO NO ENCONTRADO ==========
 
   @Test
-  @DisplayName("Debe lanzar excepción si el usuario no existe")
+  @DisplayName("Debe lanzar excepciÃ³n si el usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
     RefreshTokenCommand command = new RefreshTokenCommand(tokenValue.value());
@@ -236,3 +235,6 @@ class RefreshTokenUseCaseTest {
     verify(repositorioRefreshTokens).buscarActivo(any(TokenHash.class));
   }
 }
+
+
+

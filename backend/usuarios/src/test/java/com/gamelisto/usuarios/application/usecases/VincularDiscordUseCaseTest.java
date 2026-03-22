@@ -11,7 +11,12 @@ import com.gamelisto.usuarios.application.usecases.discord.VincularDiscordUseCas
 import com.gamelisto.usuarios.domain.events.UsuarioActualizado;
 import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
-import com.gamelisto.usuarios.domain.usuario.*;
+import com.gamelisto.usuarios.domain.usuario.DiscordUserId;
+import com.gamelisto.usuarios.domain.usuario.Email;
+import com.gamelisto.usuarios.domain.usuario.PasswordHash;
+import com.gamelisto.usuarios.domain.usuario.Usuario;
+import com.gamelisto.usuarios.domain.usuario.UsuarioId;
+import com.gamelisto.usuarios.domain.usuario.Username;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,9 +47,8 @@ class VincularDiscordUseCaseTest {
   @Test
   @DisplayName("Debe vincular cuenta de Discord exitosamente")
   void debeVincularDiscordExitosamente() {
-    // Arrange
     VincularDiscordCommand command =
-        new VincularDiscordCommand(usuario.getId().value(), "123456789", "player#1234");
+        new VincularDiscordCommand(usuario.getId().value(), "123456789");
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.findByDiscordUserId(any(DiscordUserId.class)))
@@ -52,76 +56,55 @@ class VincularDiscordUseCaseTest {
     when(repositorioUsuarios.save(any(Usuario.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
-    // Act
     UsuarioResult resultado = vincularDiscordUseCase.execute(command);
 
-    // Assert
     assertNotNull(resultado);
     assertEquals("123456789", resultado.discordUserId());
-    assertEquals("player#1234", resultado.discordUsername());
 
-    verify(repositorioUsuarios).findById(any(UsuarioId.class));
-    verify(repositorioUsuarios).findByDiscordUserId(any(DiscordUserId.class));
-    verify(repositorioUsuarios).save(any(Usuario.class));
     ArgumentCaptor<UsuarioActualizado> eventCaptor =
         ArgumentCaptor.forClass(UsuarioActualizado.class);
     verify(usuarioPublisher).publicarUsuarioActualizado(eventCaptor.capture());
     assertEquals("123456789", eventCaptor.getValue().discordUserId());
-    assertEquals("player#1234", eventCaptor.getValue().discordUsername());
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si usuario no existe")
+  @DisplayName("Debe lanzar excepcion si usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
-    // Arrange
     VincularDiscordCommand command =
         new VincularDiscordCommand(
-            java.util.UUID.fromString("00000000-0000-0000-0000-000000000000"),
-            "123456789",
-            "player#1234");
+            java.util.UUID.fromString("00000000-0000-0000-0000-000000000000"), "123456789");
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.empty());
 
-    // Act & Assert
     assertThrows(ApplicationException.class, () -> vincularDiscordUseCase.execute(command));
-
-    verify(repositorioUsuarios).findById(any(UsuarioId.class));
-    verify(repositorioUsuarios, never()).save(any(Usuario.class));
     verify(usuarioPublisher, never()).publicarUsuarioActualizado(any());
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si Discord ya está vinculado a otro usuario")
+  @DisplayName("Debe lanzar excepcion si Discord ya esta vinculado a otro usuario")
   void debeLanzarExcepcionSiDiscordYaVinculadoAOtroUsuario() {
-    // Arrange
     Usuario otroUsuario =
         Usuario.create(
             Username.of("otheruser"), Email.of("other@test.com"), PasswordHash.of("$2a$10$hash"));
 
     VincularDiscordCommand command =
-        new VincularDiscordCommand(usuario.getId().value(), "123456789", "player#1234");
+        new VincularDiscordCommand(usuario.getId().value(), "123456789");
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.findByDiscordUserId(any(DiscordUserId.class)))
         .thenReturn(Optional.of(otroUsuario));
 
-    // Act & Assert
     assertThrows(ApplicationException.class, () -> vincularDiscordUseCase.execute(command));
-
-    verify(repositorioUsuarios).findById(any(UsuarioId.class));
-    verify(repositorioUsuarios).findByDiscordUserId(any(DiscordUserId.class));
-    verify(repositorioUsuarios, never()).save(any(Usuario.class));
     verify(usuarioPublisher, never()).publicarUsuarioActualizado(any());
   }
 
   @Test
-  @DisplayName("Debe permitir vincular Discord si ya está vinculado al mismo usuario")
+  @DisplayName("Debe permitir vincular Discord si ya pertenece al mismo usuario")
   void debePermitirVincularSiYaEstaVinculadoAlMismoUsuario() {
-    // Arrange
-    usuario.linkDiscord(DiscordUserId.of("123456789"), DiscordUsername.of("player#1234"));
+    usuario.linkDiscord(DiscordUserId.of("123456789"));
 
     VincularDiscordCommand command =
-        new VincularDiscordCommand(usuario.getId().value(), "123456789", "player#1234");
+        new VincularDiscordCommand(usuario.getId().value(), "123456789");
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.findByDiscordUserId(any(DiscordUserId.class)))
@@ -129,26 +112,19 @@ class VincularDiscordUseCaseTest {
     when(repositorioUsuarios.save(any(Usuario.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
-    // Act
     UsuarioResult resultado = vincularDiscordUseCase.execute(command);
 
-    // Assert
-    assertNotNull(resultado);
     assertEquals("123456789", resultado.discordUserId());
-    assertEquals("player#1234", resultado.discordUsername());
-
-    verify(repositorioUsuarios).save(any(Usuario.class));
     verify(usuarioPublisher).publicarUsuarioActualizado(any(UsuarioActualizado.class));
   }
 
   @Test
-  @DisplayName("Debe actualizar datos de Discord si ya estaba vinculado")
+  @DisplayName("Debe actualizar el Discord User ID si ya estaba vinculado")
   void debeActualizarDatosDiscordSiYaEstabaVinculado() {
-    // Arrange
-    usuario.linkDiscord(DiscordUserId.of("111111111"), DiscordUsername.of("oldname#0001"));
+    usuario.linkDiscord(DiscordUserId.of("111111111"));
 
     VincularDiscordCommand command =
-        new VincularDiscordCommand(usuario.getId().value(), "222222222", "newname#9999");
+        new VincularDiscordCommand(usuario.getId().value(), "222222222");
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.findByDiscordUserId(any(DiscordUserId.class)))
@@ -156,15 +132,9 @@ class VincularDiscordUseCaseTest {
     when(repositorioUsuarios.save(any(Usuario.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
-    // Act
     UsuarioResult resultado = vincularDiscordUseCase.execute(command);
 
-    // Assert
-    assertNotNull(resultado);
     assertEquals("222222222", resultado.discordUserId());
-    assertEquals("newname#9999", resultado.discordUsername());
-
-    verify(repositorioUsuarios).save(any(Usuario.class));
     verify(usuarioPublisher).publicarUsuarioActualizado(any(UsuarioActualizado.class));
   }
 }

@@ -61,7 +61,6 @@ class LoginUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -69,13 +68,13 @@ class LoginUseCaseTest {
 
     when(jwtProperties.getSecret()).thenReturn("test-secret-key-min-32-chars-long");
     when(jwtProperties.getExpirationMs()).thenReturn(900000L); // 15 min
-    when(jwtProperties.getRefreshExpirationMs()).thenReturn(604800000L); // 7 días
+    when(jwtProperties.getRefreshExpirationMs()).thenReturn(604800000L); // 7 dÃ­as
   }
 
-  // ========== CASOS DE ÉXITO ==========
+  // ========== CASOS DE Ã‰XITO ==========
 
   @Test
-  @DisplayName("Debe realizar login exitosamente con credenciales válidas")
+  @DisplayName("Debe realizar login exitosamente con credenciales vÃ¡lidas")
   void debeRealizarLoginExitoso() {
     // Arrange
     LoginCommand command = new LoginCommand("test@example.com", passwordPlain);
@@ -93,13 +92,13 @@ class LoginUseCaseTest {
     assertEquals("testuser", response.usuario().username());
     assertEquals("test@example.com", response.usuario().email());
 
-    // Verificar que se guardó el refresh token en Redis
+    // Verificar que se guardÃ³ el refresh token en Redis
     verify(repositorioRefreshTokens)
         .guardarActivo(any(TokenHash.class), any(UsuarioId.class), any(Instant.class));
   }
 
   @Test
-  @DisplayName("Debe generar access token con tiempo de expiración correcto")
+  @DisplayName("Debe generar access token con tiempo de expiraciÃ³n correcto")
   void debeGenerarAccessTokenConExpiracionCorrecta() {
     // Arrange
     LoginCommand command = new LoginCommand("test@example.com", passwordPlain);
@@ -115,7 +114,7 @@ class LoginUseCaseTest {
     Instant accessTokenExpiration = response.accessToken().expiresAt();
     long expectedExpirationMs = jwtProperties.getExpirationMs();
 
-    // Verificar que la expiración está en el rango esperado (±5 segundos de margen)
+    // Verificar que la expiraciÃ³n estÃ¡ en el rango esperado (Â±5 segundos de margen)
     assertTrue(
         accessTokenExpiration.isAfter(antesDeLogin.plusMillis(expectedExpirationMs - 5000))
             && accessTokenExpiration.isBefore(
@@ -123,7 +122,7 @@ class LoginUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe generar refresh token con tiempo de expiración correcto")
+  @DisplayName("Debe generar refresh token con tiempo de expiraciÃ³n correcto")
   void debeGenerarRefreshTokenConExpiracionCorrecta() {
     // Arrange
     LoginCommand command = new LoginCommand("test@example.com", passwordPlain);
@@ -145,10 +144,10 @@ class LoginUseCaseTest {
                 despuesDeLogin.plusMillis(expectedExpirationMs + 5000)));
   }
 
-  // ========== CASOS DE ERROR - CREDENCIALES INVÁLIDAS ==========
+  // ========== CASOS DE ERROR - CREDENCIALES INVÃLIDAS ==========
 
   @Test
-  @DisplayName("Debe lanzar excepción si el email no está registrado")
+  @DisplayName("Debe lanzar excepciÃ³n si el email no estÃ¡ registrado")
   void debeLanzarExcepcionSiEmailNoRegistrado() {
     // Arrange
     LoginCommand command = new LoginCommand("noexiste@example.com", passwordPlain);
@@ -164,7 +163,7 @@ class LoginUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si la contraseña es incorrecta")
+  @DisplayName("Debe lanzar excepciÃ³n si la contraseÃ±a es incorrecta")
   void debeLanzarExcepcionSiContrasenaIncorrecta() {
     // Arrange
     LoginCommand command = new LoginCommand("test@example.com", "WrongPassword");
@@ -182,7 +181,7 @@ class LoginUseCaseTest {
   // ========== CASOS DE ERROR - ESTADO DEL USUARIO ==========
 
   @Test
-  @DisplayName("Debe lanzar excepción si el usuario está PENDIENTE_DE_VERIFICACION")
+  @DisplayName("Debe lanzar excepciÃ³n si el usuario estÃ¡ PENDIENTE_DE_VERIFICACION")
   void debeLanzarExcepcionSiUsuarioPendienteVerificacion() {
     // Arrange
     Usuario usuarioPendiente =
@@ -196,7 +195,6 @@ class LoginUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.PENDIENTE_DE_VERIFICACION,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.generate(),
             Instant.now().plus(1, ChronoUnit.DAYS),
             TokenVerificacion.empty(),
@@ -216,7 +214,7 @@ class LoginUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el usuario está SUSPENDIDO")
+  @DisplayName("Debe lanzar excepciÃ³n si el usuario estÃ¡ SUSPENDIDO")
   void debeLanzarExcepcionSiUsuarioSuspendido() {
     // Arrange
     Usuario usuarioSuspendido =
@@ -230,7 +228,6 @@ class LoginUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.SUSPENDIDO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -249,7 +246,7 @@ class LoginUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el usuario está ELIMINADO")
+  @DisplayName("Debe lanzar excepciÃ³n si el usuario estÃ¡ ELIMINADO")
   void debeLanzarExcepcionSiUsuarioEliminado() {
     // Arrange
     Usuario usuarioEliminado =
@@ -263,7 +260,6 @@ class LoginUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ELIMINADO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -308,3 +304,6 @@ class LoginUseCaseTest {
     assertNotNull(expiresAtCaptor.getValue());
   }
 }
+
+
+

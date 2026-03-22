@@ -59,7 +59,6 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
   );
   const [emailDraft, setEmailDraft] = useState(user?.email ?? '');
   const [discordUserIdDraft, setDiscordUserIdDraft] = useState(user?.discordUserId ?? '');
-  const [discordUsernameDraft, setDiscordUsernameDraft] = useState(user?.discordUsername ?? '');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [avatarError, setAvatarError] = useState<string | null>(null);
@@ -67,7 +66,6 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
   const [emailError, setEmailError] = useState<string | null>(null);
   const [emailSuccess, setEmailSuccess] = useState<string | null>(null);
   const [discordUserIdError, setDiscordUserIdError] = useState<string | null>(null);
-  const [discordUsernameError, setDiscordUsernameError] = useState<string | null>(null);
   const [discordError, setDiscordError] = useState<string | null>(null);
   const [discordSuccess, setDiscordSuccess] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -96,7 +94,6 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
       setLanguageDraft(normalizeLanguage(nextProfile.language));
       setEmailDraft(nextProfile.email);
       setDiscordUserIdDraft(nextProfile.discordUserId ?? '');
-      setDiscordUsernameDraft(nextProfile.discordUsername ?? '');
 
       const latestAccessToken = getAccessToken();
 
@@ -131,7 +128,6 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     setLanguageDraft((currentValue) => currentValue || normalizeLanguage(user.language));
     setEmailDraft((currentEmail) => currentEmail || user.email);
     setDiscordUserIdDraft((currentValue) => currentValue || user.discordUserId || '');
-    setDiscordUsernameDraft((currentValue) => currentValue || user.discordUsername || '');
   }, [isOwnProfile, user]);
 
   useEffect(() => {
@@ -236,15 +232,12 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
   const currentLanguage = normalizeLanguage(profile?.language ?? user?.language);
   const currentEmail = profile?.email ?? user?.email ?? '';
   const currentDiscordUserId = profile?.discordUserId ?? user?.discordUserId ?? '';
-  const currentDiscordUsername = profile?.discordUsername ?? user?.discordUsername ?? '';
-  const hasDiscordLinked = Boolean(currentDiscordUserId || currentDiscordUsername);
+  const hasDiscordLinked = Boolean(currentDiscordUserId);
   const selectedLanguage = languageDraft || currentLanguage;
   const isProfileSettingsDirty =
     avatarDraft.trim() !== currentAvatar || selectedLanguage !== currentLanguage;
   const isEmailDirty = emailDraft.trim() !== '' && emailDraft.trim() !== currentEmail;
-  const isDiscordDirty =
-    discordUserIdDraft.trim() !== currentDiscordUserId ||
-    discordUsernameDraft.trim() !== currentDiscordUsername;
+  const isDiscordDirty = discordUserIdDraft.trim() !== currentDiscordUserId;
 
   async function handleFriendAction() {
     if (status !== 'authenticated' || !visibleProfile || isOwnProfile) {
@@ -366,20 +359,11 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     setDiscordError(null);
     setDiscordSuccess(null);
     setDiscordUserIdError(null);
-    setDiscordUsernameError(null);
 
     const nextDiscordUserId = discordUserIdDraft.trim();
-    const nextDiscordUsername = discordUsernameDraft.trim();
 
     if (!nextDiscordUserId) {
       setDiscordUserIdError('Introduce el ID de Discord.');
-    }
-
-    if (!nextDiscordUsername) {
-      setDiscordUsernameError('Introduce el username de Discord.');
-    }
-
-    if (!nextDiscordUserId || !nextDiscordUsername) {
       return;
     }
 
@@ -391,7 +375,7 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     setIsSavingDiscord(true);
 
     try {
-      const updatedProfile = await authApi.linkDiscord(nextDiscordUserId, nextDiscordUsername);
+      const updatedProfile = await authApi.linkDiscord(nextDiscordUserId);
       applyProfileUpdate(updatedProfile);
       setDiscordSuccess(
         hasDiscordLinked
@@ -403,9 +387,8 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
         const fieldErrors = error.response?.data?.errors;
 
         setDiscordUserIdError(fieldErrors?.discordUserId ?? null);
-        setDiscordUsernameError(fieldErrors?.discordUsername ?? null);
 
-        if (!fieldErrors?.discordUserId && !fieldErrors?.discordUsername) {
+        if (!fieldErrors?.discordUserId) {
           setDiscordError(getApiErrorMessage(error, 'No se pudo guardar Discord.'));
         }
       } else {
@@ -420,7 +403,6 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     setDiscordError(null);
     setDiscordSuccess(null);
     setDiscordUserIdError(null);
-    setDiscordUsernameError(null);
 
     if (!hasDiscordLinked) {
       setDiscordSuccess('No hay ninguna cuenta de Discord vinculada.');
@@ -519,13 +501,6 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     setPasswordSuccess(null);
   }
 
-  function handleDiscordUsernameChange(value: string) {
-    setDiscordUsernameDraft(value);
-    setDiscordUsernameError(null);
-    setDiscordError(null);
-    setDiscordSuccess(null);
-  }
-
   function handleDiscordUserIdChange(value: string) {
     setDiscordUserIdDraft(value);
     setDiscordUserIdError(null);
@@ -619,9 +594,7 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
             onCurrentPasswordChange={handleCurrentPasswordChange}
             onNewPasswordChange={handleNewPasswordChange}
             onPasswordSubmit={handlePasswordSubmit}
-            discordUsernameDraft={discordUsernameDraft}
             discordUserIdDraft={discordUserIdDraft}
-            discordUsernameError={discordUsernameError}
             discordUserIdError={discordUserIdError}
             discordError={discordError}
             discordSuccess={discordSuccess}
@@ -629,7 +602,6 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
             isRemovingDiscord={isRemovingDiscord}
             hasDiscordLinked={hasDiscordLinked}
             isDiscordDirty={isDiscordDirty}
-            onDiscordUsernameChange={handleDiscordUsernameChange}
             onDiscordUserIdChange={handleDiscordUserIdChange}
             onDiscordSubmit={handleDiscordSubmit}
             onDiscordDelete={() => {

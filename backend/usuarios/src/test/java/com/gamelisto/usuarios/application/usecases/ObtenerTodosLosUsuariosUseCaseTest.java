@@ -24,10 +24,10 @@ class ObtenerTodosLosUsuariosUseCaseTest {
 
   @InjectMocks private ObtenerTodosLosUsuariosUseCase obtenerTodosLosUsuariosUseCase;
 
-  // ========== CASOS DE ÉXITO ==========
+  // ========== CASOS DE Ã‰XITO ==========
 
   @Test
-  @DisplayName("Debe retornar lista vacía si no hay usuarios")
+  @DisplayName("Debe retornar lista vacÃ­a si no hay usuarios")
   void debeRetornarListaVaciaSiNoHayUsuarios() {
     // Arrange
     when(repositorioUsuarios.findAll()).thenReturn(Collections.emptyList());
@@ -59,7 +59,7 @@ class ObtenerTodosLosUsuariosUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe retornar múltiples usuarios")
+  @DisplayName("Debe retornar mÃºltiples usuarios")
   void debeRetornarMultiplesUsuarios() {
     // Arrange
     Usuario usuario1 = crearUsuario("user1", "user1@test.com");
@@ -115,7 +115,7 @@ class ObtenerTodosLosUsuariosUseCaseTest {
     verify(repositorioUsuarios, times(1)).findAll();
   }
 
-  // ========== MÉTODOS AUXILIARES ==========
+  // ========== MÃ‰TODOS AUXILIARES ==========
 
   private Usuario crearUsuario(String username, String email) {
     return Usuario.reconstitute(
@@ -128,7 +128,6 @@ class ObtenerTodosLosUsuariosUseCaseTest {
         Idioma.ESP,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
-        DiscordUsername.empty(),
         TokenVerificacion.empty(),
         null,
         TokenVerificacion.empty(),
@@ -146,10 +145,12 @@ class ObtenerTodosLosUsuariosUseCaseTest {
         Idioma.ESP,
         EstadoUsuario.ACTIVO,
         DiscordUserId.of("123456789"),
-        DiscordUsername.of("discorduser#1234"),
         TokenVerificacion.empty(),
         null,
         TokenVerificacion.empty(),
         null);
   }
 }
+
+
+

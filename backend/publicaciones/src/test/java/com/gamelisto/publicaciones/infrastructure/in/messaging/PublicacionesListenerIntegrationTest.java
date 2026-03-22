@@ -36,8 +36,7 @@ class PublicacionesListenerIntegrationTest {
   void debeProcesarUsuarioCreado() throws Exception {
     // Arrange
     UsuarioCreadoEventDto dto =
-        new UsuarioCreadoEventDto(
-            "u-123", "ric", "/avatars/1.png", "123456789", "ric.discord");
+        new UsuarioCreadoEventDto("u-123", "ric", "/avatars/1.png", "123456789");
 
     MessageProperties props = new MessageProperties();
     props.setHeader("eventType", "UsuarioCreado");
@@ -49,8 +48,7 @@ class PublicacionesListenerIntegrationTest {
 
     // Assert
     verify(entradaEventos)
-        .procesarUsuarioCreado(
-            "u-123", "ric", "/avatars/1.png", "123456789", "ric.discord");
+        .procesarUsuarioCreado("u-123", "ric", "/avatars/1.png", "123456789");
   }
 
   @Test
@@ -58,8 +56,7 @@ class PublicacionesListenerIntegrationTest {
   void debeProcesarUsuarioActualizado() throws Exception {
     // Arrange
     UsuarioCreadoEventDto dto =
-        new UsuarioCreadoEventDto(
-            "u-123", "ric", "/avatars/2.png", "987654321", "ric.updated");
+        new UsuarioCreadoEventDto("u-123", "ric", "/avatars/2.png", "987654321");
 
     MessageProperties props = new MessageProperties();
     props.setHeader("eventType", "UsuarioActualizado");
@@ -71,8 +68,7 @@ class PublicacionesListenerIntegrationTest {
 
     // Assert
     verify(entradaEventos)
-        .procesarUsuarioActualizado(
-            "u-123", "ric", "/avatars/2.png", "987654321", "ric.updated");
+        .procesarUsuarioActualizado("u-123", "ric", "/avatars/2.png", "987654321");
   }
 
   @Test
@@ -124,8 +120,8 @@ class PublicacionesListenerIntegrationTest {
     listener.handleEvent(message);
 
     // Assert
-    verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any(), any(), any());
-    verify(entradaEventos, never()).procesarUsuarioActualizado(any(), any(), any(), any(), any());
+    verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any(), any());
+    verify(entradaEventos, never()).procesarUsuarioActualizado(any(), any(), any(), any());
     verify(entradaEventos, never()).procesarUsuarioEliminado(any());
     verify(entradaEventos, never()).procesarGameCreado(any(), any(), any());
   }
@@ -143,8 +139,8 @@ class PublicacionesListenerIntegrationTest {
     listener.handleEvent(message);
 
     // Assert
-    verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any(), any(), any());
-    verify(entradaEventos, never()).procesarUsuarioActualizado(any(), any(), any(), any(), any());
+    verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any(), any());
+    verify(entradaEventos, never()).procesarUsuarioActualizado(any(), any(), any(), any());
     verify(entradaEventos, never()).procesarGameCreado(any(), any(), any());
     verify(entradaEventos, never()).procesarUsuarioEliminado(any());
   }

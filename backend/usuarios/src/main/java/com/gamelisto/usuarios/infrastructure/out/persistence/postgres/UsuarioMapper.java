@@ -18,8 +18,6 @@ public class UsuarioMapper {
     entity.setStatus(usuario.getStatus());
     entity.setDiscordUserId(
         usuario.getDiscordUserId().isEmpty() ? null : usuario.getDiscordUserId().value());
-    entity.setDiscordUsername(
-        usuario.getDiscordUsername().isEmpty() ? null : usuario.getDiscordUsername().value());
     entity.setTokenVerificacion(
         usuario.getTokenVerificacion() != null && !usuario.getTokenVerificacion().isEmpty()
             ? usuario.getTokenVerificacion().value()
@@ -46,9 +44,6 @@ public class UsuarioMapper {
         entity.getDiscordUserId() != null
             ? DiscordUserId.of(entity.getDiscordUserId())
             : DiscordUserId.empty(),
-        entity.getDiscordUsername() != null
-            ? DiscordUsername.of(entity.getDiscordUsername())
-            : DiscordUsername.empty(),
         entity.getTokenVerificacion() != null
             ? TokenVerificacion.of(entity.getTokenVerificacion())
             : TokenVerificacion.empty(),

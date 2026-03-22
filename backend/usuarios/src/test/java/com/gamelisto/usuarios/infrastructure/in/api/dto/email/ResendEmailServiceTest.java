@@ -34,18 +34,18 @@ class ResendEmailServiceTest {
   }
 
   @Test
-  @DisplayName("Debe tener método sendVerificationEmail implementado")
+  @DisplayName("Debe tener mÃ©todo sendVerificationEmail implementado")
   void debeTenerMetodoSendVerificationEmailImplementado() {
     // When & Then - La funcion debe existir y ser invocable
-    // Nota: Este test fallará con ResendException porque no hay API key válido,
-    // pero verifica que la funcion está implementado correctamente
+    // Nota: Este test fallarÃ¡ con ResendException porque no hay API key vÃ¡lido,
+    // pero verifica que la funcion estÃ¡ implementado correctamente
     assertThatThrownBy(
             () -> emailService.sendVerificationEmail("user@example.com", "testuser", "token123"))
         .isInstanceOf(InfrastructureException.class);
   }
 
   @Test
-  @DisplayName("Debe tener método sendPasswordResetEmail implementado")
+  @DisplayName("Debe tener mÃ©todo sendPasswordResetEmail implementado")
   void debeTenerMetodoSendPasswordResetEmailImplementado() {
     // When & Then
     assertThatThrownBy(
@@ -54,7 +54,7 @@ class ResendEmailServiceTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar InfrastructureException cuando API key es inválido")
+  @DisplayName("Debe lanzar InfrastructureException cuando API key es invÃ¡lido")
   void debeLanzarEmailSendingExceptionCuandoAPIKeyEsInvalido() {
     // Given
     String toEmail = "user@example.com";
@@ -68,7 +68,7 @@ class ResendEmailServiceTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar InfrastructureException cuando falla envío de reset password")
+  @DisplayName("Debe lanzar InfrastructureException cuando falla envÃ­o de reset password")
   void debeLanzarEmailSendingExceptionCuandoFallaEnvioDeResetPassword() {
     // Given
     String toEmail = "user@example.com";
@@ -82,7 +82,7 @@ class ResendEmailServiceTest {
   }
 
   @Test
-  @DisplayName("Debe aceptar diferentes formatos de email válidos")
+  @DisplayName("Debe aceptar diferentes formatos de email vÃ¡lidos")
   void debeAceptarDiferentesFormatosDeEmailValidos() {
     // Given
     String[] validEmails = {
@@ -92,7 +92,7 @@ class ResendEmailServiceTest {
     // When & Then
     for (String email : validEmails) {
       assertThatThrownBy(() -> emailService.sendVerificationEmail(email, "user", "token"))
-          .isInstanceOf(InfrastructureException.class); // Falla por API key, no por validación
+          .isInstanceOf(InfrastructureException.class); // Falla por API key, no por validaciÃ³n
     }
   }
 
@@ -121,10 +121,10 @@ class ResendEmailServiceTest {
   }
 
   @Test
-  @DisplayName("Debe construir URL de verificación con formato correcto")
+  @DisplayName("Debe construir URL de verificaciÃ³n con formato correcto")
   void debeConstruirURLDeVerificacionConFormatoCorrect() {
-    // Esta prueba verifica que el servicio construye URLs válidas
-    // al intentar enviar (aunque falle por API key inválido)
+    // Esta prueba verifica que el servicio construye URLs vÃ¡lidas
+    // al intentar enviar (aunque falle por API key invÃ¡lido)
 
     // When & Then
     assertThatThrownBy(
@@ -144,7 +144,7 @@ class ResendEmailServiceTest {
   }
 
   @Test
-  @DisplayName("Debe propagar excepción de Resend como InfrastructureException")
+  @DisplayName("Debe propagar excepciÃ³n de Resend como InfrastructureException")
   void debePropagarExcepcionDeResendComoEmailSendingException() {
     // Given
     String toEmail = "invalid@example.com";
@@ -158,7 +158,7 @@ class ResendEmailServiceTest {
   }
 
   @Test
-  @DisplayName("Debe poder crear múltiples instancias del servicio")
+  @DisplayName("Debe poder crear mÃºltiples instancias del servicio")
   void debePoderCrearMultiplesInstanciasDelServicio() {
     // When
     ResendEmailService service1 = new ResendEmailService(API_KEY, FROM_EMAIL, FRONTEND_URL);
@@ -174,7 +174,7 @@ class ResendEmailServiceTest {
   }
 
   @Test
-  @DisplayName("Debe aceptar configuración con diferentes URLs de frontend")
+  @DisplayName("Debe aceptar configuraciÃ³n con diferentes URLs de frontend")
   void debeAceptarConfiguracionConDiferentesURLsDeFrontend() {
     // Given
     String[] frontendUrls = {
@@ -192,7 +192,7 @@ class ResendEmailServiceTest {
   }
 
   @Test
-  @DisplayName("Debe aceptar configuración con diferentes emails de origen")
+  @DisplayName("Debe aceptar configuraciÃ³n con diferentes emails de origen")
   void debeAceptarConfiguracionConDiferentesEmailsDeOrigen() {
     // Given
     String[] fromEmails = {
@@ -209,3 +209,6 @@ class ResendEmailServiceTest {
     }
   }
 }
+
+
+

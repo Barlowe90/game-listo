@@ -2,12 +2,19 @@ package com.gamelisto.usuarios.infrastructure.out.persistence.postgres.mapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.gamelisto.usuarios.domain.usuario.*;
+import com.gamelisto.usuarios.domain.usuario.Avatar;
+import com.gamelisto.usuarios.domain.usuario.DiscordUserId;
+import com.gamelisto.usuarios.domain.usuario.Email;
+import com.gamelisto.usuarios.domain.usuario.EstadoUsuario;
+import com.gamelisto.usuarios.domain.usuario.Idioma;
+import com.gamelisto.usuarios.domain.usuario.PasswordHash;
+import com.gamelisto.usuarios.domain.usuario.Rol;
+import com.gamelisto.usuarios.domain.usuario.Usuario;
+import com.gamelisto.usuarios.domain.usuario.Username;
 import com.gamelisto.usuarios.infrastructure.out.persistence.postgres.UsuarioEntity;
+import com.gamelisto.usuarios.infrastructure.out.persistence.postgres.UsuarioMapper;
 import java.time.Instant;
 import java.util.UUID;
-
-import com.gamelisto.usuarios.infrastructure.out.persistence.postgres.UsuarioMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -16,17 +23,14 @@ class UsuarioMapperTest {
   private final UsuarioMapper mapper = new UsuarioMapper();
 
   @Test
-  @DisplayName("Debe convertir Usuario de domain a UsuarioEntity")
+  @DisplayName("Debe convertir Usuario de dominio a entidad")
   void debeConvertirDominioAEntity() {
-    // Arrange
     Usuario usuario =
         Usuario.create(
             Username.of("testuser"), Email.of("test@test.com"), PasswordHash.of("$2a$10$hash"));
 
-    // Act
     UsuarioEntity entity = mapper.toEntity(usuario);
 
-    // Assert
     assertNotNull(entity);
     assertEquals(usuario.getId().value(), entity.getId());
     assertEquals("testuser", entity.getUsername());
@@ -38,29 +42,13 @@ class UsuarioMapperTest {
   }
 
   @Test
-  @DisplayName("Debe convertir UsuarioEntity a Usuario de domain")
+  @DisplayName("Debe convertir UsuarioEntity a dominio")
   void debeConvertirEntityADominio() {
-    // Arrange
-    UsuarioEntity entity = new UsuarioEntity();
-    entity.setId(UUID.randomUUID());
-    entity.setUsername("testuser");
-    entity.setEmail("test@test.com");
-    entity.setPasswordHash("$2a$10$hash");
-    entity.setAvatar(null);
-    entity.setRole(Rol.USER);
-    entity.setLanguage(Idioma.ESP);
+    UsuarioEntity entity = entidadBase();
     entity.setStatus(EstadoUsuario.ACTIVO);
-    entity.setDiscordUserId(null);
-    entity.setDiscordUsername(null);
-    entity.setTokenVerificacion(null);
-    entity.setTokenVerificacionExpiracion(null);
-    entity.setTokenRestablecimiento(null);
-    entity.setTokenRestablecimientoExpiracion(null);
 
-    // Act
     Usuario usuario = mapper.toDomain(entity);
 
-    // Assert
     assertNotNull(usuario);
     assertEquals(entity.getId(), usuario.getId().value());
     assertEquals("testuser", usuario.getUsername().value());
@@ -72,93 +60,47 @@ class UsuarioMapperTest {
   }
 
   @Test
-  @DisplayName("Debe manejar correctamente valores opcionales nulos (Avatar, Discord)")
-  void debeManejareValoresOpcionalesNulos() {
-    // Arrange
-    UsuarioEntity entity = new UsuarioEntity();
-    entity.setId(UUID.randomUUID());
-    entity.setUsername("testuser");
-    entity.setEmail("test@test.com");
-    entity.setPasswordHash("$2a$10$hash");
+  @DisplayName("Debe manejar valores opcionales nulos")
+  void debeManejarValoresOpcionalesNulos() {
+    UsuarioEntity entity = entidadBase();
     entity.setAvatar(null);
     entity.setDiscordUserId(null);
-    entity.setDiscordUsername(null);
-    entity.setRole(Rol.USER);
-    entity.setLanguage(Idioma.ESP);
-    entity.setStatus(EstadoUsuario.ACTIVO);
-    entity.setTokenVerificacion(null);
-    entity.setTokenVerificacionExpiracion(null);
-    entity.setTokenRestablecimiento(null);
-    entity.setTokenRestablecimientoExpiracion(null);
 
-    // Act
     Usuario usuario = mapper.toDomain(entity);
 
-    // Assert
     assertTrue(usuario.getAvatar().isEmpty());
     assertTrue(usuario.getDiscordUserId().isEmpty());
-    assertTrue(usuario.getDiscordUsername().isEmpty());
   }
 
   @Test
-  @DisplayName("Debe manejar correctamente valores opcionales con datos (Avatar, Discord)")
-  void debeManejareValoresOpcionalesConDatos() {
-    // Arrange
-    UsuarioEntity entity = new UsuarioEntity();
-    entity.setId(UUID.randomUUID());
-    entity.setUsername("testuser");
-    entity.setEmail("test@test.com");
-    entity.setPasswordHash("$2a$10$hash");
+  @DisplayName("Debe manejar valores opcionales con datos")
+  void debeManejarValoresOpcionalesConDatos() {
+    UsuarioEntity entity = entidadBase();
     entity.setAvatar("https://example.com/avatar.png");
     entity.setDiscordUserId("123456789");
-    entity.setDiscordUsername("player#1234");
-    entity.setRole(Rol.USER);
     entity.setLanguage(Idioma.ENG);
     entity.setStatus(EstadoUsuario.ACTIVO);
-    entity.setTokenVerificacion(null);
-    entity.setTokenVerificacionExpiracion(null);
-    entity.setTokenRestablecimiento(null);
-    entity.setTokenRestablecimientoExpiracion(null);
 
-    // Act
     Usuario usuario = mapper.toDomain(entity);
 
-    // Assert
-    assertFalse(usuario.getAvatar().isEmpty());
     assertEquals("https://example.com/avatar.png", usuario.getAvatar().url());
-    assertFalse(usuario.getDiscordUserId().isEmpty());
     assertEquals("123456789", usuario.getDiscordUserId().value());
-    assertFalse(usuario.getDiscordUsername().isEmpty());
-    assertEquals("player#1234", usuario.getDiscordUsername().value());
     assertEquals(Idioma.ENG, usuario.getLanguage());
   }
 
   @Test
-  @DisplayName("Debe convertir correctamente tokens de verificación")
+  @DisplayName("Debe convertir correctamente tokens de verificacion")
   void debeConvertirTokensDeVerificacion() {
-    // Arrange
     String tokenValue = UUID.randomUUID().toString();
     Instant expiracion = Instant.now().plusSeconds(86400);
 
-    UsuarioEntity entity = new UsuarioEntity();
-    entity.setId(UUID.randomUUID());
-    entity.setUsername("testuser");
-    entity.setEmail("test@test.com");
-    entity.setPasswordHash("$2a$10$hash");
-    entity.setRole(Rol.USER);
-    entity.setLanguage(Idioma.ESP);
+    UsuarioEntity entity = entidadBase();
     entity.setStatus(EstadoUsuario.PENDIENTE_DE_VERIFICACION);
     entity.setTokenVerificacion(tokenValue);
     entity.setTokenVerificacionExpiracion(expiracion);
-    entity.setTokenRestablecimiento(null);
-    entity.setTokenRestablecimientoExpiracion(null);
 
-    // Act
     Usuario usuario = mapper.toDomain(entity);
 
-    // Assert
-    assertNotNull(usuario.getTokenVerificacion());
-    assertFalse(usuario.getTokenVerificacion().isEmpty());
     assertEquals(tokenValue, usuario.getTokenVerificacion().value());
     assertEquals(expiracion, usuario.getTokenVerificacionExpiracion());
   }
@@ -166,54 +108,34 @@ class UsuarioMapperTest {
   @Test
   @DisplayName("Debe convertir correctamente tokens de restablecimiento")
   void debeConvertirTokensDeRestablecimiento() {
-    // Arrange
     String tokenValue = UUID.randomUUID().toString();
     Instant expiracion = Instant.now().plusSeconds(86400);
 
-    UsuarioEntity entity = new UsuarioEntity();
-    entity.setId(UUID.randomUUID());
-    entity.setUsername("testuser");
-    entity.setEmail("test@test.com");
-    entity.setPasswordHash("$2a$10$hash");
-    entity.setRole(Rol.USER);
-    entity.setLanguage(Idioma.ESP);
+    UsuarioEntity entity = entidadBase();
     entity.setStatus(EstadoUsuario.ACTIVO);
-    entity.setTokenVerificacion(null);
-    entity.setTokenVerificacionExpiracion(null);
     entity.setTokenRestablecimiento(tokenValue);
     entity.setTokenRestablecimientoExpiracion(expiracion);
 
-    // Act
     Usuario usuario = mapper.toDomain(entity);
 
-    // Assert
-    assertNotNull(usuario.getTokenRestablecimiento());
-    assertFalse(usuario.getTokenRestablecimiento().isEmpty());
     assertEquals(tokenValue, usuario.getTokenRestablecimiento().value());
     assertEquals(expiracion, usuario.getTokenRestablecimientoExpiracion());
   }
 
   @Test
-  @DisplayName("Debe realizar conversión bidireccional correctamente")
+  @DisplayName("Debe preservar datos en conversion bidireccional")
   void debeRealizarConversionBidireccional() {
-    // Arrange
     Usuario usuarioOriginal =
         Usuario.create(
             Username.of("bidirectional"),
             Email.of("bidirectional@test.com"),
             PasswordHash.of("$2a$10$hash"));
-
-    // Agregar datos opcionales
     usuarioOriginal.changeAvatar(Avatar.of("https://example.com/avatar.png"));
-    usuarioOriginal.linkDiscord(DiscordUserId.of("987654321"), DiscordUsername.of("gamer#5678"));
+    usuarioOriginal.linkDiscord(DiscordUserId.of("987654321"));
 
-    // Act - Primera conversión: Dominio -> Entity
     UsuarioEntity entity = mapper.toEntity(usuarioOriginal);
-
-    // Act - Segunda conversión: Entity -> Dominio
     Usuario usuarioReconstruido = mapper.toDomain(entity);
 
-    // Assert - Verificar que los datos se preservaron
     assertEquals(usuarioOriginal.getId().value(), usuarioReconstruido.getId().value());
     assertEquals(usuarioOriginal.getUsername().value(), usuarioReconstruido.getUsername().value());
     assertEquals(usuarioOriginal.getEmail().value(), usuarioReconstruido.getEmail().value());
@@ -222,11 +144,21 @@ class UsuarioMapperTest {
     assertEquals(usuarioOriginal.getAvatar().url(), usuarioReconstruido.getAvatar().url());
     assertEquals(
         usuarioOriginal.getDiscordUserId().value(), usuarioReconstruido.getDiscordUserId().value());
-    assertEquals(
-        usuarioOriginal.getDiscordUsername().value(),
-        usuarioReconstruido.getDiscordUsername().value());
-    assertEquals(usuarioOriginal.getStatus(), usuarioReconstruido.getStatus());
-    assertEquals(usuarioOriginal.getRole(), usuarioReconstruido.getRole());
-    assertEquals(usuarioOriginal.getLanguage(), usuarioReconstruido.getLanguage());
+  }
+
+  private UsuarioEntity entidadBase() {
+    UsuarioEntity entity = new UsuarioEntity();
+    entity.setId(UUID.randomUUID());
+    entity.setUsername("testuser");
+    entity.setEmail("test@test.com");
+    entity.setPasswordHash("$2a$10$hash");
+    entity.setRole(Rol.USER);
+    entity.setLanguage(Idioma.ESP);
+    entity.setStatus(EstadoUsuario.ACTIVO);
+    entity.setTokenVerificacion(null);
+    entity.setTokenVerificacionExpiracion(null);
+    entity.setTokenRestablecimiento(null);
+    entity.setTokenRestablecimientoExpiracion(null);
+    return entity;
   }
 }

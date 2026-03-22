@@ -10,8 +10,7 @@ public record UsuarioResponse(
     String role,
     String language,
     String status,
-    String discordUserId,
-    String discordUsername) {
+    String discordUserId) {
   public static UsuarioResponse from(UsuarioResult dto) {
     return new UsuarioResponse(
         dto.id(),
@@ -21,7 +20,6 @@ public record UsuarioResponse(
         dto.role(),
         dto.language(),
         dto.status(),
-        dto.discordUserId(),
-        dto.discordUsername());
+        dto.discordUserId());
   }
 }

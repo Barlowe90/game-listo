@@ -58,3 +58,6 @@ class JuegoSocialRepositorioNeo4jIntegrationTest {
     assertEquals(1, juegoSocialRepositorio.findFriendsPlayingGame(usuarioPrincipal, gameId).size());
   }
 }
+
+
+

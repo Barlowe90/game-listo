@@ -29,7 +29,7 @@ class SolicitarRestablecimientoUseCaseTest {
 
   @InjectMocks private SolicitarRestablecimientoUseCase solicitarRestablecimientoUseCase;
 
-  // ========== CASOS DE ÉXITO ==========
+  // ========== CASOS DE Ã‰XITO ==========
 
   @Test
   @DisplayName("Debe generar token y enviar email cuando el usuario existe")
@@ -51,14 +51,14 @@ class SolicitarRestablecimientoUseCaseTest {
     verify(repositorioUsuarios).findByEmail(any(Email.class));
     verify(repositorioUsuarios).save(any(Usuario.class));
 
-    // Verificar que se generó el token
+    // Verificar que se generÃ³ el token
     assertNotNull(usuario.getTokenRestablecimiento());
     assertFalse(usuario.getTokenRestablecimiento().isEmpty());
     assertNotNull(usuario.getTokenRestablecimientoExpiracion());
   }
 
   @Test
-  @DisplayName("Debe generar token con expiración de 1 hora")
+  @DisplayName("Debe generar token con expiraciÃ³n de 1 hora")
   void debeGenerarTokenConExpiracionDeUnaHora() {
     // Arrange
     String email = "test@test.com";
@@ -88,7 +88,7 @@ class SolicitarRestablecimientoUseCaseTest {
   // ========== CASOS DE SEGURIDAD ==========
 
   @Test
-  @DisplayName("No debe lanzar excepción cuando el email no existe (seguridad)")
+  @DisplayName("No debe lanzar excepciÃ³n cuando el email no existe (seguridad)")
   void noDebeLanzarExcepcionCuandoEmailNoExiste() {
     // Arrange
     String emailInexistente = "noexiste@test.com";
@@ -98,15 +98,15 @@ class SolicitarRestablecimientoUseCaseTest {
     SolicitarRestablecimientoCommand command =
         new SolicitarRestablecimientoCommand(emailInexistente);
 
-    // Act & Assert - No debe lanzar excepción
+    // Act & Assert - No debe lanzar excepciÃ³n
     assertDoesNotThrow(() -> solicitarRestablecimientoUseCase.execute(command));
 
-    // Verificar que no se guardó nada
+    // Verificar que no se guardÃ³ nada
     verify(repositorioUsuarios, never()).save(any());
   }
 
   @Test
-  @DisplayName("No debe revelar si el email está registrado o no")
+  @DisplayName("No debe revelar si el email estÃ¡ registrado o no")
   void noDebeRevelarSiEmailEstaRegistrado() {
     // Arrange
     when(repositorioUsuarios.findByEmail(any(Email.class))).thenReturn(Optional.empty());
@@ -114,17 +114,17 @@ class SolicitarRestablecimientoUseCaseTest {
     SolicitarRestablecimientoCommand command =
         new SolicitarRestablecimientoCommand("noexiste@test.com");
 
-    // Act - Ejecutar sin excepción
+    // Act - Ejecutar sin excepciÃ³n
     solicitarRestablecimientoUseCase.execute(command);
 
-    // Assert - La funcion termina normalmente sin revelar información
+    // Assert - La funcion termina normalmente sin revelar informaciÃ³n
     verify(repositorioUsuarios).findByEmail(any(Email.class));
   }
 
-  // ========== CASOS DE VALIDACIÓN ==========
+  // ========== CASOS DE VALIDACIÃ“N ==========
 
   @Test
-  @DisplayName("Debe lanzar excepción para email con formato inválido")
+  @DisplayName("Debe lanzar excepciÃ³n para email con formato invÃ¡lido")
   void debeLanzarExcepcionParaEmailInvalido() {
     // Arrange
     String emailInvalido = "email-invalido";
@@ -137,7 +137,7 @@ class SolicitarRestablecimientoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción para email nulo")
+  @DisplayName("Debe lanzar excepciÃ³n para email nulo")
   void debeLanzarExcepcionParaEmailNulo() {
     // Arrange
     SolicitarRestablecimientoCommand command = new SolicitarRestablecimientoCommand(null);
@@ -149,7 +149,7 @@ class SolicitarRestablecimientoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción para email vacío")
+  @DisplayName("Debe lanzar excepciÃ³n para email vacÃ­o")
   void debeLanzarExcepcionParaEmailVacio() {
     // Arrange
     SolicitarRestablecimientoCommand command = new SolicitarRestablecimientoCommand("");
@@ -185,7 +185,7 @@ class SolicitarRestablecimientoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe permitir solicitar restablecimiento para usuario pendiente de verificación")
+  @DisplayName("Debe permitir solicitar restablecimiento para usuario pendiente de verificaciÃ³n")
   void debePermitirSolicitudParaUsuarioPendiente() {
     // Arrange
     String email = "pendiente@test.com";
@@ -206,7 +206,7 @@ class SolicitarRestablecimientoUseCaseTest {
     assertFalse(usuario.getTokenRestablecimiento().isEmpty());
   }
 
-  // ========== MÉTODOS AUXILIARES ==========
+  // ========== MÃ‰TODOS AUXILIARES ==========
 
   private Usuario crearUsuarioActivo(String email) {
     return Usuario.reconstitute(
@@ -219,7 +219,6 @@ class SolicitarRestablecimientoUseCaseTest {
         Idioma.ESP,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
-        DiscordUsername.empty(),
         TokenVerificacion.empty(),
         null,
         TokenVerificacion.empty(),
@@ -237,7 +236,6 @@ class SolicitarRestablecimientoUseCaseTest {
         Idioma.ESP,
         EstadoUsuario.SUSPENDIDO,
         DiscordUserId.empty(),
-        DiscordUsername.empty(),
         TokenVerificacion.empty(),
         null,
         TokenVerificacion.empty(),
@@ -255,10 +253,12 @@ class SolicitarRestablecimientoUseCaseTest {
         Idioma.ESP,
         EstadoUsuario.PENDIENTE_DE_VERIFICACION,
         DiscordUserId.empty(),
-        DiscordUsername.empty(),
         TokenVerificacion.generate(),
         Instant.now().plusSeconds(86400),
         TokenVerificacion.empty(),
         null);
   }
 }
+
+
+

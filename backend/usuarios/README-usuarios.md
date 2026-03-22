@@ -119,7 +119,7 @@ toda la información del usuario.
 #### Enlazar Discord
 
 - **Añadir datos de Discord** (`PUT /v1/usuarios/discord`)
-    - Almacenamiento manual de `discordUserId` y `discordUsername` para el usuario autenticado
+    - Almacenamiento manual de `discordUserId` para el usuario autenticado
     - Registro de fecha de vinculación
 
 - **Eliminar datos de Discord** (`DELETE /v1/usuarios/discord`)
@@ -203,7 +203,7 @@ infrastructure → application → domain
 Todos los primitivos del dominio son Value Objects con validación:
 
 - `UsuarioId`, `Username`, `Email`, `PasswordHash`
-- `Avatar`, `DiscordUserId`, `DiscordUsername`
+- `Avatar`, `DiscordUserId`
 - `TokenVerificacion`
 
 #### 2. Aggregate Root (`Usuario`)
@@ -279,7 +279,6 @@ Puertos (interfaces) en `application/ports`:
 | Campo             | Tipo              | Descripción                                           |
 |-------------------|-------------------|-------------------------------------------------------|
 | `discordUserId`   | `DiscordUserId`   | ID de Discord proporcionado por el usuario (nullable) |
-| `discordUsername` | `DiscordUsername` | Username de Discord (nullable)                        |
 
 #### Sistema de tokens de verificación
 
@@ -333,7 +332,6 @@ Todos los VOs implementan validación en construcción y son inmutables:
 - **PasswordHash**: Validación de formato BCrypt (`$2a$` o `$2b$`)
 - **Avatar**: URL válida o cadena vacía
 - **DiscordUserId**: ID numérico de Discord
-- **DiscordUsername**: Formato `usuario#discriminador`
 - **TokenVerificacion**: UUID aleatorio
 
 **RefreshToken:**

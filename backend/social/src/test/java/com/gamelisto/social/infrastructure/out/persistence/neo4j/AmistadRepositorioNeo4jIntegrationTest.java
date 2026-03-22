@@ -71,3 +71,6 @@ class AmistadRepositorioNeo4jIntegrationTest {
     assertTrue(repositorio.getFriends(u5).isEmpty());
   }
 }
+
+
+

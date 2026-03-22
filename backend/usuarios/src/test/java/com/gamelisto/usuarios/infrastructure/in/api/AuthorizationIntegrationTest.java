@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ActiveProfiles("test")
 @Import(TestMessagingConfig.class)
 @Transactional
-@DisplayName("Tests de Integración - Autorización por Roles")
+@DisplayName("Tests de IntegraciÃ³n - AutorizaciÃ³n por Roles")
 @ExtendWith(RedisTestContainerExtension.class)
 @SuppressWarnings("null")
 class AuthorizationIntegrationTest {
@@ -64,7 +64,6 @@ class AuthorizationIntegrationTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.generate(),
             now.plusSeconds(24 * 60 * 60),
             TokenVerificacion.empty(),
@@ -144,11 +143,11 @@ class AuthorizationIntegrationTest {
   }
 
   @Nested
-  @DisplayName("PUT /v1/usuarios/password - Cambiar contraseña (propio usuario)")
+  @DisplayName("PUT /v1/usuarios/password - Cambiar contraseÃ±a (propio usuario)")
   class CambiarContrasenaTests {
 
     @Test
-    @DisplayName("USER puede cambiar su propia contraseña")
+    @DisplayName("USER puede cambiar su propia contraseÃ±a")
     void userPuedeCambiarSuPropiaContrasena() throws Exception {
       CambiarContrasenaRequest request =
           new CambiarContrasenaRequest("User123!", "NewPassword789!");
@@ -184,3 +183,6 @@ class AuthorizationIntegrationTest {
     }
   }
 }
+
+
+

@@ -23,7 +23,4 @@ public class UsuarioNodo {
 
   @Property("discordUserId")
   private String discordUserId;
-
-  @Property("discordUsername")
-  private String discordUsername;
 }

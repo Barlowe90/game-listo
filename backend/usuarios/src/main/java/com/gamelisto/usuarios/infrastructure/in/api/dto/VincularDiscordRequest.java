@@ -7,10 +7,9 @@ import org.springframework.lang.NonNull;
 import java.util.UUID;
 
 public record VincularDiscordRequest(
-    @NotBlank(message = "El ID de usuario de Discord es obligatorio") @NonNull String discordUserId,
-    @NotBlank(message = "El nombre de usuario de Discord es obligatorio") @NonNull
-        String discordUsername) {
+    @NotBlank(message = "El ID de usuario de Discord es obligatorio") @NonNull
+        String discordUserId) {
   public VincularDiscordCommand toCommand(UUID usuarioId) {
-    return new VincularDiscordCommand(usuarioId, discordUserId, discordUsername);
+    return new VincularDiscordCommand(usuarioId, discordUserId);
   }
 }
