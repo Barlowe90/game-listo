@@ -23,9 +23,8 @@ public class EntradaEventosUseCase implements EntradaEventosHandle {
       UUID usuarioId,
       String username,
       String avatar,
-      String discordUserId,
-      String discordUsername) {
-    UserRef user = UserRef.of(usuarioId, username, avatar, discordUserId, discordUsername);
+      String discordUserId) {
+    UserRef user = UserRef.of(usuarioId, username, avatar, discordUserId);
     grafoUsuarioRepositorio.upsertUser(user);
   }
 
@@ -34,9 +33,8 @@ public class EntradaEventosUseCase implements EntradaEventosHandle {
       UUID usuarioId,
       String username,
       String avatar,
-      String discordUserId,
-      String discordUsername) {
-    UserRef user = UserRef.of(usuarioId, username, avatar, discordUserId, discordUsername);
+      String discordUserId) {
+    UserRef user = UserRef.of(usuarioId, username, avatar, discordUserId);
     grafoUsuarioRepositorio.upsertUser(user);
   }
 

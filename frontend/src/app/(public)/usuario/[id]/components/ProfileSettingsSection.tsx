@@ -43,9 +43,7 @@ interface ProfileSettingsSectionProps {
   onCurrentPasswordChange: (value: string) => void;
   onNewPasswordChange: (value: string) => void;
   onPasswordSubmit: FormEventHandler<HTMLFormElement>;
-  discordUsernameDraft: string;
   discordUserIdDraft: string;
-  discordUsernameError: string | null;
   discordUserIdError: string | null;
   discordError: string | null;
   discordSuccess: string | null;
@@ -53,7 +51,6 @@ interface ProfileSettingsSectionProps {
   isRemovingDiscord: boolean;
   hasDiscordLinked: boolean;
   isDiscordDirty: boolean;
-  onDiscordUsernameChange: (value: string) => void;
   onDiscordUserIdChange: (value: string) => void;
   onDiscordSubmit: FormEventHandler<HTMLFormElement>;
   onDiscordDelete: () => void;
@@ -265,8 +262,6 @@ function ProfileDiscordCard({
   discordSuccess,
   discordUserIdDraft,
   discordUserIdError,
-  discordUsernameDraft,
-  discordUsernameError,
   hasDiscordLinked,
   isDiscordDirty,
   isRemovingDiscord,
@@ -274,7 +269,6 @@ function ProfileDiscordCard({
   onDiscordDelete,
   onDiscordSubmit,
   onDiscordUserIdChange,
-  onDiscordUsernameChange,
 }: Readonly<
   Pick<
     ProfileSettingsSectionProps,
@@ -282,8 +276,6 @@ function ProfileDiscordCard({
     | 'discordSuccess'
     | 'discordUserIdDraft'
     | 'discordUserIdError'
-    | 'discordUsernameDraft'
-    | 'discordUsernameError'
     | 'hasDiscordLinked'
     | 'isDiscordDirty'
     | 'isRemovingDiscord'
@@ -291,47 +283,28 @@ function ProfileDiscordCard({
     | 'onDiscordDelete'
     | 'onDiscordSubmit'
     | 'onDiscordUserIdChange'
-    | 'onDiscordUsernameChange'
   >
 >) {
   return (
     <InfoPanelCard title="Discord" className="xl:col-span-2">
       <form className="grid gap-4" onSubmit={onDiscordSubmit}>
-        <div className="grid gap-4 xl:grid-cols-2">
-          <FormField
-            label="Discord username"
-            htmlFor="discord-username"
-            required
-            errorMessage={discordUsernameError}
-          >
-            <Input
-              id="discord-username"
-              type="text"
-              value={discordUsernameDraft}
-              onChange={(event) => onDiscordUsernameChange(event.target.value)}
-              placeholder="tu_usuario"
-              disabled={isSavingDiscord || isRemovingDiscord}
-              state={discordUsernameError ? 'error' : 'default'}
-            />
-          </FormField>
-
-          <FormField
-            label="Discord ID"
-            htmlFor="discord-user-id"
-            required
-            errorMessage={discordUserIdError}
-          >
-            <Input
-              id="discord-user-id"
-              type="text"
-              value={discordUserIdDraft}
-              onChange={(event) => onDiscordUserIdChange(event.target.value)}
-              placeholder="123456789012345678"
-              disabled={isSavingDiscord || isRemovingDiscord}
-              state={discordUserIdError ? 'error' : 'default'}
-            />
-          </FormField>
-        </div>
+        <FormField
+          label="Discord ID"
+          htmlFor="discord-user-id"
+          required
+          helpText="Usaremos este identificador para abrir o enviar mensajes por Discord."
+          errorMessage={discordUserIdError}
+        >
+          <Input
+            id="discord-user-id"
+            type="text"
+            value={discordUserIdDraft}
+            onChange={(event) => onDiscordUserIdChange(event.target.value)}
+            placeholder="123456789012345678"
+            disabled={isSavingDiscord || isRemovingDiscord}
+            state={discordUserIdError ? 'error' : 'default'}
+          />
+        </FormField>
 
         <div className="flex flex-wrap justify-end gap-3">
           <Button
@@ -387,9 +360,7 @@ export function ProfileSettingsSection({
   onCurrentPasswordChange,
   onNewPasswordChange,
   onPasswordSubmit,
-  discordUsernameDraft,
   discordUserIdDraft,
-  discordUsernameError,
   discordUserIdError,
   discordError,
   discordSuccess,
@@ -397,7 +368,6 @@ export function ProfileSettingsSection({
   isRemovingDiscord,
   hasDiscordLinked,
   isDiscordDirty,
-  onDiscordUsernameChange,
   onDiscordUserIdChange,
   onDiscordSubmit,
   onDiscordDelete,
@@ -468,8 +438,6 @@ export function ProfileSettingsSection({
           discordSuccess={discordSuccess}
           discordUserIdDraft={discordUserIdDraft}
           discordUserIdError={discordUserIdError}
-          discordUsernameDraft={discordUsernameDraft}
-          discordUsernameError={discordUsernameError}
           hasDiscordLinked={hasDiscordLinked}
           isDiscordDirty={isDiscordDirty}
           isRemovingDiscord={isRemovingDiscord}
@@ -477,7 +445,6 @@ export function ProfileSettingsSection({
           onDiscordDelete={onDiscordDelete}
           onDiscordSubmit={onDiscordSubmit}
           onDiscordUserIdChange={onDiscordUserIdChange}
-          onDiscordUsernameChange={onDiscordUsernameChange}
         />
       </div>
     </div>

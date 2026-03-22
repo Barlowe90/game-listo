@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 class PasswordHashTest {
 
   @Test
-  @DisplayName("Debe crear password hash válido")
+  @DisplayName("Debe crear password hash vÃ¡lido")
   void debeCrearPasswordHashValido() {
     // Arrange & Act
     PasswordHash passwordHash = PasswordHash.of("$2a$10$abcdefghijklmnopqrstuvwxyz");
@@ -46,7 +46,7 @@ class PasswordHashTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el hash es nulo")
+  @DisplayName("Debe lanzar excepciÃ³n si el hash es nulo")
   void debeLanzarExcepcionSiHashEsNulo() {
     // Act & Assert
     DomainException exception = assertThrows(DomainException.class, () -> PasswordHash.of(null));
@@ -55,7 +55,7 @@ class PasswordHashTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el hash es vacío")
+  @DisplayName("Debe lanzar excepciÃ³n si el hash es vacÃ­o")
   void debeLanzarExcepcionSiHashEsVacio() {
     // Act & Assert
     assertThrows(DomainException.class, () -> PasswordHash.of(""));
@@ -79,7 +79,7 @@ class PasswordHashTest {
   @Test
   @DisplayName("Debe preservar espacios en el hash (no hace trim)")
   void debePreservarEspaciosEnElHash() {
-    // Arrange - La implementación NO hace trim al guardar
+    // Arrange - La implementaciÃ³n NO hace trim al guardar
     String hashConEspacios = "  $2a$10$hash  ";
 
     // Act
@@ -89,3 +89,6 @@ class PasswordHashTest {
     assertEquals("  $2a$10$hash  ", passwordHash.value());
   }
 }
+
+
+

@@ -68,7 +68,8 @@ class RateLimitFilterTest {
         MockServerWebExchange.from(MockServerHttpRequest.get(URL).remoteAddress(address).build());
 
     when(redisTemplate.opsForValue()).thenReturn(valueOps);
-    when(valueOps.increment("rate_limit:192.168.1.100")).thenReturn(Mono.just(101L));
+    // MAX_REQUESTS en la implementación es 300, usamos 301 para forzar la rama de bloqueo
+    when(valueOps.increment("rate_limit:192.168.1.100")).thenReturn(Mono.just(301L));
 
     StepVerifier.create(filter.filter(exchange, chain)).verifyComplete();
 

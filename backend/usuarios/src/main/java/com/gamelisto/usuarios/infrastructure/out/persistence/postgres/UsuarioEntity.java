@@ -46,9 +46,6 @@ public class UsuarioEntity {
   @Column(name = "id_user_discord", length = 100)
   private String discordUserId;
 
-  @Column(name = "discord_username", length = 100)
-  private String discordUsername;
-
   @Column(name = "token_verificacion", length = 100)
   private String tokenVerificacion;
 

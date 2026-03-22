@@ -28,7 +28,7 @@ class CambiarEstadoUsuarioUseCaseTest {
 
   @InjectMocks private CambiarEstadoUsuarioUseCase cambiarEstadoUsuarioUseCase;
 
-  // ========== CASOS DE ÉXITO ==========
+  // ========== CASOS DE Ã‰XITO ==========
 
   @Test
   @DisplayName("Debe suspender usuario exitosamente")
@@ -103,7 +103,7 @@ class CambiarEstadoUsuarioUseCaseTest {
   // ========== CASOS DE ERROR ==========
 
   @Test
-  @DisplayName("Debe lanzar excepción si el usuario no existe")
+  @DisplayName("Debe lanzar excepciÃ³n si el usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
     String usuarioIdInexistente = UUID.randomUUID().toString();
@@ -120,7 +120,7 @@ class CambiarEstadoUsuarioUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si se intenta activar usuario eliminado")
+  @DisplayName("Debe lanzar excepciÃ³n si se intenta activar usuario eliminado")
   void debeLanzarExcepcionSiSeIntentaActivarUsuarioEliminado() {
     // Arrange
     String usuarioId = UUID.randomUUID().toString();
@@ -137,7 +137,7 @@ class CambiarEstadoUsuarioUseCaseTest {
     verify(repositorioUsuarios, never()).save(any());
   }
 
-  // ========== MÉTODOS AUXILIARES ==========
+  // ========== MÃ‰TODOS AUXILIARES ==========
 
   private Usuario crearUsuarioActivo(String id) {
     return Usuario.reconstitute(
@@ -150,7 +150,6 @@ class CambiarEstadoUsuarioUseCaseTest {
         Idioma.ESP,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
-        DiscordUsername.empty(),
         TokenVerificacion.empty(),
         null,
         TokenVerificacion.empty(),
@@ -168,7 +167,6 @@ class CambiarEstadoUsuarioUseCaseTest {
         Idioma.ESP,
         EstadoUsuario.SUSPENDIDO,
         DiscordUserId.empty(),
-        DiscordUsername.empty(),
         TokenVerificacion.empty(),
         null,
         TokenVerificacion.empty(),
@@ -186,10 +184,12 @@ class CambiarEstadoUsuarioUseCaseTest {
         Idioma.ESP,
         EstadoUsuario.ELIMINADO,
         DiscordUserId.empty(),
-        DiscordUsername.empty(),
         TokenVerificacion.empty(),
         null,
         TokenVerificacion.empty(),
         null);
   }
 }
+
+
+

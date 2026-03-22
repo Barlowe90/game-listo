@@ -46,8 +46,7 @@ public class DesvincularDiscordUseCase implements DesvincularDiscordHandle {
             usuario.getId().value().toString(),
             usuario.getUsername().value(),
             usuario.getAvatar().url(),
-            usuario.getDiscordUserId().value(),
-            usuario.getDiscordUsername().value());
+            usuario.getDiscordUserId().value());
     usuarioPublisher.publicarUsuarioActualizado(evento);
   }
 

@@ -53,3 +53,6 @@ class RabbitMQConfigTest {
     assertThat(binding.getRoutingKey()).isEqualTo(RabbitMQConfig.BINDING_ESTADO_ACTUALIZADO_KEY);
   }
 }
+
+
+

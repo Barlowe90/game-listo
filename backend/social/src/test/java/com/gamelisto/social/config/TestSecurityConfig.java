@@ -12,9 +12,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * Configuración de seguridad para el entorno de testing en el módulo social.
+ * ConfiguraciÃ³n de seguridad para el entorno de testing en el mÃ³dulo social.
  *
- * <p>Incluye el mismo filtro GatewayAuthenticationFilter que en producción para poder simular
+ * <p>Incluye el mismo filtro GatewayAuthenticationFilter que en producciÃ³n para poder simular
  * headers del Gateway en los tests y validar @PreAuthorize.
  */
 @Configuration
@@ -37,3 +37,6 @@ public class TestSecurityConfig {
     return http.build();
   }
 }
+
+
+

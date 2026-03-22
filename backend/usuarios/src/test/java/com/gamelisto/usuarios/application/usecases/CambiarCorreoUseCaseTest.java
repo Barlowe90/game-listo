@@ -27,10 +27,10 @@ class CambiarCorreoUseCaseTest {
 
   @InjectMocks private CambiarCorreoUseCase cambiarCorreoUseCase;
 
-  // ========== CASOS DE ÉXITO ==========
+  // ========== CASOS DE Ã‰XITO ==========
 
   @Test
-  @DisplayName("Debe cambiar correo exitosamente cuando el nuevo email no está registrado")
+  @DisplayName("Debe cambiar correo exitosamente cuando el nuevo email no estÃ¡ registrado")
   void debeCambiarCorreoExitosamente() {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
@@ -65,7 +65,7 @@ class CambiarCorreoUseCaseTest {
   // ========== CASOS DE ERROR ==========
 
   @Test
-  @DisplayName("Debe lanzar excepción si el usuario no existe")
+  @DisplayName("Debe lanzar excepciÃ³n si el usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
     UUID usuarioIdInexistente = UUID.randomUUID();
@@ -84,7 +84,7 @@ class CambiarCorreoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el email ya está registrado por otro usuario")
+  @DisplayName("Debe lanzar excepciÃ³n si el email ya estÃ¡ registrado por otro usuario")
   void debeLanzarExcepcionSiEmailYaRegistrado() {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
@@ -108,14 +108,14 @@ class CambiarCorreoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción con formato de email inválido")
+  @DisplayName("Debe lanzar excepciÃ³n con formato de email invÃ¡lido")
   void debeLanzarExcepcionConEmailInvalido() {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
 
     CambiarCorreoCommand command = new CambiarCorreoCommand(usuarioId, "email-invalido");
 
-    // Act & Assert - La excepción se lanza al crear el Email Value Object
+    // Act & Assert - La excepciÃ³n se lanza al crear el Email Value Object
     assertThrows(DomainException.class, () -> cambiarCorreoUseCase.execute(command));
 
     verify(repositorioUsuarios, never()).findById(any(UsuarioId.class));
@@ -135,10 +135,12 @@ class CambiarCorreoUseCaseTest {
         Idioma.ESP,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
-        DiscordUsername.empty(),
         TokenVerificacion.empty(),
         null,
         TokenVerificacion.empty(),
         null);
   }
 }
+
+
+

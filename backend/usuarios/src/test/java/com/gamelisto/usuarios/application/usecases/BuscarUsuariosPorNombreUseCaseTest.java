@@ -20,7 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("BuscarUsuariosPorNombreUseCase - Búsqueda de usuarios por nombre")
+@DisplayName("BuscarUsuariosPorNombreUseCase - BÃºsqueda de usuarios por nombre")
 class BuscarUsuariosPorNombreUseCaseTest {
 
   @Mock private RepositorioUsuarios repositorio;
@@ -46,7 +46,6 @@ class BuscarUsuariosPorNombreUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -72,7 +71,7 @@ class BuscarUsuariosPorNombreUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si usuario no existe")
+  @DisplayName("Debe lanzar excepciÃ³n si usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
     String username = "nonexistent";
@@ -106,7 +105,6 @@ class BuscarUsuariosPorNombreUseCaseTest {
             Idioma.ENG,
             EstadoUsuario.ACTIVO,
             DiscordUserId.of("discord123"),
-            DiscordUsername.of("johndiscord"),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -126,13 +124,12 @@ class BuscarUsuariosPorNombreUseCaseTest {
     assertThat(resultado.language()).isEqualTo("ENG");
     assertThat(resultado.status()).isEqualTo("ACTIVO");
     assertThat(resultado.discordUserId()).isEqualTo("discord123");
-    assertThat(resultado.discordUsername()).isEqualTo("johndiscord");
 
     verify(repositorio).findByUsername(any(Username.class));
   }
 
   @Test
-  @DisplayName("Debe manejar búsqueda case-sensitive según Username VO")
+  @DisplayName("Debe manejar bÃºsqueda case-sensitive segÃºn Username VO")
   void debeManejarBusquedaCaseSensitive() {
     // Arrange
     String usuarioIdString = UUID.randomUUID().toString();
@@ -150,7 +147,6 @@ class BuscarUsuariosPorNombreUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -181,7 +177,7 @@ class BuscarUsuariosPorNombreUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe manejar caracteres especiales válidos en username")
+  @DisplayName("Debe manejar caracteres especiales vÃ¡lidos en username")
   void debeManejarCaracteresEspecialesValidos() {
     // Arrange
     String usuarioIdString = UUID.randomUUID().toString();
@@ -199,7 +195,6 @@ class BuscarUsuariosPorNombreUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -215,3 +210,7 @@ class BuscarUsuariosPorNombreUseCaseTest {
     verify(repositorio).findByUsername(any(Username.class));
   }
 }
+
+
+
+

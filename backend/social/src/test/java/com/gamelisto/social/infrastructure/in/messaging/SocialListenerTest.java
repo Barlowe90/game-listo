@@ -1,8 +1,12 @@
 package com.gamelisto.social.infrastructure.in.messaging;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamelisto.social.application.usecases.EntradaEventosHandle;
 import com.gamelisto.social.infrastructure.out.messaging.SocialListener;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,9 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
-import static org.mockito.Mockito.*;
-
-import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SocialListener - Mensajeria RabbitMQ")
@@ -34,13 +35,12 @@ class SocialListenerTest {
     String body =
         "{\"usuarioId\":\""
             + id
-            + "\",\"username\":\"alice\",\"avatar\":\"img.png\",\"discordUserId\":\"123456789\",\"discordUsername\":\"alice.discord\"}";
+            + "\",\"username\":\"alice\",\"avatar\":\"img.png\",\"discordUserId\":\"123456789\"}";
     MessageProperties props = new MessageProperties();
     props.setHeader("eventType", "UsuarioCreado");
     listener.handleEvent(new Message(body.getBytes(), props));
     verify(entradaEventos)
-        .procesarUsuarioCreado(
-            UUID.fromString(id), "alice", "img.png", "123456789", "alice.discord");
+        .procesarUsuarioCreado(UUID.fromString(id), "alice", "img.png", "123456789");
   }
 
   @Test
@@ -50,13 +50,12 @@ class SocialListenerTest {
     String body =
         "{\"usuarioId\":\""
             + id
-            + "\",\"username\":\"alice\",\"avatar\":\"new.png\",\"discordUserId\":\"987654321\",\"discordUsername\":\"alice.updated\"}";
+            + "\",\"username\":\"alice\",\"avatar\":\"new.png\",\"discordUserId\":\"987654321\"}";
     MessageProperties props = new MessageProperties();
     props.setHeader("eventType", "UsuarioActualizado");
     listener.handleEvent(new Message(body.getBytes(), props));
     verify(entradaEventos)
-        .procesarUsuarioActualizado(
-            UUID.fromString(id), "alice", "new.png", "987654321", "alice.updated");
+        .procesarUsuarioActualizado(UUID.fromString(id), "alice", "new.png", "987654321");
   }
 
   @Test

@@ -29,10 +29,10 @@ class VerificarEmailUseCaseTest {
   @Mock private IUsuarioPublisher eventosPublisher; // no eliminar ya que lo usa mockito
   @InjectMocks private VerificarEmailUseCase verificarEmailUseCase;
 
-  // ========== CASOS DE ÉXITO ==========
+  // ========== CASOS DE Ã‰XITO ==========
 
   @Test
-  @DisplayName("Debe verificar email exitosamente con token válido")
+  @DisplayName("Debe verificar email exitosamente con token vÃ¡lido")
   void debeVerificarEmailExitosamente() {
     // Arrange
     TokenVerificacion token = TokenVerificacion.generate();
@@ -58,7 +58,7 @@ class VerificarEmailUseCaseTest {
   // ========== CASOS DE ERROR ==========
 
   @Test
-  @DisplayName("Debe lanzar excepción si token no existe")
+  @DisplayName("Debe lanzar excepciÃ³n si token no existe")
   void debeLanzarExcepcionSiTokenNoExiste() {
     // Arrange
     when(repositorioUsuarios.findByTokenVerificacion(any(TokenVerificacion.class)))
@@ -85,10 +85,12 @@ class VerificarEmailUseCaseTest {
         Idioma.ESP,
         EstadoUsuario.PENDIENTE_DE_VERIFICACION,
         DiscordUserId.empty(),
-        DiscordUsername.empty(),
         token,
         expiracion,
         TokenVerificacion.empty(),
         null);
   }
 }
+
+
+

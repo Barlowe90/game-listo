@@ -27,7 +27,6 @@ public class AmistadRepositorioNeo4j implements AmistadRepositorio, GrafoUsuario
     params.put("username", user.username() != null ? user.username() : "");
     params.put("avatar", user.avatar() != null ? user.avatar() : "");
     params.put("discordUserId", user.discordUserId());
-    params.put("discordUsername", user.discordUsername());
 
     neo4jClient
         .query(
@@ -35,8 +34,7 @@ public class AmistadRepositorioNeo4j implements AmistadRepositorio, GrafoUsuario
             MERGE (u:User {id: $id})
             SET u.username = $username,
                 u.avatar = $avatar,
-                u.discordUserId = $discordUserId,
-                u.discordUsername = $discordUsername
+                u.discordUserId = $discordUserId
             """)
         .bindAll(params)
         .run();

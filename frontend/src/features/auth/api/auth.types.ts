@@ -14,7 +14,6 @@ export interface UsuarioResponse {
   language: string;
   status: string;
   discordUserId?: string | null;
-  discordUsername?: string | null;
 }
 
 export interface AuthResponse {

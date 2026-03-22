@@ -13,10 +13,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 @DisplayName("Avatar - Tests de Value Object")
 class AvatarTest {
 
-  // ========== CASOS DE ÉXITO ==========
+  // ========== CASOS DE Ã‰XITO ==========
 
   @Test
-  @DisplayName("Debe crear avatar con URL válida")
+  @DisplayName("Debe crear avatar con URL vÃ¡lida")
   void debeCrearAvatarConUrlValida() {
     // Arrange & Act
     Avatar avatar = Avatar.of("https://example.com/avatar.jpg");
@@ -27,7 +27,7 @@ class AvatarTest {
   }
 
   @Test
-  @DisplayName("Debe crear avatar vacío con método empty()")
+  @DisplayName("Debe crear avatar vacÃ­o con mÃ©todo empty()")
   void debeCrearAvatarVacioConMetodoEmpty() {
     // Arrange & Act
     Avatar avatar = Avatar.empty();
@@ -41,7 +41,7 @@ class AvatarTest {
   @NullSource
   @EmptySource
   @ValueSource(strings = {"   ", "  ", "\t", "\n"})
-  @DisplayName("Debe crear avatar vacío con valor null, cadena vacía o espacios en blanco")
+  @DisplayName("Debe crear avatar vacÃ­o con valor null, cadena vacÃ­a o espacios en blanco")
   void debeCrearAvatarVacioConValoresInvalidos(String valor) {
     // Arrange & Act
     Avatar avatar = Avatar.of(valor);
@@ -79,7 +79,7 @@ class AvatarTest {
   // ========== CASOS DE ERROR ==========
 
   @Test
-  @DisplayName("Debe lanzar excepción si la URL excede 500 caracteres")
+  @DisplayName("Debe lanzar excepciÃ³n si la URL excede 500 caracteres")
   void debeLanzarExcepcionSiUrlExcede500Caracteres() {
     // Arrange
     String urlLarga = "https://example.com/" + "a".repeat(481);
@@ -104,7 +104,7 @@ class AvatarTest {
   }
 
   @Test
-  @DisplayName("Debe retornar [SIN AVATAR] en toString() cuando está vacío")
+  @DisplayName("Debe retornar [SIN AVATAR] en toString() cuando estÃ¡ vacÃ­o")
   void debeRetornarSinAvatarEnToString() {
     // Arrange & Act
     Avatar avatar = Avatar.empty();
@@ -113,3 +113,6 @@ class AvatarTest {
     assertEquals("[SIN AVATAR]", avatar.toString());
   }
 }
+
+
+

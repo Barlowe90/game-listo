@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ActiveProfiles("test")
 @Import(TestMessagingConfig.class)
 @Transactional
-@DisplayName("Tests de Integración - REST API de Usuarios")
+@DisplayName("Tests de IntegraciÃ³n - REST API de Usuarios")
 @SuppressWarnings("null")
 class UsuariosControllerIntegrationTest {
 
@@ -69,7 +69,6 @@ class UsuariosControllerIntegrationTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.generate(),
             now.plusSeconds(24 * 60 * 60),
             TokenVerificacion.empty(),
@@ -118,7 +117,7 @@ class UsuariosControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("POST /v1/usuarios/auth/register - Debe fallar si el email ya está registrado (422)")
+  @DisplayName("POST /v1/usuarios/auth/register - Debe fallar si el email ya estÃ¡ registrado (422)")
   void debeFallarSiEmailYaExiste() throws Exception {
     // Arrange
     CrearUsuarioRequest request =
@@ -144,7 +143,7 @@ class UsuariosControllerIntegrationTest {
     CrearUsuarioRequest request =
         new CrearUsuarioRequest(
             "newuser",
-            "invalid-email", // Email inválido
+            "invalid-email", // Email invÃ¡lido
             "Password123!");
 
     // Act & Assert
@@ -175,7 +174,7 @@ class UsuariosControllerIntegrationTest {
   @Test
   @DisplayName("GET /v1/usuarios/{id} - Debe retornar 422 si el usuario no existe")
   void debeRetornar404SiUsuarioNoExiste() throws Exception {
-    // Act & Assert - usar UUID válido pero inexistente
+    // Act & Assert - usar UUID vÃ¡lido pero inexistente
     mockMvc
         .perform(
             get("/v1/usuarios/{id}", "00000000-0000-0000-0000-000000000000")
@@ -264,9 +263,9 @@ class UsuariosControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("PUT /v1/usuarios/password - Debe cambiar la contraseña")
+  @DisplayName("PUT /v1/usuarios/password - Debe cambiar la contraseÃ±a")
   void debeCambiarContrasena() throws Exception {
-    // Arrange - Crear usuario con contraseña conocida
+    // Arrange - Crear usuario con contraseÃ±a conocida
     Usuario usuario =
         Usuario.create(
             Username.of("userpasstest"),
@@ -277,7 +276,7 @@ class UsuariosControllerIntegrationTest {
     CambiarContrasenaRequest request =
         new CambiarContrasenaRequest("OldPassword123!", "NewPassword456!");
 
-    // Act & Assert - Usuario cambia su propia contraseña
+    // Act & Assert - Usuario cambia su propia contraseÃ±a
     mockMvc
         .perform(
             put("/v1/usuarios/password", usuario.getId().value())
@@ -289,7 +288,7 @@ class UsuariosControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("POST /v1/usuarios/auth/verify-email - Debe verificar email con token válido")
+  @DisplayName("POST /v1/usuarios/auth/verify-email - Debe verificar email con token vÃ¡lido")
   void debeVerificarEmailConTokenValido() throws Exception {
     // Arrange
     String token = usuarioExistente.getTokenVerificacion().value();
@@ -305,7 +304,7 @@ class UsuariosControllerIntegrationTest {
   }
 
   @Test
-  @DisplayName("POST /v1/usuarios/auth/verify-email - Debe fallar con token inválido (422)")
+  @DisplayName("POST /v1/usuarios/auth/verify-email - Debe fallar con token invÃ¡lido (422)")
   void debeFallarConTokenInvalido() throws Exception {
     // Arrange
     VerificarEmailRequest request = new VerificarEmailRequest("token-invalido-12345");
@@ -334,3 +333,6 @@ class UsuariosControllerIntegrationTest {
         .andExpect(jsonPath("$").isArray());
   }
 }
+
+
+

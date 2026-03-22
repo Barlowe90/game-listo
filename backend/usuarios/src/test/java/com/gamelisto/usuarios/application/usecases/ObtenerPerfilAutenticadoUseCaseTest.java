@@ -45,7 +45,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -91,7 +90,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Idioma.ENG,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -115,7 +113,7 @@ class ObtenerPerfilAutenticadoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si usuario no existe")
+  @DisplayName("Debe lanzar excepciÃ³n si usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
@@ -133,7 +131,7 @@ class ObtenerPerfilAutenticadoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si usuario está eliminado")
+  @DisplayName("Debe lanzar excepciÃ³n si usuario estÃ¡ eliminado")
   void debeLanzarExcepcionSiUsuarioEstaEliminado() {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
@@ -150,7 +148,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ELIMINADO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -169,7 +166,7 @@ class ObtenerPerfilAutenticadoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe incluir información de Discord si está vinculado")
+  @DisplayName("Debe incluir informaciÃ³n de Discord si estÃ¡ vinculado")
   void debeIncluirInformacionDeDiscordSiEstaVinculado() {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
@@ -186,7 +183,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.of("987654321"),
-            DiscordUsername.of("GamerPro#1234"),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -203,7 +199,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
         .satisfies(
             dto -> {
               assertThat(dto.discordUserId()).isEqualTo("987654321");
-              assertThat(dto.discordUsername()).isEqualTo("GamerPro#1234");
             });
 
     verify(repositorio).findById(usuarioIdVo);
@@ -227,7 +222,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -240,13 +234,12 @@ class ObtenerPerfilAutenticadoUseCaseTest {
 
     // Assert
     assertThat(resultado.discordUserId()).isNull();
-    assertThat(resultado.discordUsername()).isNull();
 
     verify(repositorio).findById(usuarioIdVo);
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción con formato de UUID inválido")
+  @DisplayName("Debe lanzar excepciÃ³n con formato de UUID invÃ¡lido")
   void debeLanzarExcepcionConFormatoUuidInvalido() {
     // Arrange
 
@@ -277,7 +270,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -311,7 +303,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.SUSPENDIDO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -327,3 +318,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
     verify(repositorio).findById(usuarioIdVo);
   }
 }
+
+
+

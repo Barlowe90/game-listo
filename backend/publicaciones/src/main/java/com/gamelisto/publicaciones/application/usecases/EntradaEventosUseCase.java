@@ -23,11 +23,9 @@ public class EntradaEventosUseCase implements EntradaEventosHandle {
       String usuarioId,
       String username,
       String avatar,
-      String discordUserId,
-      String discordUsername) {
+      String discordUserId) {
     UsuarioRef usuarioRef =
-        UsuarioRef.create(
-            UUID.fromString(usuarioId), username, avatar, discordUserId, discordUsername);
+        UsuarioRef.create(UUID.fromString(usuarioId), username, avatar, discordUserId);
     usuariosRefRepositorio.save(usuarioRef);
   }
 
@@ -36,11 +34,9 @@ public class EntradaEventosUseCase implements EntradaEventosHandle {
       String usuarioId,
       String username,
       String avatar,
-      String discordUserId,
-      String discordUsername) {
+      String discordUserId) {
     UsuarioRef usuarioRef =
-        UsuarioRef.create(
-            UUID.fromString(usuarioId), username, avatar, discordUserId, discordUsername);
+        UsuarioRef.create(UUID.fromString(usuarioId), username, avatar, discordUserId);
     usuariosRefRepositorio.save(usuarioRef);
   }
 

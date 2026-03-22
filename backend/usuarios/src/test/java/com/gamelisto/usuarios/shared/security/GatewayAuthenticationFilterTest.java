@@ -39,7 +39,7 @@ class GatewayAuthenticationFilterTest {
     SecurityContextHolder.clearContext();
   }
 
-  // ========== CASOS DE ÉXITO ==========
+  // ========== CASOS DE Ã‰XITO ==========
 
   @Test
   @DisplayName("Debe extraer userId de header X-User-Id")
@@ -72,13 +72,13 @@ class GatewayAuthenticationFilterTest {
     // Assert
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     assertThat(auth).isNotNull();
-    // Ahora solo se acepta un único rol por usuario (el primero)
+    // Ahora solo se acepta un Ãºnico rol por usuario (el primero)
     assertThat(auth.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsExactly("ROLE_USER");
     verify(filterChain, times(1)).doFilter(request, response);
   }
 
   @Test
-  @DisplayName("Debe crear autenticación en SecurityContext")
+  @DisplayName("Debe crear autenticaciÃ³n en SecurityContext")
   void debeCrearAutenticacionEnSecurityContext() throws ServletException, IOException {
     // Arrange
     request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
@@ -98,7 +98,7 @@ class GatewayAuthenticationFilterTest {
   }
 
   @Test
-  @DisplayName("Debe manejar request sin headers (rutas públicas)")
+  @DisplayName("Debe manejar request sin headers (rutas pÃºblicas)")
   void debeManejarRequestSinHeaders() throws ServletException, IOException {
     // Arrange - No headers agregados
 
@@ -167,7 +167,7 @@ class GatewayAuthenticationFilterTest {
   }
 
   @Test
-  @DisplayName("Debe manejar múltiples roles separados por comas")
+  @DisplayName("Debe manejar mÃºltiples roles separados por comas")
   void debeManejarMultiplesRoles() throws ServletException, IOException {
     // Arrange
     request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
@@ -201,7 +201,7 @@ class GatewayAuthenticationFilterTest {
   }
 
   @Test
-  @DisplayName("Debe permitir continuar filter chain incluso sin autenticación")
+  @DisplayName("Debe permitir continuar filter chain incluso sin autenticaciÃ³n")
   void debePermitirContinuarFilterChain() throws ServletException, IOException {
     // Arrange - No headers
 
@@ -219,3 +219,6 @@ class GatewayAuthenticationFilterTest {
     assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
   }
 }
+
+
+

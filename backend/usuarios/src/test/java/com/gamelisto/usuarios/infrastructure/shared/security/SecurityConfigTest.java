@@ -36,7 +36,7 @@ class SecurityConfigTest {
   }
 
   @Test
-  @DisplayName("Debe codificar contraseñas correctamente con BCrypt")
+  @DisplayName("Debe codificar contraseÃ±as correctamente con BCrypt")
   void debeCodificarContrasenasCorrectamenteConBCrypt() {
     // Given
     PasswordEncoder encoder = securityConfig.passwordEncoder();
@@ -54,7 +54,7 @@ class SecurityConfigTest {
   }
 
   @Test
-  @DisplayName("Debe generar hashes diferentes para la misma contraseña")
+  @DisplayName("Debe generar hashes diferentes para la misma contraseÃ±a")
   void debeGenerarHashesDiferentesParaLaMismaContrasena() {
     // Given
     PasswordEncoder encoder = securityConfig.passwordEncoder();
@@ -71,7 +71,7 @@ class SecurityConfigTest {
   }
 
   @Test
-  @DisplayName("Debe validar contraseñas correctamente")
+  @DisplayName("Debe validar contraseÃ±as correctamente")
   void debeValidarContrasenasCorrectamente() {
     // Given
     PasswordEncoder encoder = securityConfig.passwordEncoder();
@@ -88,7 +88,7 @@ class SecurityConfigTest {
   @DisplayName("Debe crear SecurityFilterChain correctamente")
   void debeCrearSecurityFilterChainCorrectamente() throws Exception {
     // When - Este test verifica que la funcion existe y es invocable
-    // La verificación real de la configuración se hace con Spring Boot Test
+    // La verificaciÃ³n real de la configuraciÃ³n se hace con Spring Boot Test
 
     // Then - La funcion debe existir y retornar SecurityFilterChain
     var method =
@@ -114,7 +114,7 @@ class SecurityConfigTest {
   }
 
   @Test
-  @DisplayName("Debe manejar contraseñas vacías")
+  @DisplayName("Debe manejar contraseÃ±as vacÃ­as")
   void debeManejarContrasenasVacias() {
     // Given
     PasswordEncoder encoder = securityConfig.passwordEncoder();
@@ -122,12 +122,12 @@ class SecurityConfigTest {
     // When
     String encodedEmpty = encoder.encode("");
 
-    // Then - BCrypt codifica la cadena vacía sin lanzar excepción
+    // Then - BCrypt codifica la cadena vacÃ­a sin lanzar excepciÃ³n
     assertThat(encodedEmpty).isNotNull().isNotEmpty();
   }
 
   @Test
-  @DisplayName("Debe manejar contraseñas con caracteres especiales")
+  @DisplayName("Debe manejar contraseÃ±as con caracteres especiales")
   void debeManejarContrasenasConCaracteresEspeciales() {
     // Given
     PasswordEncoder encoder = securityConfig.passwordEncoder();
@@ -141,11 +141,11 @@ class SecurityConfigTest {
   }
 
   @Test
-  @DisplayName("Debe manejar contraseñas Unicode")
+  @DisplayName("Debe manejar contraseÃ±as Unicode")
   void debeManejarContrasenasUnicode() {
     // Given
     PasswordEncoder encoder = securityConfig.passwordEncoder();
-    String unicodePassword = "Contraseña123€ñ中文";
+    String unicodePassword = "ContraseÃ±a123â‚¬Ã±ä¸­æ–‡";
 
     // When
     String encoded = encoder.encode(unicodePassword);
@@ -155,7 +155,7 @@ class SecurityConfigTest {
   }
 
   @Test
-  @DisplayName("Debe manejar contraseñas largas (hasta 72 bytes)")
+  @DisplayName("Debe manejar contraseÃ±as largas (hasta 72 bytes)")
   void debeManejarContrasenasLargas() {
     // Given
     PasswordEncoder encoder = securityConfig.passwordEncoder();
@@ -169,11 +169,11 @@ class SecurityConfigTest {
   }
 
   @Test
-  @DisplayName("Debe rechazar contraseñas mayores a 72 bytes")
+  @DisplayName("Debe rechazar contraseÃ±as mayores a 72 bytes")
   void debeRechazarContrasenasMayoresA72Bytes() {
     // Given
     PasswordEncoder encoder = securityConfig.passwordEncoder();
-    String tooLongPassword = "a".repeat(73); // Más de 72 bytes
+    String tooLongPassword = "a".repeat(73); // MÃ¡s de 72 bytes
 
     // When & Then
     org.junit.jupiter.api.Assertions.assertThrows(
@@ -182,14 +182,14 @@ class SecurityConfigTest {
         "password cannot be more than 72 bytes");
   }
 
-  // Test de integración básico para SecurityFilterChain
+  // Test de integraciÃ³n bÃ¡sico para SecurityFilterChain
   @Test
   @DisplayName("Debe permitir acceso a todos los endpoints (desarrollo)")
   void debePermitirAccesoATodosLosEndpoints() {
-    // Este test verifica el comportamiento esperado de la configuración
-    // En un entorno real, se usaría @SpringBootTest
+    // Este test verifica el comportamiento esperado de la configuraciÃ³n
+    // En un entorno real, se usarÃ­a @SpringBootTest
 
-    // Given - La configuración actual permite todas las peticiones
+    // Given - La configuraciÃ³n actual permite todas las peticiones
     // When & Then - Verificamos que la funcion existe y es correcto
     var methods = SecurityConfig.class.getDeclaredMethods();
     var securityFilterChainMethod =
@@ -200,3 +200,6 @@ class SecurityConfigTest {
     assertThat(securityFilterChainMethod).isPresent();
   }
 }
+
+
+
