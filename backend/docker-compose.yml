@@ -17,14 +17,39 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-    #      usuarios:
-    #        condition: service_healthy
+      graphql:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 40s
+    networks:
+      - backend
+
+  graphql:
+    build:
+      context: .
+      dockerfile: graphql/Dockerfile
+    container_name: graphql
+    expose:
+      - 8087
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      CATALOGO_BASE_URL: http://catalogo:8082
+      BIBLIOTECA_BASE_URL: http://biblioteca:8083
+    depends_on:
+      catalogo:
+        condition: service_healthy
+      biblioteca:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8087/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     networks:
       - backend
 

@@ -43,18 +43,6 @@ expone limpiamente.
 - `game(id)` → devuelve datos del catálogo por identificador
 - `setGameStatus(gameId, status, rating?)` → actualiza el estado del juego del usuario y su puntuación
 
-### Operación aplazada a una segunda iteración
-
-- `myGame(gameId)` → queda fuera del MVP inicial
-
-La razón es que hoy biblioteca trabaja sobre `gameRefId` y su lectura actual está más orientada a recuperar estados
-asociados a un juego que a resolver de forma directa el estado del usuario autenticado para ese juego. Por tanto, antes
-de añadir `myGame(gameId)` conviene exponer en biblioteca una lectura específica del tipo:
-
-- estado del usuario autenticado para `gameId`
-
-Solo después de eso tendría sentido incorporar esta query al schema GraphQL.
-
 ## Qué se quiere demostrar con este MVP
 
 Con este alcance se puede demostrar lo esencial de GraphQL sin sobrecomplicar el proyecto:
@@ -331,8 +319,8 @@ arquitectura de GameListo sin sobredimensionar el alcance del TFG.
 
 ## Estado de la implementación de las fases
 
-[] Fase 1. Crear el microservicio `graphql-bff`
-[] Fase 2. Integrar el módulo en el proyecto backend
+[x] Fase 1. Crear el microservicio `graphql-bff`
+[x] Fase 2. Integrar el módulo en el proyecto backend
 [] Fase 3. Definir un schema mínimo en modo schema-first
 [] Fase 4. Implementar la query `game(id)`
 [] Fase 5. Implementar la mutation `setGameStatus(...)`
