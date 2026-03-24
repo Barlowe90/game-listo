@@ -151,38 +151,7 @@ Resultado esperado:
 
 Se definirá un schema mínimo en `src/main/resources/graphql/**`.
 
-Para este MVP bastará con algo de este estilo:
-
-```graphql
- type Query {
-    game(id: ID!): Game
-}
-
-type Mutation {
-    setGameStatus(input: SetGameStatusInput!): GameStatusPayload
-}
-
-type Game {
-    id: ID!
-    title: String!
-    coverUrl: String
-    platform: String
-}
-
-input SetGameStatusInput {
-    gameId: ID!
-    status: String!
-    rating: Int
-}
-
-type GameStatusPayload {
-    gameId: ID!
-    status: String!
-    rating: Int
-}
-```
-
-Con esto se demuestra:
+El cual demostrará:
 
 - `Query`,
 - `Mutation`,
@@ -203,23 +172,6 @@ Objetivo de esta fase:
 
 - validar el extremo completo GraphQL → resolver → REST interno → respuesta tipada,
 - permitir al frontend pedir solo los campos que necesita para fichas resumidas, tarjetas o listados.
-
-## Fase 5. Implementar la mutation `setGameStatus(...)`
-
-Se implementará la mutation principal del MVP:
-
-- `setGameStatus(input)`
-
-Esta operación es viable, pero hay que dejar claro desde el diseño que **biblioteca no la resuelve hoy con un único
-endpoint REST**. En la implementación actual, cambiar el estado y puntuar son operaciones separadas.
-
-Por tanto, el resolver GraphQL deberá actuar como orquestador:
-
-- si llega solo `status`, realizará la llamada REST de cambio de estado,
-- si llega también `rating`, realizará además la llamada REST correspondiente a puntuación,
-- devolverá un payload unificado al frontend.
-
-Esto encaja muy bien con el papel de GraphQL como BFF.
 
 ## Fase 6. Reenviar identidad y contexto de seguridad
 
@@ -272,19 +224,6 @@ Añadir una batería mínima de pruebas para demostrar que la integración está
 - la mutation `setGameStatus(...)` orquesta también la puntuación cuando `rating` está presente,
 - los headers de identidad se reenvían correctamente a los servicios internos.
 
-## Fase 10. Segunda iteración opcional: `myGame(gameId)`
-
-Solo después de que biblioteca exponga una lectura específica por usuario autenticado, se podrá añadir:
-
-- `myGame(gameId)`
-
-En ese momento sí tendría sentido que el BFF agregue:
-
-- datos del juego desde catálogo,
-- estado personal del usuario desde biblioteca.
-
-Esa query quedaría como una mejora natural del MVP, no como requisito de la primera entrega.
-
 ## Orden real de trabajo
 
 El orden recomendado sería este:
@@ -294,13 +233,11 @@ El orden recomendado sería este:
 3. Exponer `POST /graphql`
 4. Definir el schema mínimo
 5. Implementar `game(id)`
-6. Implementar `setGameStatus(input)`
 7. Reenviar headers de identidad
 8. Añadir la ruta `/graphql` en el gateway
 9. Añadir manejo básico de errores
 10. Añadir tests
 11. Conectar el frontend a una query real
-12. Dejar `myGame(gameId)` para una segunda iteración
 
 ## Resultado esperado del MVP
 
@@ -321,12 +258,10 @@ arquitectura de GameListo sin sobredimensionar el alcance del TFG.
 
 [x] Fase 1. Crear el microservicio `graphql-bff`
 [x] Fase 2. Integrar el módulo en el proyecto backend
-[] Fase 3. Definir un schema mínimo en modo schema-first
+[x] Fase 3. Definir un schema mínimo en modo schema-first
 [] Fase 4. Implementar la query `game(id)`
-[] Fase 5. Implementar la mutation `setGameStatus(...)`
 [] Fase 6. Reenviar identidad y contexto de seguridad
 [] Fase 7. Añadir la ruta `/graphql` en el gateway
 [] Fase 8. Manejo básico de errores
 [] Fase 9. Tests mínimos de GraphQL
-[] Fase 10. Segunda iteración opcional: `myGame(gameId)`
 
