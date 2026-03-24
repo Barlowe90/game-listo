@@ -1,205 +1,344 @@
-# Documento explicativo con fases para la implementación de graphQL
+# Documento explicativo con fases para la implementación de GraphQL
 
 ## Alcance MVP
 
-No lo pondría en todos los microservicios.
+No se aplicará GraphQL a todos los microservicios. Se utilizará únicamente en una capa BFF para
+demostrar que se comprende el modelo básico de GraphQL y que se ha integrado de forma realista dentro de la arquitectura
+actual de GameListo.
 
-Haría esto:
+La idea es la siguiente:
 
 ### Frontend
 
-consume solo POST /graphql
+El frontend consumirá `POST /graphql` para las operaciones cubiertas por el MVP.
 
 ### Gateway
 
-enruta /graphql al nuevo servicio BFF
-Nuevo microservicio graphql-bff
-expone el schema GraphQL
-agrega datos llamando a 2 microservicios como mucho
+El gateway enruta `/graphql` hacia el nuevo microservicio `graphql-bff`.
+
+## Nuevo microservicio `graphql-bff`
+
+Este servicio:
+
+- expone el schema GraphQL,
+- implementa los resolvers,
+- llama por REST a los microservicios internos necesarios,
+- reenvía los headers de autenticación propagados por el gateway.
 
 ### Resto de microservicios
 
-se quedan tal cual, con REST o gRPC
+Se mantienen como están actualmente, usando sus APIs REST existentes.
 
-Con eso se demuestra integración real sin meterse en un refactor gigante.
+Con este enfoque se demuestra una integración real sin necesidad de migrar toda la plataforma a GraphQL.
 
-## Caso de uso MVP más sensato para GameListo
+## Caso de uso MVP para GameListo
 
-Escogería solo Catálogo + Biblioteca.
+El MVP se congelará en un alcance pequeño y coherente con el dominio actual.
 
-Porque permite enseñar:
+Se trabajará sobre **Catálogo + Biblioteca**, pero sin forzar todavía una agregación compleja que el backend aún no
+expone limpiamente.
+
+### Operaciones del MVP
+
+- `game(id)` → devuelve datos del catálogo por identificador
+- `setGameStatus(gameId, status, rating?)` → actualiza el estado del juego del usuario y su puntuación
+
+### Operación aplazada a una segunda iteración
+
+- `myGame(gameId)` → queda fuera del MVP inicial
+
+La razón es que hoy biblioteca trabaja sobre `gameRefId` y su lectura actual está más orientada a recuperar estados
+asociados a un juego que a resolver de forma directa el estado del usuario autenticado para ese juego. Por tanto, antes
+de añadir `myGame(gameId)` conviene exponer en biblioteca una lectura específica del tipo:
+
+- estado del usuario autenticado para `gameId`
+
+Solo después de eso tendría sentido incorporar esta query al schema GraphQL.
+
+## Qué se quiere demostrar con este MVP
+
+Con este alcance se puede demostrar lo esencial de GraphQL sin sobrecomplicar el proyecto:
 
 - una query simple,
-- una query agregada entre dos servicios,
 - una mutation,
-- un pequeño modelo con relaciones anidadas.
-
-### Ejemplo de alcance
-
-game(slug) → datos del catálogo
-myGame(slug) → datos del catálogo + estado del usuario en biblioteca
-setGameStatus(input) → mutation para cambiar “quiero / jugando / completado”
-
-Con eso ya se enseña lo esencial de GraphQL sin meterse en publicaciones, social, recomendaciones o búsqueda avanzada.
+- un schema tipado,
+- resolvers anotados con Spring,
+- composición de llamadas REST internas desde un BFF,
+- adaptación de la respuesta al frontend para pedir solo los campos necesarios en tarjetas y listados.
 
 ## Qué dejaría fuera del MVP
 
-Para que siga siendo simple, yo no metería:
+Para mantener la implementación simple, se dejan fuera:
 
-- subscriptions
-- WebSocket
-- federation
-- pagination compleja
-- DataLoader al principio
-- GraphQL en todos los servicios
-- schema gigante de toda la plataforma
+- subscriptions,
+- WebSocket,
+- federation,
+- paginación compleja,
+- DataLoader,
+- GraphQL en todos los microservicios,
+- schema grande de toda la plataforma,
+- separación fino-granular de permisos por operación GraphQL.
 
-Spring GraphQL soporta transports adicionales, testing avanzado, observabilidad, seguridad fina e incluso federation, pero para un MVP académico básico no hace falta llegar ahí.
+La arquitectura quedaría así:
 
-## Arquitectura objetivo del MVP
+`Next.js frontend -> Gateway -> graphql-bff -> catálogo / biblioteca`
 
-Quedaría así:
+Puntos importantes:
 
-Next.js frontend -> Gateway -> graphql-bff -> catálogo + biblioteca
+- el gateway no resuelve GraphQL;
+- el gateway solo enruta y aplica concerns transversales;
+- el conocimiento del schema y la ejecución de resolvers vive en `graphql-bff`;
+- los microservicios internos siguen exponiendo REST.
 
-Importante: el gateway no resuelve GraphQL. Solo enruta y aplica concerns transversales.
-El que conoce el schema y ejecuta resolvers es el BFF GraphQL.
+Esto permite explicar de forma clara en la memoria que GraphQL se usa como **BFF** y no como sustituto completo de las
+APIs internas.
 
-Eso deja una arquitectura limpia y muy fácil de explicar en la memoria:
+## Decisión de seguridad del MVP
 
-- el gateway sigue siendo puerta de entrada,
-- GraphQL se usa solo en la capa BFF,
-- los microservicios internos no tienen por qué exponerse en GraphQL.
-- Plan de implementación por fases
+Como la arquitectura actual decide el acceso a partir del **path** y no de la operación GraphQL concreta, mezclar en un
+único `/graphql` operaciones públicas y privadas complica innecesariamente la seguridad.
 
-## Fase 1. Crear el microservicio graphql-bff
+Por ello, para este MVP se tomará una decisión simple:
 
-Crea un servicio Spring Boot independiente con:
+- el endpoint `/graphql` será **privado**.
 
-- spring-boot-starter-graphql
-- un starter web, preferiblemente spring-boot-starter-webflux si quieres mantener una capa edge moderna, o MVC si prefieres simplicidad
+Esto permite incluir en el mismo endpoint tanto `game(id)` como `setGameStatus(...)` sin tener que resolver todavía
+autorización distinta por operación.
 
-Spring Boot indica que necesitas el starter GraphQL y además algún starter web para exponer la API.
+Más adelante, si se quisiera una query pública de catálogo por GraphQL, habría que estudiar una de estas opciones:
+
+- segundo endpoint GraphQL público,
+- capa adicional de autorización por operación,
+- mantener las consultas públicas por REST y reservar GraphQL para operaciones autenticadas.
+
+## Propagación de autenticación
+
+En la arquitectura actual, el gateway añade headers como:
+
+- `X-User-Id`
+- `X-User-Roles`
+
+Los microservicios confían en esos headers para identificar al usuario autenticado. Por tanto, el BFF
+GraphQL no puede ignorarlos.
+
+El flujo correcto en este MVP será:
+
+1. el cliente llama a `/graphql` a través del gateway,
+2. el gateway valida el acceso y añade los headers de identidad,
+3. `graphql-bff` recibe esos headers,
+4. `graphql-bff` reenvía esos mismos headers cuando invoca a catálogo o biblioteca.
+
+Sin esta propagación, la mutation `setGameStatus(...)` no podría ejecutarse correctamente en el contexto del usuario
+autenticado.
+
+## Plan de implementación por fases
+
+## Fase 1. Crear el microservicio `graphql-bff`
+
+Crear un servicio Spring Boot independiente con:
+
+- `spring-boot-starter-graphql`
+- un starter web (`spring-boot-starter-web` o `spring-boot-starter-webflux`)
 
 Resultado esperado:
 
-- servicio arranca
-- expone POST /graphql
+- el servicio arranca correctamente,
+- expone `POST /graphql`,
+- compila y puede ejecutarse de forma aislada.
 
-## Fase 2. Definir un schema mínimo, schema-first
+## Fase 2. Integrar el módulo en el proyecto backend
 
-Spring Boot detecta automáticamente schemas en src/main/resources/graphql/**, así que aprovecha eso y trabaja de forma schema-first.
+Antes de seguir con el desarrollo funcional, hay que completar las piezas mecánicas del proyecto:
 
-Con esto demuestras:
+- incluir el módulo `graphql` en el agregador Maven de `backend`,
+- comprobar que participa correctamente en el build global,
+- dejar preparada su configuración base.
 
-- Query
-- Mutation
-- type
-- input
-- composición de objetos
+Resultado esperado:
 
-Y nada más. Perfecto para un MVP.
+- `mvn clean test` desde `backend` reconoce el nuevo módulo,
+- el servicio forma parte de la estructura oficial del proyecto.
 
-## Fase 3. Implementar resolvers con anotaciones de Spring
+## Fase 3. Definir un schema mínimo en modo schema-first
 
-Spring for GraphQL usa controllers anotados con @Controller, @QueryMapping, @MutationMapping y también @SchemaMapping para campos. Spring Boot los detecta automáticamente y los registra como data fetchers.
+Se definirá un schema mínimo en `src/main/resources/graphql/**`.
 
-Aquí no se necesita inventar nada raro: el resolver delega en un servicio de aplicación del BFF y ese servicio hace las llamadas internas.
+Para este MVP bastará con algo de este estilo:
 
-## Fase 4. Conectar el BFF con 2 microservicios existentes
-
-Mantén los microservicios internos como estén.
-
-Ya hay REST, usa REST
-
-Lo importante académicamente no es que todo sea GraphQL, sino que el BFF exponga GraphQL al frontend y traduzca esas operaciones a llamadas internas.
-
-## Fase 5. Pasar el gateway a enrutar /graphql
-
-Añade una ruta en Spring Cloud Gateway para que:
-
-/graphql → graphql-bff
-
-Así el frontend no llama al BFF directamente, sino al sistema a través del gateway, que es justo lo coherente con tu arquitectura.
-
-Spring permite introspection por defecto, precisamente para herramientas como GraphiQL, aunque puede desactivarse luego si lo necesitas.
-
-Con eso puedes enseñar en la demo (pendiente de verificar en el dominio):
-
-query {
-  game(slug: "elden-ring") {
-    title
-    coverUrl
-    platforms
-  }
+```graphql
+ type Query {
+    game(id: ID!): Game
 }
 
-y también:
-
-query {
-  myGame(slug: "elden-ring") {
-    game {
-      title
-      releaseYear
-    }
-    libraryEntry {
-      status
-      rating
-    }
-  }
+type Mutation {
+    setGameStatus(input: SetGameStatusInput!): GameStatusPayload
 }
 
-y una mutation:
-
-mutation {
-  setGameStatus(input: {
-    gameId: "123",
-    status: "PLAYING",
-    rating: 9
-  }) {
-    gameId
-    status
-    rating
-  }
+type Game {
+    id: ID!
+    title: String!
+    coverUrl: String
+    platform: String
 }
 
-Eso, en una defensa, queda muy bien porque se ve enseguida el valor de GraphQL.
+input SetGameStatusInput {
+    gameId: ID!
+    status: String!
+    rating: Int
+}
 
-## Fase 7. Añadir manejo básico de errores
+type GameStatusPayload {
+    gameId: ID!
+    status: String!
+    rating: Int
+}
+```
 
-GraphQL no responde exactamente igual que un REST clásico: puede devolver data, errors e incluso datos parciales junto con errores. Baeldung explica muy bien este comportamiento, y Spring Boot permite registrar DataFetcherExceptionResolver para resolver excepciones del grafo.
+Con esto se demuestra:
 
-Para el MVP basta con:
+- `Query`,
+- `Mutation`,
+- tipos,
+- inputs,
+- contrato explícito entre frontend y BFF.
 
-- controlar “juego no encontrado”
-- controlar “entrada de biblioteca no encontrada”
-- controlar input inválido
+## Fase 4. Implementar la query `game(id)`
 
-No hace falta más.
+Se implementará la primera query real del MVP:
 
-## Fase 8. Añadir 2 o 3 tests de GraphQL
+- `game(id)`
 
-Spring GraphQL incluye GraphQlTester, y Spring Boot soporta pruebas de controllers GraphQL con @GraphQlTest y pruebas de integración HTTP con HttpGraphQlTester.
+Esta query llamará al microservicio de catálogo usando el identificador real que hoy expone el dominio, evitando
+introducir `slug` antes de tiempo.
 
-Los tests mínimos podrían ser:
+Objetivo de esta fase:
 
-- query game devuelve datos correctos
-- query myGame agrega catálogo + biblioteca
-- mutation setGameStatus actualiza el estado
+- validar el extremo completo GraphQL → resolver → REST interno → respuesta tipada,
+- permitir al frontend pedir solo los campos que necesita para fichas resumidas, tarjetas o listados.
 
-Con eso ya se puede decir que no solo se implementó, sino que además se validó.
+## Fase 5. Implementar la mutation `setGameStatus(...)`
+
+Se implementará la mutation principal del MVP:
+
+- `setGameStatus(input)`
+
+Esta operación es viable, pero hay que dejar claro desde el diseño que **biblioteca no la resuelve hoy con un único
+endpoint REST**. En la implementación actual, cambiar el estado y puntuar son operaciones separadas.
+
+Por tanto, el resolver GraphQL deberá actuar como orquestador:
+
+- si llega solo `status`, realizará la llamada REST de cambio de estado,
+- si llega también `rating`, realizará además la llamada REST correspondiente a puntuación,
+- devolverá un payload unificado al frontend.
+
+Esto encaja muy bien con el papel de GraphQL como BFF.
+
+## Fase 6. Reenviar identidad y contexto de seguridad
+
+Antes de conectar con biblioteca, el BFF debe propagar correctamente:
+
+- `X-User-Id`
+- `X-User-Roles`
+
+Tarea concreta:
+
+- capturar los headers entrantes en el request GraphQL,
+- reenviarlos en las llamadas REST internas.
+
+Resultado esperado:
+
+- las llamadas a biblioteca siguen funcionando como si llegaran desde el gateway directamente,
+- el BFF no rompe el modelo de seguridad actual.
+
+## Fase 7. Añadir la ruta `/graphql` en el gateway
+
+Una vez el BFF funcione en standalone, hay que conectarlo a la arquitectura principal:
+
+- añadir la ruta `/graphql` en el gateway,
+- enlazarla con `graphql-bff`,
+- revisar la configuración necesaria en `application.properties`.
+
+Resultado esperado:
+
+- el frontend accede a GraphQL a través del gateway,
+- no se consume el BFF de forma directa desde el cliente.
+
+## Fase 8. Manejo básico de errores
+
+El MVP debe contemplar al menos estos errores:
+
+- juego no encontrado en catálogo,
+- estado inválido,
+- valoración inválida,
+- error interno al orquestar una de las llamadas REST.
+
+No hace falta una estrategia muy avanzada, pero sí una capa mínima de traducción de errores para no filtrar respuestas
+REST internas directamente al frontend.
+
+## Fase 9. Tests mínimos de GraphQL
+
+Añadir una batería mínima de pruebas para demostrar que la integración está validada:
+
+- la query `game(id)` devuelve datos correctos,
+- la mutation `setGameStatus(...)` actualiza el estado,
+- la mutation `setGameStatus(...)` orquesta también la puntuación cuando `rating` está presente,
+- los headers de identidad se reenvían correctamente a los servicios internos.
+
+## Fase 10. Segunda iteración opcional: `myGame(gameId)`
+
+Solo después de que biblioteca exponga una lectura específica por usuario autenticado, se podrá añadir:
+
+- `myGame(gameId)`
+
+En ese momento sí tendría sentido que el BFF agregue:
+
+- datos del juego desde catálogo,
+- estado personal del usuario desde biblioteca.
+
+Esa query quedaría como una mejora natural del MVP, no como requisito de la primera entrega.
 
 ## Orden real de trabajo
 
-Yo lo haría en este orden exacto:
+El orden recomendado sería este:
 
-1. Crear graphql-bff
-2. Exponer /graphql
-3. Definir schema mínimo
-4. Implementar game(slug)
-5. Implementar setGameStatus
-6. Implementar myGame(slug) agregando dos servicios
-7. Añadir manejo básico de errores
-8. Añadir tests
-9. Conectar gateway
-10. Conectar frontend a una sola query real
+1. Crear `graphql-bff`
+2. Añadir el módulo al agregador Maven
+3. Exponer `POST /graphql`
+4. Definir el schema mínimo
+5. Implementar `game(id)`
+6. Implementar `setGameStatus(input)`
+7. Reenviar headers de identidad
+8. Añadir la ruta `/graphql` en el gateway
+9. Añadir manejo básico de errores
+10. Añadir tests
+11. Conectar el frontend a una query real
+12. Dejar `myGame(gameId)` para una segunda iteración
+
+## Resultado esperado del MVP
+
+Se considerará completado el MVP cuando existan, al menos:
+
+- un microservicio `graphql-bff`,
+- un schema GraphQL mínimo,
+- una query funcional `game(id)`,
+- una mutation funcional `setGameStatus(...)`,
+- propagación correcta de identidad desde gateway hacia los microservicios internos,
+- ruta `/graphql` operativa en el gateway,
+- tests básicos que validen el flujo principal.
+
+Con esto se demuestra que se entienden los fundamentos de GraphQL y que se ha incorporado de forma realista en la
+arquitectura de GameListo sin sobredimensionar el alcance del TFG.
+
+## Estado de la implementación de las fases
+
+[] Fase 1. Crear el microservicio `graphql-bff`
+[] Fase 2. Integrar el módulo en el proyecto backend
+[] Fase 3. Definir un schema mínimo en modo schema-first
+[] Fase 4. Implementar la query `game(id)`
+[] Fase 5. Implementar la mutation `setGameStatus(...)`
+[] Fase 6. Reenviar identidad y contexto de seguridad
+[] Fase 7. Añadir la ruta `/graphql` en el gateway
+[] Fase 8. Manejo básico de errores
+[] Fase 9. Tests mínimos de GraphQL
+[] Fase 10. Segunda iteración opcional: `myGame(gameId)`
+
