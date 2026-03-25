@@ -47,8 +47,6 @@ public class VincularDiscordUseCase implements VincularDiscordHandle {
               }
             });
 
-    usuario.linkDiscord(discordUserId);
-
     Usuario usuarioActualizado = repositorioUsuarios.save(usuario);
     publicarAfterCommit(() -> publicarUsuarioActualizado(usuarioActualizado));
 

@@ -47,8 +47,7 @@ class PublicacionesListenerIntegrationTest {
     listener.handleEvent(message);
 
     // Assert
-    verify(entradaEventos)
-        .procesarUsuarioCreado("u-123", "ric", "/avatars/1.png", "123456789");
+    verify(entradaEventos).procesarUsuarioCreado("u-123", "ric", "/avatars/1.png", "123456789");
   }
 
   @Test

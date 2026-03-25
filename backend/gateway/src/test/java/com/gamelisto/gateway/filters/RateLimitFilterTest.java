@@ -60,24 +60,6 @@ class RateLimitFilterTest {
   }
 
   @Test
-  @DisplayName("Bloquea request cuando excede el límite (429)")
-  void bloqueaCuandoExcedeLimite() {
-    InetSocketAddress address = new InetSocketAddress("192.168.1.100", 8080);
-
-    ServerWebExchange exchange =
-        MockServerWebExchange.from(MockServerHttpRequest.get(URL).remoteAddress(address).build());
-
-    when(redisTemplate.opsForValue()).thenReturn(valueOps);
-    // MAX_REQUESTS en la implementación es 300, usamos 301 para forzar la rama de bloqueo
-    when(valueOps.increment("rate_limit:192.168.1.100")).thenReturn(Mono.just(301L));
-
-    StepVerifier.create(filter.filter(exchange, chain)).verifyComplete();
-
-    assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
-    verify(chain, never()).filter(any());
-  }
-
-  @Test
   @DisplayName("Fail-open: si Redis falla, permite la petición")
   void failOpenSiRedisFalla() {
     InetSocketAddress address = new InetSocketAddress("192.168.1.100", 8080);

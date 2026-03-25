@@ -34,6 +34,7 @@ class UsuarioMapperTest {
     assertEquals("$2a$10$hash", entity.getPasswordHash());
     assertEquals(EstadoUsuario.PENDIENTE_DE_VERIFICACION, entity.getStatus());
     assertEquals(Rol.USER, entity.getRole());
+    assertEquals(Idioma.ESP, entity.getLanguage());
   }
 
   @Test
@@ -47,6 +48,7 @@ class UsuarioMapperTest {
     entity.setPasswordHash("$2a$10$hash");
     entity.setAvatar(null);
     entity.setRole(Rol.USER);
+    entity.setLanguage(Idioma.ESP);
     entity.setStatus(EstadoUsuario.ACTIVO);
     entity.setDiscordUserId(null);
     entity.setTokenVerificacion(null);
@@ -65,6 +67,7 @@ class UsuarioMapperTest {
     assertEquals("$2a$10$hash", usuario.getPasswordHash().value());
     assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
     assertEquals(Rol.USER, usuario.getRole());
+    assertEquals(Idioma.ESP, usuario.getLanguage());
   }
 
   @Test
@@ -79,6 +82,7 @@ class UsuarioMapperTest {
     entity.setAvatar(null);
     entity.setDiscordUserId(null);
     entity.setRole(Rol.USER);
+    entity.setLanguage(Idioma.ESP);
     entity.setStatus(EstadoUsuario.ACTIVO);
     entity.setTokenVerificacion(null);
     entity.setTokenVerificacionExpiracion(null);
@@ -105,6 +109,7 @@ class UsuarioMapperTest {
     entity.setAvatar("https://example.com/avatar.png");
     entity.setDiscordUserId("123456789");
     entity.setRole(Rol.USER);
+    entity.setLanguage(Idioma.ENG);
     entity.setStatus(EstadoUsuario.ACTIVO);
     entity.setTokenVerificacion(null);
     entity.setTokenVerificacionExpiracion(null);
@@ -119,6 +124,7 @@ class UsuarioMapperTest {
     assertEquals("https://example.com/avatar.png", usuario.getAvatar().url());
     assertFalse(usuario.getDiscordUserId().isEmpty());
     assertEquals("123456789", usuario.getDiscordUserId().value());
+    assertEquals(Idioma.ENG, usuario.getLanguage());
   }
 
   @Test
@@ -134,6 +140,7 @@ class UsuarioMapperTest {
     entity.setEmail("test@test.com");
     entity.setPasswordHash("$2a$10$hash");
     entity.setRole(Rol.USER);
+    entity.setLanguage(Idioma.ESP);
     entity.setStatus(EstadoUsuario.PENDIENTE_DE_VERIFICACION);
     entity.setTokenVerificacion(tokenValue);
     entity.setTokenVerificacionExpiracion(expiracion);
@@ -163,6 +170,7 @@ class UsuarioMapperTest {
     entity.setEmail("test@test.com");
     entity.setPasswordHash("$2a$10$hash");
     entity.setRole(Rol.USER);
+    entity.setLanguage(Idioma.ESP);
     entity.setStatus(EstadoUsuario.ACTIVO);
     entity.setTokenVerificacion(null);
     entity.setTokenVerificacionExpiracion(null);
@@ -210,5 +218,6 @@ class UsuarioMapperTest {
         usuarioOriginal.getDiscordUserId().value(), usuarioReconstruido.getDiscordUserId().value());
     assertEquals(usuarioOriginal.getStatus(), usuarioReconstruido.getStatus());
     assertEquals(usuarioOriginal.getRole(), usuarioReconstruido.getRole());
+    assertEquals(usuarioOriginal.getLanguage(), usuarioReconstruido.getLanguage());
   }
 }

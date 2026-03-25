@@ -276,9 +276,9 @@ Puertos (interfaces) en `application/ports`:
 
 #### Datos de Discord
 
-| Campo             | Tipo              | Descripción                                           |
-|-------------------|-------------------|-------------------------------------------------------|
-| `discordUserId`   | `DiscordUserId`   | ID de Discord proporcionado por el usuario (nullable) |
+| Campo           | Tipo            | Descripción                                           |
+|-----------------|-----------------|-------------------------------------------------------|
+| `discordUserId` | `DiscordUserId` | ID de Discord proporcionado por el usuario (nullable) |
 
 #### Sistema de tokens de verificación
 
