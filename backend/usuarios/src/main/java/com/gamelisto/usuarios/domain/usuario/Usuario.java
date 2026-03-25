@@ -268,7 +268,24 @@ public class Usuario {
     this.tokenRestablecimientoExpiracion = null;
   }
 
+  public boolean tieneTokenVerificacionValido(TokenVerificacion token) {
+    if (this.tokenVerificacion == null || this.tokenVerificacion.isEmpty()) {
+      return false;
+    }
+    if (this.tokenVerificacionExpiracion == null
+        || Instant.now().isAfter(this.tokenVerificacionExpiracion)) {
+      return false;
+    }
+    return this.tokenVerificacion.equals(token);
+  }
+
   public void verificarEmail(TokenVerificacion token) {
+    if (token == null) {
+      throw new DomainException("El token de verificación no puede ser nulo");
+    }
+    if (!tieneTokenVerificacionValido(token)) {
+      throw new DomainException("Token de verificación inválido o expirado");
+    }
     this.status = EstadoUsuario.ACTIVO;
     this.tokenVerificacion = TokenVerificacion.empty();
     this.tokenVerificacionExpiracion = null;
