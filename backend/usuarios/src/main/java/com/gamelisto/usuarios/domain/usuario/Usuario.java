@@ -4,10 +4,6 @@ import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import java.time.Instant;
 import lombok.Getter;
 
-/**
- * TODO reducir usuario a una clase básica, como una herencia: un padre usuario y los hijos *
- * usuarioDiscord. Sacar lógica de verificar a cada CdU
- */
 @Getter
 public class Usuario {
 
@@ -23,7 +19,6 @@ public class Usuario {
   private Idioma language;
   private EstadoUsuario status;
   private DiscordUserId discordUserId;
-  private DiscordUsername discordUsername;
   private TokenVerificacion tokenVerificacion;
   private Instant tokenVerificacionExpiracion;
   private TokenVerificacion tokenRestablecimiento;
@@ -41,8 +36,6 @@ public class Usuario {
     this.status = builder.status != null ? builder.status : EstadoUsuario.ACTIVO;
     this.discordUserId =
         builder.discordUserId != null ? builder.discordUserId : DiscordUserId.empty();
-    this.discordUsername =
-        builder.discordUsername != null ? builder.discordUsername : DiscordUsername.empty();
     this.tokenVerificacion =
         builder.tokenVerificacion != null ? builder.tokenVerificacion : TokenVerificacion.empty();
     this.tokenVerificacionExpiracion = builder.tokenVerificacionExpiracion;
@@ -67,7 +60,6 @@ public class Usuario {
     private Idioma language;
     private EstadoUsuario status;
     private DiscordUserId discordUserId;
-    private DiscordUsername discordUsername;
     private TokenVerificacion tokenVerificacion;
     private Instant tokenVerificacionExpiracion;
     private TokenVerificacion tokenRestablecimiento;
@@ -117,11 +109,6 @@ public class Usuario {
 
     public Builder discordUserId(DiscordUserId discordUserId) {
       this.discordUserId = discordUserId;
-      return this;
-    }
-
-    public Builder discordUsername(DiscordUsername discordUsername) {
-      this.discordUsername = discordUsername;
       return this;
     }
 
@@ -178,7 +165,6 @@ public class Usuario {
       Idioma language,
       EstadoUsuario status,
       DiscordUserId discordUserId,
-      DiscordUsername discordUsername,
       TokenVerificacion tokenVerificacion,
       Instant tokenVerificacionExpiracion,
       TokenVerificacion tokenRestablecimiento,
@@ -193,7 +179,6 @@ public class Usuario {
         .language(language)
         .status(status)
         .discordUserId(discordUserId)
-        .discordUsername(discordUsername)
         .tokenVerificacion(tokenVerificacion)
         .tokenVerificacionExpiracion(tokenVerificacionExpiracion)
         .tokenRestablecimiento(tokenRestablecimiento)
@@ -289,20 +274,15 @@ public class Usuario {
     this.tokenVerificacionExpiracion = null;
   }
 
-  public void linkDiscord(DiscordUserId discordUserId, DiscordUsername discordUsername) {
+  public void linkDiscord(DiscordUserId discordUserId) {
     if (discordUserId == null || discordUserId.isEmpty()) {
       throw new DomainException("El ID de Discord no puede ser nulo o vacío");
     }
-    if (discordUsername == null || discordUsername.isEmpty()) {
-      throw new DomainException("El username de Discord no puede ser nulo o vacío");
-    }
     this.discordUserId = discordUserId;
-    this.discordUsername = discordUsername;
   }
 
   public void unlinkDiscord() {
     this.discordUserId = DiscordUserId.empty();
-    this.discordUsername = DiscordUsername.empty();
   }
 
   public void changeRole(Rol newRole) {
@@ -325,7 +305,7 @@ public class Usuario {
   }
 
   public boolean hasDiscordLinked() {
-    return !this.discordUserId.isEmpty() && !this.discordUsername.isEmpty();
+    return !this.discordUserId.isEmpty();
   }
 
   @Override

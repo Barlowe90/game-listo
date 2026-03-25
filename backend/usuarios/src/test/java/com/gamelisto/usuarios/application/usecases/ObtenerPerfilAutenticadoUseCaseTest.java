@@ -45,7 +45,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -91,7 +90,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Idioma.ENG,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -119,7 +117,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
-    UsuarioId usuarioIdVo = UsuarioId.of(usuarioId);
 
     when(repositorio.findById(any(UsuarioId.class))).thenReturn(Optional.empty());
 
@@ -150,7 +147,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ELIMINADO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -186,7 +182,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.of("987654321"),
-            DiscordUsername.of("GamerPro#1234"),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -203,7 +198,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
         .satisfies(
             dto -> {
               assertThat(dto.discordUserId()).isEqualTo("987654321");
-              assertThat(dto.discordUsername()).isEqualTo("GamerPro#1234");
             });
 
     verify(repositorio).findById(usuarioIdVo);
@@ -227,7 +221,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -240,7 +233,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
 
     // Assert
     assertThat(resultado.discordUserId()).isNull();
-    assertThat(resultado.discordUsername()).isNull();
 
     verify(repositorio).findById(usuarioIdVo);
   }
@@ -277,7 +269,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -311,7 +302,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.SUSPENDIDO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),

@@ -43,7 +43,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -60,7 +59,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ENG,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -93,7 +91,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.SUSPENDIDO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -133,7 +130,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.PENDIENTE_DE_VERIFICACION,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.of("token123"),
             null,
             TokenVerificacion.empty(),
@@ -188,7 +184,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -225,7 +220,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ENG,
             EstadoUsuario.ACTIVO,
             DiscordUserId.of("discord456"),
-            DiscordUsername.of("testdiscord"),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -249,7 +243,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
     assertThat(dto.language()).isEqualTo("ENG");
     assertThat(dto.status()).isEqualTo("ACTIVO");
     assertThat(dto.discordUserId()).isEqualTo("discord456");
-    assertThat(dto.discordUsername()).isEqualTo("testdiscord");
 
     verify(repositorio).findByStatus(EstadoUsuario.ACTIVO);
   }
@@ -269,7 +262,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -286,7 +278,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             Idioma.ENG,
             EstadoUsuario.ACTIVO,
             DiscordUserId.of("discord789"),
-            DiscordUsername.of("adminDiscord"),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),

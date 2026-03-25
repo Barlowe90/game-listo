@@ -43,7 +43,6 @@ public class AdminInitializerConfig {
       admin.setLanguage(Idioma.ESP);
       admin.setStatus(EstadoUsuario.ACTIVO);
       admin.setDiscordUserId(null);
-      admin.setDiscordUsername(null);
       admin.setTokenVerificacion(null);
       admin.setTokenVerificacionExpiracion(null);
       admin.setTokenRestablecimiento(null);

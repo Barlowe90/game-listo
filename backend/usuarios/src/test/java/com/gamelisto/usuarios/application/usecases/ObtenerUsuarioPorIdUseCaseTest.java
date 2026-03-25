@@ -44,7 +44,6 @@ class ObtenerUsuarioPorIdUseCaseTest {
             Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -114,7 +113,6 @@ class ObtenerUsuarioPorIdUseCaseTest {
             Idioma.ENG,
             EstadoUsuario.SUSPENDIDO,
             DiscordUserId.of("123456"),
-            DiscordUsername.of("player#1234"),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -134,7 +132,6 @@ class ObtenerUsuarioPorIdUseCaseTest {
     assertEquals("ENG", resultado.language());
     assertEquals("SUSPENDIDO", resultado.status());
     assertEquals("123456", resultado.discordUserId());
-    assertEquals("player#1234", resultado.discordUsername());
   }
 
   @Test
@@ -186,7 +183,6 @@ class ObtenerUsuarioPorIdUseCaseTest {
         Idioma.ESP,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
-        DiscordUsername.empty(),
         TokenVerificacion.empty(),
         null,
         TokenVerificacion.empty(),

@@ -238,7 +238,6 @@ class JwtUtilsTest {
             baseUser.getLanguage(),
             baseUser.getStatus(),
             baseUser.getDiscordUserId(),
-            baseUser.getDiscordUsername(),
             baseUser.getTokenVerificacion(),
             baseUser.getTokenVerificacionExpiracion(),
             baseUser.getTokenRestablecimiento(),

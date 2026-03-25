@@ -7,7 +7,6 @@ import com.gamelisto.usuarios.domain.events.UsuarioActualizado;
 import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.DiscordUserId;
-import com.gamelisto.usuarios.domain.usuario.DiscordUsername;
 import com.gamelisto.usuarios.domain.usuario.Usuario;
 import com.gamelisto.usuarios.domain.usuario.UsuarioId;
 import lombok.RequiredArgsConstructor;
@@ -48,9 +47,6 @@ public class VincularDiscordUseCase implements VincularDiscordHandle {
               }
             });
 
-    DiscordUsername discordUsername = DiscordUsername.of(command.discordUsername());
-    usuario.linkDiscord(discordUserId, discordUsername);
-
     Usuario usuarioActualizado = repositorioUsuarios.save(usuario);
     publicarAfterCommit(() -> publicarUsuarioActualizado(usuarioActualizado));
 
@@ -63,8 +59,7 @@ public class VincularDiscordUseCase implements VincularDiscordHandle {
             usuario.getId().value().toString(),
             usuario.getUsername().value(),
             usuario.getAvatar().url(),
-            usuario.getDiscordUserId().value(),
-            usuario.getDiscordUsername().value());
+            usuario.getDiscordUserId().value());
     usuarioPublisher.publicarUsuarioActualizado(evento);
   }
 

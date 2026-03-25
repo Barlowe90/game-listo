@@ -51,7 +51,6 @@ class UsuarioMapperTest {
     entity.setLanguage(Idioma.ESP);
     entity.setStatus(EstadoUsuario.ACTIVO);
     entity.setDiscordUserId(null);
-    entity.setDiscordUsername(null);
     entity.setTokenVerificacion(null);
     entity.setTokenVerificacionExpiracion(null);
     entity.setTokenRestablecimiento(null);
@@ -82,7 +81,6 @@ class UsuarioMapperTest {
     entity.setPasswordHash("$2a$10$hash");
     entity.setAvatar(null);
     entity.setDiscordUserId(null);
-    entity.setDiscordUsername(null);
     entity.setRole(Rol.USER);
     entity.setLanguage(Idioma.ESP);
     entity.setStatus(EstadoUsuario.ACTIVO);
@@ -97,7 +95,6 @@ class UsuarioMapperTest {
     // Assert
     assertTrue(usuario.getAvatar().isEmpty());
     assertTrue(usuario.getDiscordUserId().isEmpty());
-    assertTrue(usuario.getDiscordUsername().isEmpty());
   }
 
   @Test
@@ -111,7 +108,6 @@ class UsuarioMapperTest {
     entity.setPasswordHash("$2a$10$hash");
     entity.setAvatar("https://example.com/avatar.png");
     entity.setDiscordUserId("123456789");
-    entity.setDiscordUsername("player#1234");
     entity.setRole(Rol.USER);
     entity.setLanguage(Idioma.ENG);
     entity.setStatus(EstadoUsuario.ACTIVO);
@@ -128,8 +124,6 @@ class UsuarioMapperTest {
     assertEquals("https://example.com/avatar.png", usuario.getAvatar().url());
     assertFalse(usuario.getDiscordUserId().isEmpty());
     assertEquals("123456789", usuario.getDiscordUserId().value());
-    assertFalse(usuario.getDiscordUsername().isEmpty());
-    assertEquals("player#1234", usuario.getDiscordUsername().value());
     assertEquals(Idioma.ENG, usuario.getLanguage());
   }
 
@@ -205,7 +199,7 @@ class UsuarioMapperTest {
 
     // Agregar datos opcionales
     usuarioOriginal.changeAvatar(Avatar.of("https://example.com/avatar.png"));
-    usuarioOriginal.linkDiscord(DiscordUserId.of("987654321"), DiscordUsername.of("gamer#5678"));
+    usuarioOriginal.linkDiscord(DiscordUserId.of("987654321"));
 
     // Act - Primera conversión: Dominio -> Entity
     UsuarioEntity entity = mapper.toEntity(usuarioOriginal);
@@ -222,9 +216,6 @@ class UsuarioMapperTest {
     assertEquals(usuarioOriginal.getAvatar().url(), usuarioReconstruido.getAvatar().url());
     assertEquals(
         usuarioOriginal.getDiscordUserId().value(), usuarioReconstruido.getDiscordUserId().value());
-    assertEquals(
-        usuarioOriginal.getDiscordUsername().value(),
-        usuarioReconstruido.getDiscordUsername().value());
     assertEquals(usuarioOriginal.getStatus(), usuarioReconstruido.getStatus());
     assertEquals(usuarioOriginal.getRole(), usuarioReconstruido.getRole());
     assertEquals(usuarioOriginal.getLanguage(), usuarioReconstruido.getLanguage());

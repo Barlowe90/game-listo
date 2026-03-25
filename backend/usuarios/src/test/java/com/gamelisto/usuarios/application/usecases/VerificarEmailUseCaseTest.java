@@ -85,7 +85,6 @@ class VerificarEmailUseCaseTest {
         Idioma.ESP,
         EstadoUsuario.PENDIENTE_DE_VERIFICACION,
         DiscordUserId.empty(),
-        DiscordUsername.empty(),
         token,
         expiracion,
         TokenVerificacion.empty(),

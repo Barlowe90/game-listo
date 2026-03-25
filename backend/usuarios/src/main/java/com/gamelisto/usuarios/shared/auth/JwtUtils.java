@@ -51,8 +51,6 @@ public class JwtUtils {
    * <p>OJOOOOO. NO se usa en producción. La validación de tokens es responsabilidad del API
    * Gateway. Solo se incluye para tests.
    *
-   * <p>TODO eliminar antes de producción
-   *
    * @param token Token JWT a parsear
    * @param secret Clave secreta usada para firmar
    * @return Claims del token

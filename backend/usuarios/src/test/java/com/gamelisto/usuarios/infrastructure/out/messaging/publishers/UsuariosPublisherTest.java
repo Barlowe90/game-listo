@@ -50,7 +50,6 @@ class UsuariosPublisherTest {
             "USER",
             "ESP",
             "PENDIENTE_DE_VERIFICACION",
-            null,
             null);
   }
 
@@ -78,8 +77,7 @@ class UsuariosPublisherTest {
   void debePublicarUsuarioActualizadoConExchangeYRk() {
     // Given
     UsuarioActualizado evento =
-        UsuarioActualizado.of(
-            "user-123", "testuser", "avatar.png", "123456789", "player#1234");
+        UsuarioActualizado.of("user-123", "testuser", "avatar.png", "123456789");
 
     // When
     publisher.publicarUsuarioActualizado(evento);

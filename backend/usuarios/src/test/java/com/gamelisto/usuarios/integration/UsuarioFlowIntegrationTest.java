@@ -94,31 +94,6 @@ class UsuarioFlowIntegrationTest {
   }
 
   @Test
-  @DisplayName("Flujo completo: Crear usuario → Vincular Discord → Desvincular Discord")
-  void flujoCompletoDiscordIntegration() {
-    // 1. Crear usuario
-    CrearUsuarioCommand crearCommand =
-        new CrearUsuarioCommand("discorduser", "discord@example.com", "Password123!");
-    UsuarioResult usuarioCreado = crearUsuarioUseCase.execute(crearCommand);
-
-    // 2. Vincular Discord
-    VincularDiscordCommand vincularCommand =
-        new VincularDiscordCommand(
-            UUID.fromString(usuarioCreado.id()), "123456789", "DiscordUser#1234");
-    UsuarioResult usuarioVinculado = vincularDiscordUseCase.execute(vincularCommand);
-
-    assertThat(usuarioVinculado.discordUserId()).isEqualTo("123456789");
-    assertThat(usuarioVinculado.discordUsername()).isEqualTo("DiscordUser#1234");
-
-    // 3. Desvincular Discord
-    UsuarioResult usuarioDesvinculado =
-        desvincularDiscordUseCase.execute(UUID.fromString(usuarioVinculado.id()));
-
-    assertThat(usuarioDesvinculado.discordUserId()).isNull();
-    assertThat(usuarioDesvinculado.discordUsername()).isNull();
-  }
-
-  @Test
   @DisplayName("Flujo completo: Crear usuario → Cambiar estado → Suspender → Eliminar")
   void flujoCompletoGestionEstados() {
     // 1. Crear usuario

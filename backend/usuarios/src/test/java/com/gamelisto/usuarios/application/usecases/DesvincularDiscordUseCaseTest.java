@@ -39,7 +39,7 @@ class DesvincularDiscordUseCaseTest {
             Username.of("testuser"), Email.of("test@test.com"), PasswordHash.of("$2a$10$hash"));
 
     // Vincular Discord por defecto
-    usuario.linkDiscord(DiscordUserId.of("123456789"), DiscordUsername.of("player#1234"));
+    usuario.linkDiscord(DiscordUserId.of("123456789"));
   }
 
   @Test
@@ -58,7 +58,6 @@ class DesvincularDiscordUseCaseTest {
     // Assert
     assertNotNull(resultado);
     assertNull(resultado.discordUserId());
-    assertNull(resultado.discordUsername());
 
     verify(repositorioUsuarios).findById(any(UsuarioId.class));
     verify(repositorioUsuarios).save(any(Usuario.class));
@@ -66,7 +65,6 @@ class DesvincularDiscordUseCaseTest {
         ArgumentCaptor.forClass(UsuarioActualizado.class);
     verify(usuarioPublisher).publicarUsuarioActualizado(eventCaptor.capture());
     assertNull(eventCaptor.getValue().discordUserId());
-    assertNull(eventCaptor.getValue().discordUsername());
   }
 
   @Test
@@ -108,7 +106,6 @@ class DesvincularDiscordUseCaseTest {
     // Assert
     assertNotNull(resultado);
     assertNull(resultado.discordUserId());
-    assertNull(resultado.discordUsername());
 
     verify(repositorioUsuarios).save(any(Usuario.class));
     verify(usuarioPublisher).publicarUsuarioActualizado(any(UsuarioActualizado.class));
@@ -122,7 +119,6 @@ class DesvincularDiscordUseCaseTest {
 
     // Verificar que Discord está vinculado antes
     assertFalse(usuario.getDiscordUserId().isEmpty());
-    assertFalse(usuario.getDiscordUsername().isEmpty());
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.save(any(Usuario.class)))
@@ -131,7 +127,6 @@ class DesvincularDiscordUseCaseTest {
               Usuario savedUsuario = invocation.getArgument(0);
               // Verificar el estado del usuario después de unlinkDiscord
               assertTrue(savedUsuario.getDiscordUserId().isEmpty());
-              assertTrue(savedUsuario.getDiscordUsername().isEmpty());
               return savedUsuario;
             });
 
@@ -140,7 +135,6 @@ class DesvincularDiscordUseCaseTest {
 
     // Assert
     assertNull(resultado.discordUserId());
-    assertNull(resultado.discordUsername());
 
     verify(repositorioUsuarios).save(any(Usuario.class));
     verify(usuarioPublisher).publicarUsuarioActualizado(any(UsuarioActualizado.class));
@@ -199,7 +193,7 @@ class DesvincularDiscordUseCaseTest {
     assertNull(resultadoDesvinculado.discordUserId());
 
     // Act - Re-vincular
-    usuario.linkDiscord(DiscordUserId.of("999999999"), DiscordUsername.of("newplayer#5555"));
+    usuario.linkDiscord(DiscordUserId.of("999999999"));
 
     // Assert - Puede vincular nuevamente
     assertFalse(usuario.getDiscordUserId().isEmpty());

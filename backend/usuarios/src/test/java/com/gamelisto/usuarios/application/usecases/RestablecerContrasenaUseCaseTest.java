@@ -97,7 +97,6 @@ class RestablecerContrasenaUseCaseTest {
         Idioma.ESP,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
-        DiscordUsername.empty(),
         TokenVerificacion.empty(),
         null,
         token,

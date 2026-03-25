@@ -120,7 +120,6 @@ class CambiarContrasenaUseCaseTest {
         Idioma.ESP,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
-        DiscordUsername.empty(),
         TokenVerificacion.empty(),
         null,
         TokenVerificacion.empty(),

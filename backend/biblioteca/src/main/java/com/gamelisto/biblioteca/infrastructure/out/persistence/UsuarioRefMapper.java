@@ -13,7 +13,6 @@ public class UsuarioRefMapper {
     entity.setUsername(usuarioRef.getUsername());
     entity.setAvatar(usuarioRef.getAvatar());
     entity.setDiscordUserId(usuarioRef.getDiscordUserId());
-    entity.setDiscordUsername(usuarioRef.getDiscordUsername());
     return entity;
   }
 
@@ -22,7 +21,6 @@ public class UsuarioRefMapper {
         UsuarioId.of(entity.getId()),
         entity.getUsername(),
         entity.getAvatar(),
-        entity.getDiscordUserId(),
-        entity.getDiscordUsername());
+        entity.getDiscordUserId());
   }
 }

@@ -17,36 +17,18 @@ public class EntradaEventosUseCase implements EntradaEventosHandle {
 
   @Override
   public void procesarUsuarioCreado(
-      String usuarioId,
-      String username,
-      String avatar,
-      String discordUserId,
-      String discordUsername) {
+      String usuarioId, String username, String avatar, String discordUserId) {
     UsuarioRef usuarioRef =
-        UsuarioRef.create(
-            UsuarioId.fromString(usuarioId),
-            username,
-            avatar,
-            discordUserId,
-            discordUsername);
+        UsuarioRef.create(UsuarioId.fromString(usuarioId), username, avatar, discordUserId);
     usuariosRefRepositorio.save(usuarioRef);
     crearBiblioteca.execute(UUID.fromString(usuarioId));
   }
 
   @Override
   public void procesarUsuarioActualizado(
-      String usuarioId,
-      String username,
-      String avatar,
-      String discordUserId,
-      String discordUsername) {
+      String usuarioId, String username, String avatar, String discordUserId) {
     UsuarioRef usuarioRef =
-        UsuarioRef.create(
-            UsuarioId.fromString(usuarioId),
-            username,
-            avatar,
-            discordUserId,
-            discordUsername);
+        UsuarioRef.create(UsuarioId.fromString(usuarioId), username, avatar, discordUserId);
     usuariosRefRepositorio.save(usuarioRef);
   }
 
