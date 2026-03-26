@@ -9,11 +9,11 @@ import com.gamelisto.usuarios.application.dto.AuthResponseResult;
 import com.gamelisto.usuarios.application.dto.LoginCommand;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.application.usecases.auth.LoginUseCase;
-import com.gamelisto.usuarios.domain.refreshtoken.TokenHash;
 import com.gamelisto.usuarios.domain.repositories.RepositorioRefreshTokens;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import com.gamelisto.usuarios.shared.auth.JwtProperties;
+import com.gamelisto.usuarios.application.dto.TokenDTO;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -42,6 +42,8 @@ class LoginUseCaseTest {
 
   @Mock private JwtProperties jwtProperties;
 
+  @Mock private com.gamelisto.usuarios.application.usecases.auth.AuthTokenService authTokenService;
+
   @InjectMocks private LoginUseCase loginUseCase;
 
   private Usuario usuarioActivo;
@@ -69,6 +71,24 @@ class LoginUseCaseTest {
     when(jwtProperties.getSecret()).thenReturn("test-secret-key-min-32-chars-long");
     when(jwtProperties.getExpirationMs()).thenReturn(900000L); // 15 min
     when(jwtProperties.getRefreshExpirationMs()).thenReturn(604800000L); // 7 días
+
+    // Stubear el comportamiento de AuthTokenService para devolver un AuthResponseResult
+    when(authTokenService.createAuthResponse(any()))
+        .thenAnswer(
+            invocation -> {
+              Usuario u = invocation.getArgument(0);
+              Instant now = Instant.now();
+              TokenDTO accessToken =
+                  new TokenDTO("access-token", now.plusMillis(jwtProperties.getExpirationMs()));
+              TokenDTO refreshToken =
+                  new TokenDTO(
+                      "refresh-token-" + java.util.UUID.randomUUID(),
+                      now.plusMillis(jwtProperties.getRefreshExpirationMs()));
+              return new AuthResponseResult(
+                  accessToken,
+                  refreshToken,
+                  com.gamelisto.usuarios.application.dto.UsuarioResult.from(u));
+            });
   }
 
   // ========== CASOS DE ÉXITO ==========
@@ -92,9 +112,8 @@ class LoginUseCaseTest {
     assertEquals("testuser", response.usuario().username());
     assertEquals("test@example.com", response.usuario().email());
 
-    // Verificar que se guardó el refresh token en Redis
-    verify(repositorioRefreshTokens)
-        .guardarActivo(any(TokenHash.class), any(UsuarioId.class), any(Instant.class));
+    // Verificar que delegamos en AuthTokenService para crear/persistir tokens
+    verify(authTokenService).createAuthResponse(any(Usuario.class));
   }
 
   @Test
@@ -286,21 +305,13 @@ class LoginUseCaseTest {
     LoginCommand command = new LoginCommand("test@example.com", passwordPlain);
     when(repositorioUsuarios.findByEmail(any(Email.class))).thenReturn(Optional.of(usuarioActivo));
     when(passwordEncoder.matches(passwordPlain, passwordHash)).thenReturn(true);
-
-    ArgumentCaptor<TokenHash> tokenHashCaptor = ArgumentCaptor.forClass(TokenHash.class);
-    ArgumentCaptor<UsuarioId> usuarioIdCaptor = ArgumentCaptor.forClass(UsuarioId.class);
-    ArgumentCaptor<Instant> expiresAtCaptor = ArgumentCaptor.forClass(Instant.class);
+    ArgumentCaptor<Usuario> usuarioCaptor = ArgumentCaptor.forClass(Usuario.class);
 
     // Act
     loginUseCase.execute(command);
 
-    // Assert
-    verify(repositorioRefreshTokens)
-        .guardarActivo(
-            tokenHashCaptor.capture(), usuarioIdCaptor.capture(), expiresAtCaptor.capture());
-
-    assertNotNull(tokenHashCaptor.getValue());
-    assertEquals(usuarioActivo.getId(), usuarioIdCaptor.getValue());
-    assertNotNull(expiresAtCaptor.getValue());
+    // Assert: verificamos que delegamos en AuthTokenService la creación/persistencia de tokens
+    verify(authTokenService).createAuthResponse(usuarioCaptor.capture());
+    assertEquals(usuarioActivo.getId(), usuarioCaptor.getValue().getId());
   }
 }

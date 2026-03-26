@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.gamelisto.usuarios.application.dto.AuthResponseResult;
+import com.gamelisto.usuarios.application.dto.TokenDTO;
 import com.gamelisto.usuarios.application.dto.RefreshTokenCommand;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.application.usecases.auth.RefreshTokenUseCase;
@@ -40,6 +41,8 @@ class RefreshTokenUseCaseTest {
 
   @Mock private JwtProperties jwtProperties;
 
+  @Mock private com.gamelisto.usuarios.application.usecases.auth.AuthTokenService authTokenService;
+
   @InjectMocks private RefreshTokenUseCase refreshTokenUseCase;
 
   private Usuario usuario;
@@ -72,6 +75,14 @@ class RefreshTokenUseCaseTest {
     when(jwtProperties.getSecret()).thenReturn("test-secret-key-min-32-chars-long");
     when(jwtProperties.getExpirationMs()).thenReturn(900000L);
     when(jwtProperties.getRefreshExpirationMs()).thenReturn(604800000L);
+
+    when(authTokenService.createAuthResponse(any())).thenAnswer(invocation -> {
+      Usuario u = invocation.getArgument(0);
+      Instant now = Instant.now();
+      TokenDTO accessToken = new TokenDTO("access-token", now.plusMillis(jwtProperties.getExpirationMs()));
+      TokenDTO refreshToken = new TokenDTO("refresh-token-" + java.util.UUID.randomUUID(), now.plusMillis(jwtProperties.getRefreshExpirationMs()));
+      return new AuthResponseResult(accessToken, refreshToken, com.gamelisto.usuarios.application.dto.UsuarioResult.from(u));
+    });
   }
 
   // ========== CASOS DE ÉXITO ==========
@@ -99,9 +110,8 @@ class RefreshTokenUseCaseTest {
     // Verificar que se revocó el token antiguo
     verify(repositorioRefreshTokens).revocar(any(TokenHash.class), any(Duration.class));
 
-    // Verificar que se guardó el nuevo refresh token
-    verify(repositorioRefreshTokens)
-        .guardarActivo(any(TokenHash.class), any(UsuarioId.class), any(Instant.class));
+    // Verificar que delegamos en AuthTokenService para crear/persistir tokens
+    verify(authTokenService).createAuthResponse(any(Usuario.class));
   }
 
   @Test
