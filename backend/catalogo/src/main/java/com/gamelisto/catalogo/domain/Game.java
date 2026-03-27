@@ -2,7 +2,6 @@ package com.gamelisto.catalogo.domain;
 
 import com.gamelisto.catalogo.domain.exceptions.DomainException;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;

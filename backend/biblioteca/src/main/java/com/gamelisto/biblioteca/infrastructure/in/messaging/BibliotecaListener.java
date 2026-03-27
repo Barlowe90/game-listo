@@ -38,14 +38,12 @@ public class BibliotecaListener {
         case "UsuarioCreado" -> {
           UsuarioCreadoEventDto dto =
               objectMapper.readValue(message.getBody(), UsuarioCreadoEventDto.class);
-          entradaEventos.procesarUsuarioCreado(
-              dto.usuarioId(), dto.username(), dto.avatar(), dto.discordUserId());
+          entradaEventos.procesarUsuarioCreado(dto.usuarioId(), dto.username(), dto.avatar());
         }
         case "UsuarioActualizado" -> {
           UsuarioCreadoEventDto dto =
               objectMapper.readValue(message.getBody(), UsuarioCreadoEventDto.class);
-          entradaEventos.procesarUsuarioActualizado(
-              dto.usuarioId(), dto.username(), dto.avatar(), dto.discordUserId());
+          entradaEventos.procesarUsuarioActualizado(dto.usuarioId(), dto.username(), dto.avatar());
         }
         case "UsuarioEliminado" -> {
           UsuarioEliminadoEventDto dto =
