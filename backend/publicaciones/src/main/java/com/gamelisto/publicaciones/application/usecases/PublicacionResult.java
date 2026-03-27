@@ -3,7 +3,7 @@ package com.gamelisto.publicaciones.application.usecases;
 import com.gamelisto.publicaciones.domain.Publicacion;
 import com.gamelisto.publicaciones.domain.GrupoJuego;
 import com.gamelisto.publicaciones.domain.vo.DisponibilidadSemanal;
-import com.gamelisto.publicaciones.domain.DiaSemana;
+import java.util.Collections;
 import com.gamelisto.publicaciones.domain.FranjaHoraria;
 
 import java.util.Map;
@@ -52,7 +52,7 @@ public record PublicacionResult(
   }
 
   private static Map<String, Set<String>> mapDisponibilidad(DisponibilidadSemanal ds) {
-    if (ds == null) return null;
+    if (ds == null) return Collections.emptyMap();
     return ds.value().entrySet().stream()
         .collect(
             Collectors.toMap(

@@ -3,7 +3,6 @@ package com.gamelisto.biblioteca.application.usecase;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.gamelisto.biblioteca.application.exceptions.ApplicationException;
 import com.gamelisto.biblioteca.domain.*;
 import java.util.Optional;
 import java.util.UUID;

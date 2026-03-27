@@ -19,5 +19,5 @@ public interface SolicitudUnionRepository extends MongoRepository<SolicitudUnion
   List<SolicitudUnionDocument> findByPublicacionIdIn(
       List<UUID> publicacionIds); // solicitudes recibidas
 
-  long deleteByPublicacionId(UUID publicacionId);
+  void deleteByPublicacionId(UUID publicacionId);
 }
