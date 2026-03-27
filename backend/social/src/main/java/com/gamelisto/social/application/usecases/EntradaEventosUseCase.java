@@ -1,11 +1,10 @@
 package com.gamelisto.social.application.usecases;
 
+import com.gamelisto.social.application.exceptions.ApplicationException;
 import com.gamelisto.social.dominio.GrafoUsuarioRepositorio;
 import com.gamelisto.social.dominio.JuegoSocialRepositorio;
 import com.gamelisto.social.dominio.UserRef;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -13,7 +12,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class EntradaEventosUseCase implements EntradaEventosHandle {
-  private static final Logger log = LoggerFactory.getLogger(EntradaEventosUseCase.class);
 
   private final GrafoUsuarioRepositorio grafoUsuarioRepositorio;
   private final JuegoSocialRepositorio juegoSocialRepositorio;
@@ -43,12 +41,7 @@ public class EntradaEventosUseCase implements EntradaEventosHandle {
     try {
       juegoSocialRepositorio.syncGameState(usuarioId, gameRef, estado);
     } catch (RuntimeException e) {
-      log.error(
-          "Error al sincronizar estado de juego para usuario {} y juego {}: {}",
-          usuarioId,
-          gameRef,
-          e.getMessage());
-      throw e;
+      throw new ApplicationException("no se pudo actualizar el estado", e);
     }
   }
 }

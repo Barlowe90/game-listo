@@ -1,13 +1,11 @@
 package com.gamelisto.social.infrastructure.in.api.dto;
 
 import com.gamelisto.social.application.usecases.ResumenSocialJuegoResult;
-import com.gamelisto.social.application.usecases.UserRefResult;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @NoArgsConstructor
