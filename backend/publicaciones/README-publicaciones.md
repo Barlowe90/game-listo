@@ -120,33 +120,35 @@ Relaciones orientativas:
 
 **Base path:** `/v1/publicaciones`
 
-| Método | Ruta                                                  | Auth / Rol                     | Request                    | Response                                | Descripción / Notas                                                      |
-|--------|-------------------------------------------------------|--------------------------------|----------------------------|-----------------------------------------|--------------------------------------------------------------------------|
-| POST   | `/v1/publicaciones`                                   | Authenticated                  | `CrearPublicacionRequest`  | `PublicacionResponse` (201 Created)     | Crear una nueva publicación para el usuario autenticado.                 |
-| PUT    | `/v1/publicaciones/{publicacionId}`                   | Authenticated (autor)          | `EditarPublicacionRequest` | `PublicacionResponse` (200 OK)          | Editar una publicación existente (solo autor).                           |
-| GET    | `/v1/publicaciones/{publicacionId}`                   | Public                         | —                          | `PublicacionDetalleResponse` (200 OK)   | Obtener detalle de la publicación (`publicacionId` como String/UUID).    |
-| GET    | `/v1/publicaciones`                                   | Public                         | —                          | `List<PublicacionResponse>` (200 OK)    | Obtener todas las publicaciones.                                         |
-| GET    | `/v1/publicaciones/user/{userId}`                     | Authenticated                  | —                          | `List<PublicacionResponse>` (200 OK)    | Obtener publicaciones creadas por un usuario (path `userId` UUID).       |
-| GET    | `/v1/publicaciones/game/{gameId}`                     | Public                         | —                          | `List<PublicacionResponse>` (200 OK)    | Listar publicaciones por `gameId` (Long).                                |
-| DELETE | `/v1/publicaciones/{publicacionId}`                   | Authenticated (autor)          | —                          | void (204 No Content)                   | Eliminar publicación (soft delete recomendado; solo autor).              |
-| POST   | `/v1/publicaciones/{publicacionId}/solicitud-union`   | Authenticated                  | —                          | `SolicitudUnionResponse` (201 Created)  | Crear solicitud de unión a la publicación (`publicacionId` UUID).        |
-| PATCH  | `/v1/publicaciones/solicitudes-union/{solicitudId}`   | Authenticated (autor/receptor) | `SolicitudUnionRequest`    | `SolicitudUnionResponse` (200 OK)       | Aceptar o rechazar una solicitud (según payload).                        |
-| GET    | `/v1/publicaciones/solicitudes-union/enviadas`        | Authenticated                  | —                          | `List<SolicitudUnionResponse>` (200 OK) | Listar solicitudes enviadas por el usuario autenticado.                  |
-| GET    | `/v1/publicaciones/solicitudes-union/recibidas`       | Authenticated                  | —                          | `List<SolicitudUnionResponse>` (200 OK) | Listar solicitudes recibidas por el usuario autenticado.                 |
-| POST   | `/v1/publicaciones/{publicacionId}/abandonar-grupo`   | Authenticated                  | —                          | void (204 No Content)                   | Abandonar el grupo asociado a la publicación por el usuario autenticado. |
-| GET    | `/v1/publicaciones/grupos/{grupoId}`                  | Public                         | —                          | `GrupoJuegoResponse` (200 OK)           | Obtener datos del grupo de juego (`grupoId` UUID).                       |
+| Método | Ruta                                                | Auth / Rol                     | Request                    | Response                                | Descripción / Notas                                                                                            |
+|--------|-----------------------------------------------------|--------------------------------|----------------------------|-----------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| POST   | `/v1/publicaciones`                                 | Authenticated                  | `CrearPublicacionRequest`  | `PublicacionResponse` (201 Created)     | Crear una nueva publicación para el usuario autenticado.                                                       |
+| PUT    | `/v1/publicaciones/{publicacionId}`                 | Authenticated (autor)          | `EditarPublicacionRequest` | `PublicacionResponse` (200 OK)          | Editar una publicación existente (solo autor).                                                                 |
+| GET    | `/v1/publicaciones/{publicacionId}`                 | Public                         | —                          | `PublicacionDetalleResponse` (200 OK)   | Obtener detalle de la publicación. El controlador declara `@PathVariable String publicacionId` para esta ruta. |
+| GET    | `/v1/publicaciones`                                 | Public                         | —                          | `List<PublicacionResponse>` (200 OK)    | Obtener todas las publicaciones.                                                                               |
+| GET    | `/v1/publicaciones/user/{userId}`                   | Authenticated                  | —                          | `List<PublicacionResponse>` (200 OK)    | Obtener publicaciones creadas por un usuario (path `userId` UUID).                                             |
+| GET    | `/v1/publicaciones/game/{gameId}`                   | Public                         | —                          | `List<PublicacionResponse>` (200 OK)    | Listar publicaciones por `gameId` (Long).                                                                      |
+| DELETE | `/v1/publicaciones/{publicacionId}`                 | Authenticated (autor)          | —                          | void (204 No Content)                   | Eliminar publicación (soft delete recomendado; solo autor).                                                    |
+| POST   | `/v1/publicaciones/{publicacionId}/solicitud-union` | Authenticated                  | —                          | `SolicitudUnionResponse` (201 Created)  | Crear solicitud de unión a la publicación. `publicacionId` como `UUID` en el controlador.                      |
+| PATCH  | `/v1/publicaciones/solicitudes-union/{solicitudId}` | Authenticated (autor/receptor) | `SolicitudUnionRequest`    | `SolicitudUnionResponse` (200 OK)       | Aceptar o rechazar una solicitud (según payload). `solicitudId` es `UUID`.                                     |
+| GET    | `/v1/publicaciones/solicitudes-union/enviadas`      | Authenticated                  | —                          | `List<SolicitudUnionResponse>` (200 OK) | Listar solicitudes enviadas por el usuario autenticado.                                                        |
+| GET    | `/v1/publicaciones/solicitudes-union/recibidas`     | Authenticated                  | —                          | `List<SolicitudUnionResponse>` (200 OK) | Listar solicitudes recibidas por el usuario autenticado.                                                       |
+| POST   | `/v1/publicaciones/{publicacionId}/abandonar-grupo` | Authenticated                  | —                          | void (204 No Content)                   | Abandonar el grupo asociado a la publicación por el usuario autenticado. `publicacionId` es `UUID`.            |
+| GET    | `/v1/publicaciones/grupos/{grupoId}`                | Public                         | —                          | `GrupoJuegoResponse` (200 OK)           | Obtener datos del grupo de juego (`grupoId` UUID).                                                             |
 
 Notas importantes:
 
 - Autenticación: la mayoría de endpoints de creación/edición/acciones requieren `Authentication` (token JWT); los
-  controladores obtienen `userId` desde `Authentication.getPrincipal()` o reciben `Authentication` cuando es necesario.
-- IDs: los controladores usan `UUID` para `publicacionId`, `solicitudId` y `grupoId` salvo `gameId` que se maneja como
-  `Long`.
+  controladores obtienen `userId` desde `@AuthenticationPrincipal` o `Authentication` cuando es necesario.
+- IDs: en los controladores `solicitudId`, `grupoId`, `userId` y la mayoría de `publicacionId` se manejan como `UUID`.
+  Sin embargo, el endpoint `GET /v1/publicaciones/{publicacionId}` declara la variable de ruta como `String` en el
+  controlador — esto permite búsquedas por slug o por id; ten en cuenta esta diferencia al consumir la API.
+- `gameId` se maneja como `Long` en los endpoints relacionados con juego.
 - Códigos HTTP: los controladores devuelven 201 para creaciones (`crearSolicitudUnion`, `crearPublicacion`), 200 para
   respuestas con payload y 204 No Content cuando el método devuelve `ResponseEntity.noContent()` (p. ej.
   `eliminarPublicacion`, `abandonarGrupo`).
 - Autorización de negocio: las comprobaciones (autor de la publicación, miembro del grupo, etc.) se realizan en la capa
-  de aplicación / casos de uso; algunos endpoints asumirán ejecución autenticada y validaciones en el handler.
+  de aplicación / casos de uso; los controladores suelen delegar estas comprobaciones al handler.
 
 ### 5.3 Ejemplos de flujo (alto nivel)
 

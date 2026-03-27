@@ -166,7 +166,7 @@ busquedas.rabbit.exchange=catalog.events
 busquedas.rabbit.queue=busqueda.catalog.games
 busquedas.rabbit.routing.created=catalog.game.created
 busquedas.suggest.min-chars=2
-busquedas.suggest.default-size=4
+busquedas.suggest.default-size=5
 ```
 
 DTOs y ejemplos (Java)

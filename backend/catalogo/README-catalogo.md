@@ -21,25 +21,38 @@ Arquitectura Hexagonal y DDD: dominio puro, casos de uso y adaptadores de infrae
 - Publicar eventos de dominio para que otros servicios (search, bff, biblioteca) consuman cambios.
 - Mantener contratos REST estables para lectura de datos y operaciones de sincronización.
 
-## Contratos HTTP (endpoints principales)
+# Contratos HTTP (endpoints principales)
 
 Base path: `/v1/catalogo`
 
-| Método | Ruta                             | Auth / Rol          | Request                     | Response                          | Descripción / Notas                                                                                          |
-|--------|----------------------------------|---------------------|-----------------------------|-----------------------------------|--------------------------------------------------------------------------------------------------------------|
-| GET    | `/v1/catalogo/games`             | Public              | query params `page`, `size` | `List<GameCardResponse>` (200 OK) | Listado paginado ligero para cards: cover, nombre, plataformas y modos.                                     |
-| GET    | `/v1/catalogo/games/{id}`        | Public              | path `id` (Long)            | `GameResponse` (200 OK)           | Metadatos canónicos del juego (Postgres).                                                                    |
-| GET    | `/v1/catalogo/games/{id}/detail` | Public              | path `id` (Long)            | `GameDetailResponse` (200 OK)     | Contenido enriquecido (MongoDB): screenshots, videos, descripción larga.                                     |
-| GET    | `/v1/catalogo/platforms`         | Public              | —                           | `List<PlatformResponse>` (200 OK) | Listado de plataformas soportadas.                                                                           |
-| POST   | `/v1/catalogo/sync/games`        | Admin (recomendado) | —                           | `SyncStatusResponse` (200 OK)     | Dispara sincronización (IGDB) de juegos; en código hay un comentario `@PreAuthorize('ADMIN')` deshabilitado. |
-| POST   | `/v1/catalogo/sync/platforms`    | Admin (recomendado) | —                           | `SyncStatusResponse` (200 OK)     | Dispara sincronización de plataformas desde IGDB.                                                            |
+| Método | Ruta                               | Auth / Rol          | Request                                                                                           | Response                            | Descripción / Notas                                                                                                                                                                                               |
+|--------|------------------------------------|---------------------|---------------------------------------------------------------------------------------------------|-------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| GET    | `/v1/catalogo/games`               | Public              | query params: `page` (default 0), `size` (default 20, max 100), `platform` (optional, repeatable) | `List<GameCardResponse>` (200 OK)   | Listado paginado ligero (cards). Devuelve cabeceras de paginación: `X-Current-Page`, `X-Page-Size`, `X-Total-Count`, `X-Total-Pages`. El controlador normaliza `page` y `size` y aplica un `MAX_PAGE_SIZE = 100`. |
+| GET    | `/v1/catalogo/games/{id}`          | Public              | path `id` (Long)                                                                                  | `GameResponse` (200 OK)             | Metadatos canónicos del juego desde PostgreSQL.                                                                                                                                                                   |
+| GET    | `/v1/catalogo/games/{id}/detail`   | Public              | path `id` (Long)                                                                                  | `GameDetailResponse` (200 OK)       | Contenido enriquecido desde MongoDB: screenshots, videos, descripción larga.                                                                                                                                      |
+| GET    | `/v1/catalogo/platforms`           | Public              | —                                                                                                 | `List<PlatformResponse>` (200 OK)   | Listado de plataformas soportadas.                                                                                                                                                                                |
+| POST   | `/v1/catalogo/games/steam/resolve` | Public              | `ResolverJuegosSteamRequest`                                                                      | `ResolverJuegosSteamResponse` (200) | Resuelve una lista de `steamAppIds` contra el catálogo y devuelve coincidencias (mapped results).                                                                                                                 |
+| POST   | `/v1/catalogo/sync/games`          | Admin (recomendado) | —                                                                                                 | `SyncStatusResponse` (200 OK)       | Dispara sincronización con IGDB para juegos. El controlador usa `IgdbProperties.getBatchSize()` como cantidad por defecto.                                                                                        |
+| POST   | `/v1/catalogo/sync/platforms`      | Admin (recomendado) | —                                                                                                 | `SyncStatusResponse` (200 OK)       | Dispara sincronización de plataformas desde IGDB. Idem nota de seguridad sobre `@PreAuthorize` comentado.                                                                                                         |
 
 Notas adicionales
 
-- Aunque los endpoints de sincronización no requieren autenticación en el código actual, en entornos de producción
-  deberían protegerse para administradores.
-- DTOs: `GameCardResponse`, `GameResponse`, `GameDetailResponse`, `PlatformResponse`, `SyncStatusResponse` se encuentran en
-  `infrastructure/in/api/dto`.
+- Paginación: el endpoint `GET /v1/catalogo/games` acepta `page` y `size` como `@RequestParam` con valores por defecto
+  en el controlador (`page=0`, `size=20`) y fuerza `size` en rango [1, MAX_PAGE_SIZE] (MAX_PAGE_SIZE = 100).
+- Filtrado por plataformas: el parámetro `platform` puede aparecer varias veces y se recibe como
+  `List<String> platforms` en el controlador.
+- Resolución Steam: `POST /v1/catalogo/games/steam/resolve` recibe un `ResolverJuegosSteamRequest` (body) y devuelve un
+  `ResolverJuegosSteamResponse` con las resoluciones encontradas.
+- Sincronización IGDB: los endpoints `/sync/games` y `/sync/platforms` devuelven `SyncStatusResponse` y en producción
+  deberían protegerse para usuarios con rol administrativo; en el código actual la restricción está documentada pero las
+  anotaciones están comentadas.
+- DTOs referenciados (`GameCardResponse`, `GameResponse`, `GameDetailResponse`, `PlatformResponse`,
+  `SyncStatusResponse`, `ResolverJuegosSteamRequest/Response`) se ubican en `infrastructure/in/api/dto`.
+
+Notas adicionales
+
+- DTOs: `GameCardResponse`, `GameResponse`, `GameDetailResponse`, `PlatformResponse`, `SyncStatusResponse` se encuentran
+  en `infrastructure/in/api/dto`.
 
 ## Consejos rápidos de lectura
 
@@ -55,7 +68,8 @@ Notas adicionales
 - GameDetail
     - Referencia a `gameId`, screenshots (List<String>), videos (List<String>), descripción larga y campos grandes.
 - Proyección/DTOs
-    - `GameCardResponse` (listado ligero), `GameResponse` (detalle canónico) y `GameDetailResponse` (contenido multimedia).
+    - `GameCardResponse` (listado ligero), `GameResponse` (detalle canónico) y `GameDetailResponse` (contenido
+      multimedia).
 
 ## Persistencia y decisiones operativas
 
