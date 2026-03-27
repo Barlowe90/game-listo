@@ -29,7 +29,6 @@ class UsuarioTest {
     assertEquals("jugador@test.com", usuario.getEmail().value());
     assertEquals(EstadoUsuario.PENDIENTE_DE_VERIFICACION, usuario.getStatus());
     assertEquals(Rol.USER, usuario.getRole());
-    assertEquals(Idioma.ESP, usuario.getLanguage());
     assertTrue(usuario.getAvatar().isEmpty());
     assertTrue(usuario.getDiscordUserId().isEmpty());
   }
@@ -44,7 +43,6 @@ class UsuarioTest {
     PasswordHash passwordHash = PasswordHash.of("$2a$10$hash");
     Avatar avatar = Avatar.of("https://example.com/avatar.jpg");
     Rol role = Rol.ADMIN;
-    Idioma language = Idioma.ENG;
     EstadoUsuario status = EstadoUsuario.ACTIVO;
     DiscordUserId discordUserId = DiscordUserId.of("123456");
 
@@ -57,7 +55,6 @@ class UsuarioTest {
             passwordHash,
             avatar,
             role,
-            language,
             status,
             discordUserId,
             TokenVerificacion.empty(),
@@ -71,7 +68,6 @@ class UsuarioTest {
     assertEquals("test@test.com", usuario.getEmail().value());
     assertEquals("https://example.com/avatar.jpg", usuario.getAvatar().url());
     assertEquals(Rol.ADMIN, usuario.getRole());
-    assertEquals(Idioma.ENG, usuario.getLanguage());
     assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
     assertEquals("123456", usuario.getDiscordUserId().value());
   }
@@ -196,34 +192,7 @@ class UsuarioTest {
     assertTrue(usuario.getAvatar().isEmpty());
   }
 
-  // ========== CAMBIO DE IDIOMA ==========
-
-  @Test
-  @DisplayName("Debe cambiar idioma y actualizar timestamp")
-  void debeCambiarIdiomaYActualizarTimestamp() {
-    // Arrange
-    Usuario usuario = crearUsuarioDefault();
-    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
-
-    // Act
-    usuario.changeLanguage(Idioma.ENG);
-
-    // Assert
-    assertEquals(Idioma.ENG, usuario.getLanguage());
-  }
-
-  @Test
-  @DisplayName("Debe establecer idioma por defecto (ESP) si se pasa nulo")
-  void debeEstablecerIdiomaPorDefectoSiEsNulo() {
-    // Arrange
-    Usuario usuario = crearUsuarioDefault();
-
-    // Act
-    usuario.changeLanguage(null);
-
-    // Assert
-    assertEquals(Idioma.ESP, usuario.getLanguage());
-  }
+  // language field removed; related tests deleted
 
   // ========== GESTIÓN DE ESTADO ==========
 

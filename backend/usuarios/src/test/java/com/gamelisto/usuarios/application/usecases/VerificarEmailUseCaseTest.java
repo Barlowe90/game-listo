@@ -82,7 +82,6 @@ class VerificarEmailUseCaseTest {
         PasswordHash.of("$2a$10$hash"),
         Avatar.empty(),
         Rol.USER,
-        Idioma.ESP,
         EstadoUsuario.PENDIENTE_DE_VERIFICACION,
         DiscordUserId.empty(),
         token,

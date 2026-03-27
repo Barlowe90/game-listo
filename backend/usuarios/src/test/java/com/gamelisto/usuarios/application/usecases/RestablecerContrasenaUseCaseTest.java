@@ -94,7 +94,6 @@ class RestablecerContrasenaUseCaseTest {
         PasswordHash.of("$2a$10$oldHash"),
         Avatar.empty(),
         Rol.USER,
-        Idioma.ESP,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
         TokenVerificacion.empty(),

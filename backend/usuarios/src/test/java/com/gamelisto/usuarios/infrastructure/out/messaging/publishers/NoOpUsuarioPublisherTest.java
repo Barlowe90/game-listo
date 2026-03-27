@@ -32,7 +32,6 @@ class NoOpUsuarioPublisherTest {
             "test@example.com",
             "avatar.png",
             "USER",
-            "ESP",
             "PENDIENTE_DE_VERIFICACION",
             null);
 
@@ -68,7 +67,7 @@ class NoOpUsuarioPublisherTest {
     // Given
     UsuarioCreado event =
         new UsuarioCreado(
-            "1", "user1", "user1@test.com", "avatar1.png", "USER", "ESP", "ACTIVO", null);
+            "1", "user1", "user1@test.com", "avatar1.png", "USER", "ACTIVO", null);
 
     // When & Then
     assertThatCode(() -> publisher.publicarUsuarioCreado(event)).doesNotThrowAnyException();
@@ -87,13 +86,13 @@ class NoOpUsuarioPublisherTest {
     // Given
     UsuarioCreado event1 =
         new UsuarioCreado(
-            "1", "user1", "user1@test.com", "avatar1.png", "USER", "ESP", "ACTIVO", null);
+            "1", "user1", "user1@test.com", "avatar1.png", "USER", "ACTIVO", null);
     UsuarioCreado event2 =
         new UsuarioCreado(
-            "2", "user2", "user2@test.com", "avatar2.png", "USER", "ESP", "ACTIVO", null);
+            "2", "user2", "user2@test.com", "avatar2.png", "USER", "ACTIVO", null);
     UsuarioCreado event3 =
         new UsuarioCreado(
-            "3", "user3", "user3@test.com", "avatar3.png", "USER", "ESP", "ACTIVO", null);
+            "3", "user3", "user3@test.com", "avatar3.png", "USER", "ACTIVO", null);
 
     // When & Then
     assertThatCode(

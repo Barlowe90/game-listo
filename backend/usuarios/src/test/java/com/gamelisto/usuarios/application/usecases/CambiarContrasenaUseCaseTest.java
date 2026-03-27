@@ -117,7 +117,6 @@ class CambiarContrasenaUseCaseTest {
         PasswordHash.of(passwordHash),
         Avatar.empty(),
         Rol.USER,
-        Idioma.ESP,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
         TokenVerificacion.empty(),

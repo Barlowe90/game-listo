@@ -41,7 +41,6 @@ class ObtenerUsuarioPorIdUseCaseTest {
             PasswordHash.of("$2a$10$hash"),
             Avatar.empty(),
             Rol.USER,
-            Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             TokenVerificacion.empty(),
@@ -110,7 +109,6 @@ class ObtenerUsuarioPorIdUseCaseTest {
             PasswordHash.of("$2a$10$hash"),
             Avatar.of("https://example.com/avatar.jpg"),
             Rol.ADMIN,
-            Idioma.ENG,
             EstadoUsuario.SUSPENDIDO,
             DiscordUserId.of("123456"),
             TokenVerificacion.empty(),
@@ -129,7 +127,6 @@ class ObtenerUsuarioPorIdUseCaseTest {
     assertEquals("jugador@test.com", resultado.email());
     assertEquals("https://example.com/avatar.jpg", resultado.avatar());
     assertEquals("ADMIN", resultado.role());
-    assertEquals("ENG", resultado.language());
     assertEquals("SUSPENDIDO", resultado.status());
     assertEquals("123456", resultado.discordUserId());
   }
@@ -180,7 +177,6 @@ class ObtenerUsuarioPorIdUseCaseTest {
         PasswordHash.of("$2a$10$hash"),
         Avatar.empty(),
         Rol.USER,
-        Idioma.ESP,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
         TokenVerificacion.empty(),
