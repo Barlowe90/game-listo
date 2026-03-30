@@ -35,10 +35,9 @@ public class DiscordController {
     UsuarioResponse response = UsuarioResponse.from(usuarioResult);
 
     logger.info(
-        "Cuenta de Discord vinculada exitosamente - ID: {}, Username: {}, Discord: {}",
+        "Cuenta de Discord vinculada exitosamente - ID: {}, Discord: {}",
         response.id(),
-        response.username(),
-        response.discordUsername());
+        response.username());
 
     return ResponseEntity.ok(response);
   }

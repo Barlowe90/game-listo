@@ -34,13 +34,12 @@ class SocialListenerTest {
     String body =
         "{\"usuarioId\":\""
             + id
-            + "\",\"username\":\"alice\",\"avatar\":\"img.png\",\"discordUserId\":\"123456789\",\"discordUsername\":\"alice.discord\"}";
+            + "\",\"username\":\"alice\",\"avatar\":\"img.png\",\"discordUserId\":\"123456789\"}";
     MessageProperties props = new MessageProperties();
     props.setHeader("eventType", "UsuarioCreado");
     listener.handleEvent(new Message(body.getBytes(), props));
     verify(entradaEventos)
-        .procesarUsuarioCreado(
-            UUID.fromString(id), "alice", "img.png", "123456789", "alice.discord");
+        .procesarUsuarioCreado(UUID.fromString(id), "alice", "img.png", "123456789");
   }
 
   @Test
@@ -50,13 +49,12 @@ class SocialListenerTest {
     String body =
         "{\"usuarioId\":\""
             + id
-            + "\",\"username\":\"alice\",\"avatar\":\"new.png\",\"discordUserId\":\"987654321\",\"discordUsername\":\"alice.updated\"}";
+            + "\",\"username\":\"alice\",\"avatar\":\"new.png\",\"discordUserId\":\"987654321\"}";
     MessageProperties props = new MessageProperties();
     props.setHeader("eventType", "UsuarioActualizado");
     listener.handleEvent(new Message(body.getBytes(), props));
     verify(entradaEventos)
-        .procesarUsuarioActualizado(
-            UUID.fromString(id), "alice", "new.png", "987654321", "alice.updated");
+        .procesarUsuarioActualizado(UUID.fromString(id), "alice", "new.png", "987654321");
   }
 
   @Test

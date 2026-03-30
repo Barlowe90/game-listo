@@ -28,12 +28,12 @@ public class GlobalExceptionHandler {
     return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
   }
 
-  // ============ Capa de Aplicación - 422 Unprocessable Entity ============
+  // ============ Capa de Aplicación - 422 Unprocessable Content ============
 
   @ExceptionHandler(ApplicationException.class)
   public ResponseEntity<Map<String, Object>> handleApplicationException(ApplicationException ex) {
     logger.warn("Error de aplicación: {}", ex.getMessage());
-    return buildErrorResponse(ex.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+    return buildErrorResponse(ex.getMessage(), HttpStatus.UNPROCESSABLE_CONTENT);
   }
 
   // ============ Capa de Infraestructura - 500 Internal Server Error ============

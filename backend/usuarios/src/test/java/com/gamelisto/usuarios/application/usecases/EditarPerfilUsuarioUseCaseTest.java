@@ -38,10 +38,10 @@ class EditarPerfilUsuarioUseCaseTest {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
     EditarPerfilUsuarioCommand command =
-        new EditarPerfilUsuarioCommand(usuarioId, "https://example.com/avatar.jpg", "ENG");
+        new EditarPerfilUsuarioCommand(usuarioId, "https://example.com/avatar.jpg");
 
     Usuario usuario = crearUsuarioDefault(UsuarioId.of(usuarioId));
-    usuario.linkDiscord(DiscordUserId.of("123456789"), DiscordUsername.of("player#1234"));
+    usuario.linkDiscord(DiscordUserId.of("123456789"));
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.save(any(Usuario.class)))
@@ -52,7 +52,6 @@ class EditarPerfilUsuarioUseCaseTest {
 
     // Assert
     assertEquals("https://example.com/avatar.jpg", resultado.avatar());
-    assertEquals("ENG", resultado.language());
     ArgumentCaptor<UsuarioActualizado> eventCaptor =
         ArgumentCaptor.forClass(UsuarioActualizado.class);
     verify(usuarioPublisher).publicarUsuarioActualizado(eventCaptor.capture());
@@ -60,7 +59,6 @@ class EditarPerfilUsuarioUseCaseTest {
     assertEquals("testuser", eventCaptor.getValue().username());
     assertEquals("https://example.com/avatar.jpg", eventCaptor.getValue().avatar());
     assertEquals("123456789", eventCaptor.getValue().discordUserId());
-    assertEquals("player#1234", eventCaptor.getValue().discordUsername());
   }
 
   @Test
@@ -68,11 +66,10 @@ class EditarPerfilUsuarioUseCaseTest {
   void debeIgnorarCamposNulosSinModificarUsuario() {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
-    EditarPerfilUsuarioCommand command = new EditarPerfilUsuarioCommand(usuarioId, null, null);
+    EditarPerfilUsuarioCommand command = new EditarPerfilUsuarioCommand(usuarioId, null);
 
     Usuario usuario = crearUsuarioDefault(UsuarioId.of(usuarioId));
     String avatarOriginal = usuario.getAvatar().url();
-    Idioma idiomaOriginal = usuario.getLanguage();
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.save(any(Usuario.class)))
@@ -83,7 +80,6 @@ class EditarPerfilUsuarioUseCaseTest {
 
     // Assert
     assertEquals(avatarOriginal, resultado.avatar());
-    assertEquals(idiomaOriginal.name(), resultado.language());
     verify(usuarioPublisher, never()).publicarUsuarioActualizado(any());
   }
 
@@ -93,7 +89,7 @@ class EditarPerfilUsuarioUseCaseTest {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
     EditarPerfilUsuarioCommand command =
-        new EditarPerfilUsuarioCommand(usuarioId, "https://example.com/avatar.jpg", null);
+        new EditarPerfilUsuarioCommand(usuarioId, "https://example.com/avatar.jpg");
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.empty());
 
@@ -112,8 +108,7 @@ class EditarPerfilUsuarioUseCaseTest {
   void debeLanzarExcepcionSiIdTieneFormatoInvalido() {
     // Arrange
     EditarPerfilUsuarioCommand command =
-        new EditarPerfilUsuarioCommand(
-            (java.util.UUID) null, "https://example.com/avatar.jpg", null);
+        new EditarPerfilUsuarioCommand((java.util.UUID) null, "https://example.com/avatar.jpg");
 
     // Act & Assert
     DomainException exception =
@@ -129,7 +124,7 @@ class EditarPerfilUsuarioUseCaseTest {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
     String urlLarga = "https://example.com/" + "a".repeat(500);
-    EditarPerfilUsuarioCommand command = new EditarPerfilUsuarioCommand(usuarioId, urlLarga, null);
+    EditarPerfilUsuarioCommand command = new EditarPerfilUsuarioCommand(usuarioId, urlLarga);
 
     Usuario usuario = crearUsuarioDefault(UsuarioId.of(usuarioId));
 
@@ -143,23 +138,6 @@ class EditarPerfilUsuarioUseCaseTest {
     verify(usuarioPublisher, never()).publicarUsuarioActualizado(any());
   }
 
-  @Test
-  @DisplayName("Debe lanzar excepción si idioma es inválido")
-  void debeLanzarExcepcionSiIdiomaEsInvalido() {
-    // Arrange
-    UUID usuarioId = UUID.randomUUID();
-    EditarPerfilUsuarioCommand command =
-        new EditarPerfilUsuarioCommand(usuarioId, null, "IDIOMA_INVALIDO");
-
-    Usuario usuario = crearUsuarioDefault(UsuarioId.of(usuarioId));
-
-    when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
-
-    // Act & Assert
-    assertThrows(ApplicationException.class, () -> editarPerfilUsuarioUseCase.execute(command));
-    verify(usuarioPublisher, never()).publicarUsuarioActualizado(any());
-  }
-
   // Helper method
   private Usuario crearUsuarioDefault(UsuarioId id) {
     return Usuario.reconstitute(
@@ -169,10 +147,8 @@ class EditarPerfilUsuarioUseCaseTest {
         PasswordHash.of("$2a$10$hash"),
         Avatar.empty(),
         Rol.USER,
-        Idioma.ESP,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
-        DiscordUsername.empty(),
         TokenVerificacion.empty(),
         null,
         TokenVerificacion.empty(),

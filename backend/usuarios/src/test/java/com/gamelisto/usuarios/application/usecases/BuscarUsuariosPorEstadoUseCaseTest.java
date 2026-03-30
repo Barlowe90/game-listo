@@ -40,10 +40,8 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             PasswordHash.of("$2a$10$hashedPassword"),
             Avatar.of("https://example.com/avatar1.jpg"),
             Rol.USER,
-            Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -57,10 +55,8 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             PasswordHash.of("$2a$10$hashedPassword"),
             Avatar.of("https://example.com/avatar2.jpg"),
             Rol.USER,
-            Idioma.ENG,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -90,10 +86,8 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             PasswordHash.of("$2a$10$hashedPassword"),
             Avatar.of("https://example.com/avatar.jpg"),
             Rol.USER,
-            Idioma.ESP,
             EstadoUsuario.SUSPENDIDO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -130,10 +124,8 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             PasswordHash.of("$2a$10$hashedPassword"),
             Avatar.of("https://example.com/avatar.jpg"),
             Rol.USER,
-            Idioma.ESP,
             EstadoUsuario.PENDIENTE_DE_VERIFICACION,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.of("token123"),
             null,
             TokenVerificacion.empty(),
@@ -185,10 +177,8 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             PasswordHash.of("$2a$10$hashedPassword"),
             Avatar.of("https://example.com/avatar1.jpg"),
             Rol.USER,
-            Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -222,10 +212,8 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             PasswordHash.of("$2a$10$password"),
             Avatar.of("https://cdn.example.com/users/test.png"),
             Rol.ADMIN,
-            Idioma.ENG,
             EstadoUsuario.ACTIVO,
             DiscordUserId.of("discord456"),
-            DiscordUsername.of("testdiscord"),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -246,10 +234,8 @@ class BuscarUsuariosPorEstadoUseCaseTest {
     assertThat(dto.email()).isEqualTo("test@example.com");
     assertThat(dto.avatar()).isEqualTo("https://cdn.example.com/users/test.png");
     assertThat(dto.role()).isEqualTo("ADMIN");
-    assertThat(dto.language()).isEqualTo("ENG");
     assertThat(dto.status()).isEqualTo("ACTIVO");
     assertThat(dto.discordUserId()).isEqualTo("discord456");
-    assertThat(dto.discordUsername()).isEqualTo("testdiscord");
 
     verify(repositorio).findByStatus(EstadoUsuario.ACTIVO);
   }
@@ -266,10 +252,8 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             PasswordHash.of("$2a$10$hashedPassword"),
             Avatar.of("https://example.com/avatar1.jpg"),
             Rol.USER,
-            Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.empty(),
             Instant.now(),
             TokenVerificacion.empty(),
@@ -283,10 +267,8 @@ class BuscarUsuariosPorEstadoUseCaseTest {
             PasswordHash.of("$2a$10$hashedPassword"),
             Avatar.of("https://example.com/avatar2.jpg"),
             Rol.ADMIN,
-            Idioma.ENG,
             EstadoUsuario.ACTIVO,
             DiscordUserId.of("discord789"),
-            DiscordUsername.of("adminDiscord"),
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),

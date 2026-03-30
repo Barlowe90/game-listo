@@ -14,12 +14,9 @@ public class UsuarioMapper {
     entity.setPasswordHash(usuario.getPasswordHash().value());
     entity.setAvatar(usuario.getAvatar().isEmpty() ? null : usuario.getAvatar().url());
     entity.setRole(usuario.getRole());
-    entity.setLanguage(usuario.getLanguage());
     entity.setStatus(usuario.getStatus());
     entity.setDiscordUserId(
         usuario.getDiscordUserId().isEmpty() ? null : usuario.getDiscordUserId().value());
-    entity.setDiscordUsername(
-        usuario.getDiscordUsername().isEmpty() ? null : usuario.getDiscordUsername().value());
     entity.setTokenVerificacion(
         usuario.getTokenVerificacion() != null && !usuario.getTokenVerificacion().isEmpty()
             ? usuario.getTokenVerificacion().value()
@@ -41,14 +38,10 @@ public class UsuarioMapper {
         PasswordHash.of(entity.getPasswordHash()),
         entity.getAvatar() != null ? Avatar.of(entity.getAvatar()) : Avatar.empty(),
         entity.getRole(),
-        entity.getLanguage(),
         entity.getStatus(),
         entity.getDiscordUserId() != null
             ? DiscordUserId.of(entity.getDiscordUserId())
             : DiscordUserId.empty(),
-        entity.getDiscordUsername() != null
-            ? DiscordUsername.of(entity.getDiscordUsername())
-            : DiscordUsername.empty(),
         entity.getTokenVerificacion() != null
             ? TokenVerificacion.of(entity.getTokenVerificacion())
             : TokenVerificacion.empty(),

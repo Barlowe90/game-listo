@@ -34,7 +34,6 @@ class UsuarioMapperTest {
     assertEquals("$2a$10$hash", entity.getPasswordHash());
     assertEquals(EstadoUsuario.PENDIENTE_DE_VERIFICACION, entity.getStatus());
     assertEquals(Rol.USER, entity.getRole());
-    assertEquals(Idioma.ESP, entity.getLanguage());
   }
 
   @Test
@@ -48,10 +47,8 @@ class UsuarioMapperTest {
     entity.setPasswordHash("$2a$10$hash");
     entity.setAvatar(null);
     entity.setRole(Rol.USER);
-    entity.setLanguage(Idioma.ESP);
     entity.setStatus(EstadoUsuario.ACTIVO);
     entity.setDiscordUserId(null);
-    entity.setDiscordUsername(null);
     entity.setTokenVerificacion(null);
     entity.setTokenVerificacionExpiracion(null);
     entity.setTokenRestablecimiento(null);
@@ -68,7 +65,6 @@ class UsuarioMapperTest {
     assertEquals("$2a$10$hash", usuario.getPasswordHash().value());
     assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
     assertEquals(Rol.USER, usuario.getRole());
-    assertEquals(Idioma.ESP, usuario.getLanguage());
   }
 
   @Test
@@ -82,9 +78,7 @@ class UsuarioMapperTest {
     entity.setPasswordHash("$2a$10$hash");
     entity.setAvatar(null);
     entity.setDiscordUserId(null);
-    entity.setDiscordUsername(null);
     entity.setRole(Rol.USER);
-    entity.setLanguage(Idioma.ESP);
     entity.setStatus(EstadoUsuario.ACTIVO);
     entity.setTokenVerificacion(null);
     entity.setTokenVerificacionExpiracion(null);
@@ -97,7 +91,6 @@ class UsuarioMapperTest {
     // Assert
     assertTrue(usuario.getAvatar().isEmpty());
     assertTrue(usuario.getDiscordUserId().isEmpty());
-    assertTrue(usuario.getDiscordUsername().isEmpty());
   }
 
   @Test
@@ -111,9 +104,7 @@ class UsuarioMapperTest {
     entity.setPasswordHash("$2a$10$hash");
     entity.setAvatar("https://example.com/avatar.png");
     entity.setDiscordUserId("123456789");
-    entity.setDiscordUsername("player#1234");
     entity.setRole(Rol.USER);
-    entity.setLanguage(Idioma.ENG);
     entity.setStatus(EstadoUsuario.ACTIVO);
     entity.setTokenVerificacion(null);
     entity.setTokenVerificacionExpiracion(null);
@@ -128,9 +119,6 @@ class UsuarioMapperTest {
     assertEquals("https://example.com/avatar.png", usuario.getAvatar().url());
     assertFalse(usuario.getDiscordUserId().isEmpty());
     assertEquals("123456789", usuario.getDiscordUserId().value());
-    assertFalse(usuario.getDiscordUsername().isEmpty());
-    assertEquals("player#1234", usuario.getDiscordUsername().value());
-    assertEquals(Idioma.ENG, usuario.getLanguage());
   }
 
   @Test
@@ -146,7 +134,6 @@ class UsuarioMapperTest {
     entity.setEmail("test@test.com");
     entity.setPasswordHash("$2a$10$hash");
     entity.setRole(Rol.USER);
-    entity.setLanguage(Idioma.ESP);
     entity.setStatus(EstadoUsuario.PENDIENTE_DE_VERIFICACION);
     entity.setTokenVerificacion(tokenValue);
     entity.setTokenVerificacionExpiracion(expiracion);
@@ -176,7 +163,6 @@ class UsuarioMapperTest {
     entity.setEmail("test@test.com");
     entity.setPasswordHash("$2a$10$hash");
     entity.setRole(Rol.USER);
-    entity.setLanguage(Idioma.ESP);
     entity.setStatus(EstadoUsuario.ACTIVO);
     entity.setTokenVerificacion(null);
     entity.setTokenVerificacionExpiracion(null);
@@ -205,7 +191,7 @@ class UsuarioMapperTest {
 
     // Agregar datos opcionales
     usuarioOriginal.changeAvatar(Avatar.of("https://example.com/avatar.png"));
-    usuarioOriginal.linkDiscord(DiscordUserId.of("987654321"), DiscordUsername.of("gamer#5678"));
+    usuarioOriginal.linkDiscord(DiscordUserId.of("987654321"));
 
     // Act - Primera conversión: Dominio -> Entity
     UsuarioEntity entity = mapper.toEntity(usuarioOriginal);
@@ -222,11 +208,7 @@ class UsuarioMapperTest {
     assertEquals(usuarioOriginal.getAvatar().url(), usuarioReconstruido.getAvatar().url());
     assertEquals(
         usuarioOriginal.getDiscordUserId().value(), usuarioReconstruido.getDiscordUserId().value());
-    assertEquals(
-        usuarioOriginal.getDiscordUsername().value(),
-        usuarioReconstruido.getDiscordUsername().value());
     assertEquals(usuarioOriginal.getStatus(), usuarioReconstruido.getStatus());
     assertEquals(usuarioOriginal.getRole(), usuarioReconstruido.getRole());
-    assertEquals(usuarioOriginal.getLanguage(), usuarioReconstruido.getLanguage());
   }
 }

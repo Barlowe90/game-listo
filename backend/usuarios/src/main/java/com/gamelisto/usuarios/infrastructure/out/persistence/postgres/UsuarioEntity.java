@@ -1,7 +1,6 @@
 package com.gamelisto.usuarios.infrastructure.out.persistence.postgres;
 
 import com.gamelisto.usuarios.domain.usuario.EstadoUsuario;
-import com.gamelisto.usuarios.domain.usuario.Idioma;
 import com.gamelisto.usuarios.domain.usuario.Rol;
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -36,18 +35,11 @@ public class UsuarioEntity {
   private Rol role;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "language", nullable = false, length = 3)
-  private Idioma language;
-
-  @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false, length = 30)
   private EstadoUsuario status;
 
   @Column(name = "id_user_discord", length = 100)
   private String discordUserId;
-
-  @Column(name = "discord_username", length = 100)
-  private String discordUsername;
 
   @Column(name = "token_verificacion", length = 100)
   private String tokenVerificacion;

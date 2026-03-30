@@ -3,7 +3,6 @@ package com.gamelisto.usuarios.infrastructure;
 import java.util.UUID;
 
 import com.gamelisto.usuarios.domain.usuario.EstadoUsuario;
-import com.gamelisto.usuarios.domain.usuario.Idioma;
 import com.gamelisto.usuarios.domain.usuario.Rol;
 import com.gamelisto.usuarios.infrastructure.out.persistence.postgres.UsuarioEntity;
 import com.gamelisto.usuarios.infrastructure.out.persistence.postgres.UsuarioJpaRepository;
@@ -40,10 +39,8 @@ public class AdminInitializerConfig {
       admin.setPasswordHash(passwordEncoder.encode(adminPassword));
       admin.setAvatar(null);
       admin.setRole(Rol.ADMIN);
-      admin.setLanguage(Idioma.ESP);
       admin.setStatus(EstadoUsuario.ACTIVO);
       admin.setDiscordUserId(null);
-      admin.setDiscordUsername(null);
       admin.setTokenVerificacion(null);
       admin.setTokenVerificacionExpiracion(null);
       admin.setTokenRestablecimiento(null);

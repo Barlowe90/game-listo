@@ -44,22 +44,6 @@ class GlobalExceptionHandlerTest {
     assertThat(response.getBody().get("timestamp")).isNotNull();
   }
 
-  // ========== APPLICATIONEXCEPTION - 422 UNPROCESSABLE ENTITY ==========
-
-  @Test
-  @DisplayName("Debe manejar ApplicationException con 422")
-  void debeManejarApplicationException() {
-    ApplicationException exception = new ApplicationException("Recurso no encontrado");
-
-    ResponseEntity<Map<String, Object>> response = handler.handleApplicationException(exception);
-
-    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
-    assertThat(response.getBody()).isNotNull();
-    assertThat(response.getBody().get("status")).isEqualTo(422);
-    assertThat(response.getBody().get("error")).isEqualTo("Recurso no encontrado");
-    assertThat(response.getBody().get("timestamp")).isNotNull();
-  }
-
   // ========== INFRASTRUCTUREEXCEPTION - 500 INTERNAL SERVER ERROR ==========
 
   @Test

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import com.gamelisto.usuarios.domain.events.UsuarioActualizado;
 import com.gamelisto.usuarios.domain.events.UsuarioCreado;
 import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
-import java.time.Instant;
 
 import com.gamelisto.usuarios.infrastructure.out.messaging.NoOpUsuarioPublisher;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,9 +32,7 @@ class NoOpUsuarioPublisherTest {
             "test@example.com",
             "avatar.png",
             "USER",
-            "ESP",
             "PENDIENTE_DE_VERIFICACION",
-            null,
             null);
 
     // When & Then - No debe lanzar excepción
@@ -47,8 +44,7 @@ class NoOpUsuarioPublisherTest {
   void debeEjecutarPublicarUsuarioActualizadoSinLanzarExcepciones() {
     // Given
     UsuarioActualizado event =
-        UsuarioActualizado.of(
-            "user-123", "testuser", "avatar.png", "123456789", "player#1234");
+        UsuarioActualizado.of("user-123", "testuser", "avatar.png", "123456789");
 
     // When & Then
     assertThatCode(() -> publisher.publicarUsuarioActualizado(event)).doesNotThrowAnyException();
@@ -71,7 +67,7 @@ class NoOpUsuarioPublisherTest {
     // Given
     UsuarioCreado event =
         new UsuarioCreado(
-            "1", "user1", "user1@test.com", "avatar1.png", "USER", "ESP", "ACTIVO", null, null);
+            "1", "user1", "user1@test.com", "avatar1.png", "USER", "ACTIVO", null);
 
     // When & Then
     assertThatCode(() -> publisher.publicarUsuarioCreado(event)).doesNotThrowAnyException();
@@ -90,13 +86,13 @@ class NoOpUsuarioPublisherTest {
     // Given
     UsuarioCreado event1 =
         new UsuarioCreado(
-            "1", "user1", "user1@test.com", "avatar1.png", "USER", "ESP", "ACTIVO", null, null);
+            "1", "user1", "user1@test.com", "avatar1.png", "USER", "ACTIVO", null);
     UsuarioCreado event2 =
         new UsuarioCreado(
-            "2", "user2", "user2@test.com", "avatar2.png", "USER", "ESP", "ACTIVO", null, null);
+            "2", "user2", "user2@test.com", "avatar2.png", "USER", "ACTIVO", null);
     UsuarioCreado event3 =
         new UsuarioCreado(
-            "3", "user3", "user3@test.com", "avatar3.png", "USER", "ESP", "ACTIVO", null, null);
+            "3", "user3", "user3@test.com", "avatar3.png", "USER", "ACTIVO", null);
 
     // When & Then
     assertThatCode(

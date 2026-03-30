@@ -22,8 +22,7 @@ export function ProfilePublicSection({
   onRetry,
 }: Readonly<ProfilePublicSectionProps>) {
   const discordUserId = visibleProfile?.discordUserId?.trim() ?? '';
-  const discordUsername = visibleProfile?.discordUsername?.trim() ?? '';
-  const hasDiscordContact = discordUserId !== '' && discordUsername !== '';
+  const hasDiscordContact = discordUserId !== '';
 
   if (profileError && !visibleProfile) {
     return (
@@ -63,7 +62,7 @@ export function ProfilePublicSection({
             <div className="grid gap-1">
               <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                 <MessageCircleMore className="size-4 text-primary" aria-hidden="true" />
-                <span>{discordUsername}</span>
+                <span>Discord</span>
               </div>
               <p className="text-sm leading-relaxed text-secondary">
                 Se abrira su perfil de Discord en una pestaña nueva.

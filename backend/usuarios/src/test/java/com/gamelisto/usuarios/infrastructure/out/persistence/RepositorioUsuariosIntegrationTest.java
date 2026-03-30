@@ -181,9 +181,8 @@ class RepositorioUsuariosIntegrationTest {
     // Arrange
     Usuario usuario = repositorioUsuarios.save(usuarioTest);
     DiscordUserId discordId = DiscordUserId.of("123456789");
-    DiscordUsername discordUsername = DiscordUsername.of("DiscordUser#1234");
 
-    usuario.linkDiscord(discordId, discordUsername);
+    usuario.linkDiscord(discordId);
     repositorioUsuarios.save(usuario);
 
     // Act
@@ -192,7 +191,6 @@ class RepositorioUsuariosIntegrationTest {
     // Assert
     assertThat(encontrado).isPresent();
     assertThat(encontrado.get().hasDiscordLinked()).isTrue();
-    assertThat(encontrado.get().getDiscordUsername().value()).isEqualTo(discordUsername.value());
   }
 
   @Test

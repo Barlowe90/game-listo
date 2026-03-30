@@ -8,10 +8,8 @@ public record UsuarioResult(
     String email,
     String avatar,
     String role,
-    String language,
     String status,
-    String discordUserId,
-    String discordUsername) {
+    String discordUserId) {
   public static UsuarioResult from(Usuario usuario) {
     return new UsuarioResult(
         usuario.getId().value().toString(),
@@ -19,9 +17,7 @@ public record UsuarioResult(
         usuario.getEmail().value(),
         usuario.getAvatar().url(),
         usuario.getRole().name(),
-        usuario.getLanguage().name(),
         usuario.getStatus().name(),
-        usuario.getDiscordUserId().value(),
-        usuario.getDiscordUsername().value());
+        usuario.getDiscordUserId().value());
   }
 }

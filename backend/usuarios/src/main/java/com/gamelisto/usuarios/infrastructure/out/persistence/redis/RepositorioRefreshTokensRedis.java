@@ -10,6 +10,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
+import com.gamelisto.usuarios.infrastructure.exceptions.InfrastructureException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -42,7 +44,7 @@ public class RepositorioRefreshTokensRedis implements RepositorioRefreshTokens {
 
       redisTemplate.opsForValue().set(key, json, ttlSeconds, TimeUnit.SECONDS);
     } catch (Exception e) {
-      throw new RuntimeException("Error al guardar refresh token activo", e);
+      throw new InfrastructureException("Error al guardar refresh token activo", e);
     }
   }
 
@@ -67,7 +69,7 @@ public class RepositorioRefreshTokensRedis implements RepositorioRefreshTokens {
 
       return Optional.of(token);
     } catch (Exception e) {
-      throw new RuntimeException("Error al buscar refresh token activo", e);
+      throw new InfrastructureException("Error al buscar refresh token activo", e);
     }
   }
 
@@ -76,10 +78,8 @@ public class RepositorioRefreshTokensRedis implements RepositorioRefreshTokens {
     String activeKey = ACTIVE_PREFIX + tokenHash.value();
     String revokedKey = REVOKED_PREFIX + tokenHash.value();
 
-    // Eliminar de activos
     redisTemplate.delete(activeKey);
 
-    // Añadir a revocados con TTL residual
     redisTemplate.opsForValue().set(revokedKey, "1", ttl.getSeconds(), TimeUnit.SECONDS);
   }
 

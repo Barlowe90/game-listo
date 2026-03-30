@@ -43,9 +43,7 @@ interface ProfileSettingsSectionProps {
   onCurrentPasswordChange: (value: string) => void;
   onNewPasswordChange: (value: string) => void;
   onPasswordSubmit: FormEventHandler<HTMLFormElement>;
-  discordUsernameDraft: string;
   discordUserIdDraft: string;
-  discordUsernameError: string | null;
   discordUserIdError: string | null;
   discordError: string | null;
   discordSuccess: string | null;
@@ -53,7 +51,6 @@ interface ProfileSettingsSectionProps {
   isRemovingDiscord: boolean;
   hasDiscordLinked: boolean;
   isDiscordDirty: boolean;
-  onDiscordUsernameChange: (value: string) => void;
   onDiscordUserIdChange: (value: string) => void;
   onDiscordSubmit: FormEventHandler<HTMLFormElement>;
   onDiscordDelete: () => void;
@@ -99,9 +96,6 @@ function ProfileDetailsCard({
               type="url"
               value={avatarDraft}
               onChange={(event) => onAvatarChange(event.target.value)}
-              placeholder="https://..."
-              autoComplete="url"
-              disabled={isLoadingProfile || isSavingProfileSettings}
               state={avatarError ? 'error' : 'default'}
             />
           </FormField>
@@ -109,7 +103,6 @@ function ProfileDetailsCard({
           <FormField label="Idioma" htmlFor="profile-language" errorMessage={languageError}>
             <select
               id="profile-language"
-              value={selectedLanguage}
               onChange={(event) => onLanguageChange(event.target.value as LanguageCode)}
               className={cn(
                 inputVariants({ state: languageError ? 'error' : 'default' }),
@@ -265,8 +258,6 @@ function ProfileDiscordCard({
   discordSuccess,
   discordUserIdDraft,
   discordUserIdError,
-  discordUsernameDraft,
-  discordUsernameError,
   hasDiscordLinked,
   isDiscordDirty,
   isRemovingDiscord,
@@ -274,7 +265,6 @@ function ProfileDiscordCard({
   onDiscordDelete,
   onDiscordSubmit,
   onDiscordUserIdChange,
-  onDiscordUsernameChange,
 }: Readonly<
   Pick<
     ProfileSettingsSectionProps,
@@ -282,8 +272,6 @@ function ProfileDiscordCard({
     | 'discordSuccess'
     | 'discordUserIdDraft'
     | 'discordUserIdError'
-    | 'discordUsernameDraft'
-    | 'discordUsernameError'
     | 'hasDiscordLinked'
     | 'isDiscordDirty'
     | 'isRemovingDiscord'
@@ -291,29 +279,12 @@ function ProfileDiscordCard({
     | 'onDiscordDelete'
     | 'onDiscordSubmit'
     | 'onDiscordUserIdChange'
-    | 'onDiscordUsernameChange'
   >
 >) {
   return (
     <InfoPanelCard title="Discord" className="xl:col-span-2">
       <form className="grid gap-4" onSubmit={onDiscordSubmit}>
         <div className="grid gap-4 xl:grid-cols-2">
-          <FormField
-            label="Discord username"
-            htmlFor="discord-username"
-            required
-            errorMessage={discordUsernameError}
-          >
-            <Input
-              id="discord-username"
-              type="text"
-              value={discordUsernameDraft}
-              onChange={(event) => onDiscordUsernameChange(event.target.value)}
-              placeholder="tu_usuario"
-              disabled={isSavingDiscord || isRemovingDiscord}
-              state={discordUsernameError ? 'error' : 'default'}
-            />
-          </FormField>
 
           <FormField
             label="Discord ID"
@@ -387,9 +358,7 @@ export function ProfileSettingsSection({
   onCurrentPasswordChange,
   onNewPasswordChange,
   onPasswordSubmit,
-  discordUsernameDraft,
   discordUserIdDraft,
-  discordUsernameError,
   discordUserIdError,
   discordError,
   discordSuccess,
@@ -397,7 +366,6 @@ export function ProfileSettingsSection({
   isRemovingDiscord,
   hasDiscordLinked,
   isDiscordDirty,
-  onDiscordUsernameChange,
   onDiscordUserIdChange,
   onDiscordSubmit,
   onDiscordDelete,
@@ -468,8 +436,6 @@ export function ProfileSettingsSection({
           discordSuccess={discordSuccess}
           discordUserIdDraft={discordUserIdDraft}
           discordUserIdError={discordUserIdError}
-          discordUsernameDraft={discordUsernameDraft}
-          discordUsernameError={discordUsernameError}
           hasDiscordLinked={hasDiscordLinked}
           isDiscordDirty={isDiscordDirty}
           isRemovingDiscord={isRemovingDiscord}
@@ -477,7 +443,6 @@ export function ProfileSettingsSection({
           onDiscordDelete={onDiscordDelete}
           onDiscordSubmit={onDiscordSubmit}
           onDiscordUserIdChange={onDiscordUserIdChange}
-          onDiscordUsernameChange={onDiscordUsernameChange}
         />
       </div>
     </div>

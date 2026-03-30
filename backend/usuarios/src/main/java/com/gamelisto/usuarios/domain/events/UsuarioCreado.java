@@ -6,21 +6,17 @@ public record UsuarioCreado(
     String email,
     String avatar,
     String role,
-    String language,
     String status,
-    String discordUserId,
-    String discordUsername) {
+    String discordUserId) {
   public static UsuarioCreado of(
       String usuarioId,
       String username,
       String email,
       String avatar,
       String role,
-      String language,
       String status,
-      String discordUserId,
-      String discordUsername) {
+      String discordUserId) {
     return new UsuarioCreado(
-        usuarioId, username, email, avatar, role, language, status, discordUserId, discordUsername);
+        usuarioId, username, email, avatar, role, status, discordUserId);
   }
 }

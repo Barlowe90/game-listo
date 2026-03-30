@@ -12,7 +12,6 @@ export interface User {
   language: string;
   status: string;
   discordUserId?: string | null;
-  discordUsername?: string | null;
 }
 
 export interface Session {

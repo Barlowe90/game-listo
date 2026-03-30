@@ -4,8 +4,6 @@ import com.gamelisto.biblioteca.domain.exceptions.DomainException;
 import lombok.Getter;
 import lombok.ToString;
 
-import com.gamelisto.biblioteca.domain.UsuarioId;
-
 @Getter
 @ToString
 public class ListaGame {
@@ -31,8 +29,7 @@ public class ListaGame {
     private NombreListaGame nombreLista;
     private Tipo tipo;
 
-    private Builder() {
-    }
+    private Builder() {}
 
     public Builder id(ListaGameId id) {
       this.id = id;

@@ -235,10 +235,8 @@ class JwtUtilsTest {
             baseUser.getPasswordHash(),
             baseUser.getAvatar(),
             Rol.ADMIN, // Cambiar a ADMIN
-            baseUser.getLanguage(),
             baseUser.getStatus(),
             baseUser.getDiscordUserId(),
-            baseUser.getDiscordUsername(),
             baseUser.getTokenVerificacion(),
             baseUser.getTokenVerificacionExpiracion(),
             baseUser.getTokenRestablecimiento(),

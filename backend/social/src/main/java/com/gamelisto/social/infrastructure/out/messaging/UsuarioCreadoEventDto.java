@@ -7,12 +7,8 @@ import java.util.UUID;
 /** DTO que mapea el evento UsuarioCreado publicado por el servicio usuarios. */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record UsuarioCreadoEventDto(
-    UUID usuarioId,
-    String username,
-    String avatar,
-    String discordUserId,
-    String discordUsername) {
+    UUID usuarioId, String username, String avatar, String discordUserId) {
   public UsuarioCreadoEventDto(UUID usuarioId, String username, String avatar) {
-    this(usuarioId, username, avatar, null, null);
+    this(usuarioId, username, avatar, null);
   }
 }

@@ -66,10 +66,8 @@ class UsuariosControllerIntegrationTest {
             PasswordHash.of(passwordEncoder.encode("Admin123!")),
             Avatar.empty(),
             Rol.ADMIN,
-            Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
-            DiscordUsername.empty(),
             TokenVerificacion.generate(),
             now.plusSeconds(24 * 60 * 60),
             TokenVerificacion.empty(),
@@ -206,7 +204,7 @@ class UsuariosControllerIntegrationTest {
   void debeEditarPerfilUsuario() throws Exception {
     // Arrange
     EditarPerfilUsuarioRequest request =
-        new EditarPerfilUsuarioRequest("https://i.imgur.com/newavatar.png", "ENG");
+        new EditarPerfilUsuarioRequest("https://i.imgur.com/newavatar.png");
 
     // Act & Assert - Usuario edita su propio perfil
     mockMvc
@@ -217,8 +215,7 @@ class UsuariosControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.avatar").value("https://i.imgur.com/newavatar.png"))
-        .andExpect(jsonPath("$.language").value("ENG"));
+        .andExpect(jsonPath("$.avatar").value("https://i.imgur.com/newavatar.png"));
   }
 
   @Test

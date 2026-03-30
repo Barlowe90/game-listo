@@ -4,10 +4,6 @@ import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import java.time.Instant;
 import lombok.Getter;
 
-/**
- * TODO reducir usuario a una clase básica, como una herencia: un padre usuario y los hijos *
- * usuarioDiscord. Sacar lógica de verificar a cada CdU
- */
 @Getter
 public class Usuario {
 
@@ -20,10 +16,8 @@ public class Usuario {
   private PasswordHash passwordHash;
   private Avatar avatar;
   private Rol role;
-  private Idioma language;
   private EstadoUsuario status;
   private DiscordUserId discordUserId;
-  private DiscordUsername discordUsername;
   private TokenVerificacion tokenVerificacion;
   private Instant tokenVerificacionExpiracion;
   private TokenVerificacion tokenRestablecimiento;
@@ -37,12 +31,9 @@ public class Usuario {
     this.passwordHash = builder.passwordHash;
     this.avatar = builder.avatar != null ? builder.avatar : Avatar.empty();
     this.role = builder.role != null ? builder.role : Rol.USER;
-    this.language = builder.language != null ? builder.language : Idioma.ESP;
     this.status = builder.status != null ? builder.status : EstadoUsuario.ACTIVO;
     this.discordUserId =
         builder.discordUserId != null ? builder.discordUserId : DiscordUserId.empty();
-    this.discordUsername =
-        builder.discordUsername != null ? builder.discordUsername : DiscordUsername.empty();
     this.tokenVerificacion =
         builder.tokenVerificacion != null ? builder.tokenVerificacion : TokenVerificacion.empty();
     this.tokenVerificacionExpiracion = builder.tokenVerificacionExpiracion;
@@ -64,10 +55,8 @@ public class Usuario {
     private PasswordHash passwordHash;
     private Avatar avatar;
     private Rol role;
-    private Idioma language;
     private EstadoUsuario status;
     private DiscordUserId discordUserId;
-    private DiscordUsername discordUsername;
     private TokenVerificacion tokenVerificacion;
     private Instant tokenVerificacionExpiracion;
     private TokenVerificacion tokenRestablecimiento;
@@ -105,11 +94,6 @@ public class Usuario {
       return this;
     }
 
-    public Builder language(Idioma language) {
-      this.language = language;
-      return this;
-    }
-
     public Builder status(EstadoUsuario status) {
       this.status = status;
       return this;
@@ -117,11 +101,6 @@ public class Usuario {
 
     public Builder discordUserId(DiscordUserId discordUserId) {
       this.discordUserId = discordUserId;
-      return this;
-    }
-
-    public Builder discordUsername(DiscordUsername discordUsername) {
-      this.discordUsername = discordUsername;
       return this;
     }
 
@@ -159,7 +138,6 @@ public class Usuario {
             .passwordHash(passwordHash)
             .avatar(Avatar.empty())
             .role(Rol.USER)
-            .language(Idioma.ESP)
             .status(EstadoUsuario.PENDIENTE_DE_VERIFICACION)
             .build();
     usuario.generarTokenVerificacion();
@@ -175,10 +153,8 @@ public class Usuario {
       PasswordHash passwordHash,
       Avatar avatar,
       Rol role,
-      Idioma language,
       EstadoUsuario status,
       DiscordUserId discordUserId,
-      DiscordUsername discordUsername,
       TokenVerificacion tokenVerificacion,
       Instant tokenVerificacionExpiracion,
       TokenVerificacion tokenRestablecimiento,
@@ -190,10 +166,8 @@ public class Usuario {
         .passwordHash(passwordHash)
         .avatar(avatar)
         .role(role)
-        .language(language)
         .status(status)
         .discordUserId(discordUserId)
-        .discordUsername(discordUsername)
         .tokenVerificacion(tokenVerificacion)
         .tokenVerificacionExpiracion(tokenVerificacionExpiracion)
         .tokenRestablecimiento(tokenRestablecimiento)
@@ -232,9 +206,6 @@ public class Usuario {
     this.avatar = newAvatar != null ? newAvatar : Avatar.empty();
   }
 
-  public void changeLanguage(Idioma newLanguage) {
-    this.language = newLanguage != null ? newLanguage : Idioma.ESP;
-  }
 
   public void suspend() {
     this.status = EstadoUsuario.SUSPENDIDO;
@@ -283,26 +254,38 @@ public class Usuario {
     this.tokenRestablecimientoExpiracion = null;
   }
 
+  public boolean tieneTokenVerificacionValido(TokenVerificacion token) {
+    if (this.tokenVerificacion == null || this.tokenVerificacion.isEmpty()) {
+      return false;
+    }
+    if (this.tokenVerificacionExpiracion == null
+        || Instant.now().isAfter(this.tokenVerificacionExpiracion)) {
+      return false;
+    }
+    return this.tokenVerificacion.equals(token);
+  }
+
   public void verificarEmail(TokenVerificacion token) {
+    if (token == null) {
+      throw new DomainException("El token de verificación no puede ser nulo");
+    }
+    if (!tieneTokenVerificacionValido(token)) {
+      throw new DomainException("Token de verificación inválido o expirado");
+    }
     this.status = EstadoUsuario.ACTIVO;
     this.tokenVerificacion = TokenVerificacion.empty();
     this.tokenVerificacionExpiracion = null;
   }
 
-  public void linkDiscord(DiscordUserId discordUserId, DiscordUsername discordUsername) {
+  public void linkDiscord(DiscordUserId discordUserId) {
     if (discordUserId == null || discordUserId.isEmpty()) {
       throw new DomainException("El ID de Discord no puede ser nulo o vacío");
     }
-    if (discordUsername == null || discordUsername.isEmpty()) {
-      throw new DomainException("El username de Discord no puede ser nulo o vacío");
-    }
     this.discordUserId = discordUserId;
-    this.discordUsername = discordUsername;
   }
 
   public void unlinkDiscord() {
     this.discordUserId = DiscordUserId.empty();
-    this.discordUsername = DiscordUsername.empty();
   }
 
   public void changeRole(Rol newRole) {
@@ -325,7 +308,7 @@ public class Usuario {
   }
 
   public boolean hasDiscordLinked() {
-    return !this.discordUserId.isEmpty() && !this.discordUsername.isEmpty();
+    return !this.discordUserId.isEmpty();
   }
 
   @Override

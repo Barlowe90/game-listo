@@ -29,10 +29,8 @@ class UsuarioTest {
     assertEquals("jugador@test.com", usuario.getEmail().value());
     assertEquals(EstadoUsuario.PENDIENTE_DE_VERIFICACION, usuario.getStatus());
     assertEquals(Rol.USER, usuario.getRole());
-    assertEquals(Idioma.ESP, usuario.getLanguage());
     assertTrue(usuario.getAvatar().isEmpty());
     assertTrue(usuario.getDiscordUserId().isEmpty());
-    assertTrue(usuario.getDiscordUsername().isEmpty());
   }
 
   @Test
@@ -45,10 +43,8 @@ class UsuarioTest {
     PasswordHash passwordHash = PasswordHash.of("$2a$10$hash");
     Avatar avatar = Avatar.of("https://example.com/avatar.jpg");
     Rol role = Rol.ADMIN;
-    Idioma language = Idioma.ENG;
     EstadoUsuario status = EstadoUsuario.ACTIVO;
     DiscordUserId discordUserId = DiscordUserId.of("123456");
-    DiscordUsername discordUsername = DiscordUsername.of("player#1234");
 
     // Act
     Usuario usuario =
@@ -59,10 +55,8 @@ class UsuarioTest {
             passwordHash,
             avatar,
             role,
-            language,
             status,
             discordUserId,
-            discordUsername,
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
@@ -74,10 +68,8 @@ class UsuarioTest {
     assertEquals("test@test.com", usuario.getEmail().value());
     assertEquals("https://example.com/avatar.jpg", usuario.getAvatar().url());
     assertEquals(Rol.ADMIN, usuario.getRole());
-    assertEquals(Idioma.ENG, usuario.getLanguage());
     assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
     assertEquals("123456", usuario.getDiscordUserId().value());
-    assertEquals("player#1234", usuario.getDiscordUsername().value());
   }
 
   // ========== VALIDACIÓN DE INVARIANTES ==========
@@ -200,34 +192,7 @@ class UsuarioTest {
     assertTrue(usuario.getAvatar().isEmpty());
   }
 
-  // ========== CAMBIO DE IDIOMA ==========
-
-  @Test
-  @DisplayName("Debe cambiar idioma y actualizar timestamp")
-  void debeCambiarIdiomaYActualizarTimestamp() {
-    // Arrange
-    Usuario usuario = crearUsuarioDefault();
-    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
-
-    // Act
-    usuario.changeLanguage(Idioma.ENG);
-
-    // Assert
-    assertEquals(Idioma.ENG, usuario.getLanguage());
-  }
-
-  @Test
-  @DisplayName("Debe establecer idioma por defecto (ESP) si se pasa nulo")
-  void debeEstablecerIdiomaPorDefectoSiEsNulo() {
-    // Arrange
-    Usuario usuario = crearUsuarioDefault();
-
-    // Act
-    usuario.changeLanguage(null);
-
-    // Assert
-    assertEquals(Idioma.ESP, usuario.getLanguage());
-  }
+  // language field removed; related tests deleted
 
   // ========== GESTIÓN DE ESTADO ==========
 
@@ -301,15 +266,13 @@ class UsuarioTest {
     // Arrange
     Usuario usuario = crearUsuarioDefault();
     DiscordUserId discordId = DiscordUserId.of("123456789");
-    DiscordUsername discordUsername = DiscordUsername.of("player#1234");
     await().pollDelay(Duration.ofMillis(10)).until(() -> true);
 
     // Act
-    usuario.linkDiscord(discordId, discordUsername);
+    usuario.linkDiscord(discordId);
 
     // Assert
     assertEquals("123456789", usuario.getDiscordUserId().value());
-    assertEquals("player#1234", usuario.getDiscordUsername().value());
     assertTrue(usuario.hasDiscordLinked());
   }
 
@@ -318,10 +281,9 @@ class UsuarioTest {
   void debeLanzarExcepcionAlVincularDiscordConIdNulo() {
     // Arrange
     Usuario usuario = crearUsuarioDefault();
-    DiscordUsername discordUsername = DiscordUsername.of("player#1234");
 
     // Act & Assert
-    assertThrows(DomainException.class, () -> usuario.linkDiscord(null, discordUsername));
+    assertThrows(DomainException.class, () -> usuario.linkDiscord(null));
   }
 
   @Test
@@ -330,33 +292,9 @@ class UsuarioTest {
     // Arrange
     Usuario usuario = crearUsuarioDefault();
     DiscordUserId discordId = DiscordUserId.empty();
-    DiscordUsername discordUsername = DiscordUsername.of("player#1234");
 
     // Act & Assert
-    assertThrows(DomainException.class, () -> usuario.linkDiscord(discordId, discordUsername));
-  }
-
-  @Test
-  @DisplayName("Debe lanzar excepción al vincular Discord con username nulo")
-  void debeLanzarExcepcionAlVincularDiscordConUsernameNulo() {
-    // Arrange
-    Usuario usuario = crearUsuarioDefault();
-    DiscordUserId discordId = DiscordUserId.of("123456789");
-
-    // Act & Assert
-    assertThrows(DomainException.class, () -> usuario.linkDiscord(discordId, null));
-  }
-
-  @Test
-  @DisplayName("Debe lanzar excepción al vincular Discord con username vacío")
-  void debeLanzarExcepcionAlVincularDiscordConUsernameVacio() {
-    // Arrange
-    Usuario usuario = crearUsuarioDefault();
-    DiscordUserId discordId = DiscordUserId.of("123456789");
-    DiscordUsername discordUsername = DiscordUsername.empty();
-
-    // Act & Assert
-    assertThrows(DomainException.class, () -> usuario.linkDiscord(discordId, discordUsername));
+    assertThrows(DomainException.class, () -> usuario.linkDiscord(discordId));
   }
 
   @Test
@@ -365,8 +303,7 @@ class UsuarioTest {
     // Arrange
     Usuario usuario = crearUsuarioDefault();
     DiscordUserId discordId = DiscordUserId.of("123456789");
-    DiscordUsername discordUsername = DiscordUsername.of("player#1234");
-    usuario.linkDiscord(discordId, discordUsername);
+    usuario.linkDiscord(discordId);
     await().pollDelay(Duration.ofMillis(10)).until(() -> true);
 
     // Act
@@ -374,7 +311,6 @@ class UsuarioTest {
 
     // Assert
     assertTrue(usuario.getDiscordUserId().isEmpty());
-    assertTrue(usuario.getDiscordUsername().isEmpty());
     assertFalse(usuario.hasDiscordLinked());
   }
 
@@ -434,7 +370,7 @@ class UsuarioTest {
   void hasDiscordLinkedDebeRetornarTrueConVinculacion() {
     // Arrange
     Usuario usuario = crearUsuarioDefault();
-    usuario.linkDiscord(DiscordUserId.of("123456"), DiscordUsername.of("player#1234"));
+    usuario.linkDiscord(DiscordUserId.of("123456"));
 
     // Act & Assert
     assertTrue(usuario.hasDiscordLinked());

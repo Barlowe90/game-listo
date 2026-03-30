@@ -40,21 +40,13 @@ public class PublicacionesListener {
               objectMapper.readValue(message.getBody(), UsuarioCreadoEventDto.class);
           logger.info("Procesando UsuarioCreado: usuarioId={}", dto.usuarioId());
           entradaEventos.procesarUsuarioCreado(
-              dto.usuarioId(),
-              dto.username(),
-              dto.avatar(),
-              dto.discordUserId(),
-              dto.discordUsername());
+              dto.usuarioId(), dto.username(), dto.avatar());
         }
         case "UsuarioActualizado" -> {
           UsuarioCreadoEventDto dto =
               objectMapper.readValue(message.getBody(), UsuarioCreadoEventDto.class);
           entradaEventos.procesarUsuarioActualizado(
-              dto.usuarioId(),
-              dto.username(),
-              dto.avatar(),
-              dto.discordUserId(),
-              dto.discordUsername());
+              dto.usuarioId(), dto.username(), dto.avatar());
         }
         case "UsuarioEliminado" -> {
           UsuarioEliminadoEventDto dto =

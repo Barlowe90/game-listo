@@ -99,7 +99,6 @@ class ObtenerTodosLosUsuariosUseCaseTest {
     assertEquals("complete@test.com", dto.email());
     assertEquals("ACTIVO", dto.status());
     assertEquals("USER", dto.role());
-    assertEquals("ESP", dto.language());
   }
 
   @Test
@@ -125,10 +124,8 @@ class ObtenerTodosLosUsuariosUseCaseTest {
         PasswordHash.of("$2a$10$hash"),
         Avatar.empty(),
         Rol.USER,
-        Idioma.ESP,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
-        DiscordUsername.empty(),
         TokenVerificacion.empty(),
         null,
         TokenVerificacion.empty(),
@@ -143,10 +140,8 @@ class ObtenerTodosLosUsuariosUseCaseTest {
         PasswordHash.of("$2a$10$hash"),
         Avatar.of("https://example.com/avatar.jpg"),
         Rol.USER,
-        Idioma.ESP,
         EstadoUsuario.ACTIVO,
         DiscordUserId.of("123456789"),
-        DiscordUsername.of("discorduser#1234"),
         TokenVerificacion.empty(),
         null,
         TokenVerificacion.empty(),

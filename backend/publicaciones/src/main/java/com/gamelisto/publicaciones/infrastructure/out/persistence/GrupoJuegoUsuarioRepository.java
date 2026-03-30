@@ -13,5 +13,5 @@ public interface GrupoJuegoUsuarioRepository
 
   boolean existsByGrupoIdAndUsuarioId(UUID grupoId, UUID usuarioId);
 
-  long deleteByGrupoIdAndUsuarioId(UUID grupoId, UUID usuarioId);
+  void deleteByGrupoIdAndUsuarioId(UUID grupoId, UUID usuarioId);
 }

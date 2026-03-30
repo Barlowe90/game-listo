@@ -4,13 +4,10 @@ import com.gamelisto.publicaciones.application.exceptions.ApplicationException;
 import com.gamelisto.publicaciones.domain.*;
 import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import com.gamelisto.publicaciones.domain.vo.DisponibilidadSemanal;
-import com.gamelisto.publicaciones.domain.FranjaHoraria;
-import com.gamelisto.publicaciones.domain.DiaSemana;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +27,8 @@ public class CrearPublicacionUseCase implements CrearPublicacionHandler {
     EstiloJuego estiloJuego = EstiloJuego.valueOf(command.estiloJuego());
     int jugadoresMaximos = command.jugadoresMaximos();
 
-    DisponibilidadSemanal disponibilidad = mapToDomainDisponibilidad(command.disponibilidad());
+    DisponibilidadSemanal disponibilidad =
+        DisponibilidadMapper.mapToDomainDisponibilidad(command.disponibilidad());
 
     Publicacion publicacion =
         Publicacion.create(
@@ -64,22 +62,5 @@ public class CrearPublicacionUseCase implements CrearPublicacionHandler {
           GrupoJuegoUsuario.create(grupoGuardado.getId(), UsuarioId.of(autorUuid));
       grupoJuegoUsuarioRepositorio.save(miembro);
     }
-  }
-
-  private DisponibilidadSemanal mapToDomainDisponibilidad(Map<String, Set<String>> in) {
-    if (in == null) return DisponibilidadSemanal.empty();
-    Map<DiaSemana, Set<FranjaHoraria>> map = new EnumMap<>(DiaSemana.class);
-    in.forEach(
-        (k, v) -> {
-          try {
-            DiaSemana dia = DiaSemana.valueOf(k);
-            Set<FranjaHoraria> franjas =
-                v.stream().map(FranjaHoraria::valueOf).collect(Collectors.toSet());
-            map.put(dia, franjas);
-          } catch (IllegalArgumentException ex) {
-            // ignore invalid keys/values
-          }
-        });
-    return DisponibilidadSemanal.of(map);
   }
 }

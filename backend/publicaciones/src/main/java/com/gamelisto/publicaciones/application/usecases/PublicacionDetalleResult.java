@@ -5,6 +5,7 @@ import com.gamelisto.publicaciones.domain.GrupoJuego;
 import com.gamelisto.publicaciones.domain.Publicacion;
 import com.gamelisto.publicaciones.domain.UsuarioRef;
 import com.gamelisto.publicaciones.domain.vo.DisponibilidadSemanal;
+import java.util.Collections;
 
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,7 @@ public record PublicacionDetalleResult(
   }
 
   private static Map<String, Set<String>> mapDisponibilidad(DisponibilidadSemanal ds) {
-    if (ds == null) return null;
+    if (ds == null) return Collections.emptyMap();
     return ds.value().entrySet().stream()
         .collect(
             Collectors.toMap(
