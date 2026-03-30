@@ -48,7 +48,6 @@ class UsuariosPublisherTest {
             "test@example.com",
             "avatar.png",
             "USER",
-            "ESP",
             "PENDIENTE_DE_VERIFICACION",
             null);
   }

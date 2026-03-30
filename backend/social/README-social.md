@@ -28,16 +28,25 @@ Contenido del README
 1) Endpoints HTTP
    Base path: `/v1/social`
 
-| Método | Ruta                                | Auth / Rol    | Request | Response                              | Descripción / Notas                                                                                           |
-|--------|-------------------------------------|---------------|---------|---------------------------------------|---------------------------------------------------------------------------------------------------------------|
-| POST   | `/v1/social/friends/{friendId}`     | Authenticated | —       | void (200 OK)                         | Añadir amigo: crea relación entre usuario autenticado (`userId` via `@AuthenticationPrincipal`) y `friendId`. |
-| DELETE | `/v1/social/friends/{friendId}`     | Authenticated | —       | void (204 No Content)                 | Eliminar amistad entre usuario autenticado y `friendId`.                                                      |
-| GET    | `/v1/social/friends`                | Authenticated | —       | `List<UsuarioRefResponse>` (200 OK)   | Listar amigos del usuario autenticado.                                                                        |
-| GET    | `/v1/social/games/{gameId}/summary` | Authenticated | —       | `ResumenSocialJuegoResponse` (200 OK) | Obtener resumen social de un juego (amigos que lo juegan, estadísticas).                                      |
+| Método | Ruta                                  | Auth / Rol    | Request | Response                              | Descripción / Notas                                                                                                                                                                              |
+|--------|---------------------------------------|---------------|---------|---------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| POST   | `/v1/social/users/friends/{friendId}` | Authenticated | —       | void (200 OK)                         | Añadir amigo: crea relación entre usuario autenticado (`userId` extraído vía `@AuthenticationPrincipal`) y `friendId` (`UUID`). El controlador ejecuta `agregarAmigo.execute(userId, friendId)`. |
+| DELETE | `/v1/social/users/friends/{friendId}` | Authenticated | —       | void (204 No Content)                 | Eliminar amistad entre usuario autenticado y `friendId` (`UUID`) mediante `eliminarAmigo.execute(userId, friendId)`.                                                                             |
+| GET    | `/v1/social/users/friends`            | Authenticated | —       | `List<UsuarioRefResponse>` (200 OK)   | Listar amigos del usuario autenticado. El controlador mapea `UserRefResult` a `UsuarioRefResponse(id, username, avatar)`.                                                                        |
+| GET    | `/v1/social/games/{gameId}/summary`   | Authenticated | —       | `ResumenSocialJuegoResponse` (200 OK) | Obtener resumen social de un juego para el usuario autenticado. El controlador declara `@PathVariable Long gameId` y llama a `consultarResumenSocialJuego.execute(userId, gameId)`.              |
 
-- Notas: en el controlador `userId` se extrae mediante `@AuthenticationPrincipal` (no se pasa como path param). El
-  servicio
-  espera que la autenticación se realice en el gateway o en configuración local de Spring Security.
+Notas:
+
+- En el controlador `userId` se extrae mediante `@AuthenticationPrincipal` (no se pasa como path param). Los endpoints
+  que requieren autenticación esperan un principal de tipo `UUID`.
+- Tipos: `friendId` se declara como `UUID` en los controladores (`@PathVariable UUID friendId`). `gameId` es `Long` (
+  `@PathVariable Long gameId`).
+- Códigos HTTP: `POST /users/friends/{friendId}` devuelve 200 OK; `DELETE` devuelve 204 No Content; los `GET` devuelven
+  200 OK con payload.
+- Implementación: los controladores son delgados y delegan en use case handlers (`AgregarAmigoHandle`,
+  `EliminarAmigoHandle`, `ListarAmigosHandle`, `ConsultarResumenSocialJuegoHandle`).
+- Seguridad: el servicio asume que la autenticación se realiza en el API Gateway y que se propaga un principal válido.
+  Localmente puedes deshabilitar seguridad o configurar Spring Security para proporcionar un `UUID` como principal.
 
 2) Eventos consumidos (RabbitMQ)
 

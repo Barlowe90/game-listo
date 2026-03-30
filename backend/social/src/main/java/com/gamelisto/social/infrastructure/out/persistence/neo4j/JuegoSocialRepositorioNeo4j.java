@@ -18,6 +18,8 @@ public class JuegoSocialRepositorioNeo4j implements JuegoSocialRepositorio {
   private static final String ESTADO_DESEADO = "DESEADO";
   private static final String ESTADO_JUGANDO = "JUGANDO";
   private static final int PREVIEW_LIMIT = 3;
+  public static final String USER_ID = "userId";
+  public static final String GAME_ID = "gameId";
   private final Neo4jClient neo4jClient;
 
   @Override
@@ -25,7 +27,7 @@ public class JuegoSocialRepositorioNeo4j implements JuegoSocialRepositorio {
   public void syncGameState(UUID userId, Long gameId, String estado) {
     String estadoNormalizado = estado != null ? estado.trim().toUpperCase() : "";
 
-    Map<String, Object> params = Map.of("userId", userId.toString(), "gameId", gameId);
+    Map<String, Object> params = Map.of(USER_ID, userId.toString(), GAME_ID, gameId);
 
     if (ESTADO_DESEADO.equals(estadoNormalizado)) {
       neo4jClient
@@ -92,10 +94,10 @@ public class JuegoSocialRepositorioNeo4j implements JuegoSocialRepositorio {
                       MATCH (u:User {id: $userId})-[:FRIEND]-(f:User)-[:WISHLISTED]->(g:Game {id: $gameId})
                       RETURN count(DISTINCT f) AS total
                       """)
-        .bindAll(Map.of("userId", userId.toString(), "gameId", gameId))
+        .bindAll(Map.of(USER_ID, userId.toString(), GAME_ID, gameId))
         .fetch()
         .one()
-        .map(record -> record.get("total"))
+        .map(res -> res.get("total"))
         .map(value -> ((Number) value).longValue())
         .orElse(0L);
   }
@@ -109,10 +111,10 @@ public class JuegoSocialRepositorioNeo4j implements JuegoSocialRepositorio {
                       MATCH (u:User {id: $userId})-[:FRIEND]-(f:User)-[:PLAYING]->(g:Game {id: $gameId})
                       RETURN count(DISTINCT f) AS total
                       """)
-        .bindAll(Map.of("userId", userId.toString(), "gameId", gameId))
+        .bindAll(Map.of(USER_ID, userId.toString(), GAME_ID, gameId))
         .fetch()
         .one()
-        .map(record -> record.get("total"))
+        .map(res -> res.get("total"))
         .map(value -> ((Number) value).longValue())
         .orElse(0L);
   }
@@ -127,18 +129,14 @@ public class JuegoSocialRepositorioNeo4j implements JuegoSocialRepositorio {
                       ORDER BY f.username
                       LIMIT $limit
                       """)
-        .bindAll(
-            Map.of(
-                "userId", userId.toString(),
-                "gameId", gameId,
-                "limit", PREVIEW_LIMIT))
+        .bindAll(Map.of(USER_ID, userId.toString(), GAME_ID, gameId, "limit", PREVIEW_LIMIT))
         .fetchAs(UserRef.class)
         .mappedBy(
-            (typeSystem, record) ->
+            (typeSystem, res) ->
                 UserRef.of(
-                    UUID.fromString(record.get("id").asString()),
-                    record.get("username").asString(""),
-                    record.get("avatar").asString("")))
+                    UUID.fromString(res.get("id").asString()),
+                    res.get("username").asString(""),
+                    res.get("avatar").asString("")))
         .all()
         .stream()
         .toList();
@@ -154,18 +152,14 @@ public class JuegoSocialRepositorioNeo4j implements JuegoSocialRepositorio {
                       ORDER BY f.username
                       LIMIT $limit
                       """)
-        .bindAll(
-            Map.of(
-                "userId", userId.toString(),
-                "gameId", gameId,
-                "limit", PREVIEW_LIMIT))
+        .bindAll(Map.of(USER_ID, userId.toString(), GAME_ID, gameId, "limit", PREVIEW_LIMIT))
         .fetchAs(UserRef.class)
         .mappedBy(
-            (typeSystem, record) ->
+            (typeSystem, res) ->
                 UserRef.of(
-                    UUID.fromString(record.get("id").asString()),
-                    record.get("username").asString(""),
-                    record.get("avatar").asString("")))
+                    UUID.fromString(res.get("id").asString()),
+                    res.get("username").asString(""),
+                    res.get("avatar").asString("")))
         .all()
         .stream()
         .toList();

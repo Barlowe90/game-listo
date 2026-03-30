@@ -132,7 +132,6 @@ class CambiarCorreoUseCaseTest {
         PasswordHash.of("$2a$10$hashedPassword"),
         Avatar.empty(),
         Rol.USER,
-        Idioma.ESP,
         EstadoUsuario.ACTIVO,
         DiscordUserId.empty(),
         TokenVerificacion.empty(),

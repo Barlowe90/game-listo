@@ -61,7 +61,6 @@ class AuthorizationIntegrationTest {
             PasswordHash.of(passwordEncoder.encode("Admin123!")),
             Avatar.empty(),
             Rol.ADMIN,
-            Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             TokenVerificacion.generate(),
@@ -128,7 +127,7 @@ class AuthorizationIntegrationTest {
     @DisplayName("USER puede editar su propio perfil")
     void userPuedeEditarSuPropioPerfil() throws Exception {
       EditarPerfilUsuarioRequest request =
-          new EditarPerfilUsuarioRequest("https://i.imgur.com/my-avatar.png", "ESP");
+          new EditarPerfilUsuarioRequest("https://i.imgur.com/my-avatar.png");
 
       mockMvc
           .perform(

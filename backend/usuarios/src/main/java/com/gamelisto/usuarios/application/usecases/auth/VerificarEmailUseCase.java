@@ -48,7 +48,6 @@ public class VerificarEmailUseCase implements VerificarEmailHandle {
             usuario.getEmail().value(),
             usuario.getAvatar().url(),
             usuario.getRole() != null ? usuario.getRole().name() : null,
-            usuario.getLanguage() != null ? usuario.getLanguage().name() : null,
             usuario.getStatus() != null ? usuario.getStatus().name() : null,
             usuario.getDiscordUserId() != null ? usuario.getDiscordUserId().value() : null);
     eventosPublisher.publicarUsuarioCreado(evento);

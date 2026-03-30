@@ -60,7 +60,6 @@ class CrearUsuarioUseCaseTest {
     assertEquals("nuevo@test.com", resultado.email());
     assertEquals("PENDIENTE_DE_VERIFICACION", resultado.status());
     assertEquals("USER", resultado.role());
-    assertEquals("ESP", resultado.language());
 
     verify(repositorioUsuarios).existsByUsername(any(Username.class));
     verify(repositorioUsuarios).existsByEmail(any(Email.class));

@@ -7,7 +7,6 @@ import com.gamelisto.usuarios.domain.events.UsuarioActualizado;
 import com.gamelisto.usuarios.domain.repositories.IUsuarioPublisher;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.Avatar;
-import com.gamelisto.usuarios.domain.usuario.Idioma;
 import com.gamelisto.usuarios.domain.usuario.Usuario;
 import com.gamelisto.usuarios.domain.usuario.UsuarioId;
 import lombok.RequiredArgsConstructor;
@@ -38,14 +37,6 @@ public class EditarPerfilUsuarioUseCase implements EditarPerfilUsuarioHandle {
 
     if (command.avatar() != null) {
       usuario.changeAvatar(Avatar.of(command.avatar()));
-    }
-
-    if (command.language() != null) {
-      try {
-        usuario.changeLanguage(Idioma.valueOf(command.language()));
-      } catch (IllegalArgumentException e) {
-        throw new ApplicationException("Idioma inválido: " + command.language());
-      }
     }
 
     Usuario usuarioEditado = repositorioUsuarios.save(usuario);

@@ -21,7 +21,6 @@ Aplicación Next.js que consume el BFF (GraphQL) a través del API Gateway. El p
 ## Características
 
 - Renderizado híbrido: Server-Side Rendering (SSR) y Incremental Static Regeneration (ISR).
-- Gestión de datos con TanStack Query (cache, reintentos, SWR).
 - Estilos con Tailwind CSS y componentes headless para patrones accesibles.
 - Internacionalización con React-Intl.
 - Chat delegando a la API de Discord.
@@ -30,7 +29,6 @@ Aplicación Next.js que consume el BFF (GraphQL) a través del API Gateway. El p
 
 - Next.js — enrutado por archivos, SSR/ISR.
 - React — UI.
-- TanStack Query — fetching y cache.
 - Tailwind CSS — utility-first styling.
 - Headless components — accesibilidad sin dependencias de estilo.
 - React-Intl — i18n y formatos locales.

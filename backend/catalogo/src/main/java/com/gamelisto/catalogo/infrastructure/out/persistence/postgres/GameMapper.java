@@ -1,7 +1,6 @@
 package com.gamelisto.catalogo.infrastructure.out.persistence.postgres;
 
 import com.gamelisto.catalogo.domain.*;
-import com.gamelisto.catalogo.domain.*;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

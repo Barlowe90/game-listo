@@ -8,7 +8,6 @@ public record UsuarioResponse(
     String email,
     String avatar,
     String role,
-    String language,
     String status,
     String discordUserId) {
   public static UsuarioResponse from(UsuarioResult dto) {
@@ -18,7 +17,6 @@ public record UsuarioResponse(
         dto.email(),
         dto.avatar(),
         dto.role(),
-        dto.language(),
         dto.status(),
         dto.discordUserId());
   }

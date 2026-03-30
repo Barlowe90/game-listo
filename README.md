@@ -124,7 +124,6 @@ Stack utilizado:
 
 - **React + Vite**
 - **TypeScript**
-- **TanStack Query**
 - **TailwindCSS + ShadCN UI**
 - **React Router**
 - **GraphQL (Apollo Client)**

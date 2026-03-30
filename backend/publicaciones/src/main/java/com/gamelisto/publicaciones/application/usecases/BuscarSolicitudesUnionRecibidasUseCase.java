@@ -9,6 +9,7 @@ import com.gamelisto.publicaciones.domain.PublicacionRepositorio;
 import com.gamelisto.publicaciones.domain.vo.PublicacionId;
 import com.gamelisto.publicaciones.domain.vo.UsuarioId;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,11 +22,8 @@ public class BuscarSolicitudesUnionRecibidasUseCase
 
   @Override
   public List<SolicitudUnionResult> execute(UUID userId) {
-    // recuperar las publicaciones donde soy autor
-    List<PublicacionId> publicacionesIds =
-        publicacionRepositorio.findByAutorId(UsuarioId.of(userId)).stream()
-            .map(Publicacion::getId)
-            .toList();
+
+    List<PublicacionId> publicacionesIds = recuperarPublicacionesDondeSoyAutor(userId);
 
     if (publicacionesIds.isEmpty()) {
       return List.of();
@@ -33,6 +31,12 @@ public class BuscarSolicitudesUnionRecibidasUseCase
 
     return solicitudUnionRepositorio.findByPublicacionIdIn(publicacionesIds).stream()
         .map(SolicitudUnionResult::from)
+        .toList();
+  }
+
+  private @NonNull List<PublicacionId> recuperarPublicacionesDondeSoyAutor(UUID userId) {
+    return publicacionRepositorio.findByAutorId(UsuarioId.of(userId)).stream()
+        .map(Publicacion::getId)
         .toList();
   }
 }

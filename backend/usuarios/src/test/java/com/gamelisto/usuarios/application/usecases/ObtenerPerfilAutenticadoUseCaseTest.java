@@ -42,7 +42,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             PasswordHash.of("$2a$10$hashedPassword"),
             Avatar.of("https://example.com/avatar.jpg"),
             Rol.USER,
-            Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             TokenVerificacion.empty(),
@@ -65,7 +64,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
               assertThat(dto.email()).isEqualTo("test@example.com");
               assertThat(dto.avatar()).isEqualTo("https://example.com/avatar.jpg");
               assertThat(dto.role()).isEqualTo("USER");
-              assertThat(dto.language()).isEqualTo("ESP");
               assertThat(dto.status()).isEqualTo("ACTIVO");
             });
 
@@ -87,7 +85,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             PasswordHash.of("$2a$10$password"),
             Avatar.of("https://cdn.example.com/users/john.png"),
             Rol.ADMIN,
-            Idioma.ENG,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             TokenVerificacion.empty(),
@@ -106,7 +103,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
     assertThat(resultado.email()).isEqualTo("john@example.com");
     assertThat(resultado.avatar()).isEqualTo("https://cdn.example.com/users/john.png");
     assertThat(resultado.role()).isEqualTo("ADMIN");
-    assertThat(resultado.language()).isEqualTo("ENG");
     assertThat(resultado.status()).isEqualTo("ACTIVO");
 
     verify(repositorio).findById(usuarioIdVo);
@@ -117,7 +113,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
-    UsuarioId usuarioIdVo = UsuarioId.of(usuarioId);
 
     when(repositorio.findById(any(UsuarioId.class))).thenReturn(Optional.empty());
 
@@ -145,7 +140,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             PasswordHash.of("$2a$10$hash"),
             Avatar.empty(),
             Rol.USER,
-            Idioma.ESP,
             EstadoUsuario.ELIMINADO,
             DiscordUserId.empty(),
             TokenVerificacion.empty(),
@@ -180,7 +174,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             PasswordHash.of("$2a$10$hash"),
             Avatar.of("https://cdn.example.com/avatars/gamer.jpg"),
             Rol.USER,
-            Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.of("987654321"),
             TokenVerificacion.empty(),
@@ -219,7 +212,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             PasswordHash.of("$2a$10$hash"),
             Avatar.empty(),
             Rol.USER,
-            Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             TokenVerificacion.empty(),
@@ -267,7 +259,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             PasswordHash.of("$2a$10$hash"),
             Avatar.empty(),
             Rol.ADMIN,
-            Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             TokenVerificacion.empty(),
@@ -300,7 +291,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
             PasswordHash.of("$2a$10$hash"),
             Avatar.empty(),
             Rol.USER,
-            Idioma.ESP,
             EstadoUsuario.SUSPENDIDO,
             DiscordUserId.empty(),
             TokenVerificacion.empty(),

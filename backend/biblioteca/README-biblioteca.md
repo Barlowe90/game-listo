@@ -61,18 +61,28 @@ Contratos HTTP (endpoints)
 
 Base path: `/v1/biblioteca`
 
-| Método | Ruta                                               | Auth / Rol                  | Request                  | Response                            | Descripción / Notas                                                                                          |
-|--------|----------------------------------------------------|-----------------------------|--------------------------|-------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| POST   | `/v1/biblioteca/lists`                             | Authenticated               | `CrearListaGameRequest`  | `ListaGameResponse` (201 Created)   | Crea una nueva lista para el usuario autenticado (`userId` via `@AuthenticationPrincipal`).                  |
-| PATCH  | `/v1/biblioteca/lists/{listaId}`                   | Authenticated (propietario) | `EditarListaGameRequest` | `ListaGameResponse` (200 OK)        | Modifica metadatos de la lista (nombre). El handler valida propiedad.                                        |
-| DELETE | `/v1/biblioteca/lists/{listaId}`                   | Authenticated (propietario) | —                        | void (204 No Content)               | Elimina la lista del usuario autenticado.                                                                    |
-| GET    | `/v1/biblioteca/lists/{listaId}`                   | Authenticated (propietario) | —                        | `ListaGameResponse` (200 OK)        | Obtiene la lista privada del usuario.                                                                        |
-| GET    | `/v1/biblioteca/lists`                             | Authenticated               | —                        | `List<ListaGameResponse>` (200 OK)  | Devuelve todas las listas del usuario autenticado.                                                           |
-| POST   | `/v1/biblioteca/lists/{listaId}/games/{gameRefId}` | Authenticated (propietario) | —                        | void (204 No Content)               | Añade una referencia de juego a la lista; `listaId` y `gameRefId` se tratan como `String`.                   |
-| DELETE | `/v1/biblioteca/lists/{listaId}/games/{gameRefId}` | Authenticated (propietario) | —                        | void (204 No Content)               | Elimina una referencia de juego de la lista.                                                                 |
-| POST   | `/v1/biblioteca/games/{gameRefId}/state`           | Authenticated               | `CrearGameEstadoRequest` | void (200 OK)                       | Registra o actualiza el estado del juego para el usuario (`userId` extraído por `@AuthenticationPrincipal`). |
-| POST   | `/v1/biblioteca/games/{gameRefId}/rate`            | Authenticated               | `RateGameEstadoRequest`  | void (200 OK)                       | Asigna o actualiza la puntuación del juego por el usuario. El dominio solo acepta valores entre `0.0` y `10.0` en incrementos de `0.25`. |
-| GET    | `/v1/biblioteca/games/{gameRefId}`                 | Public                      | —                        | `List<GameEstadoResponse>` (200 OK) | Devuelve los estados/valoraciones de un juego (controlador recibe `gameRefId` como `Long`).                  |
+| Método | Ruta                                               | Auth / Rol                  | Request                  | Response                            | Descripción / Notas                                                                                               |
+|--------|----------------------------------------------------|-----------------------------|--------------------------|-------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| POST   | `/v1/biblioteca/lists`                             | Authenticated               | `CrearListaGameRequest`  | `ListaGameResponse` (201 Created)   | Crea una nueva lista para el usuario autenticado (`userId` via `@AuthenticationPrincipal`).                       |
+| PATCH  | `/v1/biblioteca/lists/{listaId}`                   | Authenticated (propietario) | `EditarListaGameRequest` | `ListaGameResponse` (200 OK)        | Modifica metadatos de la lista (nombre). El handler valida propiedad.                                             |
+| DELETE | `/v1/biblioteca/lists/{listaId}`                   | Authenticated (propietario) | —                        | void (204 No Content)               | Elimina la lista del usuario autenticado.                                                                         |
+| GET    | `/v1/biblioteca/lists/{listaId}`                   | Authenticated (propietario) | —                        | `ListaGameResponse` (200 OK)        | Obtiene la lista privada del usuario.                                                                             |
+| GET    | `/v1/biblioteca/lists`                             | Authenticated               | —                        | `List<ListaGameResponse>` (200 OK)  | Devuelve todas las listas del usuario autenticado.                                                                |
+| POST   | `/v1/biblioteca/lists/{listaId}/games/{gameRefId}` | Authenticated (propietario) | —                        | void (204 No Content)               | Añade una referencia de juego a la lista.                                                                         |
+| DELETE | `/v1/biblioteca/lists/{listaId}/games/{gameRefId}` | Authenticated (propietario) | —                        | void (204 No Content)               | Elimina una referencia de juego de la lista.                                                                      |
+| POST   | `/v1/biblioteca/games/{gameRefId}/state`           | Authenticated               | `CrearGameEstadoRequest` | void (200 OK)                       | Registra o actualiza el estado del juego para el usuario (`userId` extraído por `@AuthenticationPrincipal`).      |
+| DELETE | `/v1/biblioteca/games/{gameRefId}/state`           | Authenticated               | —                        | void (204 No Content)               | Elimina el estado/registro del juego para el usuario autenticado.                                                 |
+| POST   | `/v1/biblioteca/games/{gameRefId}/rate`            | Authenticated               | `RateGameEstadoRequest`  | void (200 OK)                       | Asigna o actualiza la puntuación del juego por el usuario. Valores entre `0.0` y `10.0` en incrementos de `0.25`. |
+| GET    | `/v1/biblioteca/games/{gameRefId}`                 | Public                      | —                        | `List<GameEstadoResponse>` (200 OK) | Devuelve los estados/valoraciones de un juego para un `gameRefId` numérico.                                       |
+
+Notas:
+
+- En los endpoints relacionados con listas (`/lists/...`) las path variables `listaId` y `gameRefId` se tratan como
+  `String` en los controladores.
+- El endpoint público `GET /v1/biblioteca/games/{gameRefId}` usa `Long` en el controlador (
+  `@PathVariable Long gameRefId`), por tanto, espera un identificador numérico.
+- El servicio expone además un endpoint para importar bibliotecas desde Steam (ver tabla). Este endpoint requiere
+  autenticación y devuelve un DTO con el resultado de la importación.
 
 Seguridad
 

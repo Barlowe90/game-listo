@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 /**
- * DTO de entrada para la API REST - Crear usuario. pertenece a la capa de infrastructure y
+ * DTO de entrada para la API REST - Crear usuario. Pertenece a la capa de infrastructure y
  * representa el contrato HTTP con el cliente externo.
  */
 public record CrearUsuarioRequest(

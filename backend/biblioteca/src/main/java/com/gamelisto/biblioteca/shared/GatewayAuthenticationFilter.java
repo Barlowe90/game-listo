@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -35,9 +34,7 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(
-      @NonNull HttpServletRequest request,
-      @NonNull HttpServletResponse response,
-      @NonNull FilterChain filterChain)
+      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
 
     if (siYaHayAuthNoLaPises(request, response, filterChain)) return;

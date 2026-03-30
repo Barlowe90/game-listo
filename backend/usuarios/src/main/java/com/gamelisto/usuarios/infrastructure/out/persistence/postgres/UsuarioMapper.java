@@ -14,7 +14,6 @@ public class UsuarioMapper {
     entity.setPasswordHash(usuario.getPasswordHash().value());
     entity.setAvatar(usuario.getAvatar().isEmpty() ? null : usuario.getAvatar().url());
     entity.setRole(usuario.getRole());
-    entity.setLanguage(usuario.getLanguage());
     entity.setStatus(usuario.getStatus());
     entity.setDiscordUserId(
         usuario.getDiscordUserId().isEmpty() ? null : usuario.getDiscordUserId().value());
@@ -39,7 +38,6 @@ public class UsuarioMapper {
         PasswordHash.of(entity.getPasswordHash()),
         entity.getAvatar() != null ? Avatar.of(entity.getAvatar()) : Avatar.empty(),
         entity.getRole(),
-        entity.getLanguage(),
         entity.getStatus(),
         entity.getDiscordUserId() != null
             ? DiscordUserId.of(entity.getDiscordUserId())

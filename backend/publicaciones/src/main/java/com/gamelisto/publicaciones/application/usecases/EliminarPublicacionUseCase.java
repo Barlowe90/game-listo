@@ -34,13 +34,13 @@ public class EliminarPublicacionUseCase implements EliminarPublicacionHandler {
       throw new ApplicationException("Usuario no propietario");
     }
 
-    EliminarMiembrosYGrupo(PublicacionId.of(publicacionId));
+    eliminarMiembrosYGrupo(PublicacionId.of(publicacionId));
     solicitudUnionRepositorio.deleteByPublicacionId(PublicacionId.of(publicacionId));
 
     publicacionRepositorio.deleteById(PublicacionId.of(publicacionId));
   }
 
-  private void EliminarMiembrosYGrupo(PublicacionId publicacionId) {
+  private void eliminarMiembrosYGrupo(PublicacionId publicacionId) {
     grupoJuegoRepositorio
         .findByPublicacionId(publicacionId)
         .ifPresent(

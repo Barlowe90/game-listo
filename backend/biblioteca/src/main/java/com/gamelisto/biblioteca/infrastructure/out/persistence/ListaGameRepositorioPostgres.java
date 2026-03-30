@@ -3,12 +3,10 @@ package com.gamelisto.biblioteca.infrastructure.out.persistence;
 import com.gamelisto.biblioteca.domain.ListaGame;
 import com.gamelisto.biblioteca.domain.ListaGameId;
 import com.gamelisto.biblioteca.domain.ListaGameRepositorio;
-import com.gamelisto.biblioteca.domain.NombreListaGame;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public class ListaGameRepositorioPostgres implements ListaGameRepositorio {

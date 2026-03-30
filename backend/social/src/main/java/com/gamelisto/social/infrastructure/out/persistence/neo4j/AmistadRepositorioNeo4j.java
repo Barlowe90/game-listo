@@ -17,6 +17,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AmistadRepositorioNeo4j implements AmistadRepositorio, GrafoUsuarioRepositorio {
 
+  public static final String USER_ID = "userId";
+  public static final String FRIEND_ID = "friendId";
   private final Neo4jClient neo4jClient;
 
   @Override
@@ -60,8 +62,8 @@ public class AmistadRepositorioNeo4j implements AmistadRepositorio, GrafoUsuario
                 + "MERGE (a)-[:FRIEND]-(b)")
         .bindAll(
             Map.of(
-                "userId", userId.toString(),
-                "friendId", friendId.toString()))
+                USER_ID, userId.toString(),
+                FRIEND_ID, friendId.toString()))
         .run();
   }
 
@@ -72,8 +74,8 @@ public class AmistadRepositorioNeo4j implements AmistadRepositorio, GrafoUsuario
         .query("MATCH (a:User {id: $userId})-[r:FRIEND]-(b:User {id: $friendId}) DELETE r")
         .bindAll(
             Map.of(
-                "userId", userId.toString(),
-                "friendId", friendId.toString()))
+                USER_ID, userId.toString(),
+                FRIEND_ID, friendId.toString()))
         .run();
   }
 
@@ -83,14 +85,14 @@ public class AmistadRepositorioNeo4j implements AmistadRepositorio, GrafoUsuario
         .query(
             "MATCH (a:User {id: $userId})-[:FRIEND]-(b:User) RETURN b.id AS id, b.username AS username, b.avatar AS avatar")
         .bind(userId.toString())
-        .to("userId")
+        .to(USER_ID)
         .fetchAs(UserRef.class)
         .mappedBy(
-            (typeSystem, record) ->
+            (typeSystem, res) ->
                 new UserRef(
-                    UUID.fromString(record.get("id").asString()),
-                    record.get("username").asString(""),
-                    record.get("avatar").asString("")))
+                    UUID.fromString(res.get("id").asString()),
+                    res.get("username").asString(""),
+                    res.get("avatar").asString("")))
         .all()
         .stream()
         .toList();
