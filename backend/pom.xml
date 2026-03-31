@@ -24,6 +24,7 @@
         <module>publicaciones</module>
         <module>busquedas</module>
         <module>social</module>
+        <module>graphql</module>
     </modules>
 
     <properties>
