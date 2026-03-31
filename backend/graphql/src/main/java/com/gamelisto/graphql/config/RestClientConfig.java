@@ -1,0 +1,31 @@
+package com.gamelisto.graphql.config;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestClient;
+
+@Configuration
+public class RestClientConfig {
+
+    @Value("${services.catalogo.url:http://localhost:8082}")
+    private String catalogoUrl;
+
+    @Value("${services.publicaciones.url:http://localhost:8085}")
+    private String publicacionesUrl;
+
+    @Bean
+    public RestClient catalogoClient() {
+        return RestClient.builder()
+                .baseUrl(catalogoUrl)
+                .build();
+    }
+
+    @Bean
+    public RestClient publicacionesClient() {
+        return RestClient.builder()
+                .baseUrl(publicacionesUrl)
+                .build();
+    }
+}
+

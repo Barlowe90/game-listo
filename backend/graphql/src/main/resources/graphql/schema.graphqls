@@ -1,0 +1,81 @@
+type Query {
+    gameDetail(id: ID!): GameDetail
+}
+
+type GameDetail {
+    game: Game!
+    media: GameMedia
+    relatedGames: [Game!]!
+    publicaciones: [Publicacion!]!
+    grupos: [GrupoJuego!]!
+}
+
+type Game {
+    id: Int!
+    name: String!
+    coverUrl: String
+    summary: String
+    alternativeNames: [String!]!
+    dlcIds: [Int!]!
+    expandedGames: [Int!]!
+    expansionIds: [Int!]!
+    externalGames: [String!]!
+    franchises: [String!]!
+    gameModes: [String!]!
+    gameStatus: String
+    gameType: String
+    genres: [String!]!
+    involvedCompanies: [String!]!
+    keywords: [String!]!
+    multiplayerModeIds: [Int!]!
+    parentGameId: Int
+    platforms: [String!]!
+    playerPerspectives: [String!]!
+    remakeIds: [Int!]!
+    remasterIds: [Int!]!
+    similarGames: [Int!]!
+    themes: [String!]!
+}
+
+type GameMedia {
+    gameId: Int!
+    screenshots: [String!]!
+    videos: [String!]!
+}
+
+type Publicacion {
+    id: ID!
+    autorId: ID!
+    gameId: ID!
+    titulo: String!
+    idioma: String!
+    experiencia: String!
+    estiloJuego: String!
+    jugadoresMaximos: Int!
+    grupoId: String
+    disponibilidad: Disponibilidad
+}
+
+type Disponibilidad {
+    LUNES: [String!]
+    MARTES: [String!]
+    MIERCOLES: [String!]
+    JUEVES: [String!]
+    VIERNES: [String!]
+    SABADO: [String!]
+    DOMINGO: [String!]
+}
+
+type GrupoJuego {
+    id: ID!
+    publicacionId: ID!
+    fechaCreacion: String!
+    participantes: [UsuarioRef!]!
+}
+
+type UsuarioRef {
+    id: ID!
+    username: String!
+    avatar: String
+}
+
