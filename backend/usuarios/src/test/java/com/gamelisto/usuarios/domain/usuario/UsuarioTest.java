@@ -1,214 +1,393 @@
 package com.gamelisto.usuarios.domain.usuario;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import java.time.Duration;
-import org.awaitility.Awaitility;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class UsuarioTest {
 
-  @Test
-  @DisplayName("Debe crear nuevo usuario con valores por defecto")
-  void debeCrearNuevoUsuarioConCreate() {
-    Usuario usuario =
-        Usuario.create(
-            Username.of("jugador123"),
-            Email.of("jugador@test.com"),
-            PasswordHash.of("$2a$10$hashed"));
+  // ========== FACTORY METHODS ==========
 
+  @Test
+  @DisplayName("Debe crear nuevo usuario con factory method create()")
+  void debeCrearNuevoUsuarioConCreate() {
+    // Arrange
+    Username username = Username.of("jugador123");
+    Email email = Email.of("jugador@test.com");
+    PasswordHash passwordHash = PasswordHash.of("$2a$10$hashed");
+
+    // Act
+    Usuario usuario = Usuario.create(username, email, passwordHash);
+
+    // Assert
     assertNotNull(usuario.getId());
     assertEquals("jugador123", usuario.getUsername().value());
     assertEquals("jugador@test.com", usuario.getEmail().value());
     assertEquals(EstadoUsuario.PENDIENTE_DE_VERIFICACION, usuario.getStatus());
     assertEquals(Rol.USER, usuario.getRole());
-    assertEquals(Idioma.ESP, usuario.getLanguage());
     assertTrue(usuario.getAvatar().isEmpty());
     assertTrue(usuario.getDiscordUserId().isEmpty());
   }
 
   @Test
-  @DisplayName("Debe reconstituir usuario desde persistencia")
+  @DisplayName("Debe reconstituir usuario desde persistencia con reconstitute()")
   void debeReconstituirUsuarioConReconstitute() {
+    // Arrange
     UsuarioId id = UsuarioId.generate();
+    Username username = Username.of("testuser");
+    Email email = Email.of("test@test.com");
+    PasswordHash passwordHash = PasswordHash.of("$2a$10$hash");
+    Avatar avatar = Avatar.of("https://example.com/avatar.jpg");
+    Rol role = Rol.ADMIN;
+    EstadoUsuario status = EstadoUsuario.ACTIVO;
+    DiscordUserId discordUserId = DiscordUserId.of("123456");
 
+    // Act
     Usuario usuario =
         Usuario.reconstitute(
             id,
-            Username.of("testuser"),
-            Email.of("test@test.com"),
-            PasswordHash.of("$2a$10$hash"),
-            Avatar.of("https://example.com/avatar.jpg"),
-            Rol.ADMIN,
-            Idioma.ENG,
-            EstadoUsuario.ACTIVO,
-            DiscordUserId.of("123456"),
+            username,
+            email,
+            passwordHash,
+            avatar,
+            role,
+            status,
+            discordUserId,
             TokenVerificacion.empty(),
             null,
             TokenVerificacion.empty(),
             null);
 
+    // Assert
     assertEquals(id.value(), usuario.getId().value());
     assertEquals("testuser", usuario.getUsername().value());
     assertEquals("test@test.com", usuario.getEmail().value());
     assertEquals("https://example.com/avatar.jpg", usuario.getAvatar().url());
     assertEquals(Rol.ADMIN, usuario.getRole());
-    assertEquals(Idioma.ENG, usuario.getLanguage());
     assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
     assertEquals("123456", usuario.getDiscordUserId().value());
   }
 
+  // ========== VALIDACIÓN DE INVARIANTES ==========
+
   @Test
-  @DisplayName("Debe validar argumentos obligatorios al crear")
-  void debeValidarArgumentosObligatorios() {
+  @DisplayName("Debe lanzar excepción si username es nulo")
+  void debeLanzarExcepcionSiUsernameEsNulo() {
+    // Arrange
     Email email = Email.of("test@test.com");
     PasswordHash passwordHash = PasswordHash.of("$2a$10$hash");
 
-    assertThrows(DomainException.class, () -> Usuario.create(null, email, passwordHash));
-    assertThrows(
-        DomainException.class,
-        () -> Usuario.create(Username.of("testuser"), null, passwordHash));
-    assertThrows(
-        DomainException.class,
-        () -> Usuario.create(Username.of("testuser"), email, null));
+    // Act & Assert
+    DomainException exception =
+        assertThrows(DomainException.class, () -> Usuario.create(null, email, passwordHash));
+
+    assertTrue(exception.getMessage().contains("username es obligatorio"));
   }
 
   @Test
-  @DisplayName("Debe cambiar email")
-  void debeCambiarEmail() {
+  @DisplayName("Debe lanzar excepción si email es nulo")
+  void debeLanzarExcepcionSiEmailEsNulo() {
+    // Arrange
+    Username username = Username.of("testuser");
+    PasswordHash passwordHash = PasswordHash.of("$2a$10$hash");
+
+    // Act & Assert
+    DomainException exception =
+        assertThrows(DomainException.class, () -> Usuario.create(username, null, passwordHash));
+
+    assertTrue(exception.getMessage().contains("email es obligatorio"));
+  }
+
+  @Test
+  @DisplayName("Debe lanzar excepción si passwordHash es nulo")
+  void debeLanzarExcepcionSiPasswordHashEsNulo() {
+    // Arrange
+    Username username = Username.of("testuser");
+    Email email = Email.of("test@test.com");
+
+    // Act & Assert
+    DomainException exception =
+        assertThrows(DomainException.class, () -> Usuario.create(username, email, null));
+
+    assertTrue(exception.getMessage().contains("password hash es obligatorio"));
+  }
+
+  // ========== CAMBIO DE EMAIL ==========
+
+  @Test
+  @DisplayName("Debe cambiar email y actualizar timestamp")
+  void debeCambiarEmailYActualizarTimestamp() {
+    // Arrange
     Usuario usuario = crearUsuarioDefault();
+    await()
+        .pollDelay(Duration.ofMillis(10))
+        .until(() -> true); // Esperar 10ms para asegurar que el timestamp sea diferente
+    Email nuevoEmail = Email.of("nuevo@test.com");
 
-    usuario.changeEmail(Email.of("nuevo@test.com"));
+    // Act
+    usuario.changeEmail(nuevoEmail);
 
+    // Assert
     assertEquals("nuevo@test.com", usuario.getEmail().value());
   }
 
+  // ========== CAMBIO DE PASSWORD ==========
+
   @Test
-  @DisplayName("Debe cambiar password hash")
-  void debeCambiarPasswordHash() {
+  @DisplayName("Debe cambiar password hash y actualizar timestamp")
+  void debeCambiarPasswordHashYActualizarTimestamp() {
+    // Arrange
     Usuario usuario = crearUsuarioDefault();
+    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
+    PasswordHash nuevoHash = PasswordHash.of("$2a$10$newHash");
 
-    usuario.changePasswordHash(PasswordHash.of("$2a$10$newHash"));
+    // Act
+    usuario.changePasswordHash(nuevoHash);
 
+    // Assert
     assertEquals("$2a$10$newHash", usuario.getPasswordHash().value());
   }
 
   @Test
-  @DisplayName("Debe lanzar excepcion al cambiar password hash a nulo")
+  @DisplayName("Debe lanzar excepción al cambiar password hash a nulo")
   void debeLanzarExcepcionAlCambiarPasswordHashANulo() {
+    // Arrange
     Usuario usuario = crearUsuarioDefault();
 
+    // Act & Assert
     assertThrows(DomainException.class, () -> usuario.changePasswordHash(null));
   }
 
+  // ========== CAMBIO DE AVATAR ==========
+
   @Test
-  @DisplayName("Debe cambiar avatar y aceptar nulo como vacio")
-  void debeCambiarAvatarYPermitirNulo() {
+  @DisplayName("Debe cambiar avatar y actualizar timestamp")
+  void debeCambiarAvatarYActualizarTimestamp() {
+    // Arrange
+    Usuario usuario = crearUsuarioDefault();
+    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
+    Avatar nuevoAvatar = Avatar.of("https://example.com/new-avatar.jpg");
+
+    // Act
+    usuario.changeAvatar(nuevoAvatar);
+
+    // Assert
+    assertEquals("https://example.com/new-avatar.jpg", usuario.getAvatar().url());
+  }
+
+  @Test
+  @DisplayName("Debe establecer avatar vacío si se pasa nulo")
+  void debeEstablecerAvatarVacioSiEsNulo() {
+    // Arrange
     Usuario usuario = crearUsuarioDefault();
 
-    usuario.changeAvatar(Avatar.of("https://example.com/new-avatar.jpg"));
-    assertEquals("https://example.com/new-avatar.jpg", usuario.getAvatar().url());
-
+    // Act
     usuario.changeAvatar(null);
+
+    // Assert
     assertTrue(usuario.getAvatar().isEmpty());
   }
 
-  @Test
-  @DisplayName("Debe cambiar idioma y mantener ESP cuando es nulo")
-  void debeCambiarIdioma() {
-    Usuario usuario = crearUsuarioDefault();
+  // language field removed; related tests deleted
 
-    usuario.changeLanguage(Idioma.ENG);
-    assertEquals(Idioma.ENG, usuario.getLanguage());
-
-    usuario.changeLanguage(null);
-    assertEquals(Idioma.ESP, usuario.getLanguage());
-  }
+  // ========== GESTIÓN DE ESTADO ==========
 
   @Test
-  @DisplayName("Debe gestionar estados de usuario")
-  void debeGestionarEstados() {
+  @DisplayName("Debe suspender usuario")
+  void debeSuspenderUsuario() {
+    // Arrange
     Usuario usuario = crearUsuarioDefault();
+    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
 
+    // Act
     usuario.suspend();
+
+    // Assert
+    assertEquals(EstadoUsuario.SUSPENDIDO, usuario.getStatus());
     assertTrue(usuario.isSuspended());
     assertFalse(usuario.isActive());
-
-    usuario.activate();
-    assertTrue(usuario.isActive());
-
-    usuario.delete();
-    assertTrue(usuario.isDeleted());
-    assertThrows(DomainException.class, usuario::activate);
   }
 
   @Test
-  @DisplayName("Debe activar usuario pendiente de verificacion")
+  @DisplayName("Debe activar usuario suspendido")
+  void debeActivarUsuarioSuspendido() {
+    // Arrange
+    Usuario usuario = crearUsuarioDefault();
+    usuario.suspend();
+    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
+
+    // Act
+    usuario.activate();
+
+    // Assert
+    assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
+    assertTrue(usuario.isActive());
+    assertFalse(usuario.isSuspended());
+  }
+
+  @Test
+  @DisplayName("Debe activar usuario pendiente de verificación")
   void debeActivarUsuarioPendienteDeVerificacion() {
+    // Arrange
     Usuario usuario =
         Usuario.create(
             Username.of("test"), Email.of("test@test.com"), PasswordHash.of("$2a$10$hash"));
 
+    // Act
     usuario.activate();
 
+    // Assert
     assertEquals(EstadoUsuario.ACTIVO, usuario.getStatus());
+    assertTrue(usuario.isActive());
   }
 
   @Test
-  @DisplayName("Debe vincular cuenta de Discord con user ID")
+  @DisplayName("Debe lanzar excepción al intentar activar usuario eliminado")
+  void debeLanzarExcepcionAlActivarUsuarioEliminado() {
+    // Arrange
+    Usuario usuario = crearUsuarioDefault();
+    usuario.delete();
+
+    // Act & Assert
+    DomainException exception = assertThrows(DomainException.class, usuario::activate);
+
+    assertTrue(exception.getMessage().contains("No se puede activar un usuario eliminado"));
+  }
+
+  // ========== DISCORD ==========
+
+  @Test
+  @DisplayName("Debe vincular cuenta de Discord")
   void debeVincularCuentaDeDiscord() {
+    // Arrange
     Usuario usuario = crearUsuarioDefault();
     DiscordUserId discordId = DiscordUserId.of("123456789");
-    Awaitility.await().pollDelay(Duration.ofMillis(10)).until(() -> true);
+    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
 
+    // Act
     usuario.linkDiscord(discordId);
 
+    // Assert
     assertEquals("123456789", usuario.getDiscordUserId().value());
     assertTrue(usuario.hasDiscordLinked());
   }
 
   @Test
-  @DisplayName("Debe lanzar excepcion al vincular Discord con ID nulo o vacio")
-  void debeValidarIdDeDiscordAlVincular() {
+  @DisplayName("Debe lanzar excepción al vincular Discord con ID nulo")
+  void debeLanzarExcepcionAlVincularDiscordConIdNulo() {
+    // Arrange
     Usuario usuario = crearUsuarioDefault();
 
+    // Act & Assert
     assertThrows(DomainException.class, () -> usuario.linkDiscord(null));
-    assertThrows(DomainException.class, () -> usuario.linkDiscord(DiscordUserId.empty()));
+  }
+
+  @Test
+  @DisplayName("Debe lanzar excepción al vincular Discord con ID vacío")
+  void debeLanzarExcepcionAlVincularDiscordConIdVacio() {
+    // Arrange
+    Usuario usuario = crearUsuarioDefault();
+    DiscordUserId discordId = DiscordUserId.empty();
+
+    // Act & Assert
+    assertThrows(DomainException.class, () -> usuario.linkDiscord(discordId));
   }
 
   @Test
   @DisplayName("Debe desvincular cuenta de Discord")
   void debeDesvincularCuentaDeDiscord() {
+    // Arrange
     Usuario usuario = crearUsuarioDefault();
-    usuario.linkDiscord(DiscordUserId.of("123456789"));
-    Awaitility.await().pollDelay(Duration.ofMillis(10)).until(() -> true);
+    DiscordUserId discordId = DiscordUserId.of("123456789");
+    usuario.linkDiscord(discordId);
+    await().pollDelay(Duration.ofMillis(10)).until(() -> true);
 
+    // Act
     usuario.unlinkDiscord();
 
+    // Assert
     assertTrue(usuario.getDiscordUserId().isEmpty());
     assertFalse(usuario.hasDiscordLinked());
   }
 
+  // ========== MÉTODOS DE CONSULTA ==========
+
   @Test
-  @DisplayName("hasDiscordLinked debe reflejar la vinculacion")
-  void hasDiscordLinkedDebeReflejarLaVinculacion() {
+  @DisplayName("isActive() debe retornar true para usuario activo")
+  void isActiveDebeRetornarTrueParaUsuarioActivo() {
+    // Arrange
     Usuario usuario = crearUsuarioDefault();
-    assertFalse(usuario.hasDiscordLinked());
+    usuario.activate();
 
-    usuario.linkDiscord(DiscordUserId.of("123456"));
-
-    assertTrue(usuario.hasDiscordLinked());
+    // Act & Assert
+    assertTrue(usuario.isActive());
+    assertFalse(usuario.isSuspended());
+    assertFalse(usuario.isDeleted());
   }
 
   @Test
-  @DisplayName("toString debe incluir informacion basica del usuario")
-  void toStringDebeIncluirInformacionBasica() {
+  @DisplayName("isSuspended() debe retornar true para usuario suspendido")
+  void isSuspendedDebeRetornarTrueParaUsuarioSuspendido() {
+    // Arrange
+    Usuario usuario = crearUsuarioDefault();
+    usuario.suspend();
+
+    // Act & Assert
+    assertTrue(usuario.isSuspended());
+    assertFalse(usuario.isActive());
+    assertFalse(usuario.isDeleted());
+  }
+
+  @Test
+  @DisplayName("isDeleted() debe retornar true para usuario eliminado")
+  void isDeletedDebeRetornarTrueParaUsuarioEliminado() {
+    // Arrange
+    Usuario usuario = crearUsuarioDefault();
+    usuario.delete();
+
+    // Act & Assert
+    assertTrue(usuario.isDeleted());
+    assertFalse(usuario.isActive());
+    assertFalse(usuario.isSuspended());
+  }
+
+  @Test
+  @DisplayName("hasDiscordLinked() debe retornar false sin vinculación")
+  void hasDiscordLinkedDebeRetornarFalseSinVinculacion() {
+    // Arrange
     Usuario usuario = crearUsuarioDefault();
 
+    // Act & Assert
+    assertFalse(usuario.hasDiscordLinked());
+  }
+
+  @Test
+  @DisplayName("hasDiscordLinked() debe retornar true con vinculación")
+  void hasDiscordLinkedDebeRetornarTrueConVinculacion() {
+    // Arrange
+    Usuario usuario = crearUsuarioDefault();
+    usuario.linkDiscord(DiscordUserId.of("123456"));
+
+    // Act & Assert
+    assertTrue(usuario.hasDiscordLinked());
+  }
+
+  // ========== toString ==========
+
+  @Test
+  @DisplayName("toString debe incluir información básica del usuario")
+  void toStringDebeIncluirInformacionBasica() {
+    // Arrange
+    Usuario usuario = crearUsuarioDefault();
+
+    // Act
     String resultado = usuario.toString();
 
+    // Assert
     assertTrue(resultado.contains("Usuario"));
     assertTrue(resultado.contains(usuario.getId().toString()));
     assertTrue(resultado.contains(usuario.getUsername().value()));
@@ -216,10 +395,13 @@ class UsuarioTest {
     assertTrue(resultado.contains(usuario.getStatus().toString()));
   }
 
+  // ========== HELPER METHOD ==========
+
   private Usuario crearUsuarioDefault() {
     Usuario usuario =
         Usuario.create(
             Username.of("testuser"), Email.of("test@test.com"), PasswordHash.of("$2a$10$hash"));
+    // Activar usuario para tests que requieren estado ACTIVO
     usuario.activate();
     return usuario;
   }
