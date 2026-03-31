@@ -20,7 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("BuscarUsuariosPorNombreUseCase - Búsqueda de usuarios por nombre")
+@DisplayName("BuscarUsuariosPorNombreUseCase - BÃºsqueda de usuarios por nombre")
 class BuscarUsuariosPorNombreUseCaseTest {
 
   @Mock private RepositorioUsuarios repositorio;
@@ -70,7 +70,7 @@ class BuscarUsuariosPorNombreUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si usuario no existe")
+  @DisplayName("Debe lanzar excepciÃ³n si usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
     String username = "nonexistent";
@@ -126,7 +126,7 @@ class BuscarUsuariosPorNombreUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe manejar búsqueda case-sensitive según Username VO")
+  @DisplayName("Debe manejar bÃºsqueda case-sensitive segÃºn Username VO")
   void debeManejarBusquedaCaseSensitive() {
     // Arrange
     String usuarioIdString = UUID.randomUUID().toString();
@@ -173,7 +173,7 @@ class BuscarUsuariosPorNombreUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe manejar caracteres especiales válidos en username")
+  @DisplayName("Debe manejar caracteres especiales vÃ¡lidos en username")
   void debeManejarCaracteresEspecialesValidos() {
     // Arrange
     String usuarioIdString = UUID.randomUUID().toString();
@@ -205,3 +205,7 @@ class BuscarUsuariosPorNombreUseCaseTest {
     verify(repositorio).findByUsername(any(Username.class));
   }
 }
+
+
+
+

@@ -19,9 +19,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 /**
- * Configuración de test para messaging y servicios externos. Proporciona mocks de IUsuarioPublisher
+ * ConfiguraciÃ³n de test para messaging y servicios externos. Proporciona mocks de IUsuarioPublisher
  * e IEmailService para evitar dependencias externas en tests. Importa TestContainersConfig para
- * usar PostgreSQL en lugar de H2. La configuración de seguridad se maneja en TestSecurityConfig.
+ * usar PostgreSQL en lugar de H2. La configuraciÃ³n de seguridad se maneja en TestSecurityConfig.
  */
 @TestConfiguration
 @EnableMethodSecurity
@@ -58,3 +58,6 @@ public class TestMessagingConfig {
     return new ObjectMapper();
   }
 }
+
+
+

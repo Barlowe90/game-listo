@@ -15,7 +15,7 @@ import static org.mockito.Mockito.verify;
 class SincronizarGameEstadoSocialUseCaseTest {
 
   @Test
-  @DisplayName("debe delegar la sincronización del estado del juego al repositorio")
+  @DisplayName("debe delegar la sincronizaciÃ³n del estado del juego al repositorio")
   void debeDelegarSincronizacionAlRepositorio() {
     JuegoSocialRepositorio repo = mock(JuegoSocialRepositorio.class);
     SincronizarGameEstadoSocialUseCase useCase = new SincronizarGameEstadoSocialUseCase(repo);
@@ -37,3 +37,6 @@ class SincronizarGameEstadoSocialUseCaseTest {
     assertEquals(estado, estadoCaptor.getValue());
   }
 }
+
+
+

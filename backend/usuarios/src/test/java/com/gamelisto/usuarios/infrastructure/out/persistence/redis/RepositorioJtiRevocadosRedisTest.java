@@ -28,7 +28,7 @@ class RepositorioJtiRevocadosRedisTest {
 
   @BeforeEach
   void setUp() {
-    // Limpiar todas las claves del patrón jti:revoked:*
+    // Limpiar todas las claves del patrÃ³n jti:revoked:*
     redisTemplate.delete(redisTemplate.keys("jti:revoked:*"));
   }
 
@@ -82,3 +82,6 @@ class RepositorioJtiRevocadosRedisTest {
     assertThat(repositorio.estaRevocado(jti)).isTrue();
   }
 }
+
+
+

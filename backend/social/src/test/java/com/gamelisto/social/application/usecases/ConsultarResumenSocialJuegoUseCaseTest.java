@@ -46,3 +46,6 @@ class ConsultarResumenSocialJuegoUseCaseTest {
     assertEquals(u1.avatar(), result.amigosDeseadoPreview().get(0).avatar());
   }
 }
+
+
+

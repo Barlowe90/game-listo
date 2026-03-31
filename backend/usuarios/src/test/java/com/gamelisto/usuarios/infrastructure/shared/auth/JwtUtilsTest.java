@@ -15,7 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("JwtUtils - Generación de tokens JWT")
+@DisplayName("JwtUtils - GeneraciÃ³n de tokens JWT")
 class JwtUtilsTest {
 
   private String secret;
@@ -39,7 +39,7 @@ class JwtUtilsTest {
   }
 
   @Test
-  @DisplayName("Debe generar token JWT válido con claims correctos")
+  @DisplayName("Debe generar token JWT vÃ¡lido con claims correctos")
   void debeGenerarTokenJwtValidoConClaimsCorrectos() {
     // Act
     String token = JwtUtils.generateAccessToken(usuario, jti, secret, expirationMs);
@@ -60,18 +60,18 @@ class JwtUtilsTest {
   }
 
   @Test
-  @DisplayName("Token generado tiene firma válida HMAC-SHA256")
+  @DisplayName("Token generado tiene firma vÃ¡lida HMAC-SHA256")
   void tokenGeneradoTieneFirmaValida() {
     // Act
     String token = JwtUtils.generateAccessToken(usuario, jti, secret, expirationMs);
 
-    // Assert - debe parsear sin excepción si la firma es válida
+    // Assert - debe parsear sin excepciÃ³n si la firma es vÃ¡lida
     Claims claims = JwtUtils.parseToken(token, secret);
     assertThat(claims).isNotNull();
   }
 
   @Test
-  @DisplayName("Token contiene expiración correcta (15 minutos por defecto)")
+  @DisplayName("Token contiene expiraciÃ³n correcta (15 minutos por defecto)")
   void tokenContieneExpiracionCorrecta() {
     // Arrange
     Instant beforeGeneration = Instant.now();
@@ -84,7 +84,7 @@ class JwtUtilsTest {
     Instant tokenIssuedAt = claims.getIssuedAt().toInstant();
     Instant tokenExpiresAt = claims.getExpiration().toInstant();
 
-    // JWT pierde precisión de milisegundos, comparar con truncamiento a segundos
+    // JWT pierde precisiÃ³n de milisegundos, comparar con truncamiento a segundos
     assertThat(tokenIssuedAt.truncatedTo(java.time.temporal.ChronoUnit.SECONDS))
         .isBeforeOrEqualTo(beforeGeneration.plusSeconds(1));
     assertThat(tokenExpiresAt).isAfter(tokenIssuedAt);
@@ -94,7 +94,7 @@ class JwtUtilsTest {
   }
 
   @Test
-  @DisplayName("Genera JTI único para cada token")
+  @DisplayName("Genera JTI Ãºnico para cada token")
   void generaJtiUnicoParaCadaToken() {
     // Arrange
     Jti jti1 = Jti.generate();
@@ -113,18 +113,18 @@ class JwtUtilsTest {
   }
 
   @Test
-  @DisplayName("Valida formato de secret (mínimo 256 bits)")
+  @DisplayName("Valida formato de secret (mÃ­nimo 256 bits)")
   void validaFormatoDeSecretMinimo256Bits() {
     // Arrange
     String shortSecret = "short"; // Solo 40 bits (5 bytes * 8)
 
-    // Act & Assert - JJWT lanza excepción si el secret es muy corto
+    // Act & Assert - JJWT lanza excepciÃ³n si el secret es muy corto
     assertThatThrownBy(() -> JwtUtils.generateAccessToken(usuario, jti, shortSecret, expirationMs))
         .isInstanceOf(io.jsonwebtoken.security.WeakKeyException.class);
   }
 
   @Test
-  @DisplayName("Genera access token con duración corta configurable")
+  @DisplayName("Genera access token con duraciÃ³n corta configurable")
   void generaAccessTokenConDuracionCortaConfigurable() {
     // Arrange
     long shortExpirationMs = 60000L; // 1 minuto
@@ -141,7 +141,7 @@ class JwtUtilsTest {
   }
 
   @Test
-  @DisplayName("Claims son parseables después de generación")
+  @DisplayName("Claims son parseables despuÃ©s de generaciÃ³n")
   void claimsSonParseablesDespuesDeGeneracion() {
     // Act
     String token = JwtUtils.generateAccessToken(usuario, jti, secret, expirationMs);
@@ -155,9 +155,9 @@ class JwtUtilsTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción con token expirado")
+  @DisplayName("Debe lanzar excepciÃ³n con token expirado")
   void debeLanzarExcepcionConTokenExpirado() {
-    // Arrange - token con expiración de -1 segundo (ya expirado)
+    // Arrange - token con expiraciÃ³n de -1 segundo (ya expirado)
     long expiredExpirationMs = -1000L;
 
     // Act
@@ -171,26 +171,26 @@ class JwtUtilsTest {
   @Test
   @DisplayName("Debe verificar correctamente si token ha expirado")
   void debeVerificarCorrectamenteSiTokenHaExpirado() {
-    // Arrange - token válido por 5 segundos
+    // Arrange - token vÃ¡lido por 5 segundos
     long validExpiration = 5000L;
     String validToken = JwtUtils.generateAccessToken(usuario, jti, secret, validExpiration);
 
-    // Assert - token válido no debe estar expirado
+    // Assert - token vÃ¡lido no debe estar expirado
     boolean isExpiredValid = JwtUtils.isTokenExpired(validToken, secret);
     assertThat(isExpiredValid).isFalse();
 
-    // Arrange - token ya expirado (expiración negativa)
+    // Arrange - token ya expirado (expiraciÃ³n negativa)
     long expiredExpiration = -1000L;
     String expiredToken =
         JwtUtils.generateAccessToken(usuario, Jti.generate(), secret, expiredExpiration);
 
-    // Assert - token expirado debe lanzar excepción al verificar
+    // Assert - token expirado debe lanzar excepciÃ³n al verificar
     assertThatThrownBy(() -> JwtUtils.isTokenExpired(expiredToken, secret))
         .isInstanceOf(ExpiredJwtException.class);
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción con firma inválida")
+  @DisplayName("Debe lanzar excepciÃ³n con firma invÃ¡lida")
   void debeLanzarExcepcionConFirmaInvalida() {
     // Arrange
     String wrongSecret = "wrong-secret-key-different-from-configured-secret-256bits";
@@ -298,3 +298,6 @@ class JwtUtilsTest {
     assertThat(claims.getExpiration().toInstant()).isAfter(Instant.now());
   }
 }
+
+
+

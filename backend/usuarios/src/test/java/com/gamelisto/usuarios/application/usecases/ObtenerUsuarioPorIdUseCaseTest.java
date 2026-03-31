@@ -64,7 +64,7 @@ class ObtenerUsuarioPorIdUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si usuario no existe")
+  @DisplayName("Debe lanzar excepciÃ³n si usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
     String usuarioIdString = UUID.randomUUID().toString();
@@ -81,7 +81,7 @@ class ObtenerUsuarioPorIdUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si ID tiene formato inválido")
+  @DisplayName("Debe lanzar excepciÃ³n si ID tiene formato invÃ¡lido")
   void debeLanzarExcepcionSiIdTieneFormatoInvalido() {
     // Arrange
     String idInvalido = "no-es-uuid";
@@ -151,7 +151,7 @@ class ObtenerUsuarioPorIdUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe manejar UUID con mayúsculas y minúsculas")
+  @DisplayName("Debe manejar UUID con mayÃºsculas y minÃºsculas")
   void debeManejareUUIDConMayusculasYMinusculas() {
     // Arrange
     String usuarioIdUpper = "550E8400-E29B-41D4-A716-446655440000";
@@ -185,3 +185,6 @@ class ObtenerUsuarioPorIdUseCaseTest {
         null);
   }
 }
+
+
+

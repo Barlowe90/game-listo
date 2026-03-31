@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class JtiTest {
 
   @Test
-  @DisplayName("Debe generar un JTI válido")
+  @DisplayName("Debe generar un JTI vÃ¡lido")
   void debeGenerarJtiValido() {
     // Act
     Jti jti = Jti.generate();
@@ -24,7 +24,7 @@ class JtiTest {
   }
 
   @Test
-  @DisplayName("Debe crear un JTI desde string válido")
+  @DisplayName("Debe crear un JTI desde string vÃ¡lido")
   void debeCrearJtiDesdeStringValido() {
     // Arrange
     String uuidString = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
@@ -37,14 +37,14 @@ class JtiTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el JTI es null")
+  @DisplayName("Debe lanzar excepciÃ³n si el JTI es null")
   void debeLanzarExcepcionSiJtiEsNull() {
     // Act & Assert
     assertThrows(DomainException.class, () -> Jti.of(null));
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el JTI es vacío")
+  @DisplayName("Debe lanzar excepciÃ³n si el JTI es vacÃ­o")
   void debeLanzarExcepcionSiJtiEsVacio() {
     // Act & Assert
     assertThrows(DomainException.class, () -> Jti.of(""));
@@ -52,7 +52,7 @@ class JtiTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el JTI no es un UUID válido")
+  @DisplayName("Debe lanzar excepciÃ³n si el JTI no es un UUID vÃ¡lido")
   void debeLanzarExcepcionSiJtiNoEsUuidValido() {
     // Act & Assert
     assertThrows(DomainException.class, () -> Jti.of("invalid-uuid"));
@@ -84,7 +84,7 @@ class JtiTest {
   }
 
   @Test
-  @DisplayName("toString debe contener información del JTI")
+  @DisplayName("toString debe contener informaciÃ³n del JTI")
   void toStringDebeContenerInformacion() {
     // Arrange
     Jti jti = Jti.generate();
@@ -97,3 +97,6 @@ class JtiTest {
     assertFalse(toString.isEmpty());
   }
 }
+
+
+

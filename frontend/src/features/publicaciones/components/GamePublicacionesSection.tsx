@@ -30,6 +30,8 @@ interface ApiErrorResponse {
 
 interface GamePublicacionesSectionProps {
   gameId: number;
+  initialPublicaciones?: Publicacion[];
+  initialGrupos?: GrupoJuego[];
 }
 
 function getApiErrorMessage(error: unknown, fallback: string) {
@@ -66,13 +68,16 @@ async function loadGruposPorPublicacion(publicaciones: Publicacion[]) {
   return Object.fromEntries(grupos) as Record<string, GrupoJuego | null>;
 }
 
-export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionProps) {
+export function GamePublicacionesSection({ gameId, initialPublicaciones, initialGrupos }: GamePublicacionesSectionProps) {
   const { status, user } = useAuth();
   const userId = user?.id ?? null;
-  const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
+  const [publicaciones, setPublicaciones] = useState<Publicacion[]>(initialPublicaciones ?? []);
+  
+  const initialGruposMap = initialGrupos ? Object.fromEntries(initialGrupos.map(g => [g.publicacionId, g])) : {};
   const [gruposByPublicacionId, setGruposByPublicacionId] = useState<
     Record<string, GrupoJuego | null>
-  >({});
+  >(initialGruposMap);
+  
   const [requestedPublicacionIds, setRequestedPublicacionIds] = useState<Record<string, true>>({});
   const [joiningPublicacionId, setJoiningPublicacionId] = useState<string | null>(null);
   const [isLoadingPublicaciones, setIsLoadingPublicaciones] = useState(false);
@@ -90,6 +95,10 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
   const [isDeletingPublicacion, setIsDeletingPublicacion] = useState(false);
 
   useEffect(() => {
+    if (initialPublicaciones) {
+      return;
+    }
+    
     let ignore = false;
 
     async function loadPublicaciones() {
@@ -125,7 +134,7 @@ export function GamePublicacionesSection({ gameId }: GamePublicacionesSectionPro
     return () => {
       ignore = true;
     };
-  }, [gameId]);
+  }, [gameId, initialPublicaciones]);
 
   function handleCreateDialogOpenChange(open: boolean) {
     if (isSubmittingPublicacion) {

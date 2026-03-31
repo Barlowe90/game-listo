@@ -1,0 +1,11 @@
+type Query{
+    game(id: ID!): Game
+}
+
+type Game{
+    id: ID!
+    name: String!
+    coverUrl: String
+    platforms: [String!]!
+    modos: [String]
+}

@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 /**
- * Configuración de test para messaging y MockMvc en el módulo social. Provee un bean MockMvc
+ * ConfiguraciÃ³n de test para messaging y MockMvc en el mÃ³dulo social. Provee un bean MockMvc
  * construido desde el WebApplicationContext.
  */
 @TestConfiguration
@@ -23,3 +23,6 @@ public class TestMessagingConfig {
     return MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
   }
 }
+
+
+

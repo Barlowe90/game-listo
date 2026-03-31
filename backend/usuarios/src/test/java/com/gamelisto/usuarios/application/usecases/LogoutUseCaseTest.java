@@ -28,7 +28,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("LogoutUseCase - Revocación de tokens")
+@DisplayName("LogoutUseCase - RevocaciÃ³n de tokens")
 class LogoutUseCaseTest {
 
   @Mock private RepositorioJtiRevocados repositorioJti;
@@ -50,14 +50,14 @@ class LogoutUseCaseTest {
     secret = "test-secret-key-for-testing-purposes-must-be-long-enough-for-hs256-algorithm";
     long expirationMs = 900000L; // 15 minutos
 
-    // Crear usuario de prueba usando la funcion create que solo requiere 3 parámetros
+    // Crear usuario de prueba usando la funcion create que solo requiere 3 parÃ¡metros
     testUsuario =
         Usuario.create(
             Username.of("testuser"),
             Email.of("test@example.com"),
             PasswordHash.of("$2a$10$hashedpassword"));
 
-    // Generar tokens válidos
+    // Generar tokens vÃ¡lidos
     Jti jti = Jti.generate();
     validAccessToken = JwtUtils.generateAccessToken(testUsuario, jti, secret, expirationMs);
     validRefreshToken = UUID.randomUUID().toString();
@@ -114,7 +114,7 @@ class LogoutUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe revocar solo refresh token si access token está vacío")
+  @DisplayName("Debe revocar solo refresh token si access token estÃ¡ vacÃ­o")
   void debeRevocarSoloRefreshTokenConAccessTokenVacio() {
     // Arrange
     LogoutCommand command = new LogoutCommand(validRefreshToken, "");
@@ -154,22 +154,22 @@ class LogoutUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe ser idempotente - permite logout múltiple del mismo refresh token")
+  @DisplayName("Debe ser idempotente - permite logout mÃºltiple del mismo refresh token")
   void debePermitirLogoutMultiple() {
     // Arrange
     LogoutCommand command = new LogoutCommand(validRefreshToken, null);
 
     when(repositorioRefreshTokens.buscarActivo(any(TokenHash.class))).thenReturn(Optional.empty());
 
-    // Act & Assert - Primera llamada lanza excepción
+    // Act & Assert - Primera llamada lanza excepciÃ³n
     assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(ApplicationException.class);
 
-    // Segunda llamada también lanza excepción (token ya revocado)
+    // Segunda llamada tambiÃ©n lanza excepciÃ³n (token ya revocado)
     assertThatThrownBy(() -> useCase.execute(command)).isInstanceOf(ApplicationException.class);
   }
 
   @Test
-  @DisplayName("Debe manejar access token inválido sin fallar (continúa con refresh token)")
+  @DisplayName("Debe manejar access token invÃ¡lido sin fallar (continÃºa con refresh token)")
   void debeManejarAccessTokenInvalidoSinFallar() {
     // Arrange
     String invalidAccessToken = "invalid-token-format";
@@ -184,7 +184,7 @@ class LogoutUseCaseTest {
     when(repositorioRefreshTokens.buscarActivo(any(TokenHash.class)))
         .thenReturn(Optional.of(refreshToken));
 
-    // Act - No debe lanzar excepción
+    // Act - No debe lanzar excepciÃ³n
     assertThatCode(() -> useCase.execute(command)).doesNotThrowAnyException();
 
     // Assert - Refresh token fue revocado, access token fue ignorado
@@ -215,7 +215,7 @@ class LogoutUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe validar que LogoutCommand no acepte refresh token vacío")
+  @DisplayName("Debe validar que LogoutCommand no acepte refresh token vacÃ­o")
   void debeValidarRefreshTokenNoVacio() {
     // Act & Assert
     assertThatThrownBy(() -> new LogoutCommand("", null))
@@ -228,7 +228,7 @@ class LogoutUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe no revocar JTI si access token ya expiró")
+  @DisplayName("Debe no revocar JTI si access token ya expirÃ³")
   void debeNoRevocarJtiSiTokenExpirado() {
     // Arrange - Generar token expirado
     Usuario testUsuario2 =
@@ -258,7 +258,10 @@ class LogoutUseCaseTest {
 
     // Assert - Refresh token revocado, pero JTI no (porque TTL no es positivo)
     verify(repositorioRefreshTokens, times(1)).revocar(any(TokenHash.class), any(Duration.class));
-    // JTI no se revoca si el token ya expiró (TTL negativo)
+    // JTI no se revoca si el token ya expirÃ³ (TTL negativo)
     verify(repositorioJti, never()).revocar(any(Jti.class), any(Duration.class));
   }
 }
+
+
+

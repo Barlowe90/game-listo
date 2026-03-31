@@ -9,11 +9,11 @@ import com.gamelisto.usuarios.application.dto.AuthResponseResult;
 import com.gamelisto.usuarios.application.dto.LoginCommand;
 import com.gamelisto.usuarios.application.exceptions.ApplicationException;
 import com.gamelisto.usuarios.application.usecases.auth.LoginUseCase;
+import com.gamelisto.usuarios.domain.refreshtoken.TokenHash;
 import com.gamelisto.usuarios.domain.repositories.RepositorioRefreshTokens;
 import com.gamelisto.usuarios.domain.repositories.RepositorioUsuarios;
 import com.gamelisto.usuarios.domain.usuario.*;
 import com.gamelisto.usuarios.shared.auth.JwtProperties;
-import com.gamelisto.usuarios.application.dto.TokenDTO;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -42,8 +42,6 @@ class LoginUseCaseTest {
 
   @Mock private JwtProperties jwtProperties;
 
-  @Mock private com.gamelisto.usuarios.application.usecases.auth.AuthTokenService authTokenService;
-
   @InjectMocks private LoginUseCase loginUseCase;
 
   private Usuario usuarioActivo;
@@ -60,6 +58,7 @@ class LoginUseCaseTest {
             PasswordHash.of(passwordHash),
             Avatar.empty(),
             Rol.USER,
+            Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             TokenVerificacion.empty(),
@@ -69,31 +68,13 @@ class LoginUseCaseTest {
 
     when(jwtProperties.getSecret()).thenReturn("test-secret-key-min-32-chars-long");
     when(jwtProperties.getExpirationMs()).thenReturn(900000L); // 15 min
-    when(jwtProperties.getRefreshExpirationMs()).thenReturn(604800000L); // 7 días
-
-    // Stubear el comportamiento de AuthTokenService para devolver un AuthResponseResult
-    when(authTokenService.createAuthResponse(any()))
-        .thenAnswer(
-            invocation -> {
-              Usuario u = invocation.getArgument(0);
-              Instant now = Instant.now();
-              TokenDTO accessToken =
-                  new TokenDTO("access-token", now.plusMillis(jwtProperties.getExpirationMs()));
-              TokenDTO refreshToken =
-                  new TokenDTO(
-                      "refresh-token-" + java.util.UUID.randomUUID(),
-                      now.plusMillis(jwtProperties.getRefreshExpirationMs()));
-              return new AuthResponseResult(
-                  accessToken,
-                  refreshToken,
-                  com.gamelisto.usuarios.application.dto.UsuarioResult.from(u));
-            });
+    when(jwtProperties.getRefreshExpirationMs()).thenReturn(604800000L); // 7 dÃ­as
   }
 
-  // ========== CASOS DE ÉXITO ==========
+  // ========== CASOS DE Ã‰XITO ==========
 
   @Test
-  @DisplayName("Debe realizar login exitosamente con credenciales válidas")
+  @DisplayName("Debe realizar login exitosamente con credenciales vÃ¡lidas")
   void debeRealizarLoginExitoso() {
     // Arrange
     LoginCommand command = new LoginCommand("test@example.com", passwordPlain);
@@ -111,12 +92,13 @@ class LoginUseCaseTest {
     assertEquals("testuser", response.usuario().username());
     assertEquals("test@example.com", response.usuario().email());
 
-    // Verificar que delegamos en AuthTokenService para crear/persistir tokens
-    verify(authTokenService).createAuthResponse(any(Usuario.class));
+    // Verificar que se guardÃ³ el refresh token en Redis
+    verify(repositorioRefreshTokens)
+        .guardarActivo(any(TokenHash.class), any(UsuarioId.class), any(Instant.class));
   }
 
   @Test
-  @DisplayName("Debe generar access token con tiempo de expiración correcto")
+  @DisplayName("Debe generar access token con tiempo de expiraciÃ³n correcto")
   void debeGenerarAccessTokenConExpiracionCorrecta() {
     // Arrange
     LoginCommand command = new LoginCommand("test@example.com", passwordPlain);
@@ -132,7 +114,7 @@ class LoginUseCaseTest {
     Instant accessTokenExpiration = response.accessToken().expiresAt();
     long expectedExpirationMs = jwtProperties.getExpirationMs();
 
-    // Verificar que la expiración está en el rango esperado (±5 segundos de margen)
+    // Verificar que la expiraciÃ³n estÃ¡ en el rango esperado (Â±5 segundos de margen)
     assertTrue(
         accessTokenExpiration.isAfter(antesDeLogin.plusMillis(expectedExpirationMs - 5000))
             && accessTokenExpiration.isBefore(
@@ -140,7 +122,7 @@ class LoginUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe generar refresh token con tiempo de expiración correcto")
+  @DisplayName("Debe generar refresh token con tiempo de expiraciÃ³n correcto")
   void debeGenerarRefreshTokenConExpiracionCorrecta() {
     // Arrange
     LoginCommand command = new LoginCommand("test@example.com", passwordPlain);
@@ -162,10 +144,10 @@ class LoginUseCaseTest {
                 despuesDeLogin.plusMillis(expectedExpirationMs + 5000)));
   }
 
-  // ========== CASOS DE ERROR - CREDENCIALES INVÁLIDAS ==========
+  // ========== CASOS DE ERROR - CREDENCIALES INVÃLIDAS ==========
 
   @Test
-  @DisplayName("Debe lanzar excepción si el email no está registrado")
+  @DisplayName("Debe lanzar excepciÃ³n si el email no estÃ¡ registrado")
   void debeLanzarExcepcionSiEmailNoRegistrado() {
     // Arrange
     LoginCommand command = new LoginCommand("noexiste@example.com", passwordPlain);
@@ -181,7 +163,7 @@ class LoginUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si la contraseña es incorrecta")
+  @DisplayName("Debe lanzar excepciÃ³n si la contraseÃ±a es incorrecta")
   void debeLanzarExcepcionSiContrasenaIncorrecta() {
     // Arrange
     LoginCommand command = new LoginCommand("test@example.com", "WrongPassword");
@@ -199,7 +181,7 @@ class LoginUseCaseTest {
   // ========== CASOS DE ERROR - ESTADO DEL USUARIO ==========
 
   @Test
-  @DisplayName("Debe lanzar excepción si el usuario está PENDIENTE_DE_VERIFICACION")
+  @DisplayName("Debe lanzar excepciÃ³n si el usuario estÃ¡ PENDIENTE_DE_VERIFICACION")
   void debeLanzarExcepcionSiUsuarioPendienteVerificacion() {
     // Arrange
     Usuario usuarioPendiente =
@@ -210,6 +192,7 @@ class LoginUseCaseTest {
             PasswordHash.of(passwordHash),
             Avatar.empty(),
             Rol.USER,
+            Idioma.ESP,
             EstadoUsuario.PENDIENTE_DE_VERIFICACION,
             DiscordUserId.empty(),
             TokenVerificacion.generate(),
@@ -231,7 +214,7 @@ class LoginUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el usuario está SUSPENDIDO")
+  @DisplayName("Debe lanzar excepciÃ³n si el usuario estÃ¡ SUSPENDIDO")
   void debeLanzarExcepcionSiUsuarioSuspendido() {
     // Arrange
     Usuario usuarioSuspendido =
@@ -242,6 +225,7 @@ class LoginUseCaseTest {
             PasswordHash.of(passwordHash),
             Avatar.empty(),
             Rol.USER,
+            Idioma.ESP,
             EstadoUsuario.SUSPENDIDO,
             DiscordUserId.empty(),
             TokenVerificacion.empty(),
@@ -262,7 +246,7 @@ class LoginUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el usuario está ELIMINADO")
+  @DisplayName("Debe lanzar excepciÃ³n si el usuario estÃ¡ ELIMINADO")
   void debeLanzarExcepcionSiUsuarioEliminado() {
     // Arrange
     Usuario usuarioEliminado =
@@ -273,6 +257,7 @@ class LoginUseCaseTest {
             PasswordHash.of(passwordHash),
             Avatar.empty(),
             Rol.USER,
+            Idioma.ESP,
             EstadoUsuario.ELIMINADO,
             DiscordUserId.empty(),
             TokenVerificacion.empty(),
@@ -301,13 +286,24 @@ class LoginUseCaseTest {
     LoginCommand command = new LoginCommand("test@example.com", passwordPlain);
     when(repositorioUsuarios.findByEmail(any(Email.class))).thenReturn(Optional.of(usuarioActivo));
     when(passwordEncoder.matches(passwordPlain, passwordHash)).thenReturn(true);
-    ArgumentCaptor<Usuario> usuarioCaptor = ArgumentCaptor.forClass(Usuario.class);
+
+    ArgumentCaptor<TokenHash> tokenHashCaptor = ArgumentCaptor.forClass(TokenHash.class);
+    ArgumentCaptor<UsuarioId> usuarioIdCaptor = ArgumentCaptor.forClass(UsuarioId.class);
+    ArgumentCaptor<Instant> expiresAtCaptor = ArgumentCaptor.forClass(Instant.class);
 
     // Act
     loginUseCase.execute(command);
 
-    // Assert: verificamos que delegamos en AuthTokenService la creación/persistencia de tokens
-    verify(authTokenService).createAuthResponse(usuarioCaptor.capture());
-    assertEquals(usuarioActivo.getId(), usuarioCaptor.getValue().getId());
+    // Assert
+    verify(repositorioRefreshTokens)
+        .guardarActivo(
+            tokenHashCaptor.capture(), usuarioIdCaptor.capture(), expiresAtCaptor.capture());
+
+    assertNotNull(tokenHashCaptor.getValue());
+    assertEquals(usuarioActivo.getId(), usuarioIdCaptor.getValue());
+    assertNotNull(expiresAtCaptor.getValue());
   }
 }
+
+
+

@@ -78,7 +78,7 @@ class GlobalExceptionHandlerTest {
     assertThat(response.getBody().get("timestamp")).isNotNull();
   }
 
-  // ========== VALIDACIÓN - 400 BAD REQUEST ==========
+  // ========== VALIDACIÃ“N - 400 BAD REQUEST ==========
 
   @Test
   @DisplayName("Debe manejar MethodArgumentNotValidException con 400 y detalles de errores")
@@ -105,10 +105,10 @@ class GlobalExceptionHandlerTest {
     assertThat(errors.get("email")).isEqualTo("Email inválido");
   }
 
-  // ========== GENÉRICO - 500 INTERNAL SERVER ERROR ==========
+  // ========== GENÃ‰RICO - 500 INTERNAL SERVER ERROR ==========
 
   @Test
-  @DisplayName("Debe manejar Exception genérica con 500")
+  @DisplayName("Debe manejar Exception genÃ©rica con 500")
   void debeManejarExceptionGenerica() {
     Exception exception = new Exception("Error inesperado");
 
@@ -138,7 +138,7 @@ class GlobalExceptionHandlerTest {
   }
 
   @Test
-  @DisplayName("Debe retornar formato especial para errores de validación con detalles")
+  @DisplayName("Debe retornar formato especial para errores de validaciÃ³n con detalles")
   void debeRetornarFormatoEspecialParaValidacion() {
     BindingResult bindingResult = mock(BindingResult.class);
     FieldError fieldError = new FieldError("object", "field", "Error message");
@@ -153,3 +153,6 @@ class GlobalExceptionHandlerTest {
     assertThat(response.getBody().get("errors")).isInstanceOf(Map.class);
   }
 }
+
+
+

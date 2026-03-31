@@ -60,7 +60,7 @@ class RefreshTokenTest {
   }
 
   @Test
-  @DisplayName("Debe validar expiración correctamente")
+  @DisplayName("Debe validar expiraciÃ³n correctamente")
   void debeValidarExpiracionCorrectamente() {
     // Arrange - Token no expirado
     TokenValue tokenValue1 = TokenValue.generate();
@@ -68,7 +68,7 @@ class RefreshTokenTest {
     UsuarioId usuarioId = UsuarioId.generate();
     RefreshToken tokenValido = RefreshToken.create(tokenHash1, usuarioId, Duration.ofDays(7));
 
-    // Assert - Token válido
+    // Assert - Token vÃ¡lido
     assertThat(tokenValido.isExpired()).isFalse();
 
     // Arrange - Token expirado
@@ -102,7 +102,7 @@ class RefreshTokenTest {
   }
 
   @Test
-  @DisplayName("Debe rechazar token expirado como inválido")
+  @DisplayName("Debe rechazar token expirado como invÃ¡lido")
   void debeRechazarTokenExpiradoComoInvalido() {
     // Arrange
     TokenValue tokenValue = TokenValue.generate();
@@ -120,7 +120,7 @@ class RefreshTokenTest {
   }
 
   @Test
-  @DisplayName("Debe rechazar token revocado como inválido")
+  @DisplayName("Debe rechazar token revocado como invÃ¡lido")
   void debeRechazarTokenRevocadoComoInvalido() {
     // Arrange
     TokenValue tokenValue = TokenValue.generate();
@@ -138,7 +138,7 @@ class RefreshTokenTest {
   }
 
   @Test
-  @DisplayName("Debe generar token hash único para cada token")
+  @DisplayName("Debe generar token hash Ãºnico para cada token")
   void debeGenerarTokenHashUnicoParaCadaToken() {
     // Arrange
     TokenValue tokenValue1 = TokenValue.generate();
@@ -174,7 +174,7 @@ class RefreshTokenTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si TokenHash es nulo")
+  @DisplayName("Debe lanzar excepciÃ³n si TokenHash es nulo")
   void debeLanzarExcepcionSiTokenHashEsNulo() {
     // Arrange
     UsuarioId usuarioId = UsuarioId.generate();
@@ -187,7 +187,7 @@ class RefreshTokenTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si UsuarioId es nulo")
+  @DisplayName("Debe lanzar excepciÃ³n si UsuarioId es nulo")
   void debeLanzarExcepcionSiUsuarioIdEsNulo() {
     // Arrange
     TokenValue tokenValue = TokenValue.generate();
@@ -201,14 +201,14 @@ class RefreshTokenTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si fecha de expiración es anterior a creación")
+  @DisplayName("Debe lanzar excepciÃ³n si fecha de expiraciÃ³n es anterior a creaciÃ³n")
   void debeLanzarExcepcionSiFechaExpiracionEsAnteriorACreacion() {
     // Arrange
     TokenValue tokenValue = TokenValue.generate();
     TokenHash tokenHash = TokenHash.from(tokenValue);
     UsuarioId usuarioId = UsuarioId.generate();
     Instant createdAt = Instant.now();
-    Instant expiresAt = createdAt.minus(Duration.ofDays(1)); // Expiración antes de creación
+    Instant expiresAt = createdAt.minus(Duration.ofDays(1)); // ExpiraciÃ³n antes de creaciÃ³n
 
     // Act & Assert
     assertThatThrownBy(
@@ -234,11 +234,11 @@ class RefreshTokenTest {
     // Assert
     assertThat(ttl).isNotNull();
     assertThat(ttl.toDays()).isLessThanOrEqualTo(7);
-    assertThat(ttl.toDays()).isGreaterThanOrEqualTo(6); // Tolerancia por tiempo de ejecución
+    assertThat(ttl.toDays()).isGreaterThanOrEqualTo(6); // Tolerancia por tiempo de ejecuciÃ³n
   }
 
   @Test
-  @DisplayName("Debe validar que token válido no esté expirado ni revocado")
+  @DisplayName("Debe validar que token vÃ¡lido no estÃ© expirado ni revocado")
   void debeValidarQueTokenValidoNoEsteExpiradoNiRevocado() {
     // Arrange
     TokenValue tokenValue = TokenValue.generate();
@@ -271,7 +271,7 @@ class RefreshTokenTest {
   }
 
   @Test
-  @DisplayName("Debe implementar toString sin exponer información sensible")
+  @DisplayName("Debe implementar toString sin exponer informaciÃ³n sensible")
   void debeImplementarToStringSinExponerInformacionSensible() {
     // Arrange
     TokenValue tokenValue = TokenValue.generate();
@@ -290,3 +290,6 @@ class RefreshTokenTest {
         .contains("usuarioId");
   }
 }
+
+
+

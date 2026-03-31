@@ -13,10 +13,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 @DisplayName("DiscordUserId - Tests de Value Object")
 class DiscordUserIdTest {
 
-  // ========== CASOS DE ÉXITO ==========
+  // ========== CASOS DE Ã‰XITO ==========
 
   @Test
-  @DisplayName("Debe crear DiscordUserId con valor válido")
+  @DisplayName("Debe crear DiscordUserId con valor vÃ¡lido")
   void debeCrearDiscordUserIdConValorValido() {
     // Arrange & Act
     DiscordUserId discordUserId = DiscordUserId.of("123456789012345678");
@@ -27,7 +27,7 @@ class DiscordUserIdTest {
   }
 
   @Test
-  @DisplayName("Debe crear DiscordUserId vacío con método empty()")
+  @DisplayName("Debe crear DiscordUserId vacÃ­o con mÃ©todo empty()")
   void debeCrearDiscordUserIdVacioConMetodoEmpty() {
     // Arrange & Act
     DiscordUserId discordUserId = DiscordUserId.empty();
@@ -41,7 +41,7 @@ class DiscordUserIdTest {
   @NullSource
   @EmptySource
   @ValueSource(strings = {"   ", "  ", "\t", "\n"})
-  @DisplayName("Debe crear DiscordUserId vacío con valor null, cadena vacía o espacios en blanco")
+  @DisplayName("Debe crear DiscordUserId vacÃ­o con valor null, cadena vacÃ­a o espacios en blanco")
   void debeCrearDiscordUserIdVacioConValoresInvalidos(String valor) {
     // Arrange & Act
     DiscordUserId discordUserId = DiscordUserId.of(valor);
@@ -78,7 +78,7 @@ class DiscordUserIdTest {
   // ========== CASOS DE ERROR ==========
 
   @Test
-  @DisplayName("Debe lanzar excepción si el valor excede 100 caracteres")
+  @DisplayName("Debe lanzar excepciÃ³n si el valor excede 100 caracteres")
   void debeLanzarExcepcionSiValorExcede100Caracteres() {
     // Arrange
     String valorLargo = "a".repeat(101);
@@ -103,7 +103,7 @@ class DiscordUserIdTest {
   }
 
   @Test
-  @DisplayName("Debe retornar [NO VINCULADO] en toString() cuando está vacío")
+  @DisplayName("Debe retornar [NO VINCULADO] en toString() cuando estÃ¡ vacÃ­o")
   void debeRetornarNoVinculadoEnToString() {
     // Arrange & Act
     DiscordUserId discordUserId = DiscordUserId.empty();
@@ -112,3 +112,6 @@ class DiscordUserIdTest {
     assertEquals("[NO VINCULADO]", discordUserId.toString());
   }
 }
+
+
+

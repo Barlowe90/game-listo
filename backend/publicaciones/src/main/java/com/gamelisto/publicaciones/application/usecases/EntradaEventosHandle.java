@@ -7,10 +7,10 @@ import java.util.List;
 public interface EntradaEventosHandle {
 
   void procesarUsuarioCreado(
-      String usuarioId, String username, String avatar);
+      String usuarioId, String username, String avatar, String discordUserId);
 
   void procesarUsuarioActualizado(
-      String usuarioId, String username, String avatar);
+      String usuarioId, String username, String avatar, String discordUserId);
 
   void procesarUsuarioEliminado(String usuarioId) throws ApplicationException;
 

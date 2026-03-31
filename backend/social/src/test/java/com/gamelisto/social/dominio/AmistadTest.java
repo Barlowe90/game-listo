@@ -36,8 +36,11 @@ class AmistadTest {
   @Test
   @DisplayName("debe lanzar excepcion con vacio")
   void debeLanzarExcepcionConVacio() {
-    // UUID tiene formato; para simular "vacio" usamos null porque UUID no acepta vacíos
+    // UUID tiene formato; para simular "vacio" usamos null porque UUID no acepta vacÃ­os
     UUID b = UUID.fromString("00000000-0000-0000-0000-00000000000b");
     assertThrows(DomainException.class, () -> Amistad.of(null, b));
   }
 }
+
+
+

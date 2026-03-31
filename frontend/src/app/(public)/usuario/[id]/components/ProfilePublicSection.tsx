@@ -62,10 +62,10 @@ export function ProfilePublicSection({
             <div className="grid gap-1">
               <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                 <MessageCircleMore className="size-4 text-primary" aria-hidden="true" />
-                <span>Discord</span>
+                <span>Discord disponible</span>
               </div>
               <p className="text-sm leading-relaxed text-secondary">
-                Se abrira su perfil de Discord en una pestaña nueva.
+                Se abrira su perfil de Discord a partir del ID compartido en una pestana nueva.
               </p>
             </div>
 

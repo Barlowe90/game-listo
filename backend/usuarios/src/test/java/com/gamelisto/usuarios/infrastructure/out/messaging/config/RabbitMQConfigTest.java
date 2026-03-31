@@ -37,7 +37,7 @@ class RabbitMQConfigTest {
   }
 
   @Test
-  @DisplayName("Debe crear el conversor de mensajes JSON con configuración correcta")
+  @DisplayName("Debe crear el conversor de mensajes JSON con configuraciÃ³n correcta")
   void debeCrearConversordeMensajesJSON() {
     // When
     MessageConverter converter = config.jsonMessageConverter();
@@ -68,15 +68,15 @@ class RabbitMQConfigTest {
     // Given
     MessageConverter converter = config.jsonMessageConverter();
 
-    // When/Then - Aceptamos dos comportamientos posibles: que lance excepción o que devuelva
+    // When/Then - Aceptamos dos comportamientos posibles: que lance excepciÃ³n o que devuelva
     // un RabbitTemplate con connectionFactory == null.
     try {
       RabbitTemplate rt = config.rabbitTemplate(null, converter);
-      // Si no lanza excepción, comprobamos que la propiedad refleje null
+      // Si no lanza excepciÃ³n, comprobamos que la propiedad refleje null
       assertThat(rt).isNotNull();
       assertThat(rt.getConnectionFactory()).isNull();
     } catch (Exception e) {
-      // Si lanza, aceptamos la excepción (implementaciones de Spring pueden variar)
+      // Si lanza, aceptamos la excepciÃ³n (implementaciones de Spring pueden variar)
       assertThat(e).isNotNull();
     }
   }
@@ -87,7 +87,7 @@ class RabbitMQConfigTest {
     // Given
     ConnectionFactory connectionFactory = mock(ConnectionFactory.class);
 
-    // When & Then - No debe lanzar excepción al crear RabbitTemplate con converter null
+    // When & Then - No debe lanzar excepciÃ³n al crear RabbitTemplate con converter null
     RabbitTemplate rabbitTemplate = config.rabbitTemplate(connectionFactory, null);
     assertThat(rabbitTemplate).isNotNull();
   }
@@ -100,3 +100,6 @@ class RabbitMQConfigTest {
     assertThat(RabbitMQConfig.RK_USUARIO_ELIMINADO).isEqualTo("usuarios.eliminado");
   }
 }
+
+
+

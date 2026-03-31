@@ -109,7 +109,7 @@ class ObtenerPerfilAutenticadoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si usuario no existe")
+  @DisplayName("Debe lanzar excepciÃ³n si usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
@@ -126,7 +126,7 @@ class ObtenerPerfilAutenticadoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si usuario está eliminado")
+  @DisplayName("Debe lanzar excepciÃ³n si usuario estÃ¡ eliminado")
   void debeLanzarExcepcionSiUsuarioEstaEliminado() {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
@@ -160,7 +160,7 @@ class ObtenerPerfilAutenticadoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe incluir información de Discord si está vinculado")
+  @DisplayName("Debe incluir informaciÃ³n de Discord si estÃ¡ vinculado")
   void debeIncluirInformacionDeDiscordSiEstaVinculado() {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
@@ -231,7 +231,7 @@ class ObtenerPerfilAutenticadoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción con formato de UUID inválido")
+  @DisplayName("Debe lanzar excepciÃ³n con formato de UUID invÃ¡lido")
   void debeLanzarExcepcionConFormatoUuidInvalido() {
     // Arrange
 
@@ -308,3 +308,6 @@ class ObtenerPerfilAutenticadoUseCaseTest {
     verify(repositorio).findById(usuarioIdVo);
   }
 }
+
+
+

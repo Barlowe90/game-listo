@@ -29,10 +29,10 @@ class ReenviarVerificacionUseCaseTest {
 
   @InjectMocks private ReenviarVerificacionUseCase reenviarVerificacionUseCase;
 
-  // ========== CASOS DE ÉXITO ==========
+  // ========== CASOS DE Ã‰XITO ==========
 
   @Test
-  @DisplayName("Debe reenviar verificación exitosamente para usuario pendiente")
+  @DisplayName("Debe reenviar verificaciÃ³n exitosamente para usuario pendiente")
   void debeReenviarVerificacionExitosamente() {
     // Arrange
     String email = "pendiente@test.com";
@@ -57,7 +57,7 @@ class ReenviarVerificacionUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe regenerar token al reenviar verificación")
+  @DisplayName("Debe regenerar token al reenviar verificaciÃ³n")
   void debeRegenerarTokenAlReenviarVerificacion() {
     // Arrange
     String email = "pendiente@test.com";
@@ -101,7 +101,7 @@ class ReenviarVerificacionUseCaseTest {
   // ========== CASOS DE ERROR ==========
 
   @Test
-  @DisplayName("Debe lanzar excepción si el usuario no existe")
+  @DisplayName("Debe lanzar excepciÃ³n si el usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
     String emailInexistente = "noexiste@test.com";
@@ -117,7 +117,7 @@ class ReenviarVerificacionUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el usuario ya está verificado (ACTIVO)")
+  @DisplayName("Debe lanzar excepciÃ³n si el usuario ya estÃ¡ verificado (ACTIVO)")
   void debeLanzarExcepcionSiUsuarioYaEstaActivo() {
     // Arrange
     String email = "activo@test.com";
@@ -138,7 +138,7 @@ class ReenviarVerificacionUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el usuario está suspendido")
+  @DisplayName("Debe lanzar excepciÃ³n si el usuario estÃ¡ suspendido")
   void debeLanzarExcepcionSiUsuarioEstaSuspendido() {
     // Arrange
     String email = "suspendido@test.com";
@@ -154,7 +154,7 @@ class ReenviarVerificacionUseCaseTest {
     verify(repositorioUsuarios, never()).save(any());
   }
 
-  // ========== MÉTODOS AUXILIARES ==========
+  // ========== MÃ‰TODOS AUXILIARES ==========
 
   private Usuario crearUsuarioPendiente(String email) {
     return Usuario.reconstitute(
@@ -204,3 +204,6 @@ class ReenviarVerificacionUseCaseTest {
         null);
   }
 }
+
+
+

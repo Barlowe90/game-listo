@@ -24,6 +24,9 @@ public class UsuarioRefEntity {
   @Column(name = "avatar")
   private String avatar;
 
+  @Column(name = "discord_user_id", length = 100)
+  private String discordUserId;
+
   @OneToMany(mappedBy = "usuarioRef", fetch = FetchType.LAZY)
   private List<ListaGameEntity> listas = new ArrayList<>();
 

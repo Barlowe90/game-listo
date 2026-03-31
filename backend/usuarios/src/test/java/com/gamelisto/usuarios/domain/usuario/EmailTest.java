@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class EmailTest {
 
   @Test
-  @DisplayName("Debe crear email válido y normalizarlo a minúsculas")
+  @DisplayName("Debe crear email vÃ¡lido y normalizarlo a minÃºsculas")
   void debeCrearEmailValidoYNormalizarlo() {
     // Arrange & Act
     Email email = Email.of("Usuario@Example.COM");
@@ -20,7 +20,7 @@ class EmailTest {
   }
 
   @Test
-  @DisplayName("Debe crear email con formato estándar")
+  @DisplayName("Debe crear email con formato estÃ¡ndar")
   void debeCrearEmailConFormatoEstandar() {
     // Arrange & Act
     Email email = Email.of("test@example.com");
@@ -30,7 +30,7 @@ class EmailTest {
   }
 
   @Test
-  @DisplayName("Debe crear email con caracteres especiales válidos")
+  @DisplayName("Debe crear email con caracteres especiales vÃ¡lidos")
   void debeCrearEmailConCaracteresEspecialesValidos() {
     // Arrange & Act
     Email email1 = Email.of("user+tag@example.com");
@@ -54,7 +54,7 @@ class EmailTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el email es nulo")
+  @DisplayName("Debe lanzar excepciÃ³n si el email es nulo")
   void debeLanzarExcepcionSiEmailEsNulo() {
     // Act & Assert
     DomainException exception = assertThrows(DomainException.class, () -> Email.of(null));
@@ -63,7 +63,7 @@ class EmailTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el email es vacío")
+  @DisplayName("Debe lanzar excepciÃ³n si el email es vacÃ­o")
   void debeLanzarExcepcionSiEmailEsVacio() {
     // Act & Assert
     assertThrows(DomainException.class, () -> Email.of(""));
@@ -71,7 +71,7 @@ class EmailTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el formato es inválido - sin arroba")
+  @DisplayName("Debe lanzar excepciÃ³n si el formato es invÃ¡lido - sin arroba")
   void debeLanzarExcepcionSiFormatoEsInvalidoSinArroba() {
     // Act & Assert
     DomainException exception = assertThrows(DomainException.class, () -> Email.of("no-es-email"));
@@ -80,21 +80,21 @@ class EmailTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el formato es inválido - solo arroba")
+  @DisplayName("Debe lanzar excepciÃ³n si el formato es invÃ¡lido - solo arroba")
   void debeLanzarExcepcionSiFormatoEsInvalidoSoloArroba() {
     // Act & Assert
     assertThrows(DomainException.class, () -> Email.of("@ejemplo.com"));
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el formato es inválido - sin domain")
+  @DisplayName("Debe lanzar excepciÃ³n si el formato es invÃ¡lido - sin domain")
   void debeLanzarExcepcionSiFormatoEsInvalidoSinDominio() {
     // Act & Assert
     assertThrows(DomainException.class, () -> Email.of("usuario@"));
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el formato es inválido - sin extensión")
+  @DisplayName("Debe lanzar excepciÃ³n si el formato es invÃ¡lido - sin extensiÃ³n")
   void debeLanzarExcepcionSiFormatoEsInvalidoSinExtension() {
     // Act & Assert
     assertThrows(DomainException.class, () -> Email.of("usuario@domain"));
@@ -113,7 +113,7 @@ class EmailTest {
   }
 
   @Test
-  @DisplayName("Debe aceptar email en el límite de 255 caracteres")
+  @DisplayName("Debe aceptar email en el lÃ­mite de 255 caracteres")
   void debeAceptarEmailEnElLimite() {
     // Arrange - Crear email de exactamente 255 caracteres
     String local = "a".repeat(240);
@@ -133,3 +133,6 @@ class EmailTest {
     assertEquals("test@example.com", email.toString());
   }
 }
+
+
+

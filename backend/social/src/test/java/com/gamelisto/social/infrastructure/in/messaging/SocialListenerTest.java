@@ -1,8 +1,12 @@
 package com.gamelisto.social.infrastructure.in.messaging;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamelisto.social.application.usecases.EntradaEventosHandle;
 import com.gamelisto.social.infrastructure.out.messaging.SocialListener;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,9 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
-import static org.mockito.Mockito.*;
-
-import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SocialListener - Mensajeria RabbitMQ")

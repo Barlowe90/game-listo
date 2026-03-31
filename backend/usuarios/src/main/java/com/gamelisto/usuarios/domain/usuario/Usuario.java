@@ -4,6 +4,10 @@ import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import java.time.Instant;
 import lombok.Getter;
 
+/**
+ * TODO reducir usuario a una clase basica, como una herencia: un padre usuario y los hijos *
+ * usuarioDiscord. Sacar logica de verificar a cada CdU
+ */
 @Getter
 public class Usuario {
 
@@ -16,6 +20,7 @@ public class Usuario {
   private PasswordHash passwordHash;
   private Avatar avatar;
   private Rol role;
+  private Idioma language;
   private EstadoUsuario status;
   private DiscordUserId discordUserId;
   private TokenVerificacion tokenVerificacion;
@@ -31,6 +36,7 @@ public class Usuario {
     this.passwordHash = builder.passwordHash;
     this.avatar = builder.avatar != null ? builder.avatar : Avatar.empty();
     this.role = builder.role != null ? builder.role : Rol.USER;
+    this.language = builder.language != null ? builder.language : Idioma.ESP;
     this.status = builder.status != null ? builder.status : EstadoUsuario.ACTIVO;
     this.discordUserId =
         builder.discordUserId != null ? builder.discordUserId : DiscordUserId.empty();
@@ -55,6 +61,7 @@ public class Usuario {
     private PasswordHash passwordHash;
     private Avatar avatar;
     private Rol role;
+    private Idioma language;
     private EstadoUsuario status;
     private DiscordUserId discordUserId;
     private TokenVerificacion tokenVerificacion;
@@ -91,6 +98,11 @@ public class Usuario {
 
     public Builder role(Rol role) {
       this.role = role;
+      return this;
+    }
+
+    public Builder language(Idioma language) {
+      this.language = language;
       return this;
     }
 
@@ -138,14 +150,14 @@ public class Usuario {
             .passwordHash(passwordHash)
             .avatar(Avatar.empty())
             .role(Rol.USER)
+            .language(Idioma.ESP)
             .status(EstadoUsuario.PENDIENTE_DE_VERIFICACION)
             .build();
     usuario.generarTokenVerificacion();
     return usuario;
   }
 
-  @SuppressWarnings(
-      "java:S107") // Reconstitución desde persistencia requiere todos los parámetros del aggregate
+  @SuppressWarnings("java:S107") // Reconstitution from persistence needs all aggregate params
   public static Usuario reconstitute(
       UsuarioId id,
       Username username,
@@ -153,6 +165,7 @@ public class Usuario {
       PasswordHash passwordHash,
       Avatar avatar,
       Rol role,
+      Idioma language,
       EstadoUsuario status,
       DiscordUserId discordUserId,
       TokenVerificacion tokenVerificacion,
@@ -166,6 +179,7 @@ public class Usuario {
         .passwordHash(passwordHash)
         .avatar(avatar)
         .role(role)
+        .language(language)
         .status(status)
         .discordUserId(discordUserId)
         .tokenVerificacion(tokenVerificacion)
@@ -206,6 +220,9 @@ public class Usuario {
     this.avatar = newAvatar != null ? newAvatar : Avatar.empty();
   }
 
+  public void changeLanguage(Idioma newLanguage) {
+    this.language = newLanguage != null ? newLanguage : Idioma.ESP;
+  }
 
   public void suspend() {
     this.status = EstadoUsuario.SUSPENDIDO;
@@ -254,24 +271,7 @@ public class Usuario {
     this.tokenRestablecimientoExpiracion = null;
   }
 
-  public boolean tieneTokenVerificacionValido(TokenVerificacion token) {
-    if (this.tokenVerificacion == null || this.tokenVerificacion.isEmpty()) {
-      return false;
-    }
-    if (this.tokenVerificacionExpiracion == null
-        || Instant.now().isAfter(this.tokenVerificacionExpiracion)) {
-      return false;
-    }
-    return this.tokenVerificacion.equals(token);
-  }
-
   public void verificarEmail(TokenVerificacion token) {
-    if (token == null) {
-      throw new DomainException("El token de verificación no puede ser nulo");
-    }
-    if (!tieneTokenVerificacionValido(token)) {
-      throw new DomainException("Token de verificación inválido o expirado");
-    }
     this.status = EstadoUsuario.ACTIVO;
     this.tokenVerificacion = TokenVerificacion.empty();
     this.tokenVerificacionExpiracion = null;
@@ -279,7 +279,7 @@ public class Usuario {
 
   public void linkDiscord(DiscordUserId discordUserId) {
     if (discordUserId == null || discordUserId.isEmpty()) {
-      throw new DomainException("El ID de Discord no puede ser nulo o vacío");
+      throw new DomainException("El ID de Discord no puede ser nulo o vacio");
     }
     this.discordUserId = discordUserId;
   }

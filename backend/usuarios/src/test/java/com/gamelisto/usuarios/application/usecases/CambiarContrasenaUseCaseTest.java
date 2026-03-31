@@ -30,10 +30,10 @@ class CambiarContrasenaUseCaseTest {
 
   @InjectMocks private CambiarContrasenaUseCase cambiarContrasenaUseCase;
 
-  // ========== CASOS DE ÉXITO ==========
+  // ========== CASOS DE Ã‰XITO ==========
 
   @Test
-  @DisplayName("Debe cambiar contraseña exitosamente cuando la actual es correcta")
+  @DisplayName("Debe cambiar contraseÃ±a exitosamente cuando la actual es correcta")
   void debeCambiarContrasenaExitosamente() {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
@@ -66,7 +66,7 @@ class CambiarContrasenaUseCaseTest {
   // ========== CASOS DE ERROR ==========
 
   @Test
-  @DisplayName("Debe lanzar excepción si el usuario no existe")
+  @DisplayName("Debe lanzar excepciÃ³n si el usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
     UUID usuarioIdInexistente = UUID.randomUUID();
@@ -84,7 +84,7 @@ class CambiarContrasenaUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si la contraseña actual es incorrecta")
+  @DisplayName("Debe lanzar excepciÃ³n si la contraseÃ±a actual es incorrecta")
   void debeLanzarExcepcionSiContrasenaActualEsIncorrecta() {
     // Arrange
     UUID usuarioId = UUID.randomUUID();
@@ -107,7 +107,7 @@ class CambiarContrasenaUseCaseTest {
     verify(passwordEncoder, never()).encode(anyString());
   }
 
-  // ========== MÉTODOS AUXILIARES ==========
+  // ========== MÃ‰TODOS AUXILIARES ==========
 
   private Usuario crearUsuarioConPassword(UUID id, String passwordHash) {
     return Usuario.reconstitute(
@@ -125,3 +125,6 @@ class CambiarContrasenaUseCaseTest {
         null);
   }
 }
+
+
+
