@@ -42,3 +42,6 @@ class AgregarAmigoUseCaseTest {
     verifyNoInteractions(repo);
   }
 }
+
+
+

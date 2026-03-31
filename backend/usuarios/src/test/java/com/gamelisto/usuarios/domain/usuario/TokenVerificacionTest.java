@@ -6,68 +6,54 @@ import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("TokenVerificacion - Tests de Value Object")
+@DisplayName("TokenVerificacion - Value Object tests")
 class TokenVerificacionTest {
 
-  // ========== CASOS DE ÉXITO ==========
-
   @Test
-  @DisplayName("Debe generar token con método generate()")
+  @DisplayName("Should generate token with generate()")
   void debeGenerarTokenConMetodoGenerate() {
-    // Arrange & Act
     TokenVerificacion token = TokenVerificacion.generate();
 
-    // Assert
     assertNotNull(token.value());
     assertFalse(token.isEmpty());
     assertFalse(token.value().isBlank());
   }
 
   @Test
-  @DisplayName("Debe generar tokens únicos cada vez")
-  void debeGenerarTokensUnicosСadaVez() {
-    // Arrange & Act
+  @DisplayName("Should generate unique tokens each time")
+  void debeGenerarTokensUnicosCadaVez() {
     TokenVerificacion token1 = TokenVerificacion.generate();
     TokenVerificacion token2 = TokenVerificacion.generate();
     TokenVerificacion token3 = TokenVerificacion.generate();
 
-    // Assert
     assertNotEquals(token1.value(), token2.value());
     assertNotEquals(token2.value(), token3.value());
     assertNotEquals(token1.value(), token3.value());
   }
 
   @Test
-  @DisplayName("Debe crear token con método of() y valor válido")
+  @DisplayName("Should create token with of() and valid value")
   void debeCrearTokenConMetodoOf() {
-    // Arrange
     String valorToken = "abc123xyz789";
 
-    // Act
     TokenVerificacion token = TokenVerificacion.of(valorToken);
 
-    // Assert
     assertEquals(valorToken, token.value());
     assertFalse(token.isEmpty());
   }
 
   @Test
-  @DisplayName("Debe crear token vacío con método empty()")
+  @DisplayName("Should create empty token with empty()")
   void debeCrearTokenVacioConMetodoEmpty() {
-    // Arrange & Act
     TokenVerificacion token = TokenVerificacion.empty();
 
-    // Assert
     assertNull(token.value());
     assertTrue(token.isEmpty());
   }
 
-  // ========== CASOS DE ERROR ==========
-
   @Test
-  @DisplayName("Debe lanzar excepción si el token es nulo en of()")
+  @DisplayName("Should throw if token is null in of()")
   void debeLanzarExcepcionSiTokenEsNulo() {
-    // Act & Assert
     DomainException exception =
         assertThrows(DomainException.class, () -> TokenVerificacion.of(null));
 
@@ -75,84 +61,66 @@ class TokenVerificacionTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el token es vacío en of()")
+  @DisplayName("Should throw if token is blank in of()")
   void debeLanzarExcepcionSiTokenEsVacio() {
-    // Act & Assert
     assertThrows(DomainException.class, () -> TokenVerificacion.of(""));
     assertThrows(DomainException.class, () -> TokenVerificacion.of("   "));
   }
 
-  // ========== TESTS DE IGUALDAD ==========
-
   @Test
-  @DisplayName("Debe ser igual a otro token con el mismo valor")
+  @DisplayName("Should equal another token with same value")
   void debeSerIgualAOtroTokenConMismoValor() {
-    // Arrange
     String valor = "token_value_123";
     TokenVerificacion token1 = TokenVerificacion.of(valor);
     TokenVerificacion token2 = TokenVerificacion.of(valor);
 
-    // Assert
     assertEquals(token1, token2);
     assertEquals(token1.hashCode(), token2.hashCode());
   }
 
   @Test
-  @DisplayName("No debe ser igual a otro token con diferente valor")
+  @DisplayName("Should not equal token with different value")
   void noDebeSerIgualAOtroTokenConDiferenteValor() {
-    // Arrange
     TokenVerificacion token1 = TokenVerificacion.of("token_1");
     TokenVerificacion token2 = TokenVerificacion.of("token_2");
 
-    // Assert
     assertNotEquals(token1, token2);
   }
 
   @Test
-  @DisplayName("Tokens vacíos deben ser iguales")
+  @DisplayName("Empty tokens should be equal")
   void tokensVaciosDebenSerIguales() {
-    // Arrange
     TokenVerificacion token1 = TokenVerificacion.empty();
     TokenVerificacion token2 = TokenVerificacion.empty();
 
-    // Assert
     assertEquals(token1, token2);
     assertEquals(token1.hashCode(), token2.hashCode());
   }
 
   @Test
-  @DisplayName("No debe ser igual a null")
+  @DisplayName("Should not equal null")
   void noDebeSerIgualANull() {
-    // Arrange
     TokenVerificacion token = TokenVerificacion.of("token_value");
 
-    // Assert
     assertNotEquals(null, token);
   }
 
   @Test
-  @DisplayName("No debe ser igual a objeto de otro tipo")
+  @DisplayName("Should not equal object of another type")
   void noDebeSerIgualAObjetoDeOtroTipo() {
-    // Arrange
     TokenVerificacion token = TokenVerificacion.of("token_value");
     Object otroTipo = "token_value";
 
-    // Assert
     assertNotEquals(otroTipo, token);
   }
 
-  // ========== TESTS DE toString() ==========
-
   @Test
-  @DisplayName("Debe proteger el valor en toString()")
+  @DisplayName("Should protect value in toString()")
   void debeProtegerValorEnToString() {
-    // Arrange
     TokenVerificacion token = TokenVerificacion.of("mi_token_secreto");
 
-    // Act
     String resultado = token.toString();
 
-    // Assert
     assertFalse(resultado.contains("mi_token_secreto"));
     assertTrue(resultado.contains("[PROTECTED]"));
   }

@@ -12,7 +12,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("RedisConfig - Configuración de Redis")
+@DisplayName("RedisConfig - ConfiguraciÃ³n de Redis")
 class RedisConfigTest {
 
   private RedisConfig redisConfig;
@@ -24,7 +24,7 @@ class RedisConfigTest {
     mockConnectionFactory = mock(RedisConnectionFactory.class);
   }
 
-  // ========== CONFIGURACIÓN DE BEANS ==========
+  // ========== CONFIGURACIÃ“N DE BEANS ==========
 
   @Test
   @DisplayName("Debe crear bean de StringRedisTemplate correctamente")
@@ -124,12 +124,12 @@ class RedisConfigTest {
   }
 
   @Test
-  @DisplayName("Debe permitir llamar afterPropertiesSet para inicialización")
+  @DisplayName("Debe permitir llamar afterPropertiesSet para inicializaciÃ³n")
   void debePermitirInicializacion() {
     // Act
     StringRedisTemplate template = redisConfig.stringRedisTemplate(mockConnectionFactory);
 
-    // Assert - No debe lanzar excepción
+    // Assert - No debe lanzar excepciÃ³n
     assertThat(template).isNotNull();
     assertThat(template.getConnectionFactory()).isNotNull();
   }
@@ -141,3 +141,6 @@ class RedisConfigTest {
     assertThat(redisConfig).isNotNull();
   }
 }
+
+
+

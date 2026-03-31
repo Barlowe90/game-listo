@@ -20,15 +20,23 @@ public class EntradaEventosUseCase implements EntradaEventosHandle {
 
   @Override
   public void procesarUsuarioCreado(
-      String usuarioId, String username, String avatar) {
-    UsuarioRef usuarioRef = UsuarioRef.create(UUID.fromString(usuarioId), username, avatar);
+      String usuarioId,
+      String username,
+      String avatar,
+      String discordUserId) {
+    UsuarioRef usuarioRef =
+        UsuarioRef.create(UUID.fromString(usuarioId), username, avatar, discordUserId);
     usuariosRefRepositorio.save(usuarioRef);
   }
 
   @Override
   public void procesarUsuarioActualizado(
-      String usuarioId, String username, String avatar) {
-    UsuarioRef usuarioRef = UsuarioRef.create(UUID.fromString(usuarioId), username, avatar);
+      String usuarioId,
+      String username,
+      String avatar,
+      String discordUserId) {
+    UsuarioRef usuarioRef =
+        UsuarioRef.create(UUID.fromString(usuarioId), username, avatar, discordUserId);
     usuariosRefRepositorio.save(usuarioRef);
   }
 

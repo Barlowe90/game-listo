@@ -110,7 +110,7 @@ class CambiarRolUsuarioUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si usuario no existe")
+  @DisplayName("Debe lanzar excepciÃ³n si usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
     UsuarioId usuarioInexistente = UsuarioId.generate();
@@ -128,7 +128,7 @@ class CambiarRolUsuarioUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si usuario está eliminado")
+  @DisplayName("Debe lanzar excepciÃ³n si usuario estÃ¡ eliminado")
   void debeLanzarExcepcionSiUsuarioEstaEliminado() {
     // Arrange
     Usuario usuarioEliminado =
@@ -152,7 +152,7 @@ class CambiarRolUsuarioUseCaseTest {
 
     // Act & Assert
     // El domain no impide cambiar el rol de un usuario eliminado,
-    // pero el sistema podría validar esto a nivel de aplicación
+    // pero el sistema podrÃ­a validar esto a nivel de aplicaciÃ³n
     // Por ahora, simplemente verificamos que el cambio se realiza
     when(repositorio.save(any(Usuario.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -162,7 +162,7 @@ class CambiarRolUsuarioUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe validar que rol sea válido")
+  @DisplayName("Debe validar que rol sea vÃ¡lido")
   void debeValidarQueRolSeaValido() {
     // Arrange
     CambiarRolUsuarioCommand command = new CambiarRolUsuarioCommand(usuarioId.toString(), null);
@@ -212,3 +212,6 @@ class CambiarRolUsuarioUseCaseTest {
     verify(repositorio, times(1)).save(any(Usuario.class));
   }
 }
+
+
+

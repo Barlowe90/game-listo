@@ -28,7 +28,7 @@ class RestablecerContrasenaUseCaseTest {
   @InjectMocks private RestablecerContrasenaUseCase restablecerContrasenaUseCase;
 
   @Test
-  @DisplayName("Debe restablecer contraseña exitosamente con token válido")
+  @DisplayName("Debe restablecer contraseÃ±a exitosamente con token vÃ¡lido")
   void debeRestablecerContrasenaExitosamente() {
     // Arrange
     TokenVerificacion token = TokenVerificacion.generate();
@@ -50,7 +50,7 @@ class RestablecerContrasenaUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el usuario no existe")
+  @DisplayName("Debe lanzar excepciÃ³n si el usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
     when(repositorioUsuarios.findByEmail(any(Email.class))).thenReturn(Optional.empty());
@@ -66,7 +66,7 @@ class RestablecerContrasenaUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el token es inválido o ha expirado")
+  @DisplayName("Debe lanzar excepciÃ³n si el token es invÃ¡lido o ha expirado")
   void debeLanzarExcepcionSiTokenEsInvalidoOExpirado() {
     // Arrange
     TokenVerificacion token = TokenVerificacion.generate();
@@ -102,3 +102,6 @@ class RestablecerContrasenaUseCaseTest {
         expiracion);
   }
 }
+
+
+

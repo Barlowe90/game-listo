@@ -35,7 +35,7 @@ class CrearUsuarioUseCaseTest {
 
   @BeforeEach
   void setUp() {
-    // Setup común si es necesario
+    // Setup comÃºn si es necesario
   }
 
   @Test
@@ -68,7 +68,7 @@ class CrearUsuarioUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si username ya existe")
+  @DisplayName("Debe lanzar excepciÃ³n si username ya existe")
   void debeLanzarExcepcionSiUsernameYaExiste() {
     // Arrange
     CrearUsuarioCommand command =
@@ -88,7 +88,7 @@ class CrearUsuarioUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si email ya está registrado")
+  @DisplayName("Debe lanzar excepciÃ³n si email ya estÃ¡ registrado")
   void debeLanzarExcepcionSiEmailYaRegistrado() {
     // Arrange
     CrearUsuarioCommand command =
@@ -130,7 +130,7 @@ class CrearUsuarioUseCaseTest {
     // Arrange
     CrearUsuarioCommand command =
         new CrearUsuarioCommand(
-            "ab", // Muy corto (mínimo 3)
+            "ab", // Muy corto (mÃ­nimo 3)
             "test@test.com",
             "password123");
 
@@ -142,3 +142,6 @@ class CrearUsuarioUseCaseTest {
     verify(repositorioUsuarios, never()).existsByUsername(any(Username.class));
   }
 }
+
+
+

@@ -37,7 +37,7 @@ class UsuarioIdTest {
   }
 
   @Test
-  @DisplayName("Debe crear UsuarioId desde String válido")
+  @DisplayName("Debe crear UsuarioId desde String vÃ¡lido")
   void debeCrearUsuarioIdDesdeString() {
     // Arrange
     String uuidString = "550e8400-e29b-41d4-a716-446655440000";
@@ -51,7 +51,7 @@ class UsuarioIdTest {
   }
 
   @Test
-  @DisplayName("Debe crear UsuarioId desde String con mayúsculas")
+  @DisplayName("Debe crear UsuarioId desde String con mayÃºsculas")
   void debeCrearUsuarioIdDesdStringConMayusculas() {
     // Arrange
     String uuidString = "550E8400-E29B-41D4-A716-446655440000";
@@ -65,7 +65,7 @@ class UsuarioIdTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si UUID es nulo")
+  @DisplayName("Debe lanzar excepciÃ³n si UUID es nulo")
   void debeLanzarExcepcionSiUUIDEsNulo() {
     // Act & Assert
     DomainException exception = assertThrows(DomainException.class, () -> UsuarioId.of(null));
@@ -74,7 +74,7 @@ class UsuarioIdTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si String es nulo")
+  @DisplayName("Debe lanzar excepciÃ³n si String es nulo")
   void debeLanzarExcepcionSiStringEsNulo() {
     // Act & Assert
     DomainException exception =
@@ -84,7 +84,7 @@ class UsuarioIdTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si String es vacío")
+  @DisplayName("Debe lanzar excepciÃ³n si String es vacÃ­o")
   void debeLanzarExcepcionSiStringEsVacio() {
     // Act & Assert
     assertThrows(DomainException.class, () -> UsuarioId.fromString(""));
@@ -92,7 +92,7 @@ class UsuarioIdTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si formato de UUID es inválido")
+  @DisplayName("Debe lanzar excepciÃ³n si formato de UUID es invÃ¡lido")
   void debeLanzarExcepcionSiFormatoUUIDEsInvalido() {
     // Act & Assert
     DomainException exception =
@@ -102,14 +102,14 @@ class UsuarioIdTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si UUID tiene formato incompleto")
+  @DisplayName("Debe lanzar excepciÃ³n si UUID tiene formato incompleto")
   void debeLanzarExcepcionSiUUIDIncompleto() {
     // Act & Assert
     assertThrows(DomainException.class, () -> UsuarioId.fromString("550e8400-e29b-41d4"));
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si UUID tiene caracteres inválidos")
+  @DisplayName("Debe lanzar excepciÃ³n si UUID tiene caracteres invÃ¡lidos")
   void debeLanzarExcepcionSiUUIDConCaracteresInvalidos() {
     // Act & Assert
     assertThrows(
@@ -117,7 +117,7 @@ class UsuarioIdTest {
   }
 
   @Test
-  @DisplayName("toString debe retornar representación String del UUID")
+  @DisplayName("toString debe retornar representaciÃ³n String del UUID")
   void toStringDebeRetornarStringDelUUID() {
     // Arrange
     String uuidString = "550e8400-e29b-41d4-a716-446655440000";
@@ -141,3 +141,6 @@ class UsuarioIdTest {
     assertEquals(usuarioId1.value(), usuarioId2.value());
   }
 }
+
+
+

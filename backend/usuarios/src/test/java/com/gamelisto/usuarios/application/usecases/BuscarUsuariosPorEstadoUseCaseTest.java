@@ -21,7 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("BuscarUsuariosPorEstadoUseCase - Búsqueda de usuarios por estado")
+@DisplayName("BuscarUsuariosPorEstadoUseCase - BÃºsqueda de usuarios por estado")
 class BuscarUsuariosPorEstadoUseCaseTest {
 
   @Mock private RepositorioUsuarios repositorio;
@@ -151,7 +151,7 @@ class BuscarUsuariosPorEstadoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe retornar lista vacía si no hay usuarios con ese estado")
+  @DisplayName("Debe retornar lista vacÃ­a si no hay usuarios con ese estado")
   void debeRetornarListaVaciaSiNoHayUsuariosConEseEstado() {
     // Arrange
     when(repositorio.findByStatus(any(EstadoUsuario.class))).thenReturn(Collections.emptyList());
@@ -241,7 +241,7 @@ class BuscarUsuariosPorEstadoUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe manejar múltiples usuarios con diferentes configuraciones")
+  @DisplayName("Debe manejar mÃºltiples usuarios con diferentes configuraciones")
   void debeManjejarMultiplesUsuariosConDiferentesConfiguraciones() {
     // Arrange
     Usuario usuario1 =
@@ -289,3 +289,6 @@ class BuscarUsuariosPorEstadoUseCaseTest {
     verify(repositorio).findByStatus(EstadoUsuario.ACTIVO);
   }
 }
+
+
+

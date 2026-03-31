@@ -22,3 +22,6 @@ public class TestContainersConfig {
         .withReuse(true); // Reutiliza el contenedor entre ejecuciones para mayor velocidad
   }
 }
+
+
+

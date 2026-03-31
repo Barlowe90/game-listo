@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import com.gamelisto.usuarios.domain.events.UsuarioActualizado;
 import com.gamelisto.usuarios.domain.events.UsuarioCreado;
 import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
+import java.time.Instant;
 
 import com.gamelisto.usuarios.infrastructure.out.messaging.NoOpUsuarioPublisher;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,10 +33,11 @@ class NoOpUsuarioPublisherTest {
             "test@example.com",
             "avatar.png",
             "USER",
+            "ESP",
             "PENDIENTE_DE_VERIFICACION",
             null);
 
-    // When & Then - No debe lanzar excepción
+    // When & Then - No debe lanzar excepciÃ³n
     assertThatCode(() -> publisher.publicarUsuarioCreado(event)).doesNotThrowAnyException();
   }
 
@@ -62,12 +64,12 @@ class NoOpUsuarioPublisherTest {
 
   @Test
   @DisplayName(
-      "Debe manejar publicarUsuarioCreado con routing keys vacíos y nulos sin lanzar excepciones")
+      "Debe manejar publicarUsuarioCreado con routing keys vacÃ­os y nulos sin lanzar excepciones")
   void debeAceptarRoutingKeysVacios() {
     // Given
     UsuarioCreado event =
         new UsuarioCreado(
-            "1", "user1", "user1@test.com", "avatar1.png", "USER", "ACTIVO", null);
+            "1", "user1", "user1@test.com", "avatar1.png", "USER", "ESP", "ACTIVO", null);
 
     // When & Then
     assertThatCode(() -> publisher.publicarUsuarioCreado(event)).doesNotThrowAnyException();
@@ -81,18 +83,18 @@ class NoOpUsuarioPublisherTest {
   }
 
   @Test
-  @DisplayName("Debe publicar múltiples eventos consecutivamente")
+  @DisplayName("Debe publicar mÃºltiples eventos consecutivamente")
   void debePublicarMultiplesEventosConsecutivamente() {
     // Given
     UsuarioCreado event1 =
         new UsuarioCreado(
-            "1", "user1", "user1@test.com", "avatar1.png", "USER", "ACTIVO", null);
+            "1", "user1", "user1@test.com", "avatar1.png", "USER", "ESP", "ACTIVO", null);
     UsuarioCreado event2 =
         new UsuarioCreado(
-            "2", "user2", "user2@test.com", "avatar2.png", "USER", "ACTIVO", null);
+            "2", "user2", "user2@test.com", "avatar2.png", "USER", "ESP", "ACTIVO", null);
     UsuarioCreado event3 =
         new UsuarioCreado(
-            "3", "user3", "user3@test.com", "avatar3.png", "USER", "ACTIVO", null);
+            "3", "user3", "user3@test.com", "avatar3.png", "USER", "ESP", "ACTIVO", null);
 
     // When & Then
     assertThatCode(
@@ -104,3 +106,6 @@ class NoOpUsuarioPublisherTest {
         .doesNotThrowAnyException();
   }
 }
+
+
+

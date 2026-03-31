@@ -62,7 +62,7 @@ class EliminarUsuarioUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si usuario no existe")
+  @DisplayName("Debe lanzar excepciÃ³n si usuario no existe")
   void debeLanzarExcepcionSiUsuarioNoExiste() {
     // Arrange
     String usuarioId = "00000000-0000-0000-0000-000000000000";
@@ -125,7 +125,7 @@ class EliminarUsuarioUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe preservar datos del usuario tras eliminación (soft delete)")
+  @DisplayName("Debe preservar datos del usuario tras eliminaciÃ³n (soft delete)")
   void debePreservarDatosDelUsuario() {
     // Arrange
     String usuarioId = usuario.getId().value().toString();
@@ -188,7 +188,7 @@ class EliminarUsuarioUseCaseTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si ID de usuario es inválido")
+  @DisplayName("Debe lanzar excepciÃ³n si ID de usuario es invÃ¡lido")
   void debeLanzarExcepcionSiIdInvalido() {
     // Arrange
     String usuarioIdInvalido = "id-invalido";
@@ -202,7 +202,7 @@ class EliminarUsuarioUseCaseTest {
   }
 
   @Test
-  @DisplayName("No debe eliminar físicamente el usuario (hard delete)")
+  @DisplayName("No debe eliminar fÃ­sicamente el usuario (hard delete)")
   void noDebeEliminarFisicamente() {
     // Arrange
     String usuarioId = usuario.getId().value().toString();
@@ -221,3 +221,6 @@ class EliminarUsuarioUseCaseTest {
     verify(repositorioUsuarios, times(1)).findById(any(UsuarioId.class));
   }
 }
+
+
+

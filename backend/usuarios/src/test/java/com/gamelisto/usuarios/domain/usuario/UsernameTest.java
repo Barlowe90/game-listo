@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 class UsernameTest {
 
   @Test
-  @DisplayName("Debe crear username válido con letras y números")
+  @DisplayName("Debe crear username vÃ¡lido con letras y nÃºmeros")
   void debeCrearUsernameValidoConLetrasYNumeros() {
     // Arrange & Act
     Username username = Username.of("usuario123");
@@ -33,7 +33,7 @@ class UsernameTest {
   }
 
   @Test
-  @DisplayName("Debe crear username con 3 caracteres (mínimo)")
+  @DisplayName("Debe crear username con 3 caracteres (mÃ­nimo)")
   void debeCrearUsernameConTresCaracteres() {
     // Arrange & Act
     Username username = Username.of("abc");
@@ -43,7 +43,7 @@ class UsernameTest {
   }
 
   @Test
-  @DisplayName("Debe crear username con 30 caracteres (máximo)")
+  @DisplayName("Debe crear username con 30 caracteres (mÃ¡ximo)")
   void debeCrearUsernameConTreintaCaracteres() {
     // Arrange
     String username30 = "a".repeat(30);
@@ -66,7 +66,7 @@ class UsernameTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el username es nulo")
+  @DisplayName("Debe lanzar excepciÃ³n si el username es nulo")
   void debeLanzarExcepcionSiUsernameEsNulo() {
     // Act & Assert
     DomainException exception = assertThrows(DomainException.class, () -> Username.of(null));
@@ -75,7 +75,7 @@ class UsernameTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el username es vacío")
+  @DisplayName("Debe lanzar excepciÃ³n si el username es vacÃ­o")
   void debeLanzarExcepcionSiUsernameEsVacio() {
     // Act & Assert
     assertThrows(DomainException.class, () -> Username.of(""));
@@ -83,7 +83,7 @@ class UsernameTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el username tiene menos de 3 caracteres")
+  @DisplayName("Debe lanzar excepciÃ³n si el username tiene menos de 3 caracteres")
   void debeLanzarExcepcionSiUsernameMuyCorto() {
     // Act & Assert
     DomainException exception = assertThrows(DomainException.class, () -> Username.of("ab"));
@@ -92,7 +92,7 @@ class UsernameTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el username tiene más de 30 caracteres")
+  @DisplayName("Debe lanzar excepciÃ³n si el username tiene mÃ¡s de 30 caracteres")
   void debeLanzarExcepcionSiUsernameMuyLargo() {
     // Arrange
     String username31 = "a".repeat(31);
@@ -104,14 +104,14 @@ class UsernameTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el username contiene espacios")
+  @DisplayName("Debe lanzar excepciÃ³n si el username contiene espacios")
   void debeLanzarExcepcionSiUsernameContieneEspacios() {
     // Act & Assert
     assertThrows(DomainException.class, () -> Username.of("user name"));
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el username contiene caracteres especiales inválidos")
+  @DisplayName("Debe lanzar excepciÃ³n si el username contiene caracteres especiales invÃ¡lidos")
   void debeLanzarExcepcionSiUsernameContieneCaracteresInvalidos() {
     // Act & Assert
     assertThrows(DomainException.class, () -> Username.of("user@name"));
@@ -122,11 +122,11 @@ class UsernameTest {
   }
 
   @Test
-  @DisplayName("Debe lanzar excepción si el username contiene caracteres acentuados")
+  @DisplayName("Debe lanzar excepciÃ³n si el username contiene caracteres acentuados")
   void debeLanzarExcepcionSiUsernameContieneAcentos() {
     // Act & Assert
-    assertThrows(DomainException.class, () -> Username.of("usuário"));
-    assertThrows(DomainException.class, () -> Username.of("usüario"));
+    assertThrows(DomainException.class, () -> Username.of("usuÃ¡rio"));
+    assertThrows(DomainException.class, () -> Username.of("usÃ¼ario"));
   }
 
   @Test
@@ -139,3 +139,6 @@ class UsernameTest {
     assertEquals("testuser", username.toString());
   }
 }
+
+
+
