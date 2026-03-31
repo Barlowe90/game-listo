@@ -57,6 +57,7 @@ class RefreshTokenUseCaseTest {
             PasswordHash.of("$2a$10$hash"),
             Avatar.empty(),
             Rol.USER,
+            Idioma.ESP,
             EstadoUsuario.ACTIVO,
             DiscordUserId.empty(),
             TokenVerificacion.empty(),
