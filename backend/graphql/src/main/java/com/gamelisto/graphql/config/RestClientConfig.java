@@ -11,18 +11,18 @@ public class RestClientConfig {
     @Value("${services.catalogo.url:http://localhost:8082}")
     private String catalogoUrl;
 
-    @Value("${services.publicaciones.url:http://localhost:8085}")
+    @Value("${services.publicaciones.url:http://localhost:8084}")
     private String publicacionesUrl;
 
-    @Bean
-    public RestClient catalogoClient() {
+    @Bean("catalogoRestClient")
+    public RestClient catalogoRestClient() {
         return RestClient.builder()
                 .baseUrl(catalogoUrl)
                 .build();
     }
 
-    @Bean
-    public RestClient publicacionesClient() {
+    @Bean("publicacionesRestClient")
+    public RestClient publicacionesRestClient() {
         return RestClient.builder()
                 .baseUrl(publicacionesUrl)
                 .build();

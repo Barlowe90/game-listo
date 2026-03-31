@@ -32,140 +32,138 @@ import java.util.regex.Pattern;
 @Component
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
-  private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
-  private static final String BEARER_PREFIX = "Bearer ";
-  private static final int BEARER_PREFIX_LENGTH = 7;
+    private static final String BEARER_PREFIX = "Bearer ";
+    private static final int BEARER_PREFIX_LENGTH = 7;
 
-  // Rutas públicas (exactas) bajo /v1/usuarios/auth que deben permitirse SOLO con POST
-  private static final Set<String> AUTH_PUBLIC_POST_PATHS =
-      Set.of(
-          "/v1/usuarios/auth/register",
-          "/v1/usuarios/auth/verify-email",
-          "/v1/usuarios/auth/resend-verification",
-          "/v1/usuarios/auth/forgot-password",
-          "/v1/usuarios/auth/reset-password",
-          "/v1/usuarios/auth/login",
-          "/v1/usuarios/auth/refresh");
+    // Rutas públicas (exactas) bajo /v1/usuarios/auth que deben permitirse SOLO con POST
+    private static final Set<String> AUTH_PUBLIC_POST_PATHS =
+            Set.of(
+                    "/v1/usuarios/auth/register",
+                    "/v1/usuarios/auth/verify-email",
+                    "/v1/usuarios/auth/resend-verification",
+                    "/v1/usuarios/auth/forgot-password",
+                    "/v1/usuarios/auth/reset-password",
+                    "/v1/usuarios/auth/login",
+                    "/v1/usuarios/auth/refresh");
 
-  // Rutas públicas que no dependen de la funcion
-  private static final List<String> PUBLIC_PATHS =
-      List.of("/actuator/health", "/v1/catalogo", "/v1/busquedas");
+    private static final List<String> PUBLIC_PATHS =
+            List.of("/actuator/health", "/v1/catalogo", "/v1/busquedas", "/graphql");
 
-  // Patrón UUID para /v1/usuarios/{uuid}
-  private static final Pattern USER_BY_ID_PATTERN =
-      Pattern.compile("^/v1/usuarios/[0-9a-fA-F\\-]{36}$");
+    private static final Pattern USER_BY_ID_PATTERN =
+            Pattern.compile("^/v1/usuarios/[0-9a-fA-F\\-]{36}$");
 
-  private final JwtValidator jwtValidator;
-  private final TokenRevocationService tokenRevocationService;
+    private final JwtValidator jwtValidator;
+    private final TokenRevocationService tokenRevocationService;
 
-  public JwtAuthenticationFilter(
-      JwtValidator jwtValidator, TokenRevocationService tokenRevocationService) {
-    this.jwtValidator = jwtValidator;
-    this.tokenRevocationService = tokenRevocationService;
-  }
-
-  @Override
-  public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-    String path = exchange.getRequest().getURI().getPath();
-
-    // Permitir preflight CORS
-    if (exchange.getRequest().getMethod() == HttpMethod.OPTIONS) {
-      return chain.filter(exchange);
+    public JwtAuthenticationFilter(
+            JwtValidator jwtValidator, TokenRevocationService tokenRevocationService) {
+        this.jwtValidator = jwtValidator;
+        this.tokenRevocationService = tokenRevocationService;
     }
 
-    // Permitir rutas públicas sin validación (considerando funcion HTTP)
-    if (isPublicPath(path, exchange.getRequest().getMethod())) {
-      logger.debug("Ruta pública detectada: {} {}", exchange.getRequest().getMethod(), path);
-      return chain.filter(exchange);
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String path = exchange.getRequest().getURI().getPath();
+
+        // Permitir preflight CORS
+        if (exchange.getRequest().getMethod() == HttpMethod.OPTIONS) {
+            return chain.filter(exchange);
+        }
+
+        // Permitir rutas públicas sin validación (considerando funcion HTTP)
+        if (isPublicPath(path, exchange.getRequest().getMethod())) {
+            logger.debug("Ruta pública detectada: {} {}", exchange.getRequest().getMethod(), path);
+            return chain.filter(exchange);
+        }
+
+        // Extraer token del header Authorization
+        String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
+            logger.warn("Token JWT ausente o formato inválido en ruta protegida: {}", path);
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
+        }
+
+        String token = authHeader.substring(BEARER_PREFIX_LENGTH);
+
+        try {
+            // Validar token y extraer claims
+            Claims claims = jwtValidator.validateToken(token);
+
+            // Verificar si el token ha sido revocado
+            String jti = jwtValidator.getJti(claims);
+
+            return tokenRevocationService
+                    .isTokenRevoked(jti)
+                    .flatMap(
+                            isRevoked -> {
+                                if (Boolean.TRUE.equals(isRevoked)) {
+                                    logger.warn("Token revocado detectado. JTI: {}", jti);
+                                    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                                    return exchange.getResponse().setComplete();
+                                }
+
+                                // Token válido: agregar información del usuario a los headers
+                                ServerHttpRequest mutatedRequest =
+                                        exchange
+                                                .getRequest()
+                                                .mutate()
+                                                .headers(
+                                                        h -> {
+                                                            // Usar "set" para sobrescribir y evitar duplicados
+                                                            h.set("X-User-Id", jwtValidator.getUserId(claims));
+                                                            // Solo exponer un único rol: tomar el primero si hay varios
+                                                            var _roles = jwtValidator.getRoles(claims);
+                                                            String singleRole = (_roles == null || _roles.isEmpty()) ? "" : _roles.get(0);
+                                                            h.set("X-User-Roles", singleRole);
+                                                        })
+                                                .build();
+
+                                logger.debug(
+                                        "Token JWT validado correctamente para usuario: {}",
+                                        jwtValidator.getUsername(claims));
+
+                                return chain.filter(exchange.mutate().request(mutatedRequest).build());
+                            });
+
+        } catch (Exception e) {
+            logger.error("Error validando token JWT: {}", e.getMessage());
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
+        }
     }
 
-    // Extraer token del header Authorization
-    String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+    private boolean isPublicPath(String path, HttpMethod method) {
+        // Catálogo: público excepto sincronización
+        if (path.startsWith("/v1/catalogo/sync")) {
+            return false;
+        }
 
-    if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
-      logger.warn("Token JWT ausente o formato inválido en ruta protegida: {}", path);
-      exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-      return exchange.getResponse().setComplete();
+        // El resto de /v1/catalogo/** es público
+        if (path.startsWith("/v1/catalogo")) {
+            return true;
+        }
+
+        // Permitir GET público a /v1/usuarios/{uuid} según SecurityConfig de usuarios
+        if (method == HttpMethod.GET && USER_BY_ID_PATTERN.matcher(path).matches()) {
+            return true;
+        }
+
+        // Rutas de autenticación: solo las listadas y solo con POST
+        if (AUTH_PUBLIC_POST_PATHS.contains(path)) {
+            return method == HttpMethod.POST;
+        }
+
+        // Otros paths públicos independientemente de la funcion
+        return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
     }
 
-    String token = authHeader.substring(BEARER_PREFIX_LENGTH);
-
-    try {
-      // Validar token y extraer claims
-      Claims claims = jwtValidator.validateToken(token);
-
-      // Verificar si el token ha sido revocado
-      String jti = jwtValidator.getJti(claims);
-
-      return tokenRevocationService
-          .isTokenRevoked(jti)
-          .flatMap(
-              isRevoked -> {
-                if (Boolean.TRUE.equals(isRevoked)) {
-                  logger.warn("Token revocado detectado. JTI: {}", jti);
-                  exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                  return exchange.getResponse().setComplete();
-                }
-
-                // Token válido: agregar información del usuario a los headers
-                ServerHttpRequest mutatedRequest =
-                    exchange
-                        .getRequest()
-                        .mutate()
-                        .headers(
-                            h -> {
-                                // Usar "set" para sobrescribir y evitar duplicados
-                                h.set("X-User-Id", jwtValidator.getUserId(claims));
-                                // Solo exponer un único rol: tomar el primero si hay varios
-                                var _roles = jwtValidator.getRoles(claims);
-                                String singleRole = (_roles == null || _roles.isEmpty()) ? "" : _roles.get(0);
-                                h.set("X-User-Roles", singleRole);
-                            })
-                        .build();
-
-                logger.debug(
-                    "Token JWT validado correctamente para usuario: {}",
-                    jwtValidator.getUsername(claims));
-
-                return chain.filter(exchange.mutate().request(mutatedRequest).build());
-              });
-
-    } catch (Exception e) {
-      logger.error("Error validando token JWT: {}", e.getMessage());
-      exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-      return exchange.getResponse().setComplete();
+    @Override
+    public int getOrder() {
+        // Ejecutar antes que otros filtros
+        return -100;
     }
-  }
-
-  private boolean isPublicPath(String path, HttpMethod method) {
-    // Catálogo: público excepto sincronización
-    if (path.startsWith("/v1/catalogo/sync")) {
-      return false;
-    }
-
-    // El resto de /v1/catalogo/** es público
-    if (path.startsWith("/v1/catalogo")) {
-      return true;
-    }
-
-    // Permitir GET público a /v1/usuarios/{uuid} según SecurityConfig de usuarios
-    if (method == HttpMethod.GET && USER_BY_ID_PATTERN.matcher(path).matches()) {
-      return true;
-    }
-
-    // Rutas de autenticación: solo las listadas y solo con POST
-    if (AUTH_PUBLIC_POST_PATHS.contains(path)) {
-      return method == HttpMethod.POST;
-    }
-
-    // Otros paths públicos independientemente de la funcion
-    return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
-  }
-
-  @Override
-  public int getOrder() {
-    // Ejecutar antes que otros filtros
-    return -100;
-  }
 }
