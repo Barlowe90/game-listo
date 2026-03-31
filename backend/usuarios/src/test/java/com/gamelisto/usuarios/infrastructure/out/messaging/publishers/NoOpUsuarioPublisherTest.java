@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import com.gamelisto.usuarios.domain.events.UsuarioActualizado;
 import com.gamelisto.usuarios.domain.events.UsuarioCreado;
 import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
-import java.time.Instant;
 
 import com.gamelisto.usuarios.infrastructure.out.messaging.NoOpUsuarioPublisher;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +35,7 @@ class NoOpUsuarioPublisherTest {
             "PENDIENTE_DE_VERIFICACION",
             null);
 
-    // When & Then - No debe lanzar excepciÃ³n
+    // When & Then - No debe lanzar excepción
     assertThatCode(() -> publisher.publicarUsuarioCreado(event)).doesNotThrowAnyException();
   }
 
@@ -63,7 +62,7 @@ class NoOpUsuarioPublisherTest {
 
   @Test
   @DisplayName(
-      "Debe manejar publicarUsuarioCreado con routing keys vacÃ­os y nulos sin lanzar excepciones")
+      "Debe manejar publicarUsuarioCreado con routing keys vacíos y nulos sin lanzar excepciones")
   void debeAceptarRoutingKeysVacios() {
     // Given
     UsuarioCreado event =
@@ -82,7 +81,7 @@ class NoOpUsuarioPublisherTest {
   }
 
   @Test
-  @DisplayName("Debe publicar mÃºltiples eventos consecutivamente")
+  @DisplayName("Debe publicar múltiples eventos consecutivamente")
   void debePublicarMultiplesEventosConsecutivamente() {
     // Given
     UsuarioCreado event1 =
@@ -105,6 +104,3 @@ class NoOpUsuarioPublisherTest {
         .doesNotThrowAnyException();
   }
 }
-
-
-

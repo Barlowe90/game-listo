@@ -59,6 +59,7 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
   );
   const [emailDraft, setEmailDraft] = useState(user?.email ?? '');
   const [discordUserIdDraft, setDiscordUserIdDraft] = useState(user?.discordUserId ?? '');
+  
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [avatarError, setAvatarError] = useState<string | null>(null);
@@ -66,6 +67,7 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
   const [emailError, setEmailError] = useState<string | null>(null);
   const [emailSuccess, setEmailSuccess] = useState<string | null>(null);
   const [discordUserIdError, setDiscordUserIdError] = useState<string | null>(null);
+  
   const [discordError, setDiscordError] = useState<string | null>(null);
   const [discordSuccess, setDiscordSuccess] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -94,6 +96,7 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
       setLanguageDraft(normalizeLanguage(nextProfile.language));
       setEmailDraft(nextProfile.email);
       setDiscordUserIdDraft(nextProfile.discordUserId ?? '');
+      
 
       const latestAccessToken = getAccessToken();
 
@@ -377,11 +380,7 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     try {
       const updatedProfile = await authApi.linkDiscord(nextDiscordUserId);
       applyProfileUpdate(updatedProfile);
-      setDiscordSuccess(
-        hasDiscordLinked
-          ? 'Discord actualizado correctamente.'
-          : 'Discord vinculado correctamente.',
-      );
+      setDiscordSuccess(hasDiscordLinked ? 'Discord actualizado correctamente.' : 'Discord vinculado correctamente.');
     } catch (error) {
       if (axios.isAxiosError<ApiErrorResponse>(error)) {
         const fieldErrors = error.response?.data?.errors;
@@ -500,6 +499,8 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     setPasswordError(null);
     setPasswordSuccess(null);
   }
+
+
 
   function handleDiscordUserIdChange(value: string) {
     setDiscordUserIdDraft(value);

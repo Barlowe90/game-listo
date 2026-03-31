@@ -39,10 +39,7 @@ class BibliotecaListenerTest {
     // Arrange
     UsuarioCreadoEventDto dto =
         new UsuarioCreadoEventDto(
-            "550e8400-e29b-41d4-a716-446655440000",
-            "jugador1",
-            "https://avatar.url/img.png",
-            "123456789");
+            "550e8400-e29b-41d4-a716-446655440000", "jugador1", "https://avatar.url/img.png");
 
     MessageProperties props = new MessageProperties();
     props.setHeader("eventType", "UsuarioCreado");
@@ -55,10 +52,7 @@ class BibliotecaListenerTest {
     // Assert
     verify(entradaEventos)
         .procesarUsuarioCreado(
-            "550e8400-e29b-41d4-a716-446655440000",
-            "jugador1",
-            "https://avatar.url/img.png",
-            "123456789");
+            "550e8400-e29b-41d4-a716-446655440000", "jugador1", "https://avatar.url/img.png");
   }
 
   @Test
@@ -67,10 +61,7 @@ class BibliotecaListenerTest {
     // Arrange
     UsuarioCreadoEventDto dto =
         new UsuarioCreadoEventDto(
-            "550e8400-e29b-41d4-a716-446655440000",
-            "jugador1",
-            "https://avatar.url/new.png",
-            "987654321");
+            "550e8400-e29b-41d4-a716-446655440000", "jugador1", "https://avatar.url/new.png");
 
     MessageProperties props = new MessageProperties();
     props.setHeader("eventType", "UsuarioActualizado");
@@ -83,10 +74,7 @@ class BibliotecaListenerTest {
     // Assert
     verify(entradaEventos)
         .procesarUsuarioActualizado(
-            "550e8400-e29b-41d4-a716-446655440000",
-            "jugador1",
-            "https://avatar.url/new.png",
-            "987654321");
+            "550e8400-e29b-41d4-a716-446655440000", "jugador1", "https://avatar.url/new.png");
   }
 
   @Test
@@ -139,8 +127,8 @@ class BibliotecaListenerTest {
     listener.handleEvent(message);
 
     // Assert - no se debe llamar a ninguna funcion del handle
-    verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any(), any());
-    verify(entradaEventos, never()).procesarUsuarioActualizado(any(), any(), any(), any());
+    verify(entradaEventos, never()).procesarUsuarioCreado(any(), any(), any());
+    verify(entradaEventos, never()).procesarUsuarioActualizado(any(), any(), any());
     verify(entradaEventos, never()).procesarGameCreado(any(), any(), any());
     verify(entradaEventos, never()).procesarUsuarioEliminado(any());
   }

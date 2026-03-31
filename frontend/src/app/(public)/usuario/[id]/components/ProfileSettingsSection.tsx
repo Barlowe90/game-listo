@@ -96,9 +96,6 @@ function ProfileDetailsCard({
               type="url"
               value={avatarDraft}
               onChange={(event) => onAvatarChange(event.target.value)}
-              placeholder="https://..."
-              autoComplete="url"
-              disabled={isLoadingProfile || isSavingProfileSettings}
               state={avatarError ? 'error' : 'default'}
             />
           </FormField>
@@ -106,7 +103,6 @@ function ProfileDetailsCard({
           <FormField label="Idioma" htmlFor="profile-language" errorMessage={languageError}>
             <select
               id="profile-language"
-              value={selectedLanguage}
               onChange={(event) => onLanguageChange(event.target.value as LanguageCode)}
               className={cn(
                 inputVariants({ state: languageError ? 'error' : 'default' }),
@@ -288,23 +284,25 @@ function ProfileDiscordCard({
   return (
     <InfoPanelCard title="Discord" className="xl:col-span-2">
       <form className="grid gap-4" onSubmit={onDiscordSubmit}>
-        <FormField
-          label="Discord ID"
-          htmlFor="discord-user-id"
-          required
-          helpText="Usaremos este identificador para abrir o enviar mensajes por Discord."
-          errorMessage={discordUserIdError}
-        >
-          <Input
-            id="discord-user-id"
-            type="text"
-            value={discordUserIdDraft}
-            onChange={(event) => onDiscordUserIdChange(event.target.value)}
-            placeholder="123456789012345678"
-            disabled={isSavingDiscord || isRemovingDiscord}
-            state={discordUserIdError ? 'error' : 'default'}
-          />
-        </FormField>
+        <div className="grid gap-4 xl:grid-cols-2">
+
+          <FormField
+            label="Discord ID"
+            htmlFor="discord-user-id"
+            required
+            errorMessage={discordUserIdError}
+          >
+            <Input
+              id="discord-user-id"
+              type="text"
+              value={discordUserIdDraft}
+              onChange={(event) => onDiscordUserIdChange(event.target.value)}
+              placeholder="123456789012345678"
+              disabled={isSavingDiscord || isRemovingDiscord}
+              state={discordUserIdError ? 'error' : 'default'}
+            />
+          </FormField>
+        </div>
 
         <div className="flex flex-wrap justify-end gap-3">
           <Button

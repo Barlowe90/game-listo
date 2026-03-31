@@ -33,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ActiveProfiles("test")
 @Import(TestMessagingConfig.class)
 @Transactional
-@DisplayName("Tests de IntegraciÃ³n E2E - Flujos Completos de Usuarios")
+@DisplayName("Tests de Integración E2E - Flujos Completos de Usuarios")
 class UsuarioFlowIntegrationTest {
 
   @Autowired private CrearUsuarioUseCase crearUsuarioUseCase;
@@ -61,7 +61,7 @@ class UsuarioFlowIntegrationTest {
   @Autowired private RepositorioUsuarios repositorioUsuarios;
 
   @Test
-  @DisplayName("Flujo completo: Crear usuario â†’ Verificar email â†’ Editar perfil")
+  @DisplayName("Flujo completo: Crear usuario → Verificar email → Editar perfil")
   void flujoCompletoCrearVerificarYEditar() {
     // 1. Crear usuario
     CrearUsuarioCommand crearCommand =
@@ -93,29 +93,7 @@ class UsuarioFlowIntegrationTest {
   }
 
   @Test
-  @DisplayName("Flujo completo: Crear usuario â†’ Vincular Discord â†’ Desvincular Discord")
-  void flujoCompletoDiscordIntegration() {
-    // 1. Crear usuario
-    CrearUsuarioCommand crearCommand =
-        new CrearUsuarioCommand("discorduser", "discord@example.com", "Password123!");
-    UsuarioResult usuarioCreado = crearUsuarioUseCase.execute(crearCommand);
-
-    // 2. Vincular Discord
-    VincularDiscordCommand vincularCommand =
-        new VincularDiscordCommand(UUID.fromString(usuarioCreado.id()), "123456789");
-    UsuarioResult usuarioVinculado = vincularDiscordUseCase.execute(vincularCommand);
-
-    assertThat(usuarioVinculado.discordUserId()).isEqualTo("123456789");
-
-    // 3. Desvincular Discord
-    UsuarioResult usuarioDesvinculado =
-        desvincularDiscordUseCase.execute(UUID.fromString(usuarioVinculado.id()));
-
-    assertThat(usuarioDesvinculado.discordUserId()).isNull();
-  }
-
-  @Test
-  @DisplayName("Flujo completo: Crear usuario â†’ Cambiar estado â†’ Suspender â†’ Eliminar")
+  @DisplayName("Flujo completo: Crear usuario → Cambiar estado → Suspender → Eliminar")
   void flujoCompletoGestionEstados() {
     // 1. Crear usuario
     CrearUsuarioCommand crearCommand =
@@ -140,15 +118,15 @@ class UsuarioFlowIntegrationTest {
     // 4. Eliminar (marca como ELIMINADO)
     eliminarUsuarioUseCase.execute(usuarioSuspendido.id());
 
-    // Verificar que el usuario aÃºn existe pero con estado ELIMINADO (soft delete)
+    // Verificar que el usuario aún existe pero con estado ELIMINADO (soft delete)
     UsuarioResult usuarioEliminado = obtenerUsuarioPorIdUseCase.execute(usuarioSuspendido.id());
     assertThat(usuarioEliminado.status()).isEqualTo("ELIMINADO");
   }
 
   @Disabled(
-      "Requiere configuraciÃ³n adicional para generaciÃ³n de tokens - habilitar solo para pruebas manuales")
+      "Requiere configuración adicional para generación de tokens - habilitar solo para pruebas manuales")
   @Test
-  @DisplayName("Flujo completo: Crear usuario â†’ Solicitar reset password â†’ Restablecer contraseÃ±a")
+  @DisplayName("Flujo completo: Crear usuario → Solicitar reset password → Restablecer contraseña")
   void flujoCompletoResetPassword() {
     // 1. Crear y verificar usuario
     CrearUsuarioCommand crearCommand =
@@ -161,19 +139,19 @@ class UsuarioFlowIntegrationTest {
         new VerificarEmailCommand(usuarioEnBD.getTokenVerificacion().value());
     verificarEmailUseCase.execute(verificarCommand);
 
-    // 2. Solicitar reset de contraseÃ±a (genera token)
+    // 2. Solicitar reset de contraseña (genera token)
     Usuario usuario = repositorioUsuarios.findByEmail(Email.of("reset@example.com")).orElseThrow();
     usuario.generarTokenRestablecimiento();
     repositorioUsuarios.save(usuario);
 
     String tokenReset = usuario.getTokenRestablecimiento().value();
 
-    // 3. Restablecer contraseÃ±a con el token
+    // 3. Restablecer contraseña con el token
     RestablecerContrasenaCommand resetCommand =
         new RestablecerContrasenaCommand("reset@example.com", tokenReset, "NewPassword456!");
     restablecerContrasenaUseCase.execute(resetCommand);
 
-    // Verificar que el usuario aÃºn existe
+    // Verificar que el usuario aún existe
     UsuarioResult usuarioFinal = obtenerUsuarioPorIdUseCase.execute(usuarioCreado.id());
     assertThat(usuarioFinal).isNotNull();
     assertThat(usuarioFinal.email()).isEqualTo("reset@example.com");
@@ -217,7 +195,7 @@ class UsuarioFlowIntegrationTest {
   }
 
   @Test
-  @DisplayName("Flujo completo: Reenviar verificaciÃ³n de email")
+  @DisplayName("Flujo completo: Reenviar verificación de email")
   void flujoCompletoReenviarVerificacion() {
     // 1. Crear usuario
     CrearUsuarioCommand crearCommand =
@@ -227,7 +205,7 @@ class UsuarioFlowIntegrationTest {
         repositorioUsuarios.findByEmail(Email.of("reenvio@example.com")).orElseThrow();
     String tokenOriginal = usuarioOriginal.getTokenVerificacion().value();
 
-    // 2. Reenviar verificaciÃ³n (genera nuevo token)
+    // 2. Reenviar verificación (genera nuevo token)
     ReenviarVerificacionCommand reenviarCommand =
         new ReenviarVerificacionCommand("reenvio@example.com");
     reenviarVerificacionUseCase.execute(reenviarCommand);
@@ -273,6 +251,3 @@ class UsuarioFlowIntegrationTest {
         .hasMessageContaining("duplicate@example.com");
   }
 }
-
-
-

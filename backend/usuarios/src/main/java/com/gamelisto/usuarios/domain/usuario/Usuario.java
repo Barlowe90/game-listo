@@ -4,10 +4,6 @@ import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import java.time.Instant;
 import lombok.Getter;
 
-/**
- * TODO reducir usuario a una clase basica, como una herencia: un padre usuario y los hijos *
- * usuarioDiscord. Sacar logica de verificar a cada CdU
- */
 @Getter
 public class Usuario {
 
@@ -148,7 +144,8 @@ public class Usuario {
     return usuario;
   }
 
-  @SuppressWarnings("java:S107") // Reconstitution from persistence needs all aggregate params
+  @SuppressWarnings(
+      "java:S107") // Reconstitución desde persistencia requiere todos los parámetros del aggregate
   public static Usuario reconstitute(
       UsuarioId id,
       Username username,
@@ -257,7 +254,24 @@ public class Usuario {
     this.tokenRestablecimientoExpiracion = null;
   }
 
+  public boolean tieneTokenVerificacionValido(TokenVerificacion token) {
+    if (this.tokenVerificacion == null || this.tokenVerificacion.isEmpty()) {
+      return false;
+    }
+    if (this.tokenVerificacionExpiracion == null
+        || Instant.now().isAfter(this.tokenVerificacionExpiracion)) {
+      return false;
+    }
+    return this.tokenVerificacion.equals(token);
+  }
+
   public void verificarEmail(TokenVerificacion token) {
+    if (token == null) {
+      throw new DomainException("El token de verificación no puede ser nulo");
+    }
+    if (!tieneTokenVerificacionValido(token)) {
+      throw new DomainException("Token de verificación inválido o expirado");
+    }
     this.status = EstadoUsuario.ACTIVO;
     this.tokenVerificacion = TokenVerificacion.empty();
     this.tokenVerificacionExpiracion = null;
@@ -265,7 +279,7 @@ public class Usuario {
 
   public void linkDiscord(DiscordUserId discordUserId) {
     if (discordUserId == null || discordUserId.isEmpty()) {
-      throw new DomainException("El ID de Discord no puede ser nulo o vacio");
+      throw new DomainException("El ID de Discord no puede ser nulo o vacío");
     }
     this.discordUserId = discordUserId;
   }
