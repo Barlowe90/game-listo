@@ -1,0 +1,39 @@
+# .gitignore específico para el subproyecto `frontend` (Next.js / pnpm)
+
+# Next.js build output
+.next/
+.next/cache
+
+# Node modules
+node_modules/
+
+# TypeScript incremental compilation cache
+tsconfig.tsbuildinfo
+
+# Local environment variables (no subir secretos)
+.env.local
+.env.*.local
+.env
+
+# Static export output
+out/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test coverage
+coverage/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Deployment / tool folders (añadir si se usan en el proyecto)
+.vercel/
+.turbo/
+
+# Nota: Mantener pnpm-lock.yaml y package.json en el repositorio para reproducibilidad
+
