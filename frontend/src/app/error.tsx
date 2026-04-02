@@ -11,8 +11,9 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const description = error.message.includes('Catalog API request failed')
-    ? 'Hemos tenido un problema temporal al recuperar el contenido desde el catalogo. Puedes volver a intentarlo o regresar a una ruta segura.'
+  const description =
+    error.message.includes('Catalog API request failed') || error.message.includes('GraphQL fetch failed')
+      ? 'Hemos tenido un problema temporal al recuperar el contenido desde el backend. Puedes volver a intentarlo o regresar a una ruta segura.'
     : 'Se ha producido un error inesperado mientras cargabamos esta pagina. Puedes reintentar la carga o volver al inicio.';
 
   return (

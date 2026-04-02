@@ -50,7 +50,6 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
             return;
 
         try {
-
             UUID userId = UUID.fromString(userIdHeader);
             String role = rolesHeader.trim();
             String normalizedRole = role.startsWith("ROLE_") ? role : "ROLE_" + role;
@@ -62,7 +61,6 @@ public class GatewayAuthenticationFilter extends OncePerRequestFilter {
                     new UsernamePasswordAuthenticationToken(userId, null, authorities);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
         } catch (IllegalArgumentException ex) {
             SecurityContextHolder.clearContext();
         }

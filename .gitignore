@@ -89,6 +89,10 @@ frontend/.pnpm-debug.log*
 # env files for frontend
 frontend/.env*
 
+# pnpm store (local pnpm cache created when running pnpm in the repo)
+frontend/.pnpm-store/
+.pnpm-store/
+
 # vercel
 frontend/.vercel
 

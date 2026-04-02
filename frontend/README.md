@@ -66,7 +66,10 @@ Archivo recomendado: `.env.local` (no incluir en control de versiones).
 
 Variables habituales (ejemplos):
 
-- `NEXT_PUBLIC_API_URL` — URL pública del API Gateway o BFF.
+- `NEXT_PUBLIC_API_URL` — URL pública del API Gateway o BFF (accesible desde el navegador).
+- `NEXT_PUBLIC_API_GRAPHQL_URL` — Endpoint GraphQL público (opcional, por defecto `${NEXT_PUBLIC_API_URL}/graphql`).
+- `API_URL_INTERNAL` — URL interna para SSR/RSC en Docker (ejemplo: `http://gateway:8080`).
+- `API_GRAPHQL_INTERNAL_URL` — Endpoint GraphQL interno para SSR/RSC en Docker.
 
 ## Arquitectura de renderizado
 

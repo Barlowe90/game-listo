@@ -391,11 +391,37 @@ services:
     networks:
       - backend
 
+  frontend:
+    image: node:20-alpine
+    container_name: frontend
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      NEXT_TELEMETRY_DISABLED: 1
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+      NEXT_PUBLIC_API_GRAPHQL_URL: http://localhost:8080/graphql
+      API_URL_INTERNAL: http://gateway:8080
+      API_GRAPHQL_INTERNAL_URL: http://gateway:8080/graphql
+    volumes:
+      - ../frontend:/app
+      - frontend-node-modules:/app/node_modules
+    command: sh -c "corepack enable && pnpm install && pnpm dev --hostname 0.0.0.0"
+    depends_on:
+      gateway:
+        condition: service_healthy
+    networks:
+      - backend
+
 volumes:
   postgres-data:
   redis-data:
   mongo-data:
   neo4j-data:
+  frontend-node-modules:
 
 networks:
   backend:
