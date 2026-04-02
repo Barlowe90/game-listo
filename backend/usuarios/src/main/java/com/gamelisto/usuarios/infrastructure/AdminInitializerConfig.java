@@ -17,38 +17,38 @@ import org.springframework.beans.factory.annotation.Value;
 @Configuration
 public class AdminInitializerConfig {
 
-  private static final Logger logger = LoggerFactory.getLogger(AdminInitializerConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(AdminInitializerConfig.class);
 
-  @Bean
-  CommandLineRunner initAdminUser(
-      UsuarioJpaRepository usuarioJpaRepository,
-      PasswordEncoder passwordEncoder,
-      @Value("${ADMIN_PASSWORD}") String adminPassword) {
+    @Bean
+    CommandLineRunner initAdminUser(
+            UsuarioJpaRepository usuarioJpaRepository,
+            PasswordEncoder passwordEncoder,
+            @Value("${ADMIN_PASSWORD}") String adminPassword) {
 
-    return args -> {
-      String adminEmail = "admin@gamelisto.com";
+        return args -> {
+            String adminEmail = "adrian.r.r@um.es";
 
-      if (usuarioJpaRepository.existsByEmail(adminEmail)) {
-        return;
-      }
+            if (usuarioJpaRepository.existsByEmail(adminEmail)) {
+                return;
+            }
 
-      UsuarioEntity admin = new UsuarioEntity();
-      admin.setId(UUID.randomUUID());
-      admin.setUsername("admin");
-      admin.setEmail(adminEmail);
-      admin.setPasswordHash(passwordEncoder.encode(adminPassword));
-      admin.setAvatar(null);
-      admin.setRole(Rol.ADMIN);
-      admin.setStatus(EstadoUsuario.ACTIVO);
-      admin.setDiscordUserId(null);
-      admin.setTokenVerificacion(null);
-      admin.setTokenVerificacionExpiracion(null);
-      admin.setTokenRestablecimiento(null);
-      admin.setTokenRestablecimientoExpiracion(null);
+            UsuarioEntity admin = new UsuarioEntity();
+            admin.setId(UUID.randomUUID());
+            admin.setUsername("admin");
+            admin.setEmail(adminEmail);
+            admin.setPasswordHash(passwordEncoder.encode(adminPassword));
+            admin.setAvatar(null);
+            admin.setRole(Rol.ADMIN);
+            admin.setStatus(EstadoUsuario.ACTIVO);
+            admin.setDiscordUserId(null);
+            admin.setTokenVerificacion(null);
+            admin.setTokenVerificacionExpiracion(null);
+            admin.setTokenRestablecimiento(null);
+            admin.setTokenRestablecimientoExpiracion(null);
 
-      usuarioJpaRepository.save(admin);
+            usuarioJpaRepository.save(admin);
 
-      logger.info("Usuario Admin creado correctamente");
-    };
-  }
+            logger.info("Usuario Admin creado correctamente");
+        };
+    }
 }
