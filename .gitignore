@@ -1,104 +1,91 @@
-# Compiled class file
+
+# ----------------------
+# Ignorar artefactos comunes
+# ----------------------
+
+# Sistema / SO
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDEs
+.idea/
+*.iml
+*.iws
+.vscode/
+
+# Java / Maven
+# Ignora todos los directorios target en submódulos
+**/target/
 *.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
 *.jar
 *.war
-*.nar
 *.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+# Maven local repo
+.m2/
 
-### VS Code ###
-.vscode
+# Build / artefactos generados
+build/
+out/
+generated/
+bin/
 
-### Docker ###
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker / env
 .env
 .env.local
 .env.*.local
 docker-compose.override.yml
 
-### Secrets & Sensitive Files ###
+# Secrets & certificates
 **/application-local.properties
 **/application-prod.properties
+secrets/
+credentials/
 *.pem
 *.key
 *.crt
 *.p12
 *.jks
-secrets/
-credentials/
 
-### Additional Logs ###
-logs/
-
-# Node modules at repository root
+# Node / Frontend (Next.js / Vite / pnpm)
 node_modules/
-
-# Frontend (Next.js) specific ignores (moved from frontend/.gitignore)
-# dependencies
-frontend/node_modules/
-frontend/.pnp
-frontend/.pnp.*
-frontend/.yarn/*
-!frontend/.yarn/patches
-!frontend/.yarn/plugins
-!frontend/.yarn/releases
-!frontend/.yarn/versions
-
-# testing
-frontend/coverage
-
-# next.js
+**/node_modules/
+.next/
 frontend/.next/
-frontend/out/
-
-# production
-frontend/build
-
-# misc
-frontend/.DS_Store
-frontend/*.pem
-
-# debug
-frontend/npm-debug.log*
-frontend/yarn-debug.log*
-frontend/yarn-error.log*
-frontend/.pnpm-debug.log*
-
-# env files for frontend
-frontend/.env*
-
-# pnpm store (local pnpm cache created when running pnpm in the repo)
-frontend/.pnpm-store/
+out/
+dist/
+.vite/
 .pnpm-store/
+.pnpm-debug.log
 
-# vercel
-frontend/.vercel
-
-# typescript
-frontend/*.tsbuildinfo
+# Frontend-specific generated types
+frontend/.turbo/
 frontend/next-env.d.ts
 
-# Maven local repository
-.m2/
+# Test / coverage
+coverage/
+jacoco.exec
+surefire-reports/
+target/surefire-reports/
+
+# Misc
+*.swp
+*~
+*.bak
+*.tmp
+
+# Notes:
+# - Si algún target/ ya estaba trackeado, deberás quitarlo del índice con git rm --cached.
+# - Este archivo cubre reglas comunes; las reglas adicionales específicas por subproyecto
+#   pueden ir en el .gitignore de cada subcarpeta si lo deseas.
