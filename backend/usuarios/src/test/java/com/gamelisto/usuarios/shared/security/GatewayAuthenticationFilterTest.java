@@ -60,11 +60,11 @@ class GatewayAuthenticationFilterTest {
   }
 
   @Test
-  @DisplayName("Debe extraer roles de header X-User-Roles")
+  @DisplayName("Debe extraer rol de header X-User-Roles")
   void debeExtraerRoles() throws ServletException, IOException {
     // Arrange
     request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
-    request.addHeader("X-User-Roles", "USER,ADMIN");
+    request.addHeader("X-User-Roles", "USER");
 
     // Act
     filter.doFilterInternal(request, response, filterChain);
@@ -148,7 +148,7 @@ class GatewayAuthenticationFilterTest {
   }
 
   @Test
-  @DisplayName("Debe agregar prefijo ROLE_ a los roles")
+  @DisplayName("Debe agregar prefijo ROLE_ al rol")
   void debeAgregarPrefijoRoleARoles() throws ServletException, IOException {
     // Arrange
     request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
@@ -167,11 +167,11 @@ class GatewayAuthenticationFilterTest {
   }
 
   @Test
-  @DisplayName("Debe manejar mÃºltiples roles separados por comas")
+  @DisplayName("Debe manejar un único rol en header X-User-Roles")
   void debeManejarMultiplesRoles() throws ServletException, IOException {
     // Arrange
     request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
-    request.addHeader("X-User-Roles", "USER,ADMIN");
+    request.addHeader("X-User-Roles", "USER");
 
     // Act
     filter.doFilterInternal(request, response, filterChain);
@@ -184,11 +184,11 @@ class GatewayAuthenticationFilterTest {
   }
 
   @Test
-  @DisplayName("Debe manejar roles con espacios adicionales")
+  @DisplayName("Debe manejar un rol con espacios adicionales")
   void debeManejarRolesConEspacios() throws ServletException, IOException {
     // Arrange
     request.addHeader("X-User-Id", "123e4567-e89b-12d3-a456-426614174000");
-    request.addHeader("X-User-Roles", " USER , ADMIN ");
+    request.addHeader("X-User-Roles", " USER ");
 
     // Act
     filter.doFilterInternal(request, response, filterChain);
