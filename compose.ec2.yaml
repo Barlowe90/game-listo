@@ -1,0 +1,75 @@
+services:
+  gateway:
+    env_file:
+      - ./.env
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  frontend:
+    env_file:
+      - ./.env
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  graphql:
+    env_file:
+      - ./.env
+    restart: unless-stopped
+
+  usuarios:
+    env_file:
+      - ./.env
+    restart: unless-stopped
+
+  catalogo:
+    env_file:
+      - ./.env
+    restart: unless-stopped
+
+  biblioteca:
+    env_file:
+      - ./.env
+    restart: unless-stopped
+
+  publicaciones:
+    env_file:
+      - ./.env
+    restart: unless-stopped
+
+  busquedas:
+    env_file:
+      - ./.env
+    restart: unless-stopped
+
+  social:
+    env_file:
+      - ./.env
+    restart: unless-stopped
+
+  neo4j:
+    env_file:
+      - ./.env
+    restart: unless-stopped
+
+  redis:
+    restart: unless-stopped
+
+  postgres:
+    env_file:
+      - ./.env
+    restart: unless-stopped
+
+  mongo:
+    env_file:
+      - ./.env
+    restart: unless-stopped
+
+  rabbitmq:
+    env_file:
+      - ./.env
+    restart: unless-stopped
+
+  opensearch:
+    restart: unless-stopped
