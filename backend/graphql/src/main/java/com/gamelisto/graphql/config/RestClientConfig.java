@@ -8,10 +8,10 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class RestClientConfig {
 
-    @Value("${services.catalogo.url:http://localhost:8082}")
+    @Value("${services.catalogo.url:http://catalogo:8082}")
     private String catalogoUrl;
 
-    @Value("${services.publicaciones.url:http://localhost:8084}")
+    @Value("${services.publicaciones.url:http://publicaciones:8084}")
     private String publicacionesUrl;
 
     @Bean("catalogoRestClient")

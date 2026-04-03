@@ -1,8 +1,9 @@
 import axios from 'axios';
 import type { AuthResponse } from './auth.types';
+import { getApiBaseUrl } from '@/shared/config/api';
 
 const refreshClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },

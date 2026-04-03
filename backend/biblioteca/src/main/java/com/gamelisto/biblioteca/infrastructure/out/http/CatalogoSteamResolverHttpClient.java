@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 public class CatalogoSteamResolverHttpClient implements CatalogoSteamResolver {
   private final RestTemplate restTemplate = new RestTemplate();
 
-  @Value("${services.catalogo.uri:http://localhost:8082}")
+  @Value("${services.catalogo.uri:http://catalogo:8082}")
   private String catalogoServiceUrl;
 
   @Override

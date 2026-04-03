@@ -62,7 +62,7 @@ pnpm start
 
 ## Variables de entorno
 
-Archivo recomendado: `.env.local` (no incluir en control de versiones).
+Archivo recomendado: `.env` en la raiz del repositorio (`game-listo/.env`).
 
 Variables habituales (ejemplos):
 

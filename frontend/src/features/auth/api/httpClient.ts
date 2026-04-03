@@ -10,11 +10,12 @@ import {
 } from './authSessionBridge';
 import { shouldClearSessionAfterRefreshError } from './refreshError';
 import { executeRefreshRequest } from './refreshRequest';
+import { getApiBaseUrl } from '@/shared/config/api';
 
 // con esta clase hago que todas las llamadas al back (login, me, logout, refresh) sean consistentes y no repetir la misma config en cada funcion authApi
 
 export const httpClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
