@@ -19,7 +19,6 @@ export const PROFILE_SECTIONS = [
 ] as const;
 
 export type ProfileSectionKey = (typeof PROFILE_SECTIONS)[number]['key'];
-export type LanguageCode = 'ESP' | 'ENG';
 
 export function SurfaceCard({
   children,
@@ -65,9 +64,6 @@ export function SidebarSectionLink({
   );
 }
 
-export function normalizeLanguage(value: string | null | undefined): LanguageCode {
-  return value === 'ENG' ? 'ENG' : 'ESP';
-}
 
 export function getSectionLabel(sectionKey: ProfileSectionKey) {
   return PROFILE_SECTIONS.find((section) => section.key === sectionKey)?.label ?? 'Perfil';

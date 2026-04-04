@@ -9,7 +9,6 @@ export interface User {
   email: string;
   avatar?: string | null;
   role: string;
-  language: string;
   status: string;
   discordUserId?: string | null;
 }

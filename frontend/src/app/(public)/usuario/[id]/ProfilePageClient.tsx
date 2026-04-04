@@ -19,8 +19,6 @@ import { ProfileSettingsSection } from './components/ProfileSettingsSection';
 import { ProfileSidebar } from './components/ProfileSidebar';
 import {
   PROFILE_SECTIONS,
-  normalizeLanguage,
-  type LanguageCode,
   type ProfileSectionKey,
 } from './profilePage.shared';
 
@@ -54,16 +52,12 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
   const isOwnProfile = user?.id === profileUserId;
   const [profile, setProfile] = useState<User | null>(isOwnProfile ? user : null);
   const [avatarDraft, setAvatarDraft] = useState(user?.avatar ?? '');
-  const [languageDraft, setLanguageDraft] = useState<LanguageCode | ''>(
-    user?.language === 'ENG' ? 'ENG' : user?.language === 'ESP' ? 'ESP' : '',
-  );
   const [emailDraft, setEmailDraft] = useState(user?.email ?? '');
   const [discordUserIdDraft, setDiscordUserIdDraft] = useState(user?.discordUserId ?? '');
   
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [avatarError, setAvatarError] = useState<string | null>(null);
-  const [languageError, setLanguageError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [emailSuccess, setEmailSuccess] = useState<string | null>(null);
   const [discordUserIdError, setDiscordUserIdError] = useState<string | null>(null);
@@ -93,7 +87,6 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     (nextProfile: User) => {
       setProfile(nextProfile);
       setAvatarDraft(nextProfile.avatar ?? '');
-      setLanguageDraft(normalizeLanguage(nextProfile.language));
       setEmailDraft(nextProfile.email);
       setDiscordUserIdDraft(nextProfile.discordUserId ?? '');
       
@@ -128,7 +121,6 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
 
     setProfile((currentProfile) => currentProfile ?? user);
     setAvatarDraft((currentValue) => currentValue || user.avatar || '');
-    setLanguageDraft((currentValue) => currentValue || normalizeLanguage(user.language));
     setEmailDraft((currentEmail) => currentEmail || user.email);
     setDiscordUserIdDraft((currentValue) => currentValue || user.discordUserId || '');
   }, [isOwnProfile, user]);
@@ -232,13 +224,10 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
   const profileUsername = visibleProfile?.username ?? (isOwnProfile ? 'Tu perfil' : 'Perfil');
   const profileAvatar = visibleProfile?.avatar ?? null;
   const currentAvatar = profile?.avatar ?? user?.avatar ?? '';
-  const currentLanguage = normalizeLanguage(profile?.language ?? user?.language);
   const currentEmail = profile?.email ?? user?.email ?? '';
   const currentDiscordUserId = profile?.discordUserId ?? user?.discordUserId ?? '';
   const hasDiscordLinked = Boolean(currentDiscordUserId);
-  const selectedLanguage = languageDraft || currentLanguage;
-  const isProfileSettingsDirty =
-    avatarDraft.trim() !== currentAvatar || selectedLanguage !== currentLanguage;
+  const isProfileSettingsDirty = avatarDraft.trim() !== currentAvatar;
   const isEmailDirty = emailDraft.trim() !== '' && emailDraft.trim() !== currentEmail;
   const isDiscordDirty = discordUserIdDraft.trim() !== currentDiscordUserId;
 
@@ -276,12 +265,10 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
   async function handleProfileSettingsSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setAvatarError(null);
-    setLanguageError(null);
     setProfileSettingsError(null);
     setProfileSettingsSuccess(null);
 
     const nextAvatar = avatarDraft.trim();
-    const nextLanguage = selectedLanguage;
 
     if (nextAvatar.length > 500) {
       setAvatarError('La URL del avatar no puede exceder 500 caracteres.');
@@ -298,7 +285,6 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     try {
       const updatedProfile = await authApi.editProfile({
         avatar: nextAvatar,
-        language: nextLanguage,
       });
       applyProfileUpdate(updatedProfile);
       setProfileSettingsSuccess('Perfil actualizado correctamente.');
@@ -307,9 +293,8 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
         const fieldErrors = error.response?.data?.errors;
 
         setAvatarError(fieldErrors?.avatar ?? null);
-        setLanguageError(fieldErrors?.language ?? null);
 
-        if (!fieldErrors?.avatar && !fieldErrors?.language) {
+        if (!fieldErrors?.avatar) {
           setProfileSettingsError(getApiErrorMessage(error, 'No se pudo actualizar el perfil.'));
         }
       } else {
@@ -474,13 +459,6 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
     setProfileSettingsSuccess(null);
   }
 
-  function handleLanguageChange(value: LanguageCode) {
-    setLanguageDraft(value);
-    setLanguageError(null);
-    setProfileSettingsError(null);
-    setProfileSettingsSuccess(null);
-  }
-
   function handleEmailChange(value: string) {
     setEmailDraft(value);
     setEmailError(null);
@@ -570,14 +548,11 @@ export function ProfilePageClient({ activeSection, profileUserId }: ProfilePageC
             isLoadingProfile={isLoadingProfile}
             avatarDraft={avatarDraft}
             avatarError={avatarError}
-            selectedLanguage={selectedLanguage}
-            languageError={languageError}
             isSavingProfileSettings={isSavingProfileSettings}
             isProfileSettingsDirty={isProfileSettingsDirty}
             profileSettingsError={profileSettingsError}
             profileSettingsSuccess={profileSettingsSuccess}
             onAvatarChange={handleAvatarChange}
-            onLanguageChange={handleLanguageChange}
             onProfileSettingsSubmit={handleProfileSettingsSubmit}
             emailDraft={emailDraft}
             emailError={emailError}

@@ -11,7 +11,6 @@ export interface UsuarioResponse {
   email: string;
   avatar?: string | null;
   role: string;
-  language: string;
   status: string;
   discordUserId?: string | null;
 }

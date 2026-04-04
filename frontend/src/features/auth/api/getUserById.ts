@@ -1,8 +1,8 @@
-import type { UsuarioResponse } from '@/features/auth/api/auth.types';
-import { httpClient } from '@/features/auth/api/httpClient';
+import type {UsuarioResponse} from './auth.types';
+import {httpClient} from './httpClient';
 
 export async function getUserById(userId: string): Promise<UsuarioResponse> {
-  const response = await httpClient.get<UsuarioResponse>(`/v1/usuarios/${userId}`);
+    const response = await httpClient.get<UsuarioResponse>(`/v1/usuarios/${userId}`);
 
-  return response.data;
+    return response.data;
 }
