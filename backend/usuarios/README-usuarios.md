@@ -44,7 +44,7 @@ toda la información del usuario.
     - Rotación de tokens con refresh endpoint
     - Logout con revocación de refresh tokens
     - Consulta de perfil autenticado con token
-- **Gestión de perfil**: Username único, avatar, idioma preferido y datos de Discord
+- **Gestión de perfil**: Username único, avatar y datos de Discord
 - **Seguridad de cuenta**: Cambio de contraseña (con validación), restablecimiento mediante token temporal
 - **Ciclo de vida**: Estados `PENDIENTE_DE_VERIFICACION` → `ACTIVO` / `SUSPENDIDO` / `ELIMINADO`
 - **Roles de usuario**: `USER`, `ADMIN`
@@ -109,7 +109,6 @@ toda la información del usuario.
     - Actualización de `username` (validación de unicidad)
     - Actualización de `email` (requiere nueva verificación)
     - Cambio de `avatar` (URL)
-    - Configuración de `language` (`ESP`, `ENG`)
 
 - **Listado de usuarios** (`GET /v1/usuarios/admin/users`)
     - Paginación y filtrado
@@ -314,11 +313,6 @@ Gestiona los tokens de refresco para autenticación JWT.
 - ADMIN — Administrador del sistema
 - MODERATOR — Moderador de contenido
 
-#### Idioma
-
-- ESP — Español
-- ENG — Inglés
-
 ### Value Objects del dominio
 
 Todos los VOs implementan validación en construcción y son inmutables:
@@ -359,7 +353,7 @@ autenticación/rol requerido, DTO de request (si aplica), DTO de response y una 
 | GET    | `/v1/usuarios/auth/me`                  | Authenticated | —                                                 | `UsuarioResponse` (200)                           | Devuelve el perfil del usuario autenticado (userId inyectado por `@AuthenticationPrincipal`).                                                                                                     |
 | PUT    | `/v1/usuarios/password`                 | Authenticated | `CambiarContrasenaRequest`                        | void (200)                                        | Cambiar la contraseña del usuario autenticado.                                                                                                                                                    |
 | PUT    | `/v1/usuarios/email`                    | Authenticated | `CambiarCorreoRequest`                            | void (200)                                        | Cambiar el email del usuario autenticado (puede requerir nueva verificación).                                                                                                                     |
-| PATCH  | `/v1/usuarios`                          | Authenticated | `EditarPerfilUsuarioRequest`                      | `UsuarioResponse` (200)                           | Editar perfil del usuario autenticado (username, avatar, language, etc.).                                                                                                                         |
+| PATCH  | `/v1/usuarios`                          | Authenticated | `EditarPerfilUsuarioRequest`                      | `UsuarioResponse` (200)                           | Editar perfil del usuario autenticado (username, avatar, etc.).                                                                                                                                   |
 | GET    | `/v1/usuarios/{id}`                     | Public        | —                                                 | `UsuarioResponse` (200)                           | Obtener datos públicos del usuario por ID (controlador usa `@PathVariable String id`).                                                                                                            |
 | PUT    | `/v1/usuarios/discord`                  | Authenticated | `VincularDiscordRequest`                          | `UsuarioResponse` (200)                           | Vincular cuenta de Discord al perfil del usuario autenticado.                                                                                                                                     |
 | DELETE | `/v1/usuarios/discord`                  | Authenticated | —                                                 | `UsuarioResponse` (200)                           | Desvincular la cuenta de Discord del usuario autenticado.                                                                                                                                         |
@@ -654,7 +648,7 @@ SPRING_MAIL_PASSWORD=your-app-password
 
 - **Entidades**: `Usuario` (sustantivo singular)
 - **Value Objects**: `UsuarioId`, `Email`, `Username`
-- **Enums**: `EstadoUsuario`, `Rol`, `Idioma`
+- **Enums**: `EstadoUsuario`, `Rol`
 - **Repositorios (interfaces)**: `RepositorioUsuarios`
 - **Excepciones**: `DomainException`
 
