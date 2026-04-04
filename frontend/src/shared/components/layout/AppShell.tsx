@@ -8,9 +8,10 @@ import { Header } from '@/shared/components/layout/Header';
 
 export interface AppShellProps {
   children: ReactNode;
+  searchInputId?: string;
 }
 
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({ children, searchInputId }: AppShellProps) {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
   const isLoginPage = pathname === '/login';
@@ -25,7 +26,7 @@ export function AppShell({ children }: AppShellProps) {
           : 'bg-background text-foreground',
       )}
     >
-      {isLoginPage ? null : <Header integrated={isHomePage} />}
+      {isLoginPage ? null : <Header integrated={isHomePage} searchInputId={searchInputId} />}
       <main className={cn('flex-1', isLoginPage && 'flex')}>{children}</main>
       {isLoginPage ? null : <Footer integrated={isHomePage} />}
     </div>

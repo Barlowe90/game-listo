@@ -12,12 +12,7 @@ interface AppRouteStateProps {
   title: ReactNode;
 }
 
-export function AppRouteState({
-  action,
-  className,
-  description,
-  title,
-}: AppRouteStateProps) {
+export function AppRouteState({ action, className, description, title }: AppRouteStateProps) {
   return (
     <PageSection size="wide" className="py-10 lg:py-14">
       <EmptyState

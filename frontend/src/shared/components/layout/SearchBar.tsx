@@ -14,6 +14,7 @@ const SUGGESTIONS_DEBOUNCE_MS = 180;
 export interface SearchBarProps {
   className?: string;
   inputClassName?: string;
+  inputId?: string;
   label?: string;
   placeholder?: string;
   queryParam?: string;
@@ -28,6 +29,7 @@ export interface SearchBarProps {
 export function SearchBar({
   className,
   inputClassName,
+  inputId: inputIdProp,
   label = 'Buscar videojuegos',
   placeholder = 'Buscar videojuegos',
   queryParam = 'q',
@@ -38,7 +40,8 @@ export function SearchBar({
   suggestionSize = 5,
   resetOnPathnameChange = false,
 }: SearchBarProps) {
-  const inputId = useId();
+  const generatedId = useId();
+  const inputId = inputIdProp ?? generatedId;
   const pathname = usePathname();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);

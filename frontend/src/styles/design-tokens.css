@@ -1,6 +1,5 @@
 /* Lista central de colores, tamaños letra, espacios, radios sombras y medidas base*/
 :root {
-  /* Tema unico */
   --color-primary: #3b3fb7;
   --color-primary-hover: #32369f;
   --color-primary-active: #2a2e87;

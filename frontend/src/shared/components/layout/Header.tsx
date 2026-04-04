@@ -60,9 +60,10 @@ function AuthControl({ integrated = false }: AuthControlProps) {
 
 export interface HeaderProps {
   integrated?: boolean;
+  searchInputId?: string;
 }
 
-export function Header({ integrated = false }: HeaderProps) {
+export function Header({ integrated = false, searchInputId }: HeaderProps) {
   const { isAuthenticated, isLoading, user } = useAuth();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -172,6 +173,7 @@ export function Header({ integrated = false }: HeaderProps) {
                 size="sm"
                 enableSuggestions
                 resetOnPathnameChange
+                inputId={searchInputId ? `${searchInputId}-desktop` : undefined}
                 inputClassName={cn(
                   'rounded-full',
                   integrated
@@ -215,6 +217,7 @@ export function Header({ integrated = false }: HeaderProps) {
             <SearchBar
               enableSuggestions
               resetOnPathnameChange
+              inputId={searchInputId ? `${searchInputId}-mobile` : undefined}
               onSearch={() => setIsMobileMenuOpen(false)}
               inputClassName={
                 integrated
