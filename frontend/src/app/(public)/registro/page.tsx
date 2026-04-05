@@ -30,6 +30,100 @@ interface ApiErrorResponse {
   message?: string;
 }
 
+type RegisterFieldErrors = {
+  username?: string;
+  email?: string;
+  password?: string;
+};
+
+type RegisterErrorDetails = {
+  fieldErrors: RegisterFieldErrors;
+  generalMessage: string;
+};
+
+function toRegisterFieldKey(field: string): keyof RegisterFieldErrors | null {
+  const normalizedField = field.trim().toLowerCase();
+
+  if (normalizedField === 'username' || normalizedField === 'usuario' || normalizedField === 'nick') {
+    return 'username';
+  }
+
+  if (normalizedField === 'email' || normalizedField === 'correo') {
+    return 'email';
+  }
+
+  if (
+    normalizedField === 'password' ||
+    normalizedField === 'contrasena' ||
+    normalizedField === 'contraseña'
+  ) {
+    return 'password';
+  }
+
+  return null;
+}
+
+function inferRegisterFieldFromMessage(message: string): keyof RegisterFieldErrors | null {
+  const normalizedMessage = message.toLowerCase();
+
+  if (
+    normalizedMessage.includes('username') ||
+    normalizedMessage.includes('usuario') ||
+    normalizedMessage.includes('nick')
+  ) {
+    return 'username';
+  }
+
+  if (normalizedMessage.includes('email') || normalizedMessage.includes('correo')) {
+    return 'email';
+  }
+
+  if (
+    normalizedMessage.includes('password') ||
+    normalizedMessage.includes('contrasena') ||
+    normalizedMessage.includes('contraseña')
+  ) {
+    return 'password';
+  }
+
+  return null;
+}
+
+function getRegisterErrorDetails(error: unknown, fallbackMessage: string): RegisterErrorDetails {
+  if (!axios.isAxiosError<ApiErrorResponse>(error)) {
+    return {
+      fieldErrors: {},
+      generalMessage: fallbackMessage,
+    };
+  }
+
+  const responseData = error.response?.data;
+  const fieldErrors: RegisterFieldErrors = {};
+
+  Object.entries(responseData?.errors ?? {}).forEach(([field, message]) => {
+    const fieldKey = toRegisterFieldKey(field);
+
+    if (fieldKey && message) {
+      fieldErrors[fieldKey] = message;
+    }
+  });
+
+  const backendMessage = responseData?.error ?? responseData?.message;
+
+  if (backendMessage) {
+    const inferredField = inferRegisterFieldFromMessage(backendMessage);
+
+    if (inferredField && !fieldErrors[inferredField]) {
+      fieldErrors[inferredField] = backendMessage;
+    }
+  }
+
+  return {
+    fieldErrors,
+    generalMessage: backendMessage ?? fallbackMessage,
+  };
+}
+
 function getApiErrorMessage(error: unknown, fallbackMessage: string) {
   if (axios.isAxiosError<ApiErrorResponse>(error)) {
     const responseData = error.response?.data;
@@ -54,6 +148,8 @@ export default function RegistroPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -95,6 +191,8 @@ export default function RegistroPage() {
     event.preventDefault();
     setSuccessToast(null);
     setErrorToast(null);
+    setUsernameError(null);
+    setEmailError(null);
     setPasswordError(null);
 
     const nextPasswordError = getPasswordRuleErrorMessage(password);
@@ -130,21 +228,22 @@ export default function RegistroPage() {
       setPasswordError(null);
       setIsPasswordVisible(false);
     } catch (error: unknown) {
-      if (axios.isAxiosError<ApiErrorResponse>(error)) {
-        const passwordFieldError = error.response?.data?.errors?.password;
+      const { fieldErrors, generalMessage } = getRegisterErrorDetails(
+        error,
+        'No se pudo completar el registro. Revisa usuario, email y contraseña e inténtalo otra vez.',
+      );
 
-        if (passwordFieldError) {
-          setPasswordError(passwordFieldError);
-          return;
-        }
+      setUsernameError(fieldErrors.username ?? null);
+      setEmailError(fieldErrors.email ?? null);
+      setPasswordError(fieldErrors.password ?? null);
+
+      if (fieldErrors.username || fieldErrors.email || fieldErrors.password) {
+        return;
       }
 
       setErrorToast({
         title: 'No se pudo completar el registro',
-        description: getApiErrorMessage(
-          error,
-          'No se pudo completar el registro. Revisa los datos e inténtalo otra vez.',
-        ),
+        description: generalMessage,
       });
     } finally {
       setIsSubmitting(false);
@@ -193,27 +292,37 @@ export default function RegistroPage() {
         <Card>
           <CardBody className="gap-6 ">
             <form onSubmit={handleSubmit} className="grid gap-6">
-              <FormField label="Usuario" htmlFor="username" required>
+              <FormField label="Usuario" htmlFor="username" required errorMessage={usernameError}>
                 <Input
                   id="username"
                   type="text"
                   value={username}
-                  onChange={(event) => setUsername(event.target.value)}
+                  onChange={(event) => {
+                    setUsername(event.target.value);
+                    setUsernameError(null);
+                    setErrorToast(null);
+                  }}
                   required
                   autoComplete="username"
                   placeholder="Tu usuario"
+                  state={usernameError ? 'error' : 'default'}
                 />
               </FormField>
 
-              <FormField label="Email" htmlFor="email" required>
+              <FormField label="Email" htmlFor="email" required errorMessage={emailError}>
                 <Input
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(event) => setEmail(event.target.value)}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    setEmailError(null);
+                    setErrorToast(null);
+                  }}
                   required
                   autoComplete="email"
                   placeholder="tu@email.com"
+                  state={emailError ? 'error' : 'default'}
                 />
               </FormField>
 

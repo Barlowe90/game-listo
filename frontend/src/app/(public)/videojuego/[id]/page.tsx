@@ -135,7 +135,7 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
   const { game, media, relatedGames: relatedGamesArray, publicaciones, grupos } = gameDetail;
   // Convert relatedGames array to Map to maintain compatibility with existing components
   const relatedGames = new Map<number, Game>();
-  relatedGamesArray.forEach(g => relatedGames.set(g.id, g));
+  relatedGamesArray.forEach((g) => relatedGames.set(g.id, g));
   const heroTags = getGameHeroTags(game);
   const additionalTags = getGameAdditionalTags(game);
   const alternativeNames = uniqueStrings(game.alternativeNames);
@@ -176,7 +176,11 @@ export default async function VideojuegoPage({ params }: { params: Promise<{ id:
             themes={themes}
           />
           <TabsContent value="publicaciones">
-            <GamePublicacionesSection gameId={game.id} initialPublicaciones={publicaciones} initialGrupos={grupos} />
+            <GamePublicacionesSection
+              gameId={game.id}
+              initialPublicaciones={publicaciones}
+              initialGrupos={grupos}
+            />
           </TabsContent>
           <GameDetailVideosTab videos={media?.videos} />
           <GameDetailScreenshotsTab screenshots={media?.screenshots} />
