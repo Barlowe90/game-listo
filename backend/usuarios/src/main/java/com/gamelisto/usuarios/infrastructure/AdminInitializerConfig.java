@@ -26,7 +26,7 @@ public class AdminInitializerConfig {
             @Value("${ADMIN_PASSWORD}") String adminPassword) {
 
         return args -> {
-            String adminEmail = "adrian.r.r@um.es";
+            String adminEmail = "${ADMIN_EMAIL}";
 
             if (usuarioJpaRepository.existsByEmail(adminEmail)) {
                 return;
