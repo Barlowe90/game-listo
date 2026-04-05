@@ -84,6 +84,7 @@ function ProfileDetailsCard({
                             type="url"
                             value={avatarDraft}
                             onChange={(event) => onAvatarChange(event.target.value)}
+                            placeholder="Introduce la URL de la imagen (p. ej. https://... )"
                             state={avatarError ? 'error' : 'default'}
                         />
                     </FormField>
