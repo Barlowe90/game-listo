@@ -15,9 +15,8 @@ El proyecto está construido como parte del Trabajo Fin de Grado de Ingeniería 
 # 🎮 GameListo — Trabajo Fin de Grado (TFG)
 
 Autor: Adri R
-Contacto: [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/adri-r/)
 
-Repositorio: https://github.com/<usuario>/game-listo
+Contacto: [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/adri-r/)
 
 ---
 
