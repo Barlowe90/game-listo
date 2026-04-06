@@ -5,182 +5,130 @@ Arquitectura basada en microservicios con DDD + Hexagonal Architecture.*
 
 ---
 
-## ⚠️ Contexto del Proyecto
-
-**Este es un Trabajo de Fin de Grado (TFG) - NO es un proyecto para producción.**
-
-### 🎯 Filosofía de Desarrollo
-
-Este proyecto sigue el principio **KISS (Keep It Simple, Stupid)**:
-
-- ✅ **Funcionalidad básica y demostrativa** de conceptos arquitectónicos
-- ✅ **Código legible y explicable** para la defensa del TFG
-- ✅ **Testing mínimo viable** (casos principales, no exhaustivo)
-- ❌ **NO sobre-ingeniería** ni optimizaciones prematuras
-- ❌ **NO producción** - el enfoque es académico/demostrativo
-
-**Decisiones pragmáticas:**
-
-- Arquitectura hexagonal + DDD
-- Persistencia políglota
-- Strings/primitivos directos cuando sean suficientes
-
----
-
 ## 🧩 Descripción general
 
 **GameListo** es una plataforma web moderna donde los jugadores pueden **gestionar su biblioteca de videojuegos**, crear
 **listas personalizadas**, descubrir nuevos títulos y **buscar compañeros** en una comunidad social.
 
 El proyecto está construido como parte del Trabajo Fin de Grado de Ingeniería Informática, aplicando principios
-profesionales de arquitectura de software, despliegue cloud y diseño UI/UX.
 
-## 🚀 Características principales
+# 🎮 GameListo — Trabajo Fin de Grado (TFG)
 
-### 🕹️ Biblioteca del usuario
+Autor: Adri R
+Contacto: [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/adri-r/)
 
-- Estado del juego: *Lo quiero*, *Lo tengo*, *Jugando*, *Completado*
-- Valoración personal
-- Listas personalizadas (ej. *“Completados 2025”*)
+Repositorio: https://github.com/<usuario>/game-listo
 
-### 🔍 Catálogo
+---
 
-- Juegos obtenidos y enriquecidos desde la API de IGDB
+Resumen ejecutivo
+------------------
+GameListo es un prototipo de plataforma social para jugadores construido como Trabajo Fin de Grado. El objetivo del
+proyecto es demostrar principios arquitectónicos (DDD y Arquitectura Hexagonal) aplicados en una solución de
+microservicios con Spring Boot 4 y Java 21. El prototipo integra persistencia políglota (PostgreSQL, MongoDB, Neo4j,
+Redis), búsqueda con OpenSearch y un gateway que centraliza validación JWT y políticas de rate limiting.
 
-### 👥 Social
+Objetivos
+---------
 
-- Sistema de amigos
-- Publicaciones
-- Grupos de juego y solicitudes
+- Objetivo general: Diseñar e implementar un prototipo funcional y reproducible que demuestre buenas prácticas de
+  arquitectura y patrones de diseño modernos aplicados a una plataforma social para videojuegos.
+- Objetivos específicos:
+    - Implementar servicios clave: `usuarios`, `catalogo`, `busquedas`, `biblioteca`, `publicaciones` y `social`.
+    - Proveer una API Gateway (validación JWT, rate-limiting) y un BFF GraphQL para agregación.
+    - Documentar y facilitar la reproducción del entorno mediante Docker Compose y guías para la evaluación.
 
-## 🏗️ Arquitectura
+Alcance y entregables
+---------------------
+Incluye:
 
-GameListo está construido con **microservicios desacoplados** basados en:
+- Código fuente de los microservicios y frontend.
+- Scripts y ficheros de orquestación (`compose.yaml`, `compose.ec2.yaml`).
+- Documentación técnica básica, guía de ejecución y checklist para el tribunal.
 
-### ⚙️ Patrones y principios
+Arquitectura (resumen)
+----------------------
+Arquitectura basada en microservicios con comunicación REST y eventos (RabbitMQ). Componentes principales:
 
-- **Domain-Driven Design**
-- **Arquitectura Hexagonal**
-- **Event-Driven Architecture (RabbitMQ)**
-- **Polyglot Persistence**
-- **BFF con GraphQL**
-- **API Gateway (Spring Cloud Gateway)**
+- `gateway` (Spring Cloud Gateway): validación JWT, revocación mediante Redis, rate-limiting y enrouting.
+- Microservicios: `usuarios`, `catalogo`, `biblioteca`, `publicaciones`, `social`, `busquedas` (search service).
+- `graphql` (BFF): agrega datos de varios servicios para el frontend.
+- Persistencia: PostgreSQL (transaccional), MongoDB (contenido enriquecido), Neo4j (grafo social), OpenSearch (
+  búsqueda), Redis (cache & revocación de tokens).
 
-### 🧱 Microservicios
+Decisiones de diseño y justificación
+-----------------------------------
 
-| Microservicio     | Tecnología                         | Puerto | Descripción                                                           |
-|-------------------|------------------------------------|--------|-----------------------------------------------------------------------|
-| **gateway**       | Spring Cloud Gateway + Redis       | 8080   | Puerta de entrada, validación JWT, rate limiting, CORS                |
-| **usuarios**      | Spring Boot + PostgreSQL + Redis   | 8081   | Registro, login, perfil, JWT, integrado con Gateway                   |
-| **catalogo**      | Spring Boot + PostgreSQL + MongoDB | 8082   | Juegos, plataformas, sincronización con IGDB                          |
-| **biblioteca**    | Spring Boot + PostgreSQL           | 8083   | Estados de juego, listas personalizadas, reseñas                      |
-| **publicaciones** | Spring Boot + MongoDB              | 8084   | Posts, screenshots, vídeos                                            |
-| **social**        | Spring Boot + Neo4j                | 8085   | Grafo social, amistades, relaciones y recomendaciones                 |
-| **search**        | Spring Boot + OpenSearch           | 8086   | Búsqueda full-text, autocomplete, filtrado facetado                   |
-| **graphqlBFF**    | Spring GraphQL                     | 8087   | Backend for Frontend, agregación de datos de múltiples microservicios |
+- Spring Boot 4 + Java 21: compatibilidad con librerías modernas y claridad educativa.
+- Gateway valida JWT: centralizar validación para simplificar microservicios internos y evidenciar patrón de borde.
+- Políglota solo donde aporta: Postgres para transaccional, MongoDB para multimedia, Neo4j para relaciones.
+- Principio KISS: priorizar soluciones simples, legibles y explicables; evitar sobre-ingeniería innecesaria para un TFG.
 
-### División de Responsabilidades
+Cómo ejecutar (mínimo reproducible)
+----------------------------------
+Requisitos:
 
-| Componente     | Responsabilidad                                                   |
-|----------------|-------------------------------------------------------------------|
-| **Gateway**    | Validar JWT (firma, expiración, revocación)                       |
-|                | Rate limiting (100 req/min por IP)                                |
-|                | Agregar headers X-User-*                                          |
-|                | Enrutar a microservicios                                          |
-| **usuarios**   | Generar JWT + Refresh Token                                       |
-|                | CRUD de usuarios                                                  |
-|                | Confiar en headers del Gateway                                    |
-|                | Gestionar refresh tokens en BD                                    |
-| **catalogo**   | Gestionar catálogo de juegos y plataformas                        |
-|                | Sincronizar datos desde IGDB (Scheduler)                          |
-|                | Publicar eventos de dominio (GameCreated, GameUpdated)            |
-|                | Almacenar datos estructurados (PostgreSQL) y multimedia (MongoDB) |
-| **search**     | Indexar juegos en OpenSearch (escucha eventos)                    |
-|                | Búsqueda full-text, autocomplete                                  |
-|                | NO accede directamente a BD (event-driven)                        |
-| **graphqlBFF** | Agregar datos de múltiples servicios en una query                 |
-|                | Resolver queries GraphQL llamando APIs REST internas              |
-|                | Reducir round-trips del frontend                                  |
-|                | DataLoader para evitar N+1 queries                                |
+- Docker Desktop (Windows)
+- PowerShell (Windows) o terminal compatible
 
-### 🔌 Comunicación
+Levantar todo (PowerShell):
 
-- **REST** para consultas simples
-- **GraphQL BFF** para agregación de datos
-- **Eventos en RabbitMQ** para sincronización eventual
+```powershell
+# Desde la raíz del repo
+docker compose -f compose.yaml up --build -d
 
-### 🗄️ Persistencia
-
-- PostgreSQL (relacional)
-- MongoDB (documentos)
-- Neo4j (grafos)
-- OpenSearch (búsqueda)
-- Redis (caché + mensaje corto)
-
-## 🖥️ Front-End
-
-Diseño moderno creado en **Figma**, inspirado por Discord y Twitch.  
-Stack utilizado:
-
-- **React + Vite**
-- **TypeScript**
-- **TailwindCSS + ShadCN UI**
-- **React Router**
-- **GraphQL (Apollo Client)**
-
-## ☁️ Infraestructura y DevOps
-
-- **Docker + Docker Compose**
-- **RabbitMQ**
-- **Redis**
-- **PostgreSQL**
-- **MongoDB / OpenSearch / Neo4j**
-- **CI/CD con GitHub Actions**
-
-## 🐳 Inicio Rápido con Docker Compose
-
-### Requisitos Previos
-
-- Docker Desktop instalado y ejecutándose
-- Git
-- Terminal
-
-### Levantar Todo el Sistema
-
-```bash
-# 1. Clonar el repositorio
-git clone https://github.com/tu-usuario/game-listo.git
-cd gameEstado-listo
-
-# 2. (Opcional) Configurar variables de entorno
-cp .env.example .env
-# Editar .env y cambiar JWT_SECRET
-
-# 3. Levantar todos los servicios
-docker-compose up -d
-# alternativa
-docker-compose up --build
-# eliminar bbdd
-docker-compose down -v
+# Para parar y eliminar volúmenes (datos):
+docker compose -f compose.yaml down -v
 ```
 
-### Comando para poder ver tablas de Postgresql en docker desktop
+Notas para desarrollo de un servicio (ejemplo `usuarios`):
 
-```bash
-# acceder a los comandos postgres
-psql -U gamelisto_user -d postgres
-# listar bbdd
-postgres=# \l 
-# conectarse a la bbdd
-postgres=# \c usuarios_db
-# ver tablas
-postgres=# \dt
-# ver info tabla
-postgres=# \d+ public.usuarios
-# listar filas
-postgres=# SELECT * FROM public.usuaruios LIMIT 20;
+```powershell
+cd backend\usuarios
+.\mvnw.cmd clean install
+.\mvnw.cmd spring-boot:run
 ```
 
-## 👨‍💻 Autor
+Comprobaciones rápidas (smoke tests)
+-----------------------------------
 
-**Barlowe — Estudiante de ingeniería informática**
+1. Health del gateway:
+
+```powershell
+curl http://localhost:8080/actuator/health
+```
+
+2. Registro de usuario (ejemplo):
+
+```powershell
+curl -X POST http://localhost:8081/v1/usuarios/registro -H "Content-Type: application/json" -d 
+'{"username":"alumno","email":"alumno@example.com","password":"P4ssw0rd"}'
+```
+
+3. Login y obtención de tokens:
+
+```powershell
+curl -X POST http://localhost:8081/v1/usuarios/auth/login -H "Content-Type: application/json" -d 
+'{"username":"alumno","password":"P4ssw0rd"}'
+```
+
+Tests y evidencia
+-----------------
+
+- Tests unitarios de dominio: ver `*/src/test/java` en cada módulo.
+- Ejecutar tests (por módulo):
+
+```powershell
+cd backend\usuarios
+.\mvnw.cmd test
+```
+
+Estructura del repositorio (resumen)
+-----------------------------------
+
+- `backend/` — microservicios (cada uno con su `pom.xml` y `Dockerfile`).
+- `frontend/` — Next.js (interfaz cliente).
+- `compose.yaml`, `compose.ec2.yaml` — orquestación local / EC2.
+- `gateway/ARQUITECTURA.md` — documentación de arquitectura del gateway.
+
+---
