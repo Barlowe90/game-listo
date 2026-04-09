@@ -264,7 +264,11 @@ export function SearchBar({
                                                     isActive && 'bg-surface text-foreground',
                                                 )}
                                                 onMouseEnter={() => setActiveSuggestionIndex(index)}
-                                                onClick={() => handleSuggestionSelect(suggestion)}
+                                                onPointerDown={(event) => {
+                                                    event.preventDefault();
+                                                    setActiveSuggestionIndex(index);
+                                                    handleSuggestionSelect(suggestion);
+                                                }}
                                             >
                                                 <span className="font-medium text-black">{suggestion.title}</span>
                                             </button>
