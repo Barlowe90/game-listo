@@ -27,7 +27,6 @@ public class AdminInitializerConfig {
             @Value("${ADMIN_EMAIL:admin@example.com}") String adminEmail) {
 
         return args -> {
-            // adminEmail is injected from properties or env; defaults to admin@example.com
             if (usuarioJpaRepository.existsByEmail(adminEmail)) {
                 return;
             }

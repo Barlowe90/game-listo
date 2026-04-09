@@ -124,7 +124,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
                                 logger.debug(
                                         "Token JWT validado correctamente para usuario: {}",
-                                        jwtValidator.getUsername(claims));
+                                        jwtValidator.getUserId(claims));
 
                                 return chain.filter(exchange.mutate().request(mutatedRequest).build());
                             });
