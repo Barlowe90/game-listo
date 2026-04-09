@@ -25,7 +25,7 @@ services:
       graphql:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -52,7 +52,7 @@ services:
       biblioteca:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8087/actuator/health"]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8087/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -84,6 +84,7 @@ services:
       REDIS_PORT: 6379
       FRONTEND_URL: ${FRONTEND_URL}
       RESEND_API_KEY: ${RESEND_API_KEY}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     depends_on:
       postgres:
@@ -93,7 +94,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/actuator/health"]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -132,7 +133,7 @@ services:
       mongo:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8082/actuator/health"]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8082/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -167,7 +168,7 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8083/actuator/health"]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8083/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -200,7 +201,7 @@ services:
       mongo:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8084/actuator/health"]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8084/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -233,7 +234,7 @@ services:
       opensearch:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8085/actuator/health"]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8085/actuator/health" ]
       interval: 20s
       timeout: 10s
       retries: 5
@@ -267,7 +268,7 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8086/actuator/health"]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8086/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -288,7 +289,7 @@ services:
     volumes:
       - neo4j-data:/data
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:7474"]
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:7474" ]
       interval: 15s
       timeout: 10s
       retries: 10
@@ -306,7 +307,7 @@ services:
     volumes:
       - redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -330,7 +331,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - ./backend/docker/postgres:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gamelisto_user -d postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U gamelisto_user -d postgres" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -354,7 +355,7 @@ services:
       - mongo-data:/data/db
       - ./backend/docker/mongo:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -374,7 +375,7 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -397,7 +398,7 @@ services:
         soft: -1
         hard: -1
     healthcheck:
-      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -Eq '\"status\":\"(green|yellow)\"' || exit 1"]
+      test: [ "CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -Eq '\"status\":\"(green|yellow)\"' || exit 1" ]
       interval: 20s
       timeout: 5s
       retries: 10
