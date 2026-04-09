@@ -45,6 +45,7 @@ export function SearchBar({
     const pathname = usePathname();
     const router = useRouter();
     const inputRef = useRef<HTMLInputElement>(null);
+    const hasSelectedSuggestionFromPointerRef = useRef(false);
     const [query, setQuery] = useState(defaultValue);
     const deferredQuery = useDeferredValue(query.trim());
     const [suggestions, setSuggestions] = useState<GameSuggestion[]>([]);
@@ -147,6 +148,25 @@ export function SearchBar({
         setActiveSuggestionIndex(-1);
         inputRef.current?.blur();
         navigateTo(`/videojuego/${suggestion.gameId}`);
+    };
+
+    const handleSuggestionPointerDown = (suggestion: GameSuggestion) => {
+        return (event: React.PointerEvent<HTMLButtonElement>) => {
+            event.preventDefault();
+            hasSelectedSuggestionFromPointerRef.current = true;
+            handleSuggestionSelect(suggestion);
+        };
+    };
+
+    const handleSuggestionClick = (suggestion: GameSuggestion) => {
+        return () => {
+            if (hasSelectedSuggestionFromPointerRef.current) {
+                hasSelectedSuggestionFromPointerRef.current = false;
+                return;
+            }
+
+            handleSuggestionSelect(suggestion);
+        };
     };
 
     const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
@@ -264,7 +284,8 @@ export function SearchBar({
                                                     isActive && 'bg-surface text-foreground',
                                                 )}
                                                 onMouseEnter={() => setActiveSuggestionIndex(index)}
-                                                onClick={() => handleSuggestionSelect(suggestion)}
+                                                onPointerDown={handleSuggestionPointerDown(suggestion)}
+                                                onClick={handleSuggestionClick(suggestion)}
                                             >
                                                 <span className="font-medium text-black">{suggestion.title}</span>
                                             </button>
