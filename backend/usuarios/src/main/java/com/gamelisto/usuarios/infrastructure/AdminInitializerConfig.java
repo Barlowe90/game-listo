@@ -23,7 +23,7 @@ public class AdminInitializerConfig {
     CommandLineRunner initAdminUser(
             UsuarioJpaRepository usuarioJpaRepository,
             PasswordEncoder passwordEncoder,
-            @Value("${ADMIN_PASSWORD:admin}") String adminPassword,
+            @Value("${ADMIN_PASSWORD:Password123}") String adminPassword,
             @Value("${ADMIN_EMAIL:admin@example.com}") String adminEmail) {
 
         return args -> {

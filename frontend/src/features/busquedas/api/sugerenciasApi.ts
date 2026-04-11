@@ -1,4 +1,3 @@
-import { getApiBaseUrl } from '@/shared/config/api';
 import type { GameSuggestion, SuggestionsResponse } from '@/features/busquedas/model/sugerencias.types';
 
 interface GetGameSuggestionsOptions {
@@ -21,7 +20,7 @@ export async function getGameSuggestions(
     size: String(size),
   });
 
-  const response = await fetch(`${getApiBaseUrl()}/v1/busquedas/sugerencia?${searchParams}`, {
+  const response = await fetch(`/api/busquedas/sugerencia?${searchParams}`, {
     headers: {
       Accept: 'application/json',
     },
