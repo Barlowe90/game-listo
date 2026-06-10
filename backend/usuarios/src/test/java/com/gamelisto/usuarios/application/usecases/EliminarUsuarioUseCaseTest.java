@@ -40,6 +40,7 @@ class EliminarUsuarioUseCaseTest {
 
     // Activar usuario
     usuario.verificarEmail(usuario.getTokenVerificacion());
+    usuario.drainEvents();
   }
 
   @Test

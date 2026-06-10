@@ -25,8 +25,6 @@ public class EditarPerfilUsuarioUseCase implements EditarPerfilUsuarioHandle {
   @Transactional
   public UsuarioResult execute(EditarPerfilUsuarioCommand command) {
     UsuarioId usuarioId = UsuarioId.of(command.usuarioId());
-    boolean debePublicarActualizacionAvatar = command.avatar() != null;
-
     Usuario usuario =
         repositorioUsuarios
             .findById(usuarioId)
@@ -39,23 +37,13 @@ public class EditarPerfilUsuarioUseCase implements EditarPerfilUsuarioHandle {
       usuario.changeAvatar(Avatar.of(command.avatar()));
     }
 
-    Usuario usuarioEditado = repositorioUsuarios.save(usuario);
+    repositorioUsuarios.save(usuario);
+    publicarAfterCommit(() ->
+        usuario.drainEvents().forEach(e -> {
+            if (e instanceof UsuarioActualizado ua) usuarioPublisher.publicarUsuarioActualizado(ua);
+        }));
 
-    if (debePublicarActualizacionAvatar) {
-      publicarAfterCommit(() -> publicarUsuarioActualizado(usuarioEditado));
-    }
-
-    return UsuarioResult.from(usuarioEditado);
-  }
-
-  private void publicarUsuarioActualizado(Usuario usuario) {
-    UsuarioActualizado evento =
-        UsuarioActualizado.of(
-            usuario.getId().value().toString(),
-            usuario.getUsername().value(),
-            usuario.getAvatar().url(),
-            usuario.getDiscordUserId().value());
-    usuarioPublisher.publicarUsuarioActualizado(evento);
+    return UsuarioResult.from(usuario);
   }
 
   private static void publicarAfterCommit(Runnable action) {
