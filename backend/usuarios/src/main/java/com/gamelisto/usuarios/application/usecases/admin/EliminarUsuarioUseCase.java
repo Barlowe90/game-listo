@@ -26,9 +26,12 @@ public class EliminarUsuarioUseCase implements EliminarUsuarioHandle {
 
     Usuario usuario = buscarYSoftDelete(idUsuario, id);
 
-    Usuario usuarioEliminado = repositorioUsuarios.save(usuario);
+    repositorioUsuarios.save(usuario);
 
-    publicarAfterCommit(() -> enviarEventoUsuarioEliminado(usuarioEliminado));
+    publicarAfterCommit(() ->
+        usuario.drainEvents().forEach(e -> {
+            if (e instanceof UsuarioEliminado ue) eventosPublisher.publicarUsuarioEliminado(ue);
+        }));
   }
 
   private @NonNull Usuario buscarYSoftDelete(String idUsuario, UsuarioId id) {
@@ -40,11 +43,6 @@ public class EliminarUsuarioUseCase implements EliminarUsuarioHandle {
 
     usuario.delete();
     return usuario;
-  }
-
-  private void enviarEventoUsuarioEliminado(Usuario usuario) {
-    UsuarioEliminado evento = UsuarioEliminado.of(usuario.getId().value().toString());
-    eventosPublisher.publicarUsuarioEliminado(evento);
   }
 
   private static void publicarAfterCommit(Runnable action) {

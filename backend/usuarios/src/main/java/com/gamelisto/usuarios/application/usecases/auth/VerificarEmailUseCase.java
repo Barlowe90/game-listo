@@ -31,26 +31,16 @@ public class VerificarEmailUseCase implements VerificarEmailHandle {
 
     repositorioUsuarios.save(usuario);
 
-    publicarAfterCommit(() -> publicarEventoUsuarioCreado(usuario));
+    publicarAfterCommit(() ->
+        usuario.drainEvents().forEach(e -> {
+            if (e instanceof UsuarioCreado uc) eventosPublisher.publicarUsuarioCreado(uc);
+        }));
   }
 
   private @NonNull Usuario recuperarUsuario(TokenVerificacion token) {
     return repositorioUsuarios
         .findByTokenVerificacion(token)
         .orElseThrow(() -> new ApplicationException("Token inválido"));
-  }
-
-  private void publicarEventoUsuarioCreado(Usuario usuario) {
-    UsuarioCreado evento =
-        UsuarioCreado.of(
-            usuario.getId().value().toString(),
-            usuario.getUsername().value(),
-            usuario.getEmail().value(),
-            usuario.getAvatar().url(),
-            usuario.getRole() != null ? usuario.getRole().name() : null,
-            usuario.getStatus() != null ? usuario.getStatus().name() : null,
-            usuario.getDiscordUserId() != null ? usuario.getDiscordUserId().value() : null);
-    eventosPublisher.publicarUsuarioCreado(evento);
   }
 
   private static void comprobarHaVerificadoEmailUsuario(Usuario usuario, TokenVerificacion token) {

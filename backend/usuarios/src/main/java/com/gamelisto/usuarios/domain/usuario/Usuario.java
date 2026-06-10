@@ -1,7 +1,12 @@
 package com.gamelisto.usuarios.domain.usuario;
 
+import com.gamelisto.usuarios.domain.events.UsuarioActualizado;
+import com.gamelisto.usuarios.domain.events.UsuarioCreado;
+import com.gamelisto.usuarios.domain.events.UsuarioEliminado;
 import com.gamelisto.usuarios.domain.exceptions.DomainException;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 
 @Getter
@@ -22,6 +27,7 @@ public class Usuario {
   private Instant tokenVerificacionExpiracion;
   private TokenVerificacion tokenRestablecimiento;
   private Instant tokenRestablecimientoExpiracion;
+  private transient List<Object> domainEvents = new ArrayList<>();
 
   private Usuario(Builder builder) {
     validarArgumentosCreacion(builder.username, builder.email, builder.passwordHash);
@@ -42,6 +48,16 @@ public class Usuario {
             ? builder.tokenRestablecimiento
             : TokenVerificacion.empty();
     this.tokenRestablecimientoExpiracion = builder.tokenRestablecimientoExpiracion;
+  }
+
+  private void addEvent(Object event) {
+    domainEvents.add(event);
+  }
+
+  public List<Object> drainEvents() {
+    var events = List.copyOf(domainEvents);
+    domainEvents.clear();
+    return events;
   }
 
   public static Builder builder() {
@@ -193,6 +209,8 @@ public class Usuario {
       throw new DomainException("El email no puede ser nulo");
     }
     this.email = newEmail;
+    addEvent(UsuarioActualizado.of(
+        id.value().toString(), username.value(), avatar.url(), discordUserId.value()));
   }
 
   public void changePasswordHash(PasswordHash newPasswordHash) {
@@ -204,11 +222,15 @@ public class Usuario {
 
   public void changeAvatar(Avatar newAvatar) {
     this.avatar = newAvatar != null ? newAvatar : Avatar.empty();
+    addEvent(UsuarioActualizado.of(
+        id.value().toString(), username.value(), avatar.url(), discordUserId.value()));
   }
 
 
   public void suspend() {
     this.status = EstadoUsuario.SUSPENDIDO;
+    addEvent(UsuarioActualizado.of(
+        id.value().toString(), username.value(), avatar.url(), discordUserId.value()));
   }
 
   public void activate() {
@@ -216,10 +238,13 @@ public class Usuario {
       throw new DomainException("No se puede activar un usuario eliminado");
     }
     this.status = EstadoUsuario.ACTIVO;
+    addEvent(UsuarioActualizado.of(
+        id.value().toString(), username.value(), avatar.url(), discordUserId.value()));
   }
 
   public void delete() {
     this.status = EstadoUsuario.ELIMINADO;
+    addEvent(UsuarioEliminado.of(id.value().toString()));
   }
 
   public void marcarPendienteVerificacion() {
@@ -275,6 +300,14 @@ public class Usuario {
     this.status = EstadoUsuario.ACTIVO;
     this.tokenVerificacion = TokenVerificacion.empty();
     this.tokenVerificacionExpiracion = null;
+    addEvent(UsuarioCreado.of(
+        id.value().toString(),
+        username.value(),
+        email.value(),
+        avatar.url(),
+        role.name(),
+        status.name(),
+        discordUserId.value()));
   }
 
   public void linkDiscord(DiscordUserId discordUserId) {
@@ -282,10 +315,14 @@ public class Usuario {
       throw new DomainException("El ID de Discord no puede ser nulo o vacío");
     }
     this.discordUserId = discordUserId;
+    addEvent(UsuarioActualizado.of(
+        id.value().toString(), username.value(), avatar.url(), discordUserId.value()));
   }
 
   public void unlinkDiscord() {
     this.discordUserId = DiscordUserId.empty();
+    addEvent(UsuarioActualizado.of(
+        id.value().toString(), username.value(), avatar.url(), discordUserId.value()));
   }
 
   public void changeRole(Rol newRole) {
@@ -293,6 +330,8 @@ public class Usuario {
       throw new DomainException("El rol no puede ser nulo");
     }
     this.role = newRole;
+    addEvent(UsuarioActualizado.of(
+        id.value().toString(), username.value(), avatar.url(), discordUserId.value()));
   }
 
   public boolean isActive() {

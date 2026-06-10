@@ -40,6 +40,7 @@ class DesvincularDiscordUseCaseTest {
 
     // Vincular Discord por defecto
     usuario.linkDiscord(DiscordUserId.of("123456789"));
+    usuario.drainEvents();
   }
 
   @Test

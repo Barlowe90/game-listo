@@ -34,20 +34,13 @@ public class DesvincularDiscordUseCase implements DesvincularDiscordHandle {
 
     usuario.unlinkDiscord();
 
-    Usuario usuarioActualizado = repositorioUsuarios.save(usuario);
-    publicarAfterCommit(() -> publicarUsuarioActualizado(usuarioActualizado));
+    repositorioUsuarios.save(usuario);
+    publicarAfterCommit(() ->
+        usuario.drainEvents().forEach(e -> {
+            if (e instanceof UsuarioActualizado ua) usuarioPublisher.publicarUsuarioActualizado(ua);
+        }));
 
-    return UsuarioResult.from(usuarioActualizado);
-  }
-
-  private void publicarUsuarioActualizado(Usuario usuario) {
-    UsuarioActualizado evento =
-        UsuarioActualizado.of(
-            usuario.getId().value().toString(),
-            usuario.getUsername().value(),
-            usuario.getAvatar().url(),
-            usuario.getDiscordUserId().value());
-    usuarioPublisher.publicarUsuarioActualizado(evento);
+    return UsuarioResult.from(usuario);
   }
 
   private static void publicarAfterCommit(Runnable action) {

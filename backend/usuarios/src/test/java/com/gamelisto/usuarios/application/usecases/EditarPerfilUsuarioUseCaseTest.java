@@ -42,6 +42,7 @@ class EditarPerfilUsuarioUseCaseTest {
 
     Usuario usuario = crearUsuarioDefault(UsuarioId.of(usuarioId));
     usuario.linkDiscord(DiscordUserId.of("123456789"));
+    usuario.drainEvents();
 
     when(repositorioUsuarios.findById(any(UsuarioId.class))).thenReturn(Optional.of(usuario));
     when(repositorioUsuarios.save(any(Usuario.class)))

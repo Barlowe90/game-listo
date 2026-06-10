@@ -86,6 +86,7 @@ class VincularDiscordUseCaseTest {
   void debePermitirVincularSiYaEstaVinculadoAlMismoUsuario() {
     // Arrange
     usuario.linkDiscord(DiscordUserId.of("123456789"));
+    usuario.drainEvents();
 
     VincularDiscordCommand command =
         new VincularDiscordCommand(usuario.getId().value(), "123456789");
