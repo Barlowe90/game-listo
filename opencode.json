@@ -1,0 +1,52 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "frontend-dev": {
+      "description": "Desarrollador frontend full-stack con React, Next.js y Tailwind",
+      "mode": "subagent",
+      "permission": {
+        "skill": {
+          "frontend-design": "allow",
+          "next-best-practices": "allow",
+          "react-best-practices": "allow",
+          "tailwind-css-patterns": "allow",
+          "typescript-advanced-types": "allow",
+          "next-cache-components": "allow",
+          "next-upgrade": "allow",
+          "composition-patterns": "allow",
+          "accessibility": "allow"
+        }
+      }
+    },
+    "accesibilidad": {
+      "description": "Auditor de accesibilidad web WCAG 2.2",
+      "mode": "subagent",
+      "permission": {
+        "skill": {
+          "accessibility": "allow"
+        }
+      }
+    },
+    "code-reviewer": {
+      "description": "Revisor de codigo frontend: mejores practicas y patrones de composicion",
+      "mode": "subagent",
+      "permission": {
+        "skill": {
+          "react-best-practices": "allow",
+          "composition-patterns": "allow"
+        }
+      }
+    },
+    "ux-designer": {
+      "description": "Disenador de interfaces frontend con enfoque en UX y accesibilidad",
+      "mode": "subagent",
+      "permission": {
+        "skill": {
+          "frontend-design": "allow",
+          "tailwind-css-patterns": "allow",
+          "accessibility": "allow"
+        }
+      }
+    }
+  }
+}
