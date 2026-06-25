@@ -7,7 +7,7 @@ Autor: Adri R
 
 Contacto: [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/adri-r/)
 
-Resumen ejecutivo
+Resumen
 ------------------
 
 GameListo es un prototipo de plataforma social para jugadores que permite gestionar bibliotecas de juegos, crear
@@ -22,6 +22,26 @@ Puntos clave:
 - BFF GraphQL para agregación de datos y reducción de round-trips hacia el frontend.
 - Gateway (Spring Cloud Gateway) que centraliza validación JWT, revocación de tokens y rate-limiting.
 - Motor de búsqueda: OpenSearch para búsquedas de texto completo y autocompletado.
+
+## Capturas de pantalla
+
+### Arquitectura del sistema
+![Arquitectura microservicios](recursos/dibujo_microservicios_fondo_blanco.png)
+
+### Página principal
+![Home](recursos/home.png)
+
+### Perfil de usuario
+![Perfil de usuario](recursos/perfil%20user.png)
+
+### Muro de publicaciones
+![Publicaciones](recursos/publicacion.png)
+
+### Integración con Steam
+![Listas con Steam](recursos/listas%20con%20steam.png)
+
+### Diseño responsive
+![Vista responsive](recursos/videojuego%20responsive.png)
 
 Objetivos del proyecto
 ----------------------
