@@ -25,11 +25,23 @@ Puntos clave:
 
 ## Capturas de pantalla
 
-| | |
-|---|---|
-| ![Arquitectura microservicios](recursos/dibujo_microservicios_fondo_blanco.png) | ![Home](recursos/home.png) |
-| ![Perfil de usuario](recursos/perfil%20user.png) | ![Publicaciones](recursos/publicacion.png) |
-| ![Listas con Steam](recursos/listas%20con%20steam.png) | ![Vista responsive](recursos/videojuego%20responsive.png) |
+### Arquitectura del sistema
+![Arquitectura microservicios](recursos/dibujo_microservicios_fondo_blanco.png)
+
+### Página principal
+![Home](recursos/home.png)
+
+### Perfil de usuario
+![Perfil de usuario](recursos/perfil%20user.png)
+
+### Muro de publicaciones
+![Publicaciones](recursos/publicacion.png)
+
+### Integración con Steam
+![Listas con Steam](recursos/listas%20con%20steam.png)
+
+### Diseño responsive
+![Vista responsive](recursos/videojuego%20responsive.png)
 
 Objetivos del proyecto
 ----------------------
